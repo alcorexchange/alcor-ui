@@ -68,20 +68,8 @@ export const getters = {
   invertPrice: (state, getters) =>
     Boolean(getters.tokenA && getters.sortedA && !getters.tokenA.equals(getters.sortedA)),
 
-  tokensMap(state, getters, rootState) {
-    const tokens = new Map()
-
-    rootState.amm.pools.forEach((p) => {
-      const tokenA = parseToken(p.tokenA)
-      const tokenB = parseToken(p.tokenB)
-
-      if (!rootState.network.SCAM_CONTRACTS.includes(tokenA.contract) && !tokens.has(tokenA.id)) {
-        tokens.set(tokenA.id, tokenA)
-      }
-      if (!rootState.network.SCAM_CONTRACTS.includes(tokenB.contract) && !tokens.has(tokenB.id)) {
-        tokens.set(tokenB.id, tokenB)
-      }
-    })
+  tokensMap(state, getters, rootState, rootGetters) {
+    const tokens = new Map(rootGetters['amm/tokensMap'])
 
     if (rootState.user?.balances) {
       rootState.user.balances.forEach((b) => {
@@ -100,6 +88,7 @@ export const getters = {
   },
 
   pool(state, getters, rootState) {
+    console.time('pool getter in all liquidity')
     if (!state.tokenA || !state.tokenB) return null
 
     const pool = rootState.amm.pools.find((p) => {
@@ -112,7 +101,10 @@ export const getters = {
       )
     })
 
-    return pool ? constructPoolInstance(pool) : undefined
+    const r = pool ? constructPoolInstance(pool) : undefined
+
+    console.timeEnd('pool getter in all liquidity')
+    return r
   },
 
   currnetPools(state, getters, rootState) {

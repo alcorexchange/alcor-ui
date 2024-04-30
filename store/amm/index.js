@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import axios from 'axios'
 
-import { Percent, Position } from '@alcorexchange/alcor-swap-sdk'
+import { Percent, Token } from '@alcorexchange/alcor-swap-sdk'
 
+import { parseExtendedAssetPlain } from '~/utils'
 import { fetchAllRows } from '~/utils/eosjs'
 import { constructPosition, constructPoolInstance } from '~/utils/amm'
 
@@ -19,6 +20,7 @@ export const state = () => ({
   // Api
   poolsStats: [],
   history: [],
+  allTokens: [],
 
   // TODO move to module
   selectedTokenA: null,
@@ -33,6 +35,7 @@ export const state = () => ({
 export const mutations = {
   setPools: (state, pools) => state.pools = pools,
 
+  setAllTokens: (state, tokens) => state.allTokens = tokens,
   setPositions: (state, positions) => state.positions = positions,
   setPlainPositions: (state, positions) => state.plainPositions = positions,
   setSlippage: (state, slippage) => state.slippage = slippage,
@@ -70,7 +73,7 @@ export const actions = {
     dispatch('fetchPools')
     dispatch('fetchPoolsStats')
 
-    this.$socket.on('account:update-positions', positions => {
+    this.$socket.on('account:update-positions', (positions) => {
       console.log('account:update-positions!!!')
       // TODO Handle positions id's
       dispatch('fetchPositions')
@@ -84,8 +87,8 @@ export const actions = {
     //   })
     // })
 
-    this.$socket.on('swap:pool:update', data => {
-      data.forEach(pool => {
+    this.$socket.on('swap:pool:update', (data) => {
+      data.forEach((pool) => {
         commit('updatePool', pool)
       })
     })
@@ -134,17 +137,17 @@ export const actions = {
       this.$axios.get('/v2/account/' + owner + '/positions-history', {
         params: {
           skip,
-          limit: ITEMS_PER_PAGE
-        }
+          limit: ITEMS_PER_PAGE,
+        },
       }),
       this.$axios.get('/v2/account/' + owner + '/swap-history', {
         params: {
           skip,
-          limit: ITEMS_PER_PAGE
-        }
+          limit: ITEMS_PER_PAGE,
+        },
       }),
     ])
-    const merged = [...position.data, ...swap.data.map(item => ({ ...item, type: 'swap' }))]
+    const merged = [...position.data, ...swap.data.map((item) => ({ ...item, type: 'swap' }))]
     commit('setHistory', page == 1 ? merged : [...merged, ...state.history])
 
     // To check on LoadMore
@@ -217,17 +220,55 @@ export const actions = {
 
     const { network } = rootState
 
-    const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
+    const rows = await fetchAllRows(this.$rpc, {
+      code: network.amm.contract,
+      scope: network.amm.contract,
+      table: 'pools',
+    })
 
-    commit('setPools', rows.filter(p => !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
-      !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)))
+    commit(
+      'setPools',
+      rows.filter(
+        (p) =>
+          !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
+          !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)
+      )
+    )
 
     dispatch('setMarketsRelatedPool', {}, { root: true })
+    dispatch('setAllTokens')
+  },
+
+  setAllTokens({ state, commit, rootState }) {
+    const tokens = []
+    const tokenIds = new Set()
+
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    rootState.amm.pools.forEach((p) => {
+      const tokenA = parseExtendedAssetPlain(p.tokenA)
+      const tokenB = parseExtendedAssetPlain(p.tokenB)
+
+      if (!scamContractsSet.has(tokenA.contract) && !tokenIds.has(tokenA.id)) {
+        tokenIds.add(tokenA.id)
+        tokens.push(tokenA)
+      }
+
+      if (!scamContractsSet.has(tokenB.contract) && !tokenIds.has(tokenB.id)) {
+        tokenIds.add(tokenB.id)
+        tokens.push(tokenB)
+      }
+    })
+
+    commit('setAllTokens', tokens)
   },
 }
 
 export const getters = {
   slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
+
+  tokensMap(state) {
+    return new Map(state.allTokens.map(t => [t.id, new Token(t.contract, t.decimals, t.symbol)]))
+  },
 
   poolStatsMap(state) {
     return new Map(state.poolsStats.map((p) => [p.id, p]))

@@ -105,6 +105,7 @@ export default {
     },
 
     filteredAssets() {
+      console.time('filteredAssets select token')
       // Сначала проверяем наличие токенов, чтобы избежать лишних операций
       if (!this.tokens) return []
 
@@ -119,14 +120,17 @@ export default {
       // Сортируем токены по балансу в убывающем порядке
       tokens.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance))
 
+      console.timeEnd('filteredAssets select token')
       // Если строка поиска пуста, возвращаем отсортированные токены
       if (!this.search.trim()) return tokens
 
       // Нормализуем строку поиска и фильтруем токены
       const searchLower = this.search.toLowerCase()
-      return tokens.filter(asset =>
+      const r = tokens.filter(asset =>
         Object.values(asset).some(val => String(val).toLowerCase().includes(searchLower))
       )
+
+      return r
     },
 
     ...mapState(['network'])

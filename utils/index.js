@@ -111,18 +111,6 @@ export function quantityToAmount(asset) {
   return parseInt(new Big(amount).times(scale))
 }
 
-// FIXED decimal
-//export function amountToFloat(amount, precision) {
-//  const str_amount = amount.toString()
-//
-//  if (precision == 0) return str_amount
-//
-//  const int_part = str_amount.substring(0, str_amount.length - precision)
-//  const decimal_part = str_amount.substring(int_part.length)
-//
-//  return `${int_part}.${decimal_part}`
-//}
-
 export function amountToFloat(amount, precision) {
   const str_amount = amount.toString()
 
@@ -291,13 +279,14 @@ export function shuffleArray(array) {
 }
 
 export function parseExtendedAssetPlain(asset) {
-  const symbol = asset.quantity.split(' ')[1]
+  const [amount, symbol] = asset.quantity.split(' ')
 
   return {
-    amount: parseFloat(asset.quantity),
+    amount: parseFloat(amount),
+    decimals: getPrecision(amount),
     id: symbol.toLowerCase() + '-' + asset.contract,
     contract: asset.contract,
-    symbol,
+    symbol
   }
 }
 
