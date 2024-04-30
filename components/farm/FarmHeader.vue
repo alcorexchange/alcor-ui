@@ -39,6 +39,9 @@
               :active="$store.state.farms.view === 'ADVANCED' ? 'two' : 'one'"
               @toggle="$store.commit('farms/toggleView')"
             )
+
+          .mt-2
+            el-checkbox(v-model="hideZeroAPR") Hide zero APR farms
       AlcorButton(@click="$router.push('/farm/create')") Create farm
       el-badge.header-action-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
         el-tooltip(content="Unstake your finished farms to free account RAM")
@@ -96,18 +99,15 @@ export default {
   },
 
   computed: {
-    // TODO Do we need it ?
-    // unstakedFinished() {
-    //   let count = 0
-    //   this.$store.getters['farms/farmPools']
-    //     .forEach(p => p.incentives.filter(i => i.isFinished && i.stakeStatus != 'notStaked' && i.incentiveStats.length > 0)
-    //       .forEach(i => {
-    //         if (i.stakeStatus != 'notStaked') {
-    //           count += 1
-    //         }
-    //       }))
-    //   return count
-    // },
+    hideZeroAPR: {
+      set(val) {
+        this.$store.commit('farms/setHideZeroAPR', val)
+      },
+
+      get() {
+        return this.$store.state.farms.hideZeroAPR
+      }
+    },
 
     // The finished stakes that should be unstaked
     stakedStakes() {
