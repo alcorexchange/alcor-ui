@@ -22,7 +22,7 @@ export default ({ store }) => {
 
       'amm.swap.showChart', 'amm.maxHops', 'amm.slippage', 'amm.recalculateOnPriceChange',
 
-      'farms.stakedOnly', 'farms.view'
+      'farms.stakedOnly', 'farms.view', 'farm.hideZeroAPR'
     ]
   })(store)
 }

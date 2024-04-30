@@ -267,11 +267,15 @@ export const getters = {
     const poolsPlainWithStatsAndUserData = rootGetters['amm/poolsPlainWithStatsAndUserData']
 
     return poolsPlainWithStatsAndUserData.map((pool) => {
-      const poolIncentives = incentives
+      let poolIncentives = incentives
         .filter((incentive) => incentive.poolId === pool.id)
         .map((incentive) => {
           return { ...incentive, apr: getAPR(incentive, pool.poolStats, rootState.tokens) }
         })
+
+      if (state.hideZeroAPR) {
+        poolIncentives = poolIncentives.filter(i => i.apr != 0)
+      }
 
       return {
         ...pool,
