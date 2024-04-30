@@ -141,7 +141,6 @@ import { mapActions, mapState, mapGetters } from 'vuex'
 import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
 
-import SelectToken from '~/components/modals/amm/SelectToken'
 import SelectToken2 from '~/components/modals/amm/SelectToken2'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import LiquidityChartRangeInput from '~/components/amm/range'
@@ -165,7 +164,6 @@ import {
 
 export default {
   components: {
-    SelectToken,
     SelectToken2,
     PoolTokenInput,
     AlcorButton,

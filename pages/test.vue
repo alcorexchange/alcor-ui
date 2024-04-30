@@ -27,14 +27,12 @@
       onLeftRangeInput="onLeftRangeInput"
       onRightRangeInput="onRightRangeInput"
       interactive="!hasExistingPosition")
-
-
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
 
-import SelectToken from '~/components/modals/amm/SelectToken'
+import SelectToken from '~/components/modals/amm/SelectToken2'
 import AlcorContainer from '~/components/AlcorContainer'
 import TokenImage from '~/components/elements/TokenImage'
 

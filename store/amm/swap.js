@@ -72,29 +72,12 @@ export const actions = {
 }
 
 export const getters = {
-  tokensMap: (state, getters, rootState) => {
-    const map = new Map()
-    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
-    rootState.amm.pools.forEach((p) => {
-      const tokenA = parseToken(p.tokenA)
-      const tokenB = parseToken(p.tokenB)
-
-      if (!scamContractsSet.has(tokenA.contract) && !map.has(tokenA.id)) {
-        map.set(tokenA.id, tokenA)
-      }
-      if (!scamContractsSet.has(tokenB.contract) && !map.has(tokenB.id)) {
-        map.set(tokenB.id, tokenB)
-      }
-    })
-    return map
+  tokenA: (state, getters, rootState, rootGetters) => {
+    return rootGetters['amm/tokensMap'].get(state.tokenA?.id)
   },
 
-  tokenA: (state, getters) => {
-    return getters.tokensMap.get(state.tokenA?.id)
-  },
-
-  tokenB: (state, getters) => {
-    return getters.tokensMap.get(state.tokenB?.id)
+  tokenB: (state, getters, rootState, rootGetters) => {
+    return rootGetters['amm/tokensMap'].get(state.tokenB?.id)
   },
 
   isSorted: (state, getters) => {
@@ -111,12 +94,13 @@ export const getters = {
     return getters.isSorted ? getters.tokenB : getters.tokenA
   },
 
-  tokens: (state, getters) => {
-    // Прямое использование значения Map, преобразованное в массив
-    const tokens = Array.from(getters.tokensMap.values())
+  tokens: (state, getters, rootState, rootGetters) => {
+    const tokens = Array.from(rootGetters['amm/tokensMap'].values())
+
     if (state.only.length > 0) {
       return tokens.filter((t) => state.only.includes(t.id))
     }
+
     return tokens
   },
 
