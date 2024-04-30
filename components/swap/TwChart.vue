@@ -1,5 +1,6 @@
 <template lang="pug">
 .h-100(v-if="pool")
+  | this.tickerSymbol {{ this.tickerSymbol }}
   slot
 </template>
 
@@ -58,7 +59,12 @@ export default {
     ...mapState(['user', 'network']),
 
     tickerSymbol() {
-      return this.pool?.tokenA?.symbol + '_' + this.pool?.tokenB?.symbol
+      const symbolA = this.pool?.tokenA?.symbol
+      const symbolB = this.pool?.tokenB?.symbol
+
+      return this.isSorted
+        ? symbolA + '_' + symbolB
+        : symbolB + '_' + symbolA
     },
   },
 
