@@ -3,6 +3,7 @@ import axios from 'axios'
 import debounce from 'lodash/debounce'
 import findIndex from 'lodash/findIndex'
 
+import { parseToken } from '~/utils/amm'
 import { parseAsset, make256key, nameToUint64 } from '~/utils'
 
 export const strict = false
@@ -264,6 +265,41 @@ export const actions = {
       m.i256 = make256key(base_token.contract, base_token.symbol.name, quote_token.contract, quote_token.symbol.name)
     })
     commit('setMarkets', data)
+  },
+
+  setMarketsRelatedPool({ state, commit, getters }) {
+    console.time('setMarketsRelatedPool')
+
+    const pools = getters['amm/poolsPlainWithStatsAndUserData']
+    const poolMap = new Map()
+
+    // Создаем Map для быстрого поиска пулов по паре токенов
+    pools.forEach((pool) => {
+      const tokenAId = parseToken(pool.tokenA).id
+      const tokenBId = parseToken(pool.tokenB).id
+      const key1 = `${tokenAId}-${tokenBId}`
+      const key2 = `${tokenBId}-${tokenAId}`
+
+      // Сохраняем пул для обоих направлений пары токенов
+      if (!poolMap.has(key1) || poolMap.get(key1)?.poolStats?.tvlUSD < pool.poolStats?.tvlUSD) {
+        poolMap.set(key1, pool)
+      }
+      if (!poolMap.has(key2) || poolMap.get(key2)?.poolStats?.tvlUSD < pool.poolStats?.tvlUSD) {
+        poolMap.set(key2, pool)
+      }
+    })
+
+    const markets = state.markets.map((market) => {
+      const { base_token, quote_token } = market
+      const key = `${base_token.id}-${quote_token.id}`
+
+      const relatedPool = poolMap.get(key)
+
+      return { relatedPool, ...market }
+    })
+
+    commit('setMarkets', markets)
+    console.timeEnd('setMarketsRelatedPool')
   },
 
   loadUserLiqudityPositions({ state, commit }) {
