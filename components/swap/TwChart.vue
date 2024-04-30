@@ -1,6 +1,6 @@
 <template lang="pug">
 .h-100(v-if="pool")
-  | this.tickerSymbol {{ this.tickerSymbol }}
+  //| this.tickerSymbol {{ this.tickerSymbol }}
   slot
 </template>
 
