@@ -149,12 +149,12 @@ export default {
               to: '/bridge',
               icon: 'menu-ibc',
             },
-            // {
-            //   title: 'Simple Bridge',
-            //   description: 'Use SimpleSwap to buy & swap crypto',
-            //   to: '/buy-crypto',
-            //   icon: 'menu-bridge',
-            // },
+            {
+              title: 'Simple Bridge',
+              description: 'Use SimpleSwap to buy & swap crypto',
+              to: '/buy-crypto',
+              icon: 'menu-bridge',
+            },
           ],
         ],
       }
