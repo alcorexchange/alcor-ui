@@ -105,7 +105,7 @@ export default {
     },
 
     filteredAssets() {
-      console.time('filteredAssets select token')
+      //console.time('filteredAssets select token')
       // Сначала проверяем наличие токенов, чтобы избежать лишних операций
       if (!this.tokens) return []
 
@@ -120,7 +120,7 @@ export default {
       // Сортируем токены по балансу в убывающем порядке
       tokens.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance))
 
-      console.timeEnd('filteredAssets select token')
+      //console.timeEnd('filteredAssets select token')
       // Если строка поиска пуста, возвращаем отсортированные токены
       if (!this.search.trim()) return tokens
 
