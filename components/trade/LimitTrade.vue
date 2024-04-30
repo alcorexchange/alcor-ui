@@ -12,6 +12,7 @@
       el-form-item
         el-input(
           type='number',
+          inputmode="decimal"
           min='0.00000001',
           step='0.00000001',
           v-model='priceBid',
@@ -27,6 +28,7 @@
       el-form-item
         el-input(
           type='number',
+          inputmode="decimal"
           v-model='amountBuy',
           @change='setPrecisionAmountBuy()',
           size='medium',
