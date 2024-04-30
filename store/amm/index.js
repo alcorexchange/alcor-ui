@@ -221,16 +221,24 @@ export const actions = {
 
     commit('setPools', rows.filter(p => !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
       !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)))
+
+    dispatch('setMarketsRelatedPool', {}, { root: true })
   },
 }
 
 export const getters = {
   slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
 
+  poolStatsMap(state) {
+    return new Map(state.poolsStats.map((p) => [p.id, p]))
+  },
+
   positions(state) {
+    const poolMap = new Map(state.pools.map((pool) => [pool.id, pool]))
+
     return state.positions
       .map((position) => {
-        const pool = state.pools.find((p) => p.id === position.pool)
+        const pool = poolMap.get(position.pool)
         return pool ? constructPosition(constructPoolInstance(pool), position) : null
       })
       .filter((position) => position !== null)
@@ -238,7 +246,7 @@ export const getters = {
 
   poolsPlainWithStatsAndUserData(state, getters, rootState) {
     const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
-    const poolStatsMap = new Map(state.poolsStats.map((p) => [p.id, p]))
+    const poolStatsMap = getters.poolStatsMap
 
     return state.pools
       .filter((pool) => !scamContractsSet.has(pool.tokenA.contract) && !scamContractsSet.has(pool.tokenB.contract))
@@ -247,5 +255,26 @@ export const getters = {
         poolStats: poolStatsMap.get(pool.id),
         positions: state.positions.filter((p) => p.pool === pool.id),
       }))
+  },
+
+  poolsMapWithStatsAndUserData(state, getters, rootState) {
+    console.time('poolsMapWithStatsAndUserData call')
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    const poolStatsMap = getters.poolStatsMap
+
+    const poolsMap = new Map()
+
+    state.pools
+      .filter((pool) => !scamContractsSet.has(pool.tokenA.contract) && !scamContractsSet.has(pool.tokenB.contract))
+      .forEach((pool) => {
+        poolsMap.set(pool.id, {
+          ...pool,
+          poolStats: poolStatsMap.get(pool.id),
+          positions: state.positions.filter((p) => p.pool === pool.id),
+        })
+      })
+
+    console.timeEnd('poolsMapWithStatsAndUserData call')
+    return poolsMap
   },
 }
