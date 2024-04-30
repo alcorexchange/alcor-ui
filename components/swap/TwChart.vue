@@ -213,20 +213,8 @@ export default {
             console.log('searchSymbols callback....')
           },
 
-          //resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback, extension) {
-          //  console.log('resolveSymbol called...')
-          //},
-
           resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback, extension) => {
-            //const curr_price = (this.isSorted ? this.pool.tokenAPrice : this.pool.tokenBPrice).toSignificant()
-            //const precision = (curr_price.split('.')[1] ?? '').length * 10
-            //const precision = Math.pow(10, curr_price.split('.')[1]?.length ?? 1)
-            //console.log(curr_price.split('.')[1]?.length ?? 1, { curr_price })
-
-            // console.log('curr_price', curr_price.toSignificant())
-
-            // console.log('resolveSymbol', this.pool)
-
+            console.log('resolveSymbol', this.tickerSymbol)
             const symbolInfo = {
               name: this.tickerSymbol,
               //description: 'ololol', TODO
@@ -248,19 +236,14 @@ export default {
 
           getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
             this.resolution = resolution
-
-            this.widget.activeChart().setSymbol(this.tickerSymbol)
-
             this.$axios.get(`/v2/swap/pools/${this.pool?.id}/candles`,
               { params: { resolution, from: from * 1000, to: to * 1000, reverse: !this.isSorted } })
               .then(({ data: charts }) => {
                 onHistoryCallback(charts, { noData: charts.length == 0 })
 
                 if (firstDataRequest) {
-                  //this.widget.activeChart().removeAllShapes()
-                  this.widget.activeChart().resetData()
-
-                  //setTimeout(() => this.drawOrders(), 1000)
+                  this.widget.activeChart().setSymbol(this.tickerSymbol)
+                  //this.widget.activeChart().resetData()
                 }
               }).catch(e => onErrorCallback('Charts loading error..', e))
           },
