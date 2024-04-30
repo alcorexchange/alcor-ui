@@ -279,6 +279,7 @@ export const actions = {
       }
     })
 
+    dispatch('setRelatedPool')
     dispatch('streamRelatedPoolUpdate')
   },
 
@@ -298,6 +299,8 @@ export const actions = {
 
   startStream({ rootState, dispatch, commit }, market) {
     if (market === undefined) return
+
+    dispatch('setRelatedPool')
 
     this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
@@ -320,13 +323,13 @@ export const actions = {
         }
       })
     })
+  },
 
-    // wait for pools to be fetched and set relatedPool
+  setRelatedPool({ state, rootState, commit }) {
+    // wait for pools to be fetched(in case it's first load) and set relatedPool
     setTimeout(function f() {
-      console.log('try set relatedPool initial')
-      if (rootState.amm.pools.length > 0) {
-        console.log('relatedPool initial done')
-        rootState.markets_obj[state.id].relatedPool
+      if (rootState.amm.pools.length > 0 && rootState.markets_obj[state.id]) {
+        commit('setRelatedPool', rootState.markets_obj[state.id]?.relatedPool)
       } else {
         setTimeout(f, 1000)
       }
