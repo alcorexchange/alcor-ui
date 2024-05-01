@@ -311,7 +311,6 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
 //   res.json(charts)
 // })
 
-// TODO FIXME недовыдает свечи
 // время в UTC стартовое надо
 spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
   const { ticker_id } = req.params

@@ -10,6 +10,7 @@ import { SwapBar, Swap, SwapPool, SwapChartPoint } from '../../models'
 import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
 import { sqrtRatioToPrice, getLiquidityRangeChart } from '../../../utils/amm.js'
 import { getPositionStats } from './account'
+import { resolutions } from '../updaterService/charts'
 
 
 export const swap = Router()
@@ -214,8 +215,9 @@ swap.get('/pools/:id/candles', async (req, res) => {
     const { id } = req.params
     const { from, to, resolution, limit, reverse, volumeField = 'volumeUSD' }: any = req.query
 
-    // Validations for parameters
     if (!resolution) return res.status(400).send('Resolution is required.')
+    const frame = resolutions[resolution] * 1000
+
     if (limit && isNaN(parseInt(limit))) return res.status(400).send('Invalid limit.')
 
     const pool = await SwapPool.findOne({ id, chain: network.name })
@@ -247,30 +249,64 @@ swap.get('/pools/:id/candles', async (req, res) => {
 
     if (limit) q.push({ $limit: parseInt(limit) })
 
-    const _candles = await SwapBar.aggregate(q)
+    let lastKnownPrice = null
+    const candles = await SwapBar.aggregate(q)
 
-    const result = _candles.map(candle => {
-      candle.volume = candle[volumeField]
+    if (candles.length === 0 && from) {
+      const lastPriceQuery = await SwapBar.findOne({
+        chain: network.name,
+        pool: parseInt(pool.id),
+        timeframe: resolution.toString(),
+        time: { $lt: new Date(parseInt(from)) },
+      }).sort({ time: -1 })
 
-      delete candle._id
-      delete candle[volumeField]
+      lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
+      if (!lastPriceQuery) return res.json([])
+    } else {
+      lastKnownPrice = candles[0].close
+    }
 
-      const prices = [candle.close, candle.high, candle.low, candle.open].map(c => {
-        let price = sqrtRatioToPrice(c, pool.tokenA, pool.tokenB)
-        if (reverse === 'true') price = price.invert()
-        return price.toSignificant()
-      })
+    const filledCandles = []
+    let expectedTime = parseInt(from)
 
-      const [close, high, low, open] = prices
-      return { ...candle, close, high, low, open }
+    candles.forEach((candle, index) => {
+      candle.open = lastKnownPrice
+
+      while (candle.time > expectedTime) {
+        filledCandles.push({
+          time: expectedTime,
+          open: lastKnownPrice,
+          high: lastKnownPrice,
+          low: lastKnownPrice,
+          close: lastKnownPrice,
+          [volumeField]: 0,
+        })
+        expectedTime += frame
+      }
+
+      filledCandles.push(candle)
+      lastKnownPrice = candle.close
+      expectedTime += frame
     })
 
-    res.json(result)
+    // Handle trailing empty candles if necessary
+    while (expectedTime <= parseInt(to)) {
+      filledCandles.push({
+        time: expectedTime,
+        open: lastKnownPrice,
+        high: lastKnownPrice,
+        low: lastKnownPrice,
+        close: lastKnownPrice,
+        [volumeField]: 0,
+      })
+      expectedTime += frame
+    }
+
+    res.json(filledCandles)
   } catch (error) {
     res.status(500).send('An unexpected error occurred.')
   }
 })
-
 
 swap.get('/pools/:id/swaps', async (req, res) => {
   const network: Network = req.app.get('network')
