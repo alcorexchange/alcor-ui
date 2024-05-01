@@ -5,6 +5,8 @@
       template(#title)
         div.p-3 {{ item.title }}
       p.p-3(v-for="description in item.descriptions") {{ description }}
+      //- learn more link, only show on last item
+      el-link.learn-more-link.hover-opacity.pl-3(v-if="item.name === '4'" href="https://docs.alcor.exchange/lsw-liquid-staked-wax" target="_blank") Learn more
 </template>
 
 <script>
@@ -66,6 +68,12 @@ export default {
     }
     .el-collapse-item__content {
       border-left: 1px solid var(--main-action-green);
+    }
+  }
+  .learn-more-link {
+    color: var(--main-action-green);
+    &:hover {
+      color: var(--main-action-green);
     }
   }
 }
