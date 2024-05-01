@@ -9,9 +9,25 @@ import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import { SwapBar, Swap, SwapPool, SwapChartPoint } from '../../models'
 import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
 import { sqrtRatioToPrice, getLiquidityRangeChart } from '../../../utils/amm.js'
-import { getPositionStats } from './account'
 import { resolutions } from '../updaterService/charts'
+import { getPositionStats } from './account'
 
+function getSwapBarPriceAsString(price, tokenA, tokenB, reverse) {
+  price = sqrtRatioToPrice(price, tokenA, tokenB)
+  if (reverse) price = price.invert()
+  return price.toSignificant()
+}
+
+function formatCandle(candle, volumeField, tokenA, tokenB, reverse) {
+  candle.volume = candle[volumeField]
+  candle.open = getSwapBarPriceAsString(candle.open, tokenA, tokenB, reverse)
+  candle.high = getSwapBarPriceAsString(candle.high, tokenA, tokenB, reverse)
+  candle.low = getSwapBarPriceAsString(candle.low, tokenA, tokenB, reverse)
+  candle.close = getSwapBarPriceAsString(candle.close, tokenA, tokenB, reverse)
+
+  delete candle._id
+  delete candle[volumeField]
+}
 
 export const swap = Router()
 
@@ -213,7 +229,9 @@ swap.get('/pools/:id/candles', async (req, res) => {
   try {
     const network: Network = req.app.get('network')
     const { id } = req.params
-    const { from, to, resolution, limit, reverse, volumeField = 'volumeUSD' }: any = req.query
+    const { from, to, resolution, limit, volumeField = 'volumeUSD' }: any = req.query
+
+    const reverse = req.query.reverse === 'true'
 
     if (!resolution) return res.status(400).send('Resolution is required.')
     const frame = resolutions[resolution] * 1000
@@ -266,10 +284,13 @@ swap.get('/pools/:id/candles', async (req, res) => {
       lastKnownPrice = candles[0].close
     }
 
+    lastKnownPrice = getSwapBarPriceAsString(lastKnownPrice, pool.tokenA, pool.tokenB, reverse)
+
     const filledCandles = []
     let expectedTime = parseInt(from)
 
     candles.forEach((candle, index) => {
+      formatCandle(candle, volumeField, pool.tokenA, pool.tokenB, reverse)
       candle.open = lastKnownPrice
 
       while (candle.time > expectedTime) {
@@ -279,7 +300,7 @@ swap.get('/pools/:id/candles', async (req, res) => {
           high: lastKnownPrice,
           low: lastKnownPrice,
           close: lastKnownPrice,
-          [volumeField]: 0,
+          volume: 0,
         })
         expectedTime += frame
       }
@@ -297,7 +318,7 @@ swap.get('/pools/:id/candles', async (req, res) => {
         high: lastKnownPrice,
         low: lastKnownPrice,
         close: lastKnownPrice,
-        [volumeField]: 0,
+        volume: 0,
       })
       expectedTime += frame
     }
