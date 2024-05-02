@@ -40,7 +40,7 @@
       template(v-if="feeOptions.length > 0")
         FeeTierSelection(:options="feeOptions" class="" v-model="selectedFeeTier").mt-2
 
-        RewardList(@newReward="onNewReward")
+        RewardList(@newReward="onNewReward" :canAdd="rewardList.length <= MAX_REWARD_COUNT")
           FarmTokenInput(
             v-for="reward, index in rewardList"
             label="Amount"
@@ -102,32 +102,37 @@ export default {
     selectedFeeTier: null,
     selectedDistribution: 86400,
     rewardTokensWhitelist: [],
+
+    MAX_REWARD_COUNT: 10,
   }),
 
   computed: {
     ...mapState(['network', 'user']),
 
     feeOptions() {
-      const pools = this.$store.state.amm.pools.filter(p => {
+      const pools = this.$store.state.amm.pools.filter((p) => {
         return (
           (parseToken(p.tokenA).id == this.tokenA?.id && parseToken(p.tokenB).id == this.tokenB?.id) ||
           (parseToken(p.tokenA).id == this.tokenB?.id && parseToken(p.tokenB).id == this.tokenA?.id)
         )
       })
 
-      return pools.map(p => {
-        return { value: p.fee / 10000 }
-      }).sort((a, b) => a.value - b.value)
+      return pools
+        .map((p) => {
+          return { value: p.fee / 10000 }
+        })
+        .sort((a, b) => a.value - b.value)
     },
 
     poolId() {
       if (!this.selectedFeeTier) return null
 
-      const pool = this.$store.state.amm.pools.find(p => {
+      const pool = this.$store.state.amm.pools.find((p) => {
         return (
-          (parseToken(p.tokenA).id == this.tokenA?.id && parseToken(p.tokenB).id == this.tokenB?.id) ||
-          (parseToken(p.tokenA).id == this.tokenB?.id && parseToken(p.tokenB).id == this.tokenA?.id)
-        ) && p.fee == this.selectedFeeTier * 10000
+          ((parseToken(p.tokenA).id == this.tokenA?.id && parseToken(p.tokenB).id == this.tokenB?.id) ||
+            (parseToken(p.tokenA).id == this.tokenB?.id && parseToken(p.tokenB).id == this.tokenA?.id)) &&
+          p.fee == this.selectedFeeTier * 10000
+        )
       })
 
       return pool.id
@@ -142,24 +147,26 @@ export default {
 
       return {
         ...feeToken,
-        quantity: this.network.farmCreationFee.amount.toFixed(feeToken.decimals) + ' ' + feeToken.symbol
+        quantity: this.network.farmCreationFee.amount.toFixed(feeToken.decimals) + ' ' + feeToken.symbol,
       }
     },
 
     tokens() {
       const tokens = []
 
-      this.$store.state.amm.pools.forEach(p => {
+      this.$store.state.amm.pools.forEach((p) => {
         const tokenA = parseToken(p.tokenA)
         const tokenB = parseToken(p.tokenB)
 
         if (
           this.network.SCAM_CONTRACTS.includes(tokenA.contract) ||
           this.network.SCAM_CONTRACTS.includes(tokenB.contract)
-        ) { return }
+        ) {
+          return
+        }
 
-        if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
-        if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
+        if (tokens.filter((t) => t.id == tokenA.id).length == 0) tokens.push(tokenA)
+        if (tokens.filter((t) => t.id == tokenB.id).length == 0) tokens.push(tokenB)
       })
 
       return tokens
@@ -196,9 +203,7 @@ export default {
       return [1, 7, 30, 60, 90, 180, 240, 360].map((number) => ({
         value: number * 86400,
         display: `${number} Days`,
-        daily: token
-          ? `${(amount / number).toFixed(2)} ${token.currency}`
-          : '-',
+        daily: token ? `${(amount / number).toFixed(2)} ${token.currency}` : '-',
       }))
     },
   },
@@ -275,10 +280,7 @@ export default {
 
       try {
         await this.submit()
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
 
         this.$notify({
           type: 'info',
@@ -315,10 +317,7 @@ export default {
         lastIncentiveId += 1
         console.log('r.token', r.token)
         const reward = {
-          quantity:
-            parseFloat(r.amount).toFixed(r.token.decimals) +
-            ' ' +
-            r.token.currency,
+          quantity: parseFloat(r.amount).toFixed(r.token.decimals) + ' ' + r.token.currency,
           contract: r.token.contract,
         }
 
