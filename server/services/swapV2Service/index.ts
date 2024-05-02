@@ -69,13 +69,13 @@ async function handlePoolChart(
   const tokenAprice = await getToken(chain, tokenA_id)
   const tokenBprice = await getToken(chain, tokenB_id)
 
-  const usdReserveA = reserveA * tokenAprice.usd_price
-  const usdReserveB = reserveB * tokenBprice.usd_price
+  const usdReserveA = reserveA * tokenAprice?.usd_price
+  const usdReserveB = reserveB * tokenBprice?.usd_price
 
   const last_point = await SwapChartPoint.findOne({ chain: network.name, pool: poolId }, {}, { sort: { time: -1 } })
 
-  const volumeTokenA = tokenAprice ? volumeA * tokenAprice.usd_price : 0
-  const volumeTokenB = tokenBprice ? volumeB * tokenBprice.usd_price : 0
+  const volumeTokenA = tokenAprice ? volumeA * tokenAprice?.usd_price : 0
+  const volumeTokenB = tokenBprice ? volumeB * tokenBprice?.usd_price : 0
 
   const volumeUSD = volumeTokenA + volumeTokenB
 
