@@ -60,7 +60,7 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   // Updating global pools
   const allPools = (await getPools(network.name, true))
-  const POOLS = allPools.filter(p => p.tickDataProvider.ticks.length > 0)
+  const POOLS = allPools.filter(p => p.tickDataProvider.ticks.length > 0 && p.active)
 
   const inputToken = allPools.find(p => p.tokenA.id == input)?.tokenA || allPools.find(p => p.tokenB.id == input)?.tokenB
   const outputToken = allPools.find(p => p.tokenA.id == output)?.tokenA || allPools.find(p => p.tokenB.id == output)?.tokenB
