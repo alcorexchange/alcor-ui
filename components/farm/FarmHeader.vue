@@ -55,7 +55,7 @@
             .mb-2 Total Rewards
             .farm-total-rewards
               .reward(v-for="reward in totalRewards")
-                TokenImage.icon(:src="$tokenLogo(reward.symbol, reward.contract)" height="16")
+                TokenImage.icon(:src="$tokenLogo(reward.symbol, reward.contract)" height="16" width="16")
                 .d-flex.gap-4
                   span {{ reward.amount }}
                   span.muted {{ reward.symbol }}
@@ -106,7 +106,7 @@ export default {
 
       get() {
         return this.$store.state.farms.hideZeroAPR
-      }
+      },
     },
 
     // The finished stakes that should be unstaked
