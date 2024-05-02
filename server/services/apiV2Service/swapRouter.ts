@@ -59,8 +59,8 @@ swapRouter.get('/getRoute', async (req, res) => {
   const exactIn = trade_type == 'EXACT_INPUT'
 
   // Updating global pools
-  const allPools = (await getPools(network.name, true))
-  const POOLS = allPools.filter(p => p.tickDataProvider.ticks.length > 0 && p.active)
+  const allPools = await getPools(network.name, true, (p) => p.active && BigInt(p.liquidity) > BigInt(0))
+  const POOLS = allPools.filter(p => p.tickDataProvider.ticks.length > 0)
 
   const inputToken = allPools.find(p => p.tokenA.id == input)?.tokenA || allPools.find(p => p.tokenB.id == input)?.tokenB
   const outputToken = allPools.find(p => p.tokenA.id == output)?.tokenA || allPools.find(p => p.tokenB.id == output)?.tokenB
