@@ -9,6 +9,7 @@
   AlcorButton(class="add-button" @click="$emit('newReward')" bordered v-if="canAdd")
     i.el-icon-plus
     span Add Another Reward
+  span.max-message.disable.fs-14(v-else) Max 10 rewards
 </template>
 
 <script>
@@ -51,5 +52,8 @@ export default {
   &:hover {
     background: var(--hover) !important;
   }
+}
+.max-message {
+  text-align: end;
 }
 </style>
