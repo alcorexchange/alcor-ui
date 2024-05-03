@@ -118,19 +118,15 @@ export default {
     ...mapState(['network', 'user']),
     ...mapGetters('farms', ['farmPools']),
 
-    activeIncentives() {
+    activeIncentivesLength() {
       const poolId = this.poolId
       if (poolId === null) return null
 
       const farmPool = this.farmPools.find((farm) => farm.id === poolId)
 
-      const activeIncentives = farmPool.incentives.filter((i) => !i.isFinished)
+      const activeIncentives = farmPool?.incentives.filter((i) => !i.isFinished)
 
-      return activeIncentives
-    },
-
-    activeIncentivesLength() {
-      return this.activeIncentives?.length || 0
+      return activeIncentives.length || 0
     },
 
     allowedRewardCount() {
