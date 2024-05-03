@@ -120,13 +120,13 @@ export default {
 
     activeIncentivesLength() {
       const poolId = this.poolId
-      if (poolId === null) return null
+      if (poolId === null) return 0
 
       const farmPool = this.farmPools.find((farm) => farm.id === poolId)
 
       const activeIncentives = farmPool?.incentives.filter((i) => !i.isFinished)
 
-      return activeIncentives.length || 0
+      return activeIncentives?.length || 0
     },
 
     allowedRewardCount() {
