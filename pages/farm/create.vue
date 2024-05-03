@@ -69,7 +69,9 @@
 
         AlcorButton(class="submit" access @click="create" :class="{disabled: submitDisabled}" :disabled="submitDisabled") {{ renderSubmitText }}
       template(v-else)
-        .farm-create-section-title No Pool Found
+        .no-pool.disable
+          i.el-icon-moon-night.fs-24
+          span.fs-14 No Pool Found
 
 </template>
 
@@ -462,6 +464,14 @@ main {
   gap: 16px;
   font-size: 18px;
   font-weight: bold;
+}
+
+.no-pool {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding-top: 8px;
 }
 
 .submit {
