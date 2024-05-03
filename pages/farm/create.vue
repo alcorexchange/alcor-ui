@@ -17,9 +17,6 @@
 
         //TokenSelection(class="")
 
-        pre length is:  {{ activeIncentivesLength }}
-        pre canAddRewards:  {{ canAddRewards }}
-
         .token-selection.mt-1
           .item
             .farm-create-section-title Select Base Token
@@ -474,6 +471,7 @@ main {
     color: #636366 !important;
     border-color: var(--btn-default) !important;
     opacity: 0.8;
+    filter: none !important;
   }
 }
 </style>
