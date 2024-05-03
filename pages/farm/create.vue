@@ -70,7 +70,7 @@
           | {{ feeToken.quantity }}
           //img(:src="$tokenLogo(feeToken.symbol, feeToken.contract)" height="12").ml-1
 
-        AlcorButton(class="submit" access @click="create" :disabled="submitDisabled") {{ renderSubmitText }}
+        AlcorButton(class="submit" access @click="create" :class="{disabled: submitDisabled}" :disabled="submitDisabled") {{ renderSubmitText }}
       template(v-else)
         .farm-create-section-title No Pool Found
 
@@ -469,6 +469,12 @@ main {
 
 .submit {
   padding: 10px 14px;
+  &.disabled {
+    background: var(--btn-default) !important;
+    color: #636366 !important;
+    border-color: var(--btn-default) !important;
+    opacity: 0.8;
+  }
 }
 </style>
 
