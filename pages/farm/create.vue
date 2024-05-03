@@ -1,6 +1,6 @@
 <template lang="pug">
 .farm-create-page
-  AlcorContainer(class="alcor-container")
+  AlcorContainer.p-3(class="alcor-container")
     PageHeader(class="page-header" title="Create Farm")
       template(#end) &nbsp;
       .header-title.d-flex.gap-2
@@ -432,7 +432,7 @@ export default {
   padding-top: 60px;
   .alcor-container {
     width: 100%;
-    max-width: 450px;
+    max-width: 480px;
     margin: auto;
   }
 }
