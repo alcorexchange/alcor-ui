@@ -54,7 +54,7 @@
 
         ElAlert(
           title="Max Reward Count Reached"
-          description="You can not create farms with more than 10 active incentives"
+          description="You can not create farms with more than 10 active incentives, Please remove some rewards."
           type="error"
           :closable="false"
           v-if="rewardCountExceeded"
