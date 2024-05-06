@@ -198,12 +198,12 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://x.com/wuffi_inu?s=21&t=sO-kM7q-vvCVrele3HyH8Q',
+        link: 'https://discord.com/invite/brixsociety',
         image: require('@/assets/images/swap-banner-1.png'),
         colors: [
-          'rgba(112,1,228,0.2)',
-          'rgba(72,56,100, 1)',
-          'rgba(71,54,32,1)',
+          'rgba(226,215,0,0.2)',
+          'rgba(0,95,0, 1)',
+          'rgba(0,113,0,1)',
         ],
       },
       {
