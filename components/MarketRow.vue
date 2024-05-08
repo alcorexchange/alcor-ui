@@ -7,7 +7,8 @@ NuxtLink.wrapper(:to="localeRoute(`/trade/${item.slug}`)" :class="{ 'mobile': is
       :token1="{ symbol: item.quote_name, contract: item.contract }"
       :token2="{ symbol: item.base_name, contract: item.base_contract }")
 
-    token-image.token(v-else :src='$tokenLogo(item.quote_name, item.contract)')
+    TokenInfo(:symbol="item.quote_name" :contract="item.contract" v-else)
+      token-image.token(:src='$tokenLogo(item.quote_name, item.contract)')
 
     .name
       span {{ item.quote_name }}
@@ -43,9 +44,10 @@ import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import PairIcons from '~/components/PairIcons'
+import TokenInfo from '~/components/UI/TokenInfoPopover'
 
 export default {
-  components: { TokenImage, ChangePercent, PairIcons },
+  components: { TokenImage, ChangePercent, PairIcons, TokenInfo },
   props: ['item', 'showVolumeInUSD', 'marketsActiveTab'],
   computed: {
     ...mapState(['network']),
