@@ -9,11 +9,11 @@ import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats } from './swap'
 import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
 
-import { streamHyperion, streamByNode } from './streamers'
+import { streamHyperion, streamByGreymass } from './streamers'
 
 const providers = {
   hyperion: streamHyperion,
-  node: streamByNode
+  node: streamByGreymass
 }
 
 export function startUpdaters() {
@@ -64,7 +64,6 @@ export async function updater(chain, provider, services) {
 
   if (services.includes('markets')) {
     console.log('Start market updater for', chain)
-
 
     console.time('update markets for ' + network.name)
     await updateMarkets(network)

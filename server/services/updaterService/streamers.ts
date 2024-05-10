@@ -1,7 +1,6 @@
 import { performance } from 'perf_hooks'
 import fetch from 'cross-fetch'
 import { JsonRpc } from 'enf-eosjs'
-import HyperionSocketClient from '@eosrio/hyperion-stream-client'
 
 import { Match, Settings } from '../../models'
 import { getSettings } from '../../utils'
@@ -10,7 +9,7 @@ function getAccountAsKey(account: string) {
   return account.replace('.', '-')
 }
 
-export async function streamByNode(network, account, callback, actions, delay = 500) {
+export async function streamByGreymass(network, account, callback, actions, delay = 500) {
   console.info(`Start NODE updater for ${network.name} (${account})...`)
 
   // Здесь мы юзаем свой _skip так как в коде обработки экшена он думает что там будет хайпирион скип
@@ -50,6 +49,7 @@ export async function streamByNode(network, account, callback, actions, delay = 
 
     // MongoDB does not support . in keys, so we have to convert it using getAccountAsKey
     $set[`actions_stream_offset.${getAccountAsKey(account)}`] = offset
+    //$set[`actions_stream_last_block_num.${getAccountAsKey(account)}`] = offset
 
     await Settings.updateOne({ chain: network.name }, { $set })
 
