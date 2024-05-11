@@ -7,8 +7,7 @@ NuxtLink.wrapper(:to="localeRoute(`/trade/${item.slug}`)" :class="{ 'mobile': is
       :token1="{ symbol: item.quote_name, contract: item.contract }"
       :token2="{ symbol: item.base_name, contract: item.base_contract }")
 
-    TokenInfo(:symbol="item.quote_name" :contract="item.contract" v-else)
-      token-image.token(:src='$tokenLogo(item.quote_name, item.contract)')
+    token-image.token(v-else :src='$tokenLogo(item.quote_name, item.contract)')
 
     .name
       span {{ item.quote_name }}
