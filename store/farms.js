@@ -273,10 +273,6 @@ export const getters = {
           return { ...incentive, apr: getAPR(incentive, pool.poolStats, rootState.tokens) }
         })
 
-      if (state.hideZeroAPR) {
-        poolIncentives = poolIncentives.filter(i => i.apr != 0)
-      }
-
       return {
         ...pool,
         poolStats: pool.poolStats,

@@ -30,6 +30,8 @@ export default {
       return this.$store.getters['farms/farmPools']
         .map((p) => {
           const incentives = p.incentives.filter((i) => {
+            if (this.$store.state.farms.hideZeroAPR && i.apr == 0) return false
+
             if (this.finished) {
               return i.isFinished && i.stakeStatus != 'notStaked'
             } else {

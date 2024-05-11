@@ -10,7 +10,7 @@ export const strict = false
 
 export const state = () => ({
   user: null,
-  //user: { name: 'unobe.wam' },
+  //user: { name: 'liquid.mars' },
   userBalances: [],
   userDeals: [],
   userOrders: [],
