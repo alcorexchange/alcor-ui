@@ -11,7 +11,7 @@ ElTooltip(placement="top" :openDelay="240" popperClass="token-info-popper" :visi
         AlcorButton.action(access @click="toAnalytics")
           span Analytics
           i.el-icon-data-analysis
-  div
+  div(style="display: inline-flex")
     slot
 </template>
 
