@@ -6,8 +6,8 @@ ElTooltip(placement="top" :openDelay="240" popperClass="token-info-popper" :visi
         TokenImage(:src="$tokenLogo(symbol, contract)" height="24")
         .symbol {{ symbol }}
         .contract.disable ( {{ contract }} )
-      .usd-price.fs-20.mt-2 ${{ $tokenToUSD(1, symbol, contract) }}
-      .actions.mt-2
+      .usd-price.fs-18.mt-3 ${{ usdPrice }}
+      .actions.mt-3
         AlcorButton.action(access @click="toAnalytics")
           span Analytics
           i.el-icon-data-analysis
@@ -26,6 +26,12 @@ export default {
     AlcorButton,
   },
   props: ['symbol', 'contract'],
+  computed: {
+    usdPrice() {
+      const id = `${this.symbol?.toLowerCase()}-${this.contract}`
+      return this.$getToken(id)?.usd_price.toFixed(10)
+    },
+  },
   methods: {
     toAnalytics() {
       const id = `${this.symbol?.toLowerCase()}-${this.contract}`
