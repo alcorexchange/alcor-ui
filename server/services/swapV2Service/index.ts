@@ -513,6 +513,17 @@ export async function main() {
     onSwapAction(message)
   })
 
+  subscriber.pSubscribe('chainAction:*:swap.alcor:*', action => {
+    const { chain, name, data: { poolId } } = JSON.parse(action)
+
+    if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
+      console.log('throttledPoolUpdate')
+      throttledPoolUpdate(chain, Number(poolId))
+    }
+
+    console.log('subscribe pool update', { chain, name, poolId })
+  })
+
   console.log('SwapService started!')
 }
 
