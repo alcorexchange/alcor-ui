@@ -159,8 +159,10 @@ export default {
       position: relative;
       bottom: 0; right: 0;
     }
-    .icon-2{
-      width: 16px; height: 16px;
+    .icon-2 {
+      img {
+        width: 16px; height: 16px;
+      }
       top: 40%;
       left: 40%
     }

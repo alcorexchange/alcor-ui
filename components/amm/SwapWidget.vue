@@ -207,12 +207,12 @@ export default {
         ],
       },
       {
-        link: 'https://neftyblocks.com/collection/castlesnftgo/drops/217897+217898+217914',
-        image: require('@/assets/images/swap-banner-2.gif'),
+        link: 'https://radaquest.net/',
+        image: require('@/assets/images/swap-banner-2.jpg'),
         colors: [
-          'rgba(138,132,115,0.2)',
-          'rgba(46,99,137,1)',
-          'rgba(248,224,117, 1)',
+          'rgba(126,184,232,0.2)',
+          'rgba(232,206,45,1)',
+          'rgba(0,17,48, 1)',
         ],
       },
     ]
