@@ -115,9 +115,11 @@ export const actions = {
     dispatch('fetchPositionsHistory')
   },
 
-  async fetchPoolsStats({ state, commit }) {
+  async fetchPoolsStats({ dispatch, state, commit }) {
     const { data: pools } = await this.$axios.get('/v2/swap/pools')
     commit('setPoolsStats', pools)
+
+    setTimeout(() => dispatch('farms/setFarmPoolsWithAPR', {}, { root: true }), 1)
   },
 
   async fetchPositions({ state, commit, rootState, dispatch }) {
@@ -126,6 +128,8 @@ export const actions = {
     const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
     commit('setPositions', positions)
     dispatch('farms/loadUserStakes', {}, { root: true })
+
+    setTimeout(() => dispatch('farms/setFarmPoolsWithAPR', {}, { root: true }), 1)
   },
 
   async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {
@@ -154,27 +158,6 @@ export const actions = {
     return merged
   },
 
-  // FIXME We do not user ticks on UI side
-  // updateTickOfPool({ state, commit }, { poolId, tick }) {
-  //   const ticks = cloneDeep(state.ticks[poolId] ?? [])
-
-  //   const old = ticks.findIndex(old_tick => {
-  //     return old_tick.id == tick.id
-  //   })
-
-  //   if (old != -1) {
-  //     if (tick.liquidityGross == 0) {
-  //       ticks.splice(old, 1)
-  //     } else {
-  //       ticks[old] = tick
-  //     }
-  //   } else if (tick.liquidityGross !== 0) {
-  //     ticks.push(tick)
-  //   }
-
-  //   commit('setTicks', { poolId, ticks })
-  // },
-
   async fetchTicksOfPool({ commit, rootState }, poolId) {
     if (isNaN(poolId)) return
 
@@ -183,35 +166,6 @@ export const actions = {
     const ticks = await fetchAllRows(this.$rpc, { code: rootState.network.amm.contract, scope: poolId, table: 'ticks' })
     commit('setTicks', { poolId, ticks })
   },
-
-  // async poolUpdate({ state, commit, rootState, dispatch }, poolId) {
-  //   if (isNaN(poolId)) return
-  //   console.log('pool update triggered')
-
-  //   const { network } = rootState
-
-  //   // TODO Send pool with push
-  //   const [pool] = await fetchAllRows(this.$rpc, {
-  //     code: network.amm.contract,
-  //     scope: network.amm.contract,
-  //     table: 'pools',
-  //     limit: 1,
-  //     lower_bound: poolId,
-  //     upper_bound: poolId
-  //   })
-
-  //   if (!pool) return console.error('Pool not found!', poolId)
-
-  //   // FIXME Here pools are broken JSBI i guess
-  //   const old_pools = cloneDeep(state.pools)
-  //   const old_pool = old_pools.findIndex(o => o.id == pool.id)
-
-  //   if (old_pool != -1) {
-  //     old_pools[old_pool] = pool
-  //   } else { old_pools.push(pool) }
-
-  //   commit('setPools', old_pools)
-  // },
 
   async fetchPools({ state, commit, rootState, dispatch }) {
     //console.log('fetchPools')
@@ -237,6 +191,7 @@ export const actions = {
 
     dispatch('setMarketsRelatedPool', {}, { root: true })
     dispatch('setAllTokens')
+    setTimeout(() => dispatch('farms/setFarmPoolsWithAPR', {}, { root: true }), 1)
   },
 
   setAllTokens({ state, commit, rootState }) {
@@ -299,7 +254,6 @@ export const getters = {
   },
 
   poolsMapWithStatsAndUserData(state, getters, rootState) {
-    console.time('poolsMapWithStatsAndUserData call')
     const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
     const poolStatsMap = getters.poolStatsMap
 
@@ -315,7 +269,6 @@ export const getters = {
         })
       })
 
-    console.timeEnd('poolsMapWithStatsAndUserData call')
     return poolsMap
   },
 }

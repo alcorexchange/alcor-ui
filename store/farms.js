@@ -58,6 +58,7 @@ function getRewardPerToken(incentive) {
 
 export const state = () => ({
   incentives: [],
+  farmPoolsWithAPR: [],
   userStakes: [],
   plainUserStakes: [],
   farmPools: [],
@@ -73,7 +74,8 @@ export const mutations = {
   setFarmPools: (state, farmPools) => state.farmPools = farmPools,
   toggleView: (state) => state.view = state.view === 'SIMPLE' ? 'ADVANCED' : 'SIMPLE',
   setStakedOnly: (state, value) => state.stakedOnly = value,
-  setHideZeroAPR: (state, value) => state.hideZeroAPR = value
+  setHideZeroAPR: (state, value) => state.hideZeroAPR = value,
+  setFarmPoolsWithAPR: (state, value) => state.farmPoolsWithAPR = value,
 }
 
 export const actions = {
@@ -86,6 +88,29 @@ export const actions = {
         dispatch('calculateUserStakes')
       }
     }, 1000)
+  },
+
+  setFarmPoolsWithAPR({ commit, state, rootState, rootGetters }) {
+    const { incentives } = state
+    const poolsPlainWithStatsAndUserData = rootGetters['amm/poolsPlainWithStatsAndUserData']
+
+    const r = poolsPlainWithStatsAndUserData.map((pool) => {
+      const poolIncentives = incentives
+        .filter((incentive) => incentive.poolId === pool.id)
+        .map((incentive) => {
+          return { ...incentive, apr: getAPR(incentive, pool.poolStats, rootState.tokens) }
+        })
+
+      return {
+        ...pool,
+        poolStats: pool.poolStats,
+        incentives: poolIncentives,
+        positions: pool.positions,
+        avgAPR: getAverageAPR(poolIncentives)
+      }
+    })
+
+    commit('setFarmPoolsWithAPR', r)
   },
 
   async loadIncentives({ rootState, commit }) {
@@ -262,31 +287,10 @@ function getAverageAPR(incentives) {
 }
 
 export const getters = {
-  farmPoolsWithAPR(state, getters, rootState, rootGetters) {
-    const { incentives } = state
-    const poolsPlainWithStatsAndUserData = rootGetters['amm/poolsPlainWithStatsAndUserData']
-
-    return poolsPlainWithStatsAndUserData.map((pool) => {
-      let poolIncentives = incentives
-        .filter((incentive) => incentive.poolId === pool.id)
-        .map((incentive) => {
-          return { ...incentive, apr: getAPR(incentive, pool.poolStats, rootState.tokens) }
-        })
-
-      return {
-        ...pool,
-        poolStats: pool.poolStats,
-        incentives: poolIncentives,
-        positions: pool.positions,
-        avgAPR: getAverageAPR(poolIncentives)
-      }
-    })
-  },
-
   farmPools(state, getters, rootState, rootGetters) {
-    const { userStakes } = state
+    const { userStakes, farmPoolsWithAPR } = state
 
-    return getters.farmPoolsWithAPR.map((pool) => {
+    return farmPoolsWithAPR.map((pool) => {
       const poolIncentives = pool.incentives.map((incentive) => {
         const incentiveStats = pool.positions.map((position) => {
           const stake = userStakes.find(

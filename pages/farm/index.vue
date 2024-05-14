@@ -26,55 +26,55 @@ export default {
       return this.$store.state.farms.stakedOnly
     },
 
-    pools() {
-      return this.$store.getters['farms/farmPools']
+    farmPools() {
+      const { hideZeroAPR } = this.$store.state.farms
+      const onlyContracts = this.$route.query?.contracts?.split(',') || []
+      const search = this.search.toLowerCase()
+
+      let pools = this.$store.getters['farms/farmPools']
         .map((p) => {
           const incentives = p.incentives.filter((i) => {
-            if (this.$store.state.farms.hideZeroAPR && i.apr == 0) return false
+            if (hideZeroAPR && i.apr == 0) return false
 
             if (this.finished) {
               return i.isFinished && i.stakeStatus != 'notStaked'
             } else {
-              return i.isFinished == false
+              return !i.isFinished
             }
           })
           return { ...p, incentives }
         })
         .filter((p) => p.incentives.length > 0)
-    },
-
-    farmPools() {
-      let pools = this.pools
-      const onlyContracts = this.$route.query?.contracts?.split(',') || []
 
       if (onlyContracts.length > 0) {
-        pools = pools.filter((p) => {
-          return onlyContracts.includes(p.tokenA.contract) || onlyContracts.includes(p.tokenB.contract)
-        })
+        pools = pools.filter((p) =>
+          onlyContracts.includes(p.tokenA.contract) ||
+          onlyContracts.includes(p.tokenB.contract)
+        )
       }
 
       if (this.stakedOnly) {
-        pools = pools.filter((p) => {
-          return p.incentives
-            .map((i) => i.incentiveStats)
-            .flat(1)
-            .map((i) => i.staked)
-            .some((s) => s == true)
-        })
+        pools = pools.filter((p) =>
+          p.incentives
+            .flatMap((i) => i.incentiveStats)
+            .some((i) => i.staked)
+        )
       }
 
       pools = pools.filter((p) => {
-        const slug =
-          p.tokenA.contract + p.tokenA.quantity.split(' ')[1] + p.tokenB.contract + p.tokenB.quantity.split(' ')[1]
-        return slug.toLowerCase().includes(this.search.toLowerCase())
+        const slug = (
+          p.tokenA.contract +
+          p.tokenA.quantity.split(' ')[1] +
+          p.tokenB.contract +
+          p.tokenB.quantity.split(' ')[1]
+        ).toLowerCase()
+        return slug.includes(search)
       })
 
-      pools.sort((a, b) => {
-        return (b?.poolStats?.tvlUSD || 0) - (a?.poolStats?.tvlUSD || 0)
-      })
+      pools.sort((a, b) => (b?.poolStats?.tvlUSD || 0) - (a?.poolStats?.tvlUSD || 0))
 
       return pools
-    },
+    }
   },
 
   methods: {},
