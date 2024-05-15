@@ -22,6 +22,7 @@ export class JsonRpc {
   constructor(endpoints, args = {}) {
     endpoints = Array.isArray(endpoints) ? endpoints : [endpoints]
     this.endpoints = endpoints.map(endpoint => endpoint.replace(/\/$/, ""))
+    this.maxRetries = this.endpoints.length + this.maxRetries
 
     if (this.endpoints.length) {
       this.currentEndpoint = this.endpoints[0]
@@ -79,6 +80,11 @@ export class JsonRpc {
       if (json.processed && json.processed.except) {
         throw new RpcError(json)
       }
+
+      // TODO check that logic
+      if (json?.error?.name == 'exception') {
+        throw new RpcError(json)
+      }
     } catch (e) {
       console.log("Error from", this.currentEndpoint, e)
 
@@ -125,6 +131,13 @@ export class JsonRpc {
   async get_block(blockNumOrId) {
     return await this.fetch("/v1/chain/get_block", {
       block_num_or_id: blockNumOrId
+    })
+  }
+
+  /** Raw call to `/v1/trace_api/get_block` */
+  async get_trace_block(block_num) {
+    return await this.fetch("/v1/trace_api/get_block", {
+      block_num
     })
   }
 

@@ -2,13 +2,14 @@ import { createClient } from 'redis'
 
 import config from '../../../config'
 import { getFailOverAlcorOnlyRpc } from '../../utils'
+import { decodeActionData } from './utils'
 
 // HOTFIX SOMETHING WITH CONNECTION
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const publisher = createClient()
 
-const ACCOUNTS = ['swap.alcor', 'alcordexmain']
+const ACCOUNTS = ['swap.alcor', 'alcordexmain', 'alcor']
 const ACTIONS = ['*']
 
 async function handleAction(chain: string, action) {
@@ -17,7 +18,7 @@ async function handleAction(chain: string, action) {
   const { account, name } = action
 
   publisher.publish(`chainAction:${chain}:${account}:${name}`, JSON.stringify({ chain, ...action }))
-  console.log('new action: ', `chainAction:${chain}.${account}.${name}`)
+  //console.log('new action: ', `chainAction:${chain}.${account}.${name}`, action)
 }
 
 export function start() {
@@ -32,6 +33,18 @@ export function start() {
   }
 }
 
+const ABIs = {}
+async function getCachedAbi(chain, rpc, account) {
+  const key = `${chain}:${account}}`
+
+  if (!(key in ABIs)) {
+    console.log('call for abi', account)
+    ABIs[key] = await rpc.getRawAbi(account)
+  }
+
+  return ABIs[key]
+}
+
 async function eventStreamer(chain: string, callback?) {
   console.log('run eventStreamer for', chain)
   const network = config.networks[chain]
@@ -42,34 +55,37 @@ async function eventStreamer(chain: string, callback?) {
     return info.head_block_num
   }
 
-  //let currentBlock = await getCurrentBlockNumber()
-  let currentBlock = 308286482
+  //let currentBlock = await getCurrentBlockNumber() - 1000
+  //let currentBlock = 308286482
+  let currentBlock = 256069154
 
   while (true) {
     try {
-      const block = await rpc.get_block(currentBlock)
+      const block = await rpc.get_trace_block(currentBlock)
 
       if (block && block.transactions) {
         for (const transaction of block.transactions) {
-          if (typeof transaction.trx === 'object' && transaction.status === 'executed') {
-            if (typeof transaction.trx === 'object') {
-              for (const action of transaction.trx.transaction.actions) {
-                if (ACCOUNTS.includes(action.account) && (ACTIONS.includes(action.name) || ACTIONS.includes('*'))) {
-                  if (callback) callback(chain, {
-                    ...action,
+          if (transaction.status === 'executed') {
+            for (const action of transaction.actions) {
+              if (ACCOUNTS.includes(action.account) && (ACTIONS.includes(action.name) || ACTIONS.includes('*'))) {
+                const data = await decodeActionData(action.data, await getCachedAbi(chain, rpc, action.account), action.action)
 
-                    trx_id: transaction.trx.id,
-                    block_num: block.block_num,
-                    block_time: block.timestamp
-                  })
-                }
+                action.name = action.action
+                //action.hex_data = action.data
+                action.trx_id = transaction.id
+                action.block_num = block.number
+                action.block_time = block.timestamp
+                action.data = data
+
+                delete action.action
+
+                if (callback) callback(chain, action)
               }
             }
           }
         }
       }
       currentBlock++
-      //process.stdout.write(`${currentBlock}\r`)
 
       const block_time = new Date(block.timestamp + 'Z').getTime()
       const next_block_time = block_time + 500
