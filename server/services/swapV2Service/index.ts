@@ -1,7 +1,6 @@
 require('dotenv').config()
 
 import { isEqual, throttle } from 'lodash'
-import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
 import JSBI from "jsbi"
@@ -12,8 +11,8 @@ import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
-import { getPoolInstance, getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
 import { makeSwapBars } from '../updaterService/charts'
+import { getPoolInstance, getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
 import { getFailOverAlcorOnlyRpc, getToken } from './../../utils'
 
 const redis = createClient()
@@ -131,7 +130,7 @@ async function getPool(filter) {
 }
 
 const throttles = {}
-async function throttledPoolUpdate(chain: string, poolId: number) {
+export async function throttledPoolUpdate(chain: string, poolId: number) {
   if (`${chain}_${poolId}` in throttles) {
     // Second call in throttle time
     throttles[`${chain}_${poolId}`] = true
@@ -172,6 +171,8 @@ async function updatePositions(chain: string, poolId: number) {
 }
 
 export async function updatePool(chain: string, poolId: number) {
+  await connectAll()
+
   console.log('update pool', poolId)
   const network = networks[chain]
   const rpc = getFailOverAlcorOnlyRpc(network)
@@ -191,7 +192,13 @@ export async function updatePool(chain: string, poolId: number) {
   const push = JSON.stringify({ chain, poolId, update: [pool] })
   publisher.publish('swap:pool:update', push)
 
-  updateTicks(chain, poolId)
+  await Promise.all([
+    updateTicks(chain, poolId),
+    updatePositions(chain, poolId)
+  ])
+
+  // updateTicks(chain, poolId)
+  // updatePositions(chain, poolId)
 
   const parsedPool = parsePool(pool)
 
@@ -250,15 +257,13 @@ async function updateTicks(chain: string, poolId: number) {
 }
 
 export async function connectAll() {
-  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+  // const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
+  // await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
 
   // Redis
-  if (!redis.isOpen) {
-    await redis.connect()
-    await publisher.connect()
-    await subscriber.connect()
-  }
+  if (!redis.isOpen) await redis.connect()
+  if (!publisher.isOpen) await publisher.connect()
+  if (!subscriber.isOpen) await subscriber.connect()
 }
 
 async function getChianTicks(chain: string, poolId: number): Promise<TicksList> {
@@ -328,7 +333,6 @@ export async function updatePools(chain) {
       to_create.push(p)
     } else {
       await updatePool(chain, pool.id)
-      await updatePositions(chain, pool.id)
     }
   }
 
@@ -343,7 +347,6 @@ export async function initialUpdate(chain: string, poolId?: number) {
 
   if (poolId) {
     updatePool(chain, poolId)
-    updatePositions(chain, poolId)
     //await updateTicks(chain, poolId)
   }
 
@@ -429,6 +432,8 @@ export async function handleSwap({ chain, data, trx_id, block_time }) {
 }
 
 export async function onSwapAction(message: string) {
+  await connectAll()
+
   const { chain, name, trx_id, block_time, data } = JSON.parse(message)
 
   if (name == 'logpool') {
@@ -465,21 +470,18 @@ export async function onSwapAction(message: string) {
 
   if (name == 'logmint') {
     await saveMintOrBurn({ chain, trx_id, data, type: 'mint', block_time })
-    await updatePositions(chain, data.poolId)
   }
 
   if (name == 'logburn') {
     await saveMintOrBurn({ chain, trx_id, data, type: 'burn', block_time })
-    await updatePositions(chain, data.poolId)
   }
 
   if (name == 'logcollect') {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
-    await updatePositions(chain, data.poolId)
   }
 
   if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
-    throttledPoolUpdate(chain, Number(data.poolId))
+    await throttledPoolUpdate(chain, Number(data.poolId))
   }
 
   // Send push to update user position
@@ -502,29 +504,3 @@ export async function onSwapAction(message: string) {
     )
   }
 }
-
-export async function main() {
-  await connectAll()
-
-  //updatePool('wax', 1095)
-  //updatePositions
-
-  subscriber.subscribe('swap_action', message => {
-    onSwapAction(message)
-  })
-
-  // subscriber.pSubscribe('chainAction:*:swap.alcor:*', action => {
-  //   const { chain, name, data: { poolId } } = JSON.parse(action)
-
-  //   if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
-  //     console.log('throttledPoolUpdate')
-  //     throttledPoolUpdate(chain, Number(poolId))
-  //     console.log('subscribe pool update', { chain, name, poolId })
-  //   }
-  // })
-
-  console.log('SwapService started!')
-}
-
-// TODO Run as separate service
-main()
