@@ -111,6 +111,7 @@ async function updateOrders(side, chain, market_id) {
 
   const push = JSON.stringify({ key: `${chain}_${side}_${market_id}`, update })
   publisher.publish('orderbook_update', push)
+  console.log(side, 'orders updated', market_id)
 }
 
 async function connectAll() {
@@ -162,8 +163,27 @@ export async function initialUpdate(chain, market_id) {
   }
 }
 
+function onChainEvent(message) {
+  const { chain, name, data } = JSON.parse(message)
+
+  const market = data?.record?.market?.id || data?.market_id
+
+  if (!market) {
+    console.log('unknown action', { chain, name, data })
+  }
+
+  if (['buyreceipt', 'cancelbuy', 'sellmatch'].includes(name)) {
+    throttledUpdate('buy', chain, market)
+  }
+
+  if (['sellreceipt', 'cancelsell', 'buymatch'].includes(name)) {
+    throttledUpdate('sell', chain, market)
+  }
+}
+
 export async function main() {
   await connectAll()
+  console.log('OrderbookService setarted')
 
   subscriber.subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')
@@ -177,5 +197,7 @@ export async function main() {
     }
   })
 
-  console.log('OrderbookService setarted')
+  subscriber.pSubscribe('chainAction:*:alcor:*', m => onChainEvent(m))
+  subscriber.pSubscribe('chainAction:*:alcordexmain:*', m => onChainEvent(m))
+  subscriber.pSubscribe('chainAction:*:eostokensdex:*', m => onChainEvent(m))
 }

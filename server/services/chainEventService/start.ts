@@ -19,6 +19,7 @@ async function handleAction(chain: string, action) {
 
   publisher.publish(`chainAction:${chain}:${account}:${name}`, JSON.stringify({ chain, ...action }))
   //console.log('new action: ', `chainAction:${chain}.${account}.${name}`, action)
+  console.log('new action: ', `chainAction:${chain}.${account}.${name}`)
 }
 
 export function start() {
@@ -55,13 +56,14 @@ async function eventStreamer(chain: string, callback?) {
     return info.head_block_num
   }
 
-  //let currentBlock = await getCurrentBlockNumber() - 1000
+  let currentBlock = await getCurrentBlockNumber()
   //let currentBlock = 308286482
-  let currentBlock = 256069154
+  //let currentBlock = 256069154
 
   while (true) {
     try {
       const block = await rpc.get_trace_block(currentBlock)
+      if (currentBlock % 10 == 0) console.log('ok:', currentBlock)
 
       if (block && block.transactions) {
         for (const transaction of block.transactions) {
@@ -87,7 +89,7 @@ async function eventStreamer(chain: string, callback?) {
       }
       currentBlock++
 
-      const block_time = new Date(block.timestamp + 'Z').getTime()
+      const block_time = new Date(block.timestamp).getTime()
       const next_block_time = block_time + 500
       const now = Date.now()
 
@@ -97,13 +99,13 @@ async function eventStreamer(chain: string, callback?) {
         await new Promise((resolve) => setTimeout(resolve, delay))
       }
     } catch (error) {
-      if (error.message.includes('Could not find block')) {
-        console.log('too fast')
-        await new Promise((resolve) => setTimeout(resolve, 500))
+      if (error.message.includes('Could not find block') || error.message.includes('block trace missing')) {
+        console.log('too fast', currentBlock)
+        await new Promise((resolve) => setTimeout(resolve, 100))
         continue
       }
 
-      console.error('Error fetching block:', error)
+      console.error('Error fetching block:', currentBlock, error)
       // Optionally implement a retry mechanism or a delay
       await new Promise((resolve) => setTimeout(resolve, 1000))
     }

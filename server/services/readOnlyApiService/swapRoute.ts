@@ -21,9 +21,8 @@ const ROUTES = {}
 function getNodes(network) {
   const nodes = Object.keys(network.client_nodes)
 
-  if (process.env[`${network.name.toUpperCase()}_LOCAL_NODE`]) {
-    nodes.unshift(process.env[`${network.name.toUpperCase()}_LOCAL_NODE`])
-  }
+  const direct = process.env[network.name.toUpperCase() + '_DIRECT_NODE']
+  if (direct) nodes.unshift(direct)
 
   return nodes
 }

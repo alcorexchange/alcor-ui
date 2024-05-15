@@ -86,7 +86,7 @@ export class JsonRpc {
         throw new RpcError(json)
       }
     } catch (e) {
-      console.log("Error from", this.currentEndpoint, e)
+      console.log("Error from", this.currentEndpoint, e, response.body)
 
       e.isFetchError = true
 
