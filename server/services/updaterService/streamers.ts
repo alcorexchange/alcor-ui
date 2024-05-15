@@ -54,7 +54,7 @@ export async function streamByGreymass(network, account, callback, actions, dela
     await Settings.updateOne({ chain: network.name }, { $set })
 
     if (r.actions.length < 100) {
-      console.log(`waitForNewActions(${network.name}, ${account})...`)
+      //console.log(`waitForNewActions(${network.name}, ${account})...`)
       await new Promise((resolve, reject) => setTimeout(resolve, delay))
     }
   }
