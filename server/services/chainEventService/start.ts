@@ -90,7 +90,7 @@ async function eventStreamer(chain: string, callback?) {
       currentBlock++
 
       const block_time = new Date(block.timestamp).getTime()
-      const next_block_time = block_time + 300
+      const next_block_time = block_time + 500
       const now = Date.now()
 
       const delay = next_block_time - now
