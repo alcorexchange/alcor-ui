@@ -207,7 +207,7 @@ export default {
         ],
       },
       {
-        link: 'https://radaquest.net/',
+        link: 'https://nfthive.io/drop/8415',
         image: require('@/assets/images/swap-banner-2.jpg'),
         colors: [
           'rgba(126,184,232,0.2)',
