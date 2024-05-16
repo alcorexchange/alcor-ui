@@ -8,44 +8,106 @@ module.exports = {
       instances: 2,
       script: './node_modules/nuxt/bin/nuxt.js',
       args: 'start',
+      restart_delay: 10000,
+      max_memory_restart: '999M',
       env: {
         NODE_ENV: 'production',
         NUXT_PORT: 7000,
-        NUXT_HOST: '0.0.0.0'
-      }
+        NUXT_HOST: '0.0.0.0',
+      },
+    },
+    {
+      name: 'Alcor-apiV2-server',
+      script: './lib/server/services/apiV2Service/index.js',
+      exec_mode: 'cluster',
+      instances: 2,
+      kill_timeout: 3000,
+      restart_delay: 10000,
+      env: {
+        NODE_ENV: 'production',
+        PORT: 7003,
+      },
     },
     {
       name: 'Alcor-api-server',
-      script: './server/services/ApiService/index.js',
-      node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
+      script: './lib/server/services/apiService/index.js',
       exec_mode: 'cluster',
-      instances: 6,
+      instances: 2,
+      kill_timeout: 3000,
+      restart_delay: 10000,
+      max_memory_restart: '500M',
       env: {
         NODE_ENV: 'production',
-        PORT: 7001
-      }
+        PORT: 7001,
+      },
+    },
+
+    {
+      name: 'Alcor-api-server',
+      script: './lib/server/services/readOnlyApiService/index.js',
+      max_memory_restart: '1000M',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 7001,
+
+        // LOCAL NODES HERE
+        //WAX_LOCAL_NODE: ''
+        //EOS_LOCAL_NODE: ''
+        //TELOS_LOCAL_NODE: ''
+      },
     },
     {
       name: 'Alcor-ws-server',
-      script: './server/services/SocketService/index.js',
-      node_args: '--nouse-idle-notification --expose-gc --max-old-space-size=8192 -r esm',
+      script: './lib/server/services/socketService/index.js',
       exec_mode: 'cluster',
-      instances: 10,
+      instances: 4,
+      kill_timeout: 10000,
+      restart_delay: 10000,
       env: {
         NODE_ENV: 'production',
-        PORT: 7002
-      }
+        PORT: 7031,
+        PM2_PORT: 7002,
+      },
     },
     {
       name: 'Alcor-updater',
-      script: './server/services/UpdaterService/index.js',
-      node_args: '-r esm'
+      script: './lib/server/services/updaterService/index.js',
+      cron_restart: '0 * * * *',
+    },
+
+    {
+      name: 'Alcor-ibc-usdt-wax-worker',
+      script: './lib/server/services/ibcService/usdt_prover.ts',
+      cron_restart: '0 * * * *',
     },
 
     {
       name: 'Alcor-orderbook-service',
-      script: './server/services/OrderbookService/index.js',
-      node_args: '-r esm'
-    }
-  ]
+      script: './lib/server/services/orderbookService/index.js',
+      restart_delay: 10000,
+      kill_timeout: 10000,
+    },
+    {
+      name: 'Alcor-ibc-usdt-wax-withdraw-worker',
+      script: './lib/server/services/ibcService/usdt_prover.js',
+      cron_restart: '0 * * * *',
+    },
+    {
+      name: 'Alcor-ibc-usdt-wax-deposit-worker',
+      script: './lib/server/services/ibcService/eosCexDepsitsWorker.js',
+      cron_restart: '0 * * * *',
+    },
+    {
+      name: 'Alcor-LSW-WAX-worker',
+      script: './lib/server/services/lswBotService/index.js',
+      env: {
+        LSW_NODEOS_ENDPOINT: 'https://wax-api.alcor.exchange',
+        LSW_CHAIN_ID: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
+        LSW_CONTRACT_ACCOUNT: 'liquid.alcor',
+        LSW_PERMISSION: 'bot',
+        LSW_PROXY_NAME: 'top21.oig',
+      },
+      //cron_restart: '0 * * * *'
+    },
+  ],
 }

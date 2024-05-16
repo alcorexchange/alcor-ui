@@ -144,7 +144,7 @@ export default {
   },
 
   mounted() {
-    this.fetchTokens()
+    //this.fetchTokens()
   },
 
   methods: {

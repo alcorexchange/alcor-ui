@@ -195,8 +195,10 @@ export default {
 }
 </script>
 
-<style>
-.el-scrollbar__wrap {
-  margin-bottom: -15px !important;
+<style scoped lang="scss">
+.trade-type-selection::v-deep {
+  .el-input__inner {
+    padding-left: 8px;
+  }
 }
 </style>

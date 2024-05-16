@@ -4,7 +4,7 @@
 el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-if="isMobile" max-height="350")
   template(slot="empty")
     span(v-if="user") {{ $t('No open orders') }}
-    el-button(v-else type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
+    el-button(v-else type="default" @click='$store.dispatch("chain/mainLogin")') {{ $t('Connect Wallet') }}
 
   el-table-column(:label='$t("Type")' width="50")
     template(slot-scope='{ row }')
@@ -33,7 +33,7 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
 el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-else)
   template(slot="empty")
     span(v-if="user") {{ $t('No open orders') }}
-    el-button(v-else type="default" @click='$store.dispatch("modal/login")') {{ $t('Connect Wallet') }}
+    el-button(v-else type="default" @click='$store.dispatch("chain/mainLogin")') {{ $t('Connect Wallet') }}
 
   el-table-column(:label='$t("Time")', width='110')
     template(slot-scope='scope')
@@ -43,7 +43,7 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
     template(slot-scope='{ row }')
       span.hoverable.pointer(:class="{ underline: id != row.market.id }" @click="setMarket(row.market)") {{ row.market_symbol }}
 
-  el-table-column(:label='$t("Type")' width="50")
+  el-table-column(:label='$t("Type")' width="80")
     template(slot-scope='{ row }')
       span.text-primary(v-if='row.type == "buy"') {{ $t(row.type.toUpperCase()) }}
       span.text-secondary(v-else) {{ $t(row.type.toUpperCase()) }}
@@ -61,10 +61,9 @@ el-table.my-orders(:data='filledPositions' :empty-text='$t("No open orders")' v-
     template(slot-scope='{ row }')
       span {{ row.type == 'buy' ? row.bid.quantity : row.ask.quantity }}
 
-  el-table-column(:label='$t("Action")', align='right' width="120")
+  el-table-column(:label='$t("Action")', align='right' width="70")
     template(v-if="!isMobile" slot="header")
-      span.mr-1 {{ $t('Action') }}
-      span(@click="cancelAll").red.pointer.hoverable ({{ $t('cancel all') }})
+      div(@click="cancelAll").cancel.pointer.hoverable {{ $t('cancel all') }}
 
     template(slot-scope='scope')
       el-button(size='mini', type='text', @click='cancel(scope.row)').cancel {{ $t('Cancel') }}
@@ -88,7 +87,7 @@ export default {
       user: 'user',
       allOrders: 'wallet/allOrders',
     }),
-    ...mapGetters(['network', 'userOrders']),
+    ...mapGetters(['userOrders']),
     ...mapState('market', ['asks', 'bids', 'id', 'base_token', 'quote_token']),
 
     orders() {
@@ -182,9 +181,12 @@ export default {
           message: `Order canceled ${order.id}`,
           type: 'success',
         })
+
+        await this.$store.dispatch('market/updateBalanceAfterOrderCancel', { marketId: order.market_id, orderType: order.type })
+
         setTimeout(() => {
           this.$store.dispatch('loadOrders', this.id)
-          this.$store.dispatch('loadUserBalances')
+          //this.$store.dispatch('loadUserBalances')
         }, 3000)
       } catch (e) {
         captureException(e, { extra: { order, market_id: this.id } })
@@ -198,13 +200,13 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .market-row div {
   font-size: 13px;
 }
 
 .cancel {
-  color: var(--main-red) !important;
+  color: var(--color-secondary) !important;
 }
 
 .text-secondary {
@@ -213,5 +215,14 @@ export default {
 
 .text-primary {
   color: var(--color-primary) !important;
+}
+
+</style>
+
+<style lang="scss">
+.my-orders {
+  .el-table__body-wrapper.is-scrolling-left {
+    overflow-x: hidden;
+  }
 }
 </style>

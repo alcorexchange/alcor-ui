@@ -276,9 +276,9 @@ export default {
   methods: {
     setMarketLayout(value) {
       if (value === 'advanced')
-        document.querySelector('.full-width').classList.add('unlim-width')
+        document.querySelector('.main').classList.add('unlim-width')
       else
-        document.querySelector('.full-width').classList.remove('unlim-width')
+        document.querySelector('.main').classList.remove('unlim-width')
 
       this.$store.commit('market/setCurrentMarketLayout', value)
     },

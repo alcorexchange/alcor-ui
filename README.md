@@ -1,5 +1,3 @@
-Project is Hiring Full Stack(nodejs/vuejs) Dev NOW! Good payment in cryptocurrency(hourly/mounthly)! Contact: [@avral](https://t.me/avral)
---
 # The first listing free decentralized exchange.
 Documentation: [docs.alcor.exchange](https://docs.alcor.exchange)
 
@@ -79,6 +77,3 @@ docker run -d --restart=unless-stopped -p 127.0.0.1:27017:27017 --name mongo -m=
 
 docker run -it -p 7002:7000 --restart=unless-stopped -d --label=com.centurylinklabs.watchtower.lifecycle.post-check="rm -rf /data/nginx/cache/eostokens && service nginx reload" --label=com.centurylinklabs.watchtower.enable=true --name alcor-ui --add-host=host.docker.internal:172.17.0.9 avral/alcor-ui
 ```
-
-## Created:
-[Avral's digital lab](https://avral.pro)

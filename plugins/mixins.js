@@ -1,6 +1,7 @@
 import Vue from 'vue'
 
 import { asset } from 'eos-common'
+import { networks } from '~/config'
 
 Vue.mixin({
   data() {
@@ -8,17 +9,18 @@ Vue.mixin({
       windowWidth: 0,
 
       mousedownCls: [],
-      mouseupCls: []
+      mouseupCls: [],
     }
   },
 
   computed: {
     isMobile() {
-      return (this.$device.isMobile) || (this.windowWidth && this.windowWidth <= 1175)
+      return (this.$device.isMobile) || (this.windowWidth && this.windowWidth <= 1175) || this.$route.path.includes('swap-widget')
     }
   },
 
   mounted() {
+    // ⚠️  CALLING MULTIPLE TIMES!! FIXME
     this.windowWidth = window.innerWidth
     window.addEventListener('resize', () => {
       this.windowWidth = window.innerWidth
@@ -26,6 +28,21 @@ Vue.mixin({
   },
 
   methods: {
+    async getToken(rpc, code, scope) {
+      console.log('code', code, 'scope', scope)
+      const { rows: [row] } = await rpc.get_table_rows({ code, scope, table: 'stat', limit: 1 })
+
+      const decimal = row.max_supply.split('.')
+      const [symbol, desimal_s] = decimal[1].split(' ')
+
+      return {
+        id: row,
+        contract: code,
+        symbol,
+        precision: symbol.length
+      }
+    },
+
     inputToAsset(input, precision) {
       return asset((parseFloat(input) || 0).toFixed(precision) + ' XXX')
     },
@@ -34,9 +51,14 @@ Vue.mixin({
       return (parseFloat(value) || 0).toFixed(precision)
     },
 
-    monitorTx(tx) {
-      const network = this.$store.state.network
-      return `${network.monitor}/transaction/${tx}?tab=traces&${network.monitor_params}`
+    monitorTx(tx, network = null) {
+      network = network ? networks[network] : this.$store.state.network
+
+      let url = network.monitor + '/transaction/' + tx
+      if (['eos', 'wax', 'telos'].includes(network.name)) url += '?tab=traces&' + network.monitor_params
+      if (['ux'].includes(network.name)) url = url.replace('transaction', 'tx')
+
+      return url
     },
 
     monitorAccount(account) {
@@ -57,12 +79,12 @@ Vue.mixin({
     },
 
     beforeDialogClose(done) {
-      console.log('beforeDialogClose')
       const isWrapper = this.mousedownCls.includes('el-dialog__wrapper') && this.mouseupCls.includes('el-dialog__wrapper')
-      const isClose = this.mousedownCls.includes('el-dialog__close') && this.mouseupCls.includes('el-dialog__close')
-      if (isWrapper || isClose) {
+      const isClose = this.mousedownCls.includes('el-dialog__headerbtn') && this.mouseupCls.includes('el-dialog__headerbtn')
+      const isCloseIcon = this.mousedownCls.includes('el-dialog__close') && this.mouseupCls.includes('el-dialog__close')
+      if (isWrapper || isClose || isCloseIcon) {
         done()
       }
-    }
+    },
   }
 })

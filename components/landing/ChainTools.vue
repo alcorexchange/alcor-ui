@@ -38,7 +38,7 @@ export default {
         icon: require('~/assets/icons/ChartLineUp.svg'),
         name: 'Earn',
         description: 'Providing Liquidity',
-        to: '/swap'
+        to: '/farm'
       },
       {
         icon: require('~/assets/icons/Image.svg'),
@@ -114,6 +114,7 @@ export default {
 
     .desc {
       color: var(--text-grey-thirdly);
+      text-align: center;
     }
   }
 }

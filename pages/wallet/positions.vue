@@ -19,7 +19,7 @@ div.wallet
       id="onlySell"
     ) {{ $t('Only sell orders') }}
 
-    .d-flex.flex-wrap.justify-content-between.w-100
+    .d-flex.flex-wrap.justify-content-between.align-items-center.w-100
       .cancel {{ $t('Total orders') }}: {{ accountLimits.orders_total }}
 
       .cancel {{ $t('Order slot limit') }}: {{ accountLimits.orders_limit }}
@@ -29,7 +29,7 @@ div.wallet
   virtual-table(v-if="isMobile" :table="virtualTableData")
     template(#row="{ item }")
       wallet-position-row(:item="item")
-  .table.el-card.is-always-shadow(v-else)
+  .table.el-card(v-else)
     el-table.alcor-table(
       :data='filteredPositions',
       style='width: 100%',
@@ -45,7 +45,7 @@ div.wallet
                 :label="$t('Order')",
               )
                 template(#default="{ row }")
-                  span.order-type(:class="row.type === 'buy' ? 'green' : 'red'") {{ row.type }}
+                  span.order-type(:class="row.type === 'buy' ? 'green' : 'red'") {{ $t(row.type) }}
               el-table-column(
                 :label="$t('Date')",
               )
@@ -70,7 +70,7 @@ div.wallet
               )
                 template(#default="{ row }")
                   .actions
-                    el-button(type="text" @click="cancelOrder(row)").red.hover-opacity Cancel Order
+                    el-button(size="medium" type="text" @click="cancelOrder(row)").red.hover-opacity {{ $t('Cancel order') }}
       el-table-column(:label='$t("Asset")', prop='date', :width='isMobile ? 150 : 280')
         template(slot-scope='{row}')
           .asset-container
@@ -88,9 +88,9 @@ div.wallet
       )
         template(slot-scope='{row}')
           .current-orders
-            span.green {{ row.orderCount.buy }} Buy
+            span.green {{ row.orderCount.buy }} {{ $t('Buy') }}
             span.cancel &nbsp;|&nbsp;
-            span.red {{ row.orderCount.sell }} sell
+            span.red {{ row.orderCount.sell }} {{ $t('Sell') }}
       el-table-column(
         :label='$t("Total Quote")',
       )
@@ -105,8 +105,8 @@ div.wallet
       )
         template(slot-scope='{row}')
           .actions
-            el-button(type="text" @click="trade(row)").green.hover-opacity Trade
-            el-button(type="text" @click="cancelAll(row)").red.hover-opacity Cancel All Orders
+            el-button(size="medium" type="text" @click="trade(row)").green.hover-opacity {{ $t('Trade') }}
+            el-button(size="medium" type="text" @click="cancelAll(row)").red.hover-opacity {{ $t('Cancel All Orders') }}
 
 </template>
 
@@ -123,23 +123,23 @@ export default {
     TokenImage,
     SelectUI,
     VirtualTable,
-    WalletPositionRow
+    WalletPositionRow,
   },
   data: () => ({
     search: '',
     onlyBuy: false,
-    onlySell: false
+    onlySell: false,
   }),
 
   computed: {
     ...mapGetters({
       user: 'user',
-      pairPositions: 'wallet/pairPositions'
+      pairPositions: 'wallet/pairPositions',
     }),
     ...mapState(['network', 'markets', 'accountLimits']),
 
     filteredPositions() {
-      return this.pairPositions.filter(el => {
+      return this.pairPositions.filter((el) => {
         if (el.slug && !el.slug.includes(this.search.toLowerCase())) return false
         if (this.onlyBuy && !el.orderCount.buy) return false
         if (this.onlySell && !el.orderCount.sell) return false
@@ -154,18 +154,18 @@ export default {
           label: 'Type',
           value: 'type',
           width: '120px',
-          sortable: true
+          sortable: true,
         },
         {
           label: 'Order',
-          value: 'type',
-          width: '610px'
+          value: 'order',
+          width: '610px',
         },
         {
           label: 'Action',
-          value: 'type',
-          width: '345px'
-        }
+          value: 'action',
+          width: '345px',
+        },
       ]
 
       const data = this.filteredPositions.map(({ orders }) => orders).flat()
@@ -185,10 +185,8 @@ export default {
 
           return b.id.toLowerCase().includes(this.search.toLowerCase())
         })
-        .sort((a, b) =>
-          a.contract == this.network.baseToken.contract ? -1 : 1
-        )
-    }
+        .sort((a, b) => (a.contract == this.network.baseToken.contract ? -1 : 1))
+    },
   },
 
   methods: {
@@ -196,8 +194,8 @@ export default {
       this.$router.push({
         name: `trade-index-id___${this.$i18n.locale}`,
         params: {
-          id: position.slug
-        }
+          id: position.slug,
+        },
       })
     },
 
@@ -207,7 +205,7 @@ export default {
           account: this.user.name,
           market_id: order.market_id,
           type: order.type == 'buy' ? 'bid' : 'ask',
-          order_id: order.id
+          order_id: order.id,
         })
       } catch (e) {
         this.$notify({ title: 'Order cancel error', message: e.message, type: 'warning' })
@@ -222,8 +220,8 @@ export default {
       } catch (e) {
         this.$notify({ title: 'Order cancel error', message: e.message, type: 'warning' })
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -237,12 +235,10 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   margin-bottom: 10px;
-  gap: 30px;
+  gap: 16px;
 
   .el-input {
     max-width: 300px;
-    margin-right: 8px;
-    margin-bottom: 8px;
   }
 
   .el-input__inner {
@@ -256,6 +252,7 @@ td.el-table__expanded-cell {
 
 .el-card {
   border: none;
+  border-radius: 8px;
 }
 
 .asset-container {

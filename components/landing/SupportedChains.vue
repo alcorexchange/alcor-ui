@@ -12,13 +12,23 @@
       span.more {{ $t('and more...') }}
     .inner-container
       span.title {{ $t('BUILDINGGLOBALCOMMUNITY') }}
-      p.text {{ $t('LEARNMORE') }}
+      .text {{ $t('LEARNMORE') }}
       .social-items
         a.item(href="https://t.me/alcorexchange" target="_blank")
           .icon
             img(src='~/assets/icons/Telegram.svg')
           span.name Telegram
           span.desc {{ $t('TRAIDING_TALKS') }}
+        a.item(href="https://twitter.com/alcorexchange" target="_blank")
+          .icon
+            img(src='~/assets/icons/Twitter.svg')
+          span.name Twitter
+          span.desc {{ $t('ANOUNCEMENT') }}
+        a.item(href="https://discord.gg/Sxum2ETSzq" target="_blank")
+          .icon
+            img(src='~/assets/icons/Discord.svg')
+          span.name Discord
+          span.desc {{ $t('General Chatting') }}
         a.item(href="https://avral.medium.com/" target="_blank")
           .icon
             img(src='~/assets/icons/Monogram.svg')
@@ -29,15 +39,34 @@
             img(src='~/assets/icons/Github.svg')
           span.name Github
           span.desc {{ $t('CODE_CONTIBUTE') }}
-        a.item(href="https://twitter.com/alcorexchange" target="_blank")
+        a.item(href="http://api.alcor.exchange/" target="_blank")
           .icon
-            img(src='~/assets/icons/Twitter.svg')
-          span.name Twitter
-          span.desc {{ $t('ANOUNCEMENT') }}
+            img(src='~/assets/icons/Api.svg')
+          span.name API
+          span.desc {{ $t('Alcor API Docs') }}
+
+        a.item(href="https://alcor.featurebase.app" target="_blank")
+          .icon
+            img(src='~/assets/icons/FeatureRequest.svg')
+          span.name Feature request
+          span.desc Participate in development
+
+        a.item(href="https://status.alcor.exchange" target="_blank")
+          .icon
+            img(src='~/assets/icons/Status.svg')
+          span.name Status Page
+          span.desc Check services health
+
+        //- a.item(href="https://status.alcor.exchange" target="_blank")
+        //-   .icon
+        //-     img(src='~/assets/icons/health-check.png')
+        //-   span.name Email
+        //-   span.desc support@alcor.exchange
+
       span.title {{ $t('PARTNERS_PROVIDERS') }}
       .items
-        a.item(v-for="{ image, url, padding } in items" :href="url" target="_blank" :style="{ padding }")
-          img(:src="image")
+        a.item(v-for="{ image, lightImage, url, padding } in items" :href="url" target="_blank" :style="{ padding }")
+          img(:src="$colorMode.value == 'dark' ? image : lightImage")
         a(href="https://eosamsterdam.net/")
           EOS(v-if="$colorMode.value == 'dark'")
           img(v-else src='~/assets/images/partners-1.svg')
@@ -53,29 +82,32 @@ export default {
   components: {
     SectionTitle,
     SSpacer,
-    EOS
+    EOS,
   },
   data: () => ({
     items: [
       {
-        image: 'https://bloks.io/img/history/greymass.svg',
-        url: 'https://greymass.com/en/'
+        image: require('@/assets/icons/Graymass_white.svg'),
+        lightImage: require('@/assets/icons/Graymass.svg'),
+        url: 'https://greymass.com/en/',
       },
-    ]
-  })
+    ],
+  }),
 }
 </script>
 
 <style scoped lang="scss">
 .supported-chains {
-  background: linear-gradient(181.03deg,
-      rgba(255, 255, 255, 0) 0%,
+  background: linear-gradient(
+    181.03deg,
+    rgba(255, 255, 255, 0) 0%,
 
-      rgba(57, 255, 136, 0.02) 15%,
-      rgba(57, 255, 136, 0.1) 50%,
-      rgba(57, 255, 136, 0.02) 85%,
+    rgba(57, 255, 136, 0.02) 15%,
+    rgba(57, 255, 136, 0.1) 50%,
+    rgba(57, 255, 136, 0.02) 85%,
 
-      rgba(255, 255, 255, 0) 100%);
+    rgba(255, 255, 255, 0) 100%
+  );
   padding: 20px 0;
   min-height: 300px;
 }
@@ -116,21 +148,15 @@ export default {
   }
 
   .social-items {
-    display: flex;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
-    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
 
-    // max-width: 640px;
     .item {
       display: flex;
       flex-direction: column;
       align-items: center;
       transition: opacity 0.3s;
-
-      @media only screen and (max-width: 600px) {
-        width: 50%;
-      }
 
       padding: 8px 12px;
 
@@ -165,6 +191,19 @@ export default {
       color: var(--text-grey-thirdly);
       text-align: center;
     }
+
+    @media only screen and (max-width: 680px) {
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: 10px;
+      row-gap: 24px;
+      .item {
+        padding: 0 !important;
+        font-size: 14px;
+      }
+      .name {
+        font-size: 20px;
+      }
+    }
   }
 }
 
@@ -192,14 +231,12 @@ export default {
     max-width: 90%;
     fill: red;
     color: red;
-
   }
 
   .more {
     margin-top: 15px;
   }
 }
-
 
 .items {
   margin-top: 40px;
@@ -211,7 +248,6 @@ export default {
     gap: 36px;
   }
 
-
   .item {
     display: flex;
 
@@ -221,7 +257,6 @@ export default {
       @media only screen and (max-width: 600px) {
         height: 26px;
       }
-
     }
   }
 }

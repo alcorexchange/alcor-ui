@@ -1,115 +1,140 @@
 <template lang="pug">
-.row(v-loading='loading')
-  .items
-    .item(v-for='wallet in wallets')
-      AlcorButton.button(@click='login(wallet.id)', alternative)
-        img.mr-2(:src='wallet.logo', height='30')
-        span {{ wallet.name }}
-  .divider
-    span.line
-    .text {{ $t("Don't have any wallet yet") }} ?
-    span.line
-  .footer-actions
-  .items(v-if='wallets.length > 0')
-    .item
-      AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
-        img.mr-2(:src='wallets[0].logo', height='30')
-        span {{ $t('Get') }} {{ $t(wallets[0].name) }}
-    .item
-      AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
-        img.mr-2(:src='wallets[1].logo', height='30')
-        span {{ $t('Get') }} {{ $t(wallets[1].name) }}
+#assets-modal-component.login-modal
+  .header
+    //.lead {{ context }}
+    .text-center(v-if="context && context.message") {{ context.message }}
+      .fs-20 {{ context.chain }}
+    .text-center.p-3(v-else) {{ $t('Select wallet') }}
+  .body.row(v-loading='loading')
+    .items
+      .item(v-for='wallet in wallets')
+        AlcorButton.button(@click='login(wallet.id)', alternative)
+          img.mr-2(:src='wallet.logo', height='30')
+          span {{ wallet.name }}
+    .divider
+      span.line
+      .text {{ $t("Don't have any wallet yet") }} ?
+      span.line
+    .items(v-if='wallets.length > 0')
+      .item
+        AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
+          img.mr-2(:src='wallets[0].logo', height='30')
+          span {{ $t('Get') }} {{ $t(wallets[0].name) }}
+      .item
+        AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
+          img.mr-2(:src='wallets[1].logo', height='30')
+          span {{ $t('Get') }} {{ $t(wallets[1].name) }}
+    .divider
+      span.line
+      .text {{ $t("Create Account") }}
+      span.line
+    .items(v-if='wallets[0]')
+      .item
+        AlcorButton.button(alternative, @click='openInNewTab("https://create.anchor.link/create?return_url=https%3A%2F%2Funicove.com%2F&scope=unicove")')
+          img.mr-2(:src='wallets[0].logo', height='30')
+          .details
+            span {{ $t('Antelope Account Creator') }}
+            span.description {{ $t('From Greymass Team') }}
 </template>
 
 <script>
+// TODO Добавить открытие кошельков под разные чейны
 import { captureException } from '@sentry/browser'
 import { mapState } from 'vuex'
 import AlcorButton from '@/components/AlcorButton'
+import AlcorModal from '~/components/AlcorModal.vue'
 
 export default {
   components: {
-    AlcorButton
+    AlcorButton,
+    AlcorModal
   },
   data() {
     return {
-      loading: false,
-
-      wallets: []
+      loading: false
     }
   },
 
   computed: {
-    ...mapState(['user', 'network'])
-  },
+    ...mapState(['user', 'network']),
+    ...mapState('modal', ['context']),
 
-  mounted() {
-    console.log('login mounted')
+    wallets() {
+      const chain = this.context?.chain ? this.context.chain : this.network.name
 
-    const wallets = [
-      {
-        id: 'anchor',
-        name: 'Anchor',
-        logo: require('@/assets/logos/anchor.svg'),
-        create: 'https://greymass.com/en/anchor/'
-      },
-      {
+      const wallets = [
+        {
+          id: 'anchor',
+          name: 'Anchor',
+          logo: require('@/assets/logos/anchor.svg'),
+          create: 'https://greymass.com/en/anchor/'
+        }
+      ]
+
+      if (this.network.name == 'proton' || this.context?.chain == 'proton') {
+        wallets.push({
+          id: 'proton',
+          name: 'Proton',
+          logo: require('@/assets/icons/proton.png'),
+          create: 'https://www.protonchain.com/wallet/'
+        })
+      }
+
+      if (chain == 'wax') {
+        wallets.push({
+          id: 'wcw',
+          name: 'Wax Cloud Wallet',
+          logo: require('@/assets/logos/wax.svg'),
+          index: 'wax',
+          create: 'https://www.mycloudwallet.com/signin#create-account'
+        })
+        wallets.push({
+          id: 'wombat',
+          name: '',
+          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
+        })
+      }
+
+      if (chain == 'eos') {
+        wallets.push({
+          id: 'wombat',
+          name: '',
+          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
+        })
+        wallets.push({
+          name: 'Keycat',
+          logo: require('@/assets/logos/keycat.svg')
+        })
+      }
+
+      wallets.push({
         id: 'scatter',
         name: 'Scatter / TP / Starteos',
         logo: require('@/assets/logos/scatter.svg'),
         create:
           'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
-      },
-      {
+      }, {
         name: 'SimplEOS',
         logo: require('@/assets/logos/simpleos.svg')
-      },
-      { name: 'Lynx', logo: require('@/assets/logos/lynx.svg') },
-      { name: 'Ledger', logo: require('@/assets/logos/ledger.svg') }
-    ]
+      }, {
+        name: 'Ledger', logo: require('@/assets/logos/ledger.svg')
+      })
 
-    if (this.network.name == 'eos') {
-      wallets.push({
-        id: 'scatter',
-        name: '',
-        logo: require('@/assets/logos/wombat.png')
-      })
-      wallets.push({
-        name: 'Keycat',
-        logo: require('@/assets/logos/keycat.svg')
-      })
+      if (chain == 'telos') {
+        wallets.push({
+          id: 'wombat',
+          name: '',
+          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
+        })
+      }
+
+      return wallets
     }
-
-    if (this.network.name == 'wax') {
-      wallets.unshift({
-        id: 'wcw',
-        name: 'Wax Cloud Wallet',
-        logo: require('@/assets/logos/wax.svg'),
-        index: 'wax',
-        create: 'https://all-access.wax.io/'
-      })
-      wallets.push({
-        id: 'scatter',
-        name: '',
-        logo: require('@/assets/logos/wombat.png')
-      })
-    }
-
-    if (this.network.name == 'proton') {
-      wallets.unshift({
-        id: 'proton',
-        name: 'Proton',
-        logo: require('@/assets/icons/proton.png'),
-        create: 'https://www.protonchain.com/wallet/'
-      })
-    }
-
-    this.wallets = wallets
   },
 
   methods: {
     async login(provider) {
       this.loading = true
-
       try {
         await this.$store.dispatch('chain/login', provider)
         this.$store.dispatch('modal/closeModal')
@@ -122,6 +147,7 @@ export default {
         })
       } finally {
         this.loading = false
+        this.$store.state.modal.context = null
       }
     }
   }
@@ -129,15 +155,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.login-modal {
+  max-width: 650px;
+  .body {
+    padding: 15px;
+  }
+}
+
 .items {
   display: flex;
   flex-wrap: wrap;
   padding: 14px;
+  max-width: 840px;
   width: 100%;
 
   .item {
     width: 50%;
     padding: 6px;
+    .details {
+      flex: 1;
+      .description {
+        color: var(--text-disable);
+        font-size: 12px;
+      }
+    }
   }
 }
 

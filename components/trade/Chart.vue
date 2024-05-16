@@ -9,6 +9,7 @@ import { Big } from 'big.js'
 import { mapState, mapGetters } from 'vuex'
 
 export default {
+  props: ['blank'],
   data() {
     return {
       resolution: 240,
@@ -66,6 +67,7 @@ export default {
       'quote_token',
       'chart_orders_settings',
       'orderdata',
+      'slug'
     ]),
 
     orders() {
@@ -90,12 +92,10 @@ export default {
     },
 
     deals(to, from, x) {
-      console.log(to.length, from.length)
       if (to.length > from.length) this.gridExecution()
     },
 
     id(to, from) {
-      console.log('market changed!!')
       this.isReady = false
       this.reset()
       //this.load()
@@ -141,11 +141,6 @@ export default {
   },
 
   methods: {
-    lol() {
-      console.log('lol called')
-      this.widget.activeChart().removeAllShapes()
-    },
-
     save() {
       const twChart = JSON.parse(
         JSON.stringify(this.$store.state.settings.twChart)
@@ -162,10 +157,18 @@ export default {
       if (!twChart || !twChart.charts) return
       this.widget.load(twChart)
     },
-
+    applySettings() {
+      if (this.blank) {
+        this.$store.commit('market/backupChartOrdersSettings')
+        this.$store.commit('market/setChartOrdersSettingsDefault')
+      } else {
+        this.$store.commit('market/setChartOrdersSettingsFromBackup')
+      }
+    },
     applyTheme() {
       const theme = this.chartThemes[this.$colorMode.value]
-      const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
+      const colors = this.chartColors[window.localStorage.getItem('trade-theme') || 'default']
+
       const isFundamentalPage = this.$route.name.startsWith('fundamentals-slug')
 
       this.widget.onChartReady(() => {
@@ -199,7 +202,6 @@ export default {
     },
 
     reset() {
-      console.log('reset called..', this.onResetCacheNeededCallback)
       if (this.widget && this.onResetCacheNeededCallback) {
         this.cleanOrders()
         this.onResetCacheNeededCallback()
@@ -243,7 +245,7 @@ export default {
             .setCancelButtonIconColor('#f2fff2')
           if (this.chart_orders_settings.show_labels) {
             order
-              .setQuantity(o.type == 'buy' ? o.bid.quantity : o.ask.quantity) // TODO Cut the zeros
+              .setQuantity(o.type !== 'buy' ? o.bid.quantity : o.ask.quantity) // TODO Cut the zeros
               .setLineLength(3)
           } else {
             order
@@ -356,7 +358,6 @@ export default {
 
     async loadHistory({ from, to }) {
       if (!this.user || !this.user.name) return
-      console.log('loadHistory..')
 
       const { data: deals } = await this.$axios.get(
         `/account/${this.user.name}/deals`,
@@ -378,8 +379,6 @@ export default {
 
     gridExecution() {
       if (!this.user || !this.widget || !this.chart_orders_settings.show_trade_executions) return
-
-      console.log('Grid execution...')
 
       //this.gridExecutions.map(e => e.remove())
       //this.gridExecutions = []
@@ -420,7 +419,7 @@ export default {
             disableSave: true
           }
 
-          const text = (deal.type == 'buy' ? `${deal.bid}` : `${deal.ask}`) + ' WAX'
+          const text = `${deal.type == 'buy' ? deal.bid : deal.ask} ${this.quote_token.symbol.name}`
           if (this.chart_orders_settings.show_trade_execution_amount) {
             options.text = text
           }
@@ -450,22 +449,20 @@ export default {
 
     mountChart() {
       const { $TVChart: { Widget } } = this
-      console.log('mountChart')
 
       const theme = this.chartThemes[this.$colorMode.value]
-      const colors = this.chartColors[window.localStorage.getItem('trade-theme')]
+      const colors = this.chartColors[window.localStorage.getItem('trade-theme') || 'default']
 
       const widgetOptions = {
         symbol: this.quote_token.symbol.name,
 
         datafeed: {
           onReady: (cb) => {
-            console.log('onReady called...')
             setTimeout(() => {
               cb({
                 //exchanges: [{ value: 'asdfasdf', name: 'aaaa', desc: 'df' }],
                 //symbols_types: [{ value: 'asdfasdf', name: 'aaaa' }],
-                supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+                supported_resolutions: ['1', '5', '15', '30', '60', '240', 'D', 'W', 'M'],
                 //currency_codes: [{ id: 'asdf', code: 'SDF', logoUrl: 'asdf', description: 'asdfasdf' }]
                 // TODO https://github.com/tradingview/charting_library/wiki/JS-Api do more
                 supports_time: false
@@ -493,7 +490,7 @@ export default {
               has_intraday: true,
               has_no_volume: false,
               has_weekly_and_monthly: true,
-              supported_resolutions: ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+              supported_resolutions: ['1', '5', '15', '30', '60', '240', 'D', 'W', 'M'],
               volume_precision: 5,
               data_status: 'streaming'
             }
@@ -504,9 +501,9 @@ export default {
             this.resolution = resolution
 
             this.widget.activeChart().setSymbol(this.quote_token.symbol.name)
-            this.$axios.get(`/markets/${this.id}/charts`, { params: { resolution, from, to } })
+            this.$axios.get(`/v2/tickers/${this.slug}/charts`, { params: { resolution, from: from * 1000, to: to * 1000 } })
               .then(({ data: charts }) => {
-                onHistoryCallback(charts.reverse(), { noData: charts.length == 0 })
+                onHistoryCallback(charts, { noData: charts.length == 0 })
 
                 if (firstDataRequest) {
                   this.widget.activeChart().removeAllShapes()
@@ -572,7 +569,7 @@ export default {
         library_path: '/charting_library/',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         favorites: {
-          intervals: this.isMobile ? ['4'] : ['1', '15', '30', '60', '240', 'D', 'W', 'M'],
+          intervals: this.isMobile ? ['4'] : ['1', '5', '15', '30', '60', '240', 'D', 'W', 'M'],
           //chartTypes: ["Area", "Line"]
         },
         locale: 'en', // TODO Change lang
@@ -608,7 +605,7 @@ export default {
 
           'popup_hints',
 
-          'save_chart_properties_to_local_storage',
+          //'save_chart_properties_to_local_storage',
           //'use_localstorage_for_settings'
 
           //'header_resolutions',
@@ -628,6 +625,7 @@ export default {
 
         //fullscreen: false,
         autosize: true,
+        auto_save_delay: 0,
         studies_overrides: () => ({}),
 
         // Styles
@@ -665,8 +663,14 @@ export default {
       this.widget.onChartReady(() => {
         this.load()
         this.applyTheme()
+        this.applySettings()
 
         this.widget.subscribe('onAutoSaveNeeded', () => {
+          this.save()
+        })
+
+        // Save on indicators update
+        this.widget.subscribe('study_event', () => {
           this.save()
         })
       })

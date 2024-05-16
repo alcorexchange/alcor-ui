@@ -48,38 +48,33 @@ export default {
   computed: {
     ...mapState(['network', 'markets']),
     ...mapState('market', ['symbol', 'id', 'stats', 'streaming']),
-    ...mapGetters('market', ['relatedPool']),
     ...mapGetters(['user'])
   },
 
   watch: {
-    relatedPool(to, from) {
-      if ((to && from) && to.id == from.id) return
-      if (this.relatedPool) this.$store.dispatch('swap/startStream', this.relatedPool.id)
-    }
   },
 
   mounted() {
     this.$store.dispatch('loadOrders', this.id)
-    if (this.relatedPool) this.$store.dispatch('swap/startStream', this.relatedPool.id)
     if (!this.streaming) {
       this.$store.dispatch('market/startStream', this.id)
     }
   },
 
   head() {
-    const { symbol, quote_token, base_token } = this.$store.state.market
+    const { symbol, quote_token, stats: { last_price } } = this.$store.state.market
 
     return {
-      title: `Alcor Exchange | Market ${symbol}`,
+      title: `${last_price.toFixed(7)} | ${symbol} | Alcor Exchange (Spot)`,
 
       meta: [
         {
           hid: 'description',
           name: 'description',
-          content: `Trade ${quote_token.symbol.name} for ${base_token.symbol.name} onchain!`,
+          content: `Trade ${symbol} on Biggest DEX at ${this.network.desc} blockchain. No KYC, no limits.`,
         },
         {
+          // Will fail for non local images (ie. from eos-airdrops)
           hid: 'og:image',
           name: 'og:image',
           content: this.$tokenLogo(

@@ -8,6 +8,10 @@
     el-tab-pane(name='fav')
       span(slot='label')
         i.el-icon-star-off(:class='{ "el-icon-star-on": isFavorite }')
+    el-tab-pane(name='owned')
+      .owned.d-flex.align-items-center(slot='label')
+        i.el-icon-wallet
+        span Owned
 
     el-tab-pane(:label='$t("All")', name='all')
     el-tab-pane(:label='network.baseToken.symbol' name='system')
@@ -25,7 +29,7 @@
       template(v-if="sideMaretsTab == 'system'" slot="append")
         el-checkbox(v-model="showVolumeInUSD") USD
 
-  virtual-table.market-table(:table="virtualTableData")
+  virtual-table.market-table(:table="virtualTableData" v-if="sideMaretsTab != 'owned' || user && user.balances")
     template(#row="{ item }")
       .market-table-row(@click="() => setMarket(item)" :class="{ 'active-row': id === item.id }")
         .pair-name
@@ -49,7 +53,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters, mapActions } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import VirtualTable from '~/components/VirtualTable'
@@ -71,6 +75,7 @@ export default {
     ...mapState(['markets', 'network']),
     ...mapState('market', ['id', 'quote_token']),
     ...mapState('settings', ['favMarkets']),
+    ...mapGetters(['user']),
 
     showVolumeInUSD: {
       get() {
@@ -125,6 +130,12 @@ export default {
           )
           break
 
+        case 'owned':
+          markets = this.markets.filter(market =>
+            this.user.balances.find(({ currency }) => market.quote_token.symbol.name === currency)
+          ) || []
+          break
+
         case 'Terraformers':
           markets = this.markets.filter(
             i => i.quote_token.contract == 'unboundtoken'
@@ -138,9 +149,7 @@ export default {
           markets = this.markets.filter((i) => {
             return (
               ibcTokens.includes(i.base_token.contract) ||
-              ibcTokens.includes(i.quote_token.contract) ||
-              Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
-              Object.keys(this.network.withdraw).includes(i.base_token.str)
+              ibcTokens.includes(i.quote_token.contract)
             )
           })
           break
@@ -286,6 +295,11 @@ export default {
 
 <style lang="scss">
 .markets-bar {
+  display: flex;
+  flex-direction: column;
+  .market-table {
+    flex: 1;
+  }
   .vue-recycle-scroller {
     background-color: var(--bg-big-card);
   }
@@ -439,5 +453,9 @@ export default {
   width: 25%;
   text-align: right;
   justify-content: end;
+}
+
+.owned {
+  gap: 10px;
 }
 </style>

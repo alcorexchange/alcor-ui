@@ -12,7 +12,7 @@
           .d-item(@click='logout') {{ $t('Logout') }}
     AlcorButton.connect-button(
       v-else='',
-      @click='$store.dispatch("modal/login")'
+      @click='$store.dispatch("chain/mainLogin")'
     )
       | {{ $t('Connect Wallet') }}
 

@@ -1,7 +1,7 @@
 <template lang="pug">
-router-link(:to="{ name: `trade-index-id___${$i18n.locale}`, params: { id: promo.slug } }")
+component(:is="promo.bannerUrl ? 'a' : 'router-link'" :href="promo.bannerUrl" :target="promo.bannerUrl ? '_blank' : '_self'" :to="!promo.bannerUrl && { name: `trade-index-id___${$i18n.locale}`, params: { id: promo.slug } }")
   .promo
-    .chart(v-if="series[0].data")
+    .chart(v-if="series[0].data.length")
       .header
         token-image(:src="$tokenLogo(promo.quote_token.symbol.name, promo.quote_token.contract)")
         .title {{ promo.symbol }}
@@ -19,7 +19,7 @@ router-link(:to="{ name: `trade-index-id___${$i18n.locale}`, params: { id: promo
             .gray {{ $t('1D Volume') }}
             span {{ promo.volume24.toFixed(2).replace('.', ',') }}
           .data(:class="{ isRed: isVolRed, isZero: isVolZero }") ({{ liquidityPercent }} %)
-    .banner
+    .banner.pointer
       img(:src="bannerSrc")
       img(:src="bannerSrc").blur
 </template>
@@ -41,9 +41,9 @@ const COLORS = {
 
 export default {
   components: { AlcorChart, TokenImage },
-  props: ['promo'],
+  props: ['promo', 'bannerImg', 'bannerUrl'],
   data: () => ({
-    series: [{ name: 'Price' }],
+    series: [{ name: 'Price', data: [] }],
     liquidity: [],
     interval: null,
     pricePercent: null,
@@ -62,12 +62,14 @@ export default {
           fontFamily: 'Roboto, Arial, sans-serif'
         }
       },
+
       grid: {
         borderColor: 'var(--border-color)',
         xaxis: { lines: { show: true } },
         yaxis: { lines: { show: true } }
       },
       xaxis: {
+        text: 'Price',
         lines: { show: false },
         type: 'datetime',
         tooltip: { enabled: false },
@@ -91,6 +93,7 @@ export default {
       yaxis: {
         lines: { show: false },
         opposite: true,
+        type: 'numeric',
         axisTicks: {
           show: true,
           color: 'var(--border-color)',
@@ -102,12 +105,12 @@ export default {
             fontSize: '10px',
             fontFamily: 'Roboto, Arial, sans-serif'
           }
-        }
+        },
       }
     }
   }),
   computed: {
-    bannerSrc() { return require(`@/assets/promo/${this.promo.quote_token.contract}.png`) },
+    bannerSrc() { return require(`@/assets/promo/${this.promo.bannerImg || this.promo.quote_token.contract}.png`) },
     isRed() { return this.pricePercent <= 0 },
     isZero() { return this.pricePercent === 0 },
     isVolRed() { return this.liquidityPercent <= 0 },
@@ -128,7 +131,7 @@ export default {
   destroyed() { clearInterval(this.interval) },
   methods: {
     async fetchCharts() {
-      if (this.promo) {
+      if (this.promo && this.promo.poolId) {
         const charts = (await this.$axios.get(`/pools/${this.promo.poolId}/charts`, { params: { period: '24H' } })).data
         const newData = charts.map(point =>
           ({ x: point.time, y: this.$options.filters.commaFloat(point.price) })
@@ -136,7 +139,8 @@ export default {
         this.liquidity = charts.map(point =>
           ({ x: point.time, y: point.liquidity1.toFixed(6) })
         )
-        this.series = [{ ...this.series, data: newData }]
+        this.series[0].data = newData
+        // FIXME: Maybe move it out of 'if'.
         this.options.colors = [COLORS[this.$colorMode.value][this.isRed ? 'down' : 'up']]
       }
     },

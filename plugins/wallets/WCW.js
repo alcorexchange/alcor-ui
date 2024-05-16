@@ -11,6 +11,7 @@ class WalletBase {
 }
 
 export default class WCWWallet extends WalletBase {
+  name = 'wcw'
   wax = null
 
   constructor(network, rpc) {
@@ -23,11 +24,12 @@ export default class WCWWallet extends WalletBase {
 
   async checkLogin() {
     const isAutoLoginAvailable = await this.wax.isAutoLoginAvailable()
-    console.log('check wax autoLogin')
+    console.log('check wax autoLogin', isAutoLoginAvailable)
 
     if (isAutoLoginAvailable) {
       console.log('wcw auto logined')
       return {
+        chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', //WCW is only for wax so we hardcode that
         name: this.wax.user.account,
         authorization: {
           actor: this.wax.user.account, permission: 'active'
@@ -49,7 +51,7 @@ export default class WCWWallet extends WalletBase {
     }
   }
 
-  transact(actions) {
-    return this.wax.api.transact({ actions }, { blocksBehind: 3, expireSeconds: 1200 })
+  transact(...args) {
+    return this.wax.api.transact(...args)
   }
 }

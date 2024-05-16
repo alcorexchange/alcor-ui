@@ -1,7 +1,14 @@
 <template lang="pug">
-.wrapper(@click="redirect" :class="{ 'mobile': isMobile }")
+NuxtLink.wrapper(:to="localeRoute(`/trade/${item.slug}`)" :class="{ 'mobile': isMobile }")
   .label
-    token-image.token(:src='$tokenLogo(item.quote_name, item.contract)')
+    PairIcons(
+      v-if="isUSDTbase"
+      :size="isMobile ? '16' : undefined"
+      :token1="{ symbol: item.quote_name, contract: item.contract }"
+      :token2="{ symbol: item.base_name, contract: item.base_contract }")
+
+    TokenInfoImage(v-else :symbol="item.quote_name" :contract="item.contract" :height="isMobile ? '16' : undefined")
+
     .name
       span {{ item.quote_name }}
       .text-muted(v-if='!isMobile') {{ item.contract }}
@@ -11,18 +18,18 @@
   .promoted
     img(v-if="!isMobile && item.promoted" src="~/assets/icons/badge-promoted.svg")
   .last-price(:class="{ down: item.change24 < 0 }")
-    span(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.last_price, 8) }}
+    span(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") $ {{ $systemToUSD(item.last_price, 8, 8, item.base_name == 'USDT') }}
     span(v-else)
       span {{ item.last_price }}
       span(v-if="!isMobile")
         |  {{ item.base_name }}
   .day-vol(v-if='!isMobile')
-    span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.volume24) }}
+    span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") $ {{ $systemToUSD(item.volume24, 2, 2, item.base_name == 'USDT') }}
     span.text-mutted(v-else) {{ item.volume24.toFixed(2) | commaFloat }} {{ item.base_name }}
   .day-change(v-if='!isMobile')
     change-percent(:change='item.change24')
   .week-vol
-    span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") ${{ $systemToUSD(item.volume_week) }}
+    span.text-mutted(v-if="showVolumeInUSD && marketsActiveTab == network.baseToken.symbol") $ {{ $systemToUSD(item.volume_week, 2, 2, item.base_name == 'USDT') }}
     span.text-mutted(v-else)
       | {{ item.volume_week.toFixed(2) | commaFloat }}
       span(v-if="!isMobile")
@@ -33,20 +40,28 @@
 
 <script>
 import { mapState } from 'vuex'
-import TokenImage from '~/components/elements/TokenImage'
+import TokenInfoImage from '~/components/elements/TokenInfoImage'
 import ChangePercent from '~/components/trade/ChangePercent'
+import PairIcons from '~/components/PairIcons'
 
 export default {
-  components: { TokenImage, ChangePercent },
+  components: { TokenInfoImage, ChangePercent, PairIcons },
   props: ['item', 'showVolumeInUSD', 'marketsActiveTab'],
   computed: {
-    ...mapState(['network'])
+    ...mapState(['network']),
+
+    isUSDTbase() {
+      return this.network.USD_TOKEN.includes(this.item.base_contract)
+    },
   },
   methods: {
     redirect() {
-      this.$router.push({ name: `trade-index-id___${this.$i18n.locale}`, params: { id: this.item.slug } })
-    }
-  }
+      this.$router.push({
+        name: `trade-index-id___${this.$i18n.locale}`,
+        params: { id: this.item.slug },
+      })
+    },
+  },
 }
 </script>
 
@@ -59,6 +74,7 @@ export default {
   gap: 10px;
   border-bottom: 1px solid var(--background-color-base);
   cursor: pointer;
+  color: inherit;
 }
 
 .wrapper:hover {
@@ -68,11 +84,6 @@ export default {
 .wrapper .label {
   display: flex;
   align-items: center;
-}
-
-.wrapper.mobile .token {
-  width: 16px;
-  height: 16px;
 }
 
 .wrapper.mobile {
@@ -85,13 +96,13 @@ export default {
   text-align: right;
 }
 
-.wrapper.mobile>.last-price,
-.wrapper.mobile>.week-vol {
+.wrapper.mobile > .last-price,
+.wrapper.mobile > .week-vol {
   width: 33%;
 }
 
-.wrapper.mobile>.label,
-.wrapper.mobile>.promoted {
+.wrapper.mobile > .label,
+.wrapper.mobile > .promoted {
   width: 16%;
 }
 
@@ -126,7 +137,7 @@ export default {
 
 .name {
   display: flex;
-  gap: .3rem;
+  gap: 0.3rem;
   position: relative;
 }
 
@@ -135,8 +146,8 @@ export default {
 }
 
 .promo-label {
-  color: #1FC781;
-  border: 1px solid #66C167;
+  color: #1fc781;
+  border: 1px solid #66c167;
   border-radius: 4px;
   padding: 0 4px;
   position: absolute;
@@ -148,10 +159,13 @@ export default {
 }
 
 .last-price {
-  color: var(--main-green)
+  color: var(--main-green);
 }
 
 .last-price.down {
   color: var(--main-red);
+}
+.last-price span {
+  text-align: right;
 }
 </style>

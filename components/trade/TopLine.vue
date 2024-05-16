@@ -15,7 +15,7 @@ client-only
           .contract-info(:href='monitorAccount(quote_token.contract)', target='_blank')
             a.underline(:href='monitorAccount(quote_token.contract)', target='_blank') {{ quote_token.contract }}
             el-dropdown(placement="bottom")
-              nuxt-link.token-info(:to="{ name: `fundamentals-slug___${$i18n.locale}`, params: { slug: `${quote_token.symbol.name}@${quote_token.contract}` } }") ?
+              nuxt-link.token-info(:to="{ name: `analytics-tokens-id___${$i18n.locale}`, params: { id:`${quote_token.symbol.name.toLowerCase()}-${quote_token.contract}` } }") ?
               el-dropdown-menu(slot='dropdown')
                 .token-info-box
                   .info-box-row
@@ -29,7 +29,7 @@ client-only
                     .value 21/03/2022 10:00PM
                   .info-box-row(v-if="stat && stat.supply")
                     .key.cancel {{ $t('Circulating Supply') }}
-                    .value {{ stat.supply }}
+                    .value {{ stat.supply.replace('.', ',') }}
                   .info-box-row
                     .key.cancel {{ $t('Website') }}
                     a.value.link(v-if="fundamental && fundamental.website" :href="fundamental.website.link") {{ fundamental.website.name }}
@@ -46,7 +46,6 @@ client-only
 
           //i.el-icon-question.ml-2
           //img(src="~/assets/icons/question.svg").ml-2
-
 
       .d-flex.flex-column
         div(:class="stats.change24 > 0 ? 'green' : 'red'") {{ price }} &nbsp;
@@ -92,7 +91,6 @@ import { mapState, mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
-import Withdraw from '~/components/withdraw/Withdraw'
 import Markets from '~/components/trade/Markets'
 
 
@@ -100,7 +98,6 @@ export default {
   components: {
     TokenImage,
     ChangePercent,
-    Withdraw,
     Markets
   },
 
@@ -168,11 +165,8 @@ export default {
     ...mapGetters('market', ['price']),
 
     fundamental() {
+      if (!this.$fundamentals[this.$store.state.network.name]) return null
       return this.$fundamentals[this.$store.state.network.name][this.quote_token.str]
-    },
-
-    hasWithdraw() {
-      return Object.keys(this.network.withdraw).includes(this.quote_token.str)
     },
 
     isFavorite() {
@@ -353,11 +347,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: var(--cancel);
+  color: var(--cancel) !important;
 
   a.underline {
     text-decoration: underline !important;
-    color: var(--cancel);
+    color: var(--cancel) !important;
   }
 }
 
@@ -372,7 +366,7 @@ export default {
   border-radius: 50%;
   cursor: pointer;
   text-decoration: none;
-  color: var(--cancel);
+  color: var(--cancel) !important;
 }
 
 .token-info-box {

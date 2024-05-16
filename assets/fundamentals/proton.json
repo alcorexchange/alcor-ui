@@ -1,0 +1,20 @@
+{
+"CTRAVL@tokencreate": {
+    "name": "Travel Deals",
+    "website": {
+      "link": "https://cryptotraveldeals.com/",
+      "name": "Crypto Travel Deals"
+    },
+    "tags": [
+      "Affiliate",
+      "travel",
+      "staking",
+      "XPR"
+    ],
+    "socials": [
+      "https://t.me/Homebloks/377",
+      "https://twitter.com/XPRtravel"
+    ],
+    "description": "Crypto Travel Deals is a global, crypto-only, travel portal built on the XPR Network blockchain. No gas fees, discounts for stakers, and affiliate income!"
+  }
+}

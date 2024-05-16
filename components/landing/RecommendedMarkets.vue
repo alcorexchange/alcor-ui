@@ -72,8 +72,9 @@ export default {
 
 .items {
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
+  gap: 34px;
+  justify-content: flex-start;
 }
 
 .item-container {

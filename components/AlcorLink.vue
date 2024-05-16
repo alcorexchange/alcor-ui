@@ -1,5 +1,5 @@
 <template lang="pug">
-nuxt-link(:to="localePath(to, $i18n.locale)" :class="['alcor-button', { flat, iconOnly, iconOnlyAlt }]" :exact='exact' @click.prevent="$emit('click')")
+nuxt-link(:to="localePath(to, $i18n.locale)" :class="['alcor-button', { big, flat, iconOnly, iconOnlyAlt }]" :exact='exact' @click.prevent="$emit('click')")
   .inner
     slot
 </template>
@@ -9,26 +9,30 @@ export default {
   name: 'AlcorButton',
   props: {
     to: {
-      default: '/'
+      default: '/',
+    },
+    big: {
+      default: false,
+      type: Boolean,
     },
     exact: {
-      default: false
+      default: false,
     },
     flat: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     iconOnly: {
-      default: false
+      default: false,
     },
     iconOnlyAlt: {
-      default: false
+      default: false,
     },
     green: {
       default: false,
-      type: Boolean
-    }
-  }
+      type: Boolean,
+    },
+  },
 }
 </script>
 
@@ -44,11 +48,21 @@ button {
 .alcor-button {
   padding: 6px 10px;
   border-radius: var(--radius);
-  color: var(--text-default) !important;
+  color: var(--text-default);
   background: var(--btn-default);
   transition: all 0.3s;
   display: inline-block;
   text-decoration: none;
+}
+
+.alcor-button.big {
+  padding: 17px 12px;
+  width: 135px;
+  border-radius: var(--radius-2);
+}
+
+.alcor-button.active {
+  background: var(--background-color-third);
 }
 
 .alcor-button .vs-icon {
@@ -60,7 +74,7 @@ button {
 }
 
 .alcor-button:hover {
-  background: var(--hover);
+  background: var(--background-color-third);
 }
 
 .alcor-button.flat:hover {
@@ -72,6 +86,7 @@ button {
   justify-content: center;
   align-items: center;
   font-size: 14px;
+  gap: 4px;
 }
 
 .iconOnly {
