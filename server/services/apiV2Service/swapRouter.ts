@@ -10,7 +10,7 @@ export const swapRouter = Router()
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const ROUTES = {}
 const ROUTES_EXPIRATION_TIMES = {}
-const ROUTES_CACHE_TIMEOUT = 60 * 5 // Кеш таймаут в секундах
+const ROUTES_CACHE_TIMEOUT = 60 * 60 * 1 // 1H
 const ROUTES_UPDATING = {} // Объект для отслеживания обновлений кеша
 
 function getCachedRoutes(chain, POOLS, inputTokenID, outputTokenID, maxHops = 2) {
