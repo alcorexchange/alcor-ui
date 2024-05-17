@@ -331,9 +331,8 @@ export async function updatePools(chain) {
       }
 
       to_create.push(p)
-    } else {
-      await updatePool(chain, pool.id)
     }
+    await updatePool(chain, pool.id)
   }
 
   console.log('updated pools for ', chain)
