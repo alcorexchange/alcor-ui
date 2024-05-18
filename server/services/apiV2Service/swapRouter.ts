@@ -128,17 +128,17 @@ swapRouter.get('/getRoute', async (req, res) => {
   let trade
   let routes = await getCachedRoutes(network.name, POOLS, input, output, Math.min(maxHops, 3))
 
-  if (routes.length > 1000) {
-    // cut top 1000 pools by liquidity
-    routes.sort((a, b) => {
-      const aLiquidity = a.pools.reduce((acc, p) => JSBI.add(acc, p.liquidity), JSBI.BigInt(0))
-      const bLiquidity = b.pools.reduce((acc, p) => JSBI.add(acc, p.liquidity), JSBI.BigInt(0))
+  // if (routes.length > 1000) {
+  //   // cut top 1000 pools by liquidity
+  //   routes.sort((a, b) => {
+  //     const aLiquidity = a.pools.reduce((acc, p) => JSBI.add(acc, p.liquidity), JSBI.BigInt(0))
+  //     const bLiquidity = b.pools.reduce((acc, p) => JSBI.add(acc, p.liquidity), JSBI.BigInt(0))
 
-      return JSBI.greaterThan(aLiquidity, bLiquidity) ? -1 : 1
-    })
+  //     return JSBI.greaterThan(aLiquidity, bLiquidity) ? -1 : 1
+  //   })
 
-    routes = routes.slice(0, 1000)
-  }
+  //   routes = routes.slice(0, 1000)
+  // }
 
   try {
     if (v2) {
