@@ -147,7 +147,7 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   console.log(
     network.name,
-    `find route ${inputToken.symbol} -> ${outputToken.symbol} took maxHops('${maxHops}') ${Math.round(
+    `find route ${maxHops} hop ${inputToken.symbol} -> ${outputToken.symbol} ${Math.round(
       endTime - startTime
     )} ms v2: ${Boolean(v2)}`
   )
