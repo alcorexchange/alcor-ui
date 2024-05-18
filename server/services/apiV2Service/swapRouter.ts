@@ -25,6 +25,10 @@ subscriber.subscribe('swap:pool:instanceUpdated', msg => {
 
   if (!POOLS[chain]) return getAllPools(chain)
 
+  if (!pool) {
+    console.warn('ADDING NULL POOL TO POOLS MAP!', pool)
+  }
+
   POOLS[chain].set(pool.id, pool)
 })
 
@@ -154,6 +158,18 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   let trade
   let routes = await getCachedRoutes(network.name, POOLS, input, output, Math.min(maxHops, 3))
+
+  const poolsMap = Array.isArray(allPools) ? new Map(allPools.map(p => [p.id, p])) : allPools
+  for (const route of routes) {
+    const freshPools = route.pools.map(p => {
+      const pool = poolsMap.get(p.id)
+      if (!pool) {
+        console.log('POOL NOT FIND IN THE POOLS MAP!', p.id, pool)
+      }
+      // Creating new instance
+      return Pool.fromBuffer(Pool.toBuffer(pool))
+    })
+  }
 
   // if (routes.length > 1000) {
   //   // cut top 1000 pools by liquidity
