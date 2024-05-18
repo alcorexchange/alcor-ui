@@ -151,7 +151,12 @@ swapRouter.get('/getRoute', async (req, res) => {
     return res.status(403).send('Invalid input/output')
   }
 
-  amount = tryParseCurrencyAmount(amount, exactIn ? inputToken : outputToken)
+  try {
+    amount = tryParseCurrencyAmount(amount, exactIn ? inputToken : outputToken)
+  } catch (e) {
+    return res.status(403).send(e.message)
+  }
+
   if (!amount) {
     return res.status(403).send('Invalid amount')
   }
