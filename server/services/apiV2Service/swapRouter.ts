@@ -139,12 +139,6 @@ swapRouter.get('/getRoute', async (req, res) => {
     routes = routes.slice(0, 1000)
   }
 
-  for (const r of routes) {
-    const aLiquidity = r.pools.reduce((acc, p) => JSBI.add(acc, p.liquidity), JSBI.BigInt(0))
-    console.log('aLiquidity', aLiquidity.toString())
-    //console.log(r.pools.reduce((acc, p) => acc += p.id + ',', ''), r.midPrice.toSignificant())
-  }
-
   try {
     if (v2) {
       return res.status(403).send('')
