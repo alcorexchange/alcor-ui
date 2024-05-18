@@ -16,23 +16,29 @@ export function getPoolPriceB(sqrtPriceX64, precisionA, precisionB) {
   return Big(2).pow(128).div(Big(sqrtPriceX64).pow(2).times(10).pow(precisionB - precisionA)).toString()
 }
 
+export async function poolInstanceFromMongoPool(poolMongo) {
+  poolMongo = poolMongo.toObject()
+
+  const ticks: any[] = Array.from((await getRedisTicks(poolMongo.chain, poolMongo.id)).values())
+  ticks.sort((a, b) => a.id - b.id)
+
+  const { tokenA, tokenB } = poolMongo
+
+  return new Pool({
+    ...poolMongo,
+    tokenA: new Token(tokenA.contract, tokenA.decimals, tokenA.symbol),
+    tokenB: new Token(tokenB.contract, tokenB.decimals, tokenB.symbol),
+    tickCurrent: poolMongo.tick,
+    ticks
+  })
+}
+
 export async function getPoolInstance(chain: string, id): Promise<Pool> {
   // Based on swap only, right now
   const pool = await SwapPool.findOne({ chain, id }).lean()
   if (!pool) return undefined
 
-  const ticks: any[] = Array.from((await getRedisTicks(chain, id)).values())
-  ticks.sort((a, b) => a.id - b.id)
-
-  const { tokenA, tokenB } = pool
-
-  return new Pool({
-    ...pool,
-    tokenA: new Token(tokenA.contract, tokenA.decimals, tokenA.symbol),
-    tokenB: new Token(tokenB.contract, tokenB.decimals, tokenB.symbol),
-    tickCurrent: pool.tick,
-    ticks
-  })
+  return await poolInstanceFromMongoPool(pool)
 }
 
 export async function getPools(chain: string, fetchTicks = true, filterFunc = (p: any) => true) {

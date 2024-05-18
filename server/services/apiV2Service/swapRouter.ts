@@ -1,18 +1,44 @@
-import JSBI from 'jsbi'
 import { performance } from 'perf_hooks'
 import { Worker } from 'worker_threads'
-import { Trade, Percent, Token, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
+import { createClient } from 'redis'
+import { Trade, Percent, Token, Pool, Route, TickListDataProvider } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 import { tryParseCurrencyAmount } from '../../../utils/amm'
 import { getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 
+const subscriber = createClient()
+subscriber.connect()
+
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
+
+const POOLS = {}
 const ROUTES = {}
 const ROUTES_EXPIRATION_TIMES = {}
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 2 // 1H
 const ROUTES_UPDATING = {} // Объект для отслеживания обновлений кеша
+
+subscriber.subscribe('swap:pool:instanceUpdated', msg => {
+  const { chain, buffer } = JSON.parse(msg)
+  const pool = Pool.fromBuffer(Buffer.from(buffer, 'hex'))
+
+  if (!POOLS[chain]) return getAllPools(chain)
+
+  POOLS[chain].set(pool.id, pool)
+
+  console.log(chain, 'pool map updated', pool.id)
+})
+
+async function getAllPools(chain): Promise<Pool[]> {
+  if (!POOLS[chain]) {
+    const pools = await getPools(chain, true, (p) => p.active && BigInt(p.liquidity) > BigInt(0))
+    POOLS[chain] = new Map(pools.map(p => [p.id, p]))
+    console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
+  }
+
+  return Array.from(POOLS[chain].values())
+}
 
 function getCachedRoutes(chain, POOLS, inputTokenID, outputTokenID, maxHops = 2) {
   const cacheKey = `${chain}-${inputTokenID}-${outputTokenID}-${maxHops}`
@@ -109,8 +135,8 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   const startTime = performance.now()
 
-  const allPools = await getPools(network.name, true, (p) => p.active && BigInt(p.liquidity) > BigInt(0))
-  const POOLS = allPools.filter((p) => p.tickDataProvider.ticks.length > 0)
+  const allPools = await getAllPools(network.name)
+  const POOLS = allPools.filter((p) => (p.tickDataProvider as TickListDataProvider).ticks.length > 0)
 
   const inputToken = findToken(allPools, input)
   const outputToken = findToken(allPools, output)

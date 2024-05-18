@@ -4,7 +4,7 @@ import { isEqual, throttle } from 'lodash'
 import { createClient } from 'redis'
 
 import JSBI from "jsbi"
-import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
+import { Price, Q128, Pool } from '@alcorexchange/alcor-swap-sdk'
 import { parseAssetPlain, littleEndianToDesimalString } from '../../../utils'
 import { SwapPool, Position, PositionHistory, Swap, SwapChartPoint } from '../../models'
 import { networks } from '../../../config'
@@ -12,7 +12,7 @@ import { fetchAllRows } from '../../../utils/eosjs'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { makeSwapBars } from '../updaterService/charts'
-import { getPoolInstance, getRedisTicks, getPoolPriceA, getPoolPriceB } from './utils'
+import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
 import { getFailOverAlcorOnlyRpc, getToken } from './../../utils'
 
 const redis = createClient()
@@ -173,7 +173,6 @@ async function updatePositions(chain: string, poolId: number) {
 export async function updatePool(chain: string, poolId: number) {
   await connectAll()
 
-  console.log('update pool', poolId)
   const network = networks[chain]
   const rpc = getFailOverAlcorOnlyRpc(network)
 
@@ -223,6 +222,19 @@ export async function updatePool(chain: string, poolId: number) {
 
   // TODO FIX DEPRECATED
   const r = await SwapPool.findOneAndUpdate({ chain, id: poolId }, { ...parsedPool, priceA, priceB, tvlUSD }, { upsert: true, new: true })
+
+  const updatedPool: any = await poolInstanceFromMongoPool(r)
+
+  publisher.publish(
+    'swap:pool:instanceUpdated',
+    JSON.stringify({
+      chain,
+      buffer: Pool.toBuffer(updatedPool).toString('hex')
+    })
+  )
+
+  console.log('pool updated', poolId)
+
   return r
 }
 
