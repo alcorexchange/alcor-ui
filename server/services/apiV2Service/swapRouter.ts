@@ -136,6 +136,10 @@ swapRouter.get('/getRoute', async (req, res) => {
   const allPools = await getAllPools(network.name)
   const POOLS = allPools.filter((p) => (p.tickDataProvider as TickListDataProvider).ticks.length > 0)
 
+  POOLS.forEach(p => {
+    if (!p) console.log('some pool is undefined!!!!')
+  })
+
   const inputToken = findToken(allPools, input)
   const outputToken = findToken(allPools, output)
 
@@ -147,7 +151,6 @@ swapRouter.get('/getRoute', async (req, res) => {
   if (!amount) {
     return res.status(403).send('Invalid amount')
   }
-
 
   let trade
   let routes = await getCachedRoutes(network.name, POOLS, input, output, Math.min(maxHops, 3))
