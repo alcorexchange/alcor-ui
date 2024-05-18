@@ -17,7 +17,7 @@ export function getPoolPriceB(sqrtPriceX64, precisionA, precisionB) {
 }
 
 export async function poolInstanceFromMongoPool(poolMongo) {
-  poolMongo = poolMongo.toObject()
+  poolMongo = poolMongo.constructor.name === 'model' ? poolMongo.toObject() : poolMongo
 
   const ticks: any[] = Array.from((await getRedisTicks(poolMongo.chain, poolMongo.id)).values())
   ticks.sort((a, b) => a.id - b.id)
