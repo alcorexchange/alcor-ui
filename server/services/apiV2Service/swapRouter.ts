@@ -107,6 +107,8 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   const exactIn = trade_type === 'EXACT_INPUT'
 
+  const startTime = performance.now()
+
   const allPools = await getPools(network.name, true, (p) => p.active && BigInt(p.liquidity) > BigInt(0))
   const POOLS = allPools.filter((p) => p.tickDataProvider.ticks.length > 0)
 
@@ -122,7 +124,6 @@ swapRouter.get('/getRoute', async (req, res) => {
     return res.status(403).send('Invalid amount')
   }
 
-  const startTime = performance.now()
 
   let trade
   let routes = await getCachedRoutes(network.name, POOLS, input, output, Math.min(maxHops, 3))
@@ -157,7 +158,6 @@ swapRouter.get('/getRoute', async (req, res) => {
   }
 
   const endTime = performance.now()
-  console.log('trade', trade.executionPrice.toSignificant())
 
   console.log(
     network.name,
