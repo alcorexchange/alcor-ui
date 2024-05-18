@@ -26,8 +26,6 @@ subscriber.subscribe('swap:pool:instanceUpdated', msg => {
   if (!POOLS[chain]) return getAllPools(chain)
 
   POOLS[chain].set(pool.id, pool)
-
-  console.log(chain, 'pool map updated', pool.id)
 })
 
 async function getAllPools(chain): Promise<Pool[]> {
