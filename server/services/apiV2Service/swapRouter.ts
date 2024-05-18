@@ -1,3 +1,4 @@
+import JSBI from 'jsbi'
 import { performance } from 'perf_hooks'
 import { Worker } from 'worker_threads'
 import { Trade, Percent, Token, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
@@ -10,7 +11,7 @@ export const swapRouter = Router()
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const ROUTES = {}
 const ROUTES_EXPIRATION_TIMES = {}
-const ROUTES_CACHE_TIMEOUT = 60 * 60 * 1 // 1H
+const ROUTES_CACHE_TIMEOUT = 60 * 60 * 2 // 1H
 const ROUTES_UPDATING = {} // Объект для отслеживания обновлений кеша
 
 function getCachedRoutes(chain, POOLS, inputTokenID, outputTokenID, maxHops = 2) {
@@ -124,7 +125,25 @@ swapRouter.get('/getRoute', async (req, res) => {
   const startTime = performance.now()
 
   let trade
-  const routes = await getCachedRoutes(network.name, POOLS, input, output, Math.min(maxHops, 3))
+  let routes = await getCachedRoutes(network.name, POOLS, input, output, Math.min(maxHops, 3))
+
+  if (routes.length > 1000) {
+    // cut top 1000 pools by liquidity
+    routes.sort((a, b) => {
+      const aLiquidity = a.pools.reduce((acc, p) => JSBI.add(acc, p.liquidity), JSBI.BigInt(0))
+      const bLiquidity = b.pools.reduce((acc, p) => JSBI.add(acc, p.liquidity), JSBI.BigInt(0))
+
+      return JSBI.greaterThan(aLiquidity, bLiquidity) ? -1 : 1
+    })
+
+    routes = routes.slice(0, 1000)
+  }
+
+  for (const r of routes) {
+    const aLiquidity = r.pools.reduce((acc, p) => JSBI.add(acc, p.liquidity), JSBI.BigInt(0))
+    console.log('aLiquidity', aLiquidity.toString())
+    //console.log(r.pools.reduce((acc, p) => acc += p.id + ',', ''), r.midPrice.toSignificant())
+  }
 
   try {
     if (v2) {
@@ -144,6 +163,7 @@ swapRouter.get('/getRoute', async (req, res) => {
   }
 
   const endTime = performance.now()
+  console.log('trade', trade.executionPrice.toSignificant())
 
   console.log(
     network.name,
