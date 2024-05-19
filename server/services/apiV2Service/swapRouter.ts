@@ -16,7 +16,7 @@ const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const POOLS = {}
 const ROUTES = {}
 const ROUTES_EXPIRATION_TIMES = {}
-const ROUTES_CACHE_TIMEOUT = 60 * 60 * 2 // 1H
+const ROUTES_CACHE_TIMEOUT = 60 * 30 // 1H
 const ROUTES_UPDATING = {} // Объект для отслеживания обновлений кеша
 
 subscriber.subscribe('swap:pool:instanceUpdated', msg => {
