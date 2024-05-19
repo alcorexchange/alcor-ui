@@ -34,7 +34,8 @@ subscriber.subscribe('swap:pool:instanceUpdated', msg => {
 
 async function getAllPools(chain): Promise<Pool[]> {
   if (!POOLS[chain]) {
-    const pools = await getPools(chain, true, (p) => p.active && BigInt(p.liquidity) > BigInt(0))
+    //const pools = await getPools(chain, true, (p) => p.active && BigInt(p.liquidity) > BigInt(0))
+    const pools = await getPools(chain, true, (p) => p.active)
     POOLS[chain] = new Map(pools.map(p => [p.id, p]))
     console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
   }
@@ -140,10 +141,6 @@ swapRouter.get('/getRoute', async (req, res) => {
   const allPools = await getAllPools(network.name)
   const POOLS = allPools.filter((p) => (p.tickDataProvider as TickListDataProvider).ticks.length > 0)
 
-  POOLS.forEach(p => {
-    if (!p || isNaN(p.id)) console.log('some pool is undefined!!!!', p)
-  })
-
   const inputToken = findToken(allPools, input)
   const outputToken = findToken(allPools, output)
 
@@ -162,19 +159,7 @@ swapRouter.get('/getRoute', async (req, res) => {
   }
 
   let trade
-  let routes = await getCachedRoutes(network.name, POOLS, input, output, Math.min(maxHops, 3))
-
-  const poolsMap = Array.isArray(allPools) ? new Map(allPools.map(p => [p.id, p])) : allPools
-  for (const route of routes) {
-    const freshPools = route.pools.map(p => {
-      const pool = poolsMap.get(p.id)
-      if (!pool) {
-        console.log('POOL NOT FIND IN THE POOLS MAP!', p.id, pool)
-      }
-      // Creating new instance
-      return Pool.fromBuffer(Pool.toBuffer(pool))
-    })
-  }
+  const routes = await getCachedRoutes(network.name, POOLS, input, output, Math.min(maxHops, 3))
 
   // if (routes.length > 1000) {
   //   // cut top 1000 pools by liquidity
@@ -197,8 +182,8 @@ swapRouter.get('/getRoute', async (req, res) => {
       //   : await Trade.bestTradeExactOutReadOnly(nodes, routes, amount);
     } else {
       ;[trade] = exactIn
-        ? Trade.bestTradeExactIn(routes, POOLS, amount)
-        : Trade.bestTradeExactOut(routes, POOLS, amount)
+        ? Trade.bestTradeExactIn(routes, allPools, amount)
+        : Trade.bestTradeExactOut(routes, allPools, amount)
     }
   } catch (e) {
     console.error('GET ROUTE ERROR', e)
