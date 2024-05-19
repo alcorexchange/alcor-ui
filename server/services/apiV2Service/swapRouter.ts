@@ -141,7 +141,7 @@ swapRouter.get('/getRoute', async (req, res) => {
   const POOLS = allPools.filter((p) => (p.tickDataProvider as TickListDataProvider).ticks.length > 0)
 
   POOLS.forEach(p => {
-    if (!p) console.log('some pool is undefined!!!!')
+    if (!p || isNaN(p.id)) console.log('some pool is undefined!!!!', p)
   })
 
   const inputToken = findToken(allPools, input)
