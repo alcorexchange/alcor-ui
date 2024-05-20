@@ -32,7 +32,7 @@ subscriber.subscribe('swap:pool:instanceUpdated', msg => {
   POOLS[chain].set(pool.id, pool)
 })
 
-async function getAllPools(chain): Promise<Pool[]> {
+async function getAllPools(chain): Promise<Map<string, Pool>> {
   if (!POOLS[chain]) {
     //const pools = await getPools(chain, true, (p) => p.active && BigInt(p.liquidity) > BigInt(0))
     const pools = await getPools(chain, true, (p) => p.active)
@@ -40,7 +40,7 @@ async function getAllPools(chain): Promise<Pool[]> {
     console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
   }
 
-  return Array.from(POOLS[chain].values())
+  return POOLS[chain]
 }
 
 function getCachedRoutes(chain, POOLS, inputTokenID, outputTokenID, maxHops = 2) {
@@ -140,10 +140,10 @@ swapRouter.get('/getRoute', async (req, res) => {
   const startTime = performance.now()
 
   const allPools = await getAllPools(network.name)
-  const POOLS = allPools.filter((p) => (p.tickDataProvider as TickListDataProvider).ticks.length > 0)
+  const poolsArray = Array.from(allPools.values())
 
-  const inputToken = findToken(allPools, input)
-  const outputToken = findToken(allPools, output)
+  const inputToken = findToken(poolsArray, input)
+  const outputToken = findToken(poolsArray, output)
 
   if (!inputToken || !outputToken) {
     return res.status(403).send('Invalid input/output')
@@ -159,41 +159,24 @@ swapRouter.get('/getRoute', async (req, res) => {
     return res.status(403).send('Invalid amount')
   }
 
+  const cachedRoutes = await getCachedRoutes(
+    network.name,
+    poolsArray.filter((p: any) => p.tickDataProvider.ticks.length > 0),
+    input, output,
+    Math.min(maxHops, 3)
+  )
+
+  const routes = []
+  for (const route of cachedRoutes) {
+    // Update pools in route inscance
+    const freshPools = route.pools.map(p => allPools.get(p.id))
+
+    if (freshPools.every(p => p != undefined)) {
+      routes.push(new Route(freshPools, route.input, route.output))
+    }
+  }
+
   let trade
-  const routes = await getCachedRoutes(network.name, POOLS, input, output, Math.min(maxHops, 3))
-
-  // TODO Update cached pools to fresh pools
-  // const freshPools = route.pools.map(p => {
-  //   const pool = poolsMap.get(p.id)
-  //   if (!pool) {
-  //     console.log('POOL FOR ROUTE NOT FOUND', p, route.pools)
-  //   }
-  //   invariant(pool, 'POOL_FOR_ROUTE')
-
-  //   // Creating new instance
-  //   return Pool.fromBuffer(Pool.toBuffer(pool))
-  // })
-
-  // const trade = Trade.fromRoute(
-  //   new Route(freshPools, route.input, route.output),
-  //   currencyAmountIn,
-  //   TradeType.EXACT_INPUT
-  // )
-
-
-
-  // if (routes.length > 1000) {
-  //   // cut top 1000 pools by liquidity
-  //   routes.sort((a, b) => {
-  //     const aLiquidity = a.pools.reduce((acc, p) => JSBI.add(acc, p.liquidity), JSBI.BigInt(0))
-  //     const bLiquidity = b.pools.reduce((acc, p) => JSBI.add(acc, p.liquidity), JSBI.BigInt(0))
-
-  //     return JSBI.greaterThan(aLiquidity, bLiquidity) ? -1 : 1
-  //   })
-
-  //   routes = routes.slice(0, 1000)
-  // }
-
   try {
     if (v2) {
       return res.status(403).send('')
@@ -203,8 +186,8 @@ swapRouter.get('/getRoute', async (req, res) => {
       //   : await Trade.bestTradeExactOutReadOnly(nodes, routes, amount);
     } else {
       ;[trade] = exactIn
-        ? Trade.bestTradeExactIn(routes, allPools, amount)
-        : Trade.bestTradeExactOut(routes, allPools, amount)
+        ? Trade.bestTradeExactIn(routes, amount)
+        : Trade.bestTradeExactOut(routes, amount)
     }
   } catch (e) {
     console.error('GET ROUTE ERROR', e)
