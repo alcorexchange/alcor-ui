@@ -16,7 +16,7 @@ const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const POOLS = {}
 const ROUTES = {}
 const ROUTES_EXPIRATION_TIMES = {}
-const ROUTES_CACHE_TIMEOUT = 60 * 60 * 1 // 5H
+const ROUTES_CACHE_TIMEOUT = 60 * 60 * 10 // 5H
 const ROUTES_UPDATING = {} // Объект для отслеживания обновлений кеша
 
 subscriber.subscribe('swap:pool:instanceUpdated', msg => {
@@ -70,6 +70,7 @@ async function updateCache(chain, POOLS, inputTokenID, outputTokenID, maxHops, c
   try {
     ROUTES_UPDATING[cacheKey] = true
     const routes = await computeRoutesInWorker(input, output, POOLS, maxHops)
+    console.log('cacheUpdated: ', cacheKey)
     ROUTES[cacheKey] = routes
     ROUTES_EXPIRATION_TIMES[cacheKey] = Date.now() + ROUTES_CACHE_TIMEOUT * 1000
     return routes
@@ -160,6 +161,26 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   let trade
   const routes = await getCachedRoutes(network.name, POOLS, input, output, Math.min(maxHops, 3))
+
+  // TODO Update cached pools to fresh pools
+  // const freshPools = route.pools.map(p => {
+  //   const pool = poolsMap.get(p.id)
+  //   if (!pool) {
+  //     console.log('POOL FOR ROUTE NOT FOUND', p, route.pools)
+  //   }
+  //   invariant(pool, 'POOL_FOR_ROUTE')
+
+  //   // Creating new instance
+  //   return Pool.fromBuffer(Pool.toBuffer(pool))
+  // })
+
+  // const trade = Trade.fromRoute(
+  //   new Route(freshPools, route.input, route.output),
+  //   currencyAmountIn,
+  //   TradeType.EXACT_INPUT
+  // )
+
+
 
   // if (routes.length > 1000) {
   //   // cut top 1000 pools by liquidity
