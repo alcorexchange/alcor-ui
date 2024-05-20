@@ -88,7 +88,6 @@ export const getters = {
   },
 
   pool(state, getters, rootState) {
-    console.time('pool getter in all liquidity')
     if (!state.tokenA || !state.tokenB) return null
 
     const pool = rootState.amm.pools.find((p) => {
@@ -101,10 +100,7 @@ export const getters = {
       )
     })
 
-    const r = pool ? constructPoolInstance(pool) : undefined
-
-    console.timeEnd('pool getter in all liquidity')
-    return r
+    return pool ? constructPoolInstance(pool) : undefined
   },
 
   currnetPools(state, getters, rootState) {

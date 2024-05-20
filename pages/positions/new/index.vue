@@ -872,11 +872,11 @@ export default {
 
       if (!price) return
 
-      const current = parseFloat((invertPrice ? price.invert() : price).toSignificant(6))
+      const current = parseFloat((invertPrice ? price.invert() : price).toSignificant(20))
 
       if (lowerValue == 'infinity') {
-        onLeftRangeInput(tickToPrice(tokenA, tokenB, tickSpaceLimits[isSorted ? 'LOWER' : 'UPPER']).toSignificant(5))
-        onRightRangeInput(tickToPrice(tokenA, tokenB, tickSpaceLimits[isSorted ? 'UPPER' : 'LOWER']).toSignificant(5))
+        onLeftRangeInput(tickToPrice(tokenA, tokenB, tickSpaceLimits[isSorted ? 'LOWER' : 'UPPER']).toSignificant(20))
+        onRightRangeInput(tickToPrice(tokenA, tokenB, tickSpaceLimits[isSorted ? 'UPPER' : 'LOWER']).toSignificant(20))
         return
       }
 
@@ -888,8 +888,8 @@ export default {
         ? current - (current * (-higherValue / 100))
         : current + (current * (higherValue / 100))
 
-      onLeftRangeInput(leftPrice.toFixed(5))
-      onRightRangeInput(rightPrice.toFixed(5))
+      onLeftRangeInput(leftPrice.toFixed(20))
+      onRightRangeInput(rightPrice.toFixed(20))
     },
   },
 
