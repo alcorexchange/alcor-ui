@@ -8,15 +8,15 @@ import { getPools } from '../swapV2Service/utils'
 
 export const swapRouter = Router()
 
+const redis = createClient()
 const subscriber = createClient()
 subscriber.connect()
 
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 
 const POOLS = {}
-const ROUTES = {}
 const ROUTES_EXPIRATION_TIMES = {}
-const ROUTES_CACHE_TIMEOUT = 60 * 60 * 10 // 5H
+const ROUTES_CACHE_TIMEOUT = 60 * 10 // 5H
 const ROUTES_UPDATING = {} // Объект для отслеживания обновлений кеша
 
 subscriber.subscribe('swap:pool:instanceUpdated', msg => {
@@ -43,35 +43,61 @@ async function getAllPools(chain): Promise<Map<string, Pool>> {
   return POOLS[chain]
 }
 
-function getCachedRoutes(chain, POOLS, inputTokenID, outputTokenID, maxHops = 2) {
-  const cacheKey = `${chain}-${inputTokenID}-${outputTokenID}-${maxHops}`
+async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
+  if (!redis.isOpen) await redis.connect()
 
-  if (ROUTES[cacheKey]) {
-    if (Date.now() > ROUTES_EXPIRATION_TIMES[cacheKey]) {
-      if (!ROUTES_UPDATING[cacheKey]) {
-        updateCacheInBackground(chain, POOLS, inputTokenID, outputTokenID, maxHops, cacheKey)
-      }
-    }
-    return ROUTES[cacheKey]
+  const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
+  const allPools = await getAllPools(chain)
+  const liquidPools = Array.from(allPools.values()).filter((p: any) => p.tickDataProvider.ticks.length > 0)
+
+  const redis_routes = await redis.get('routes_' + cacheKey)
+
+  if (!redis_routes) {
+    await updateCache(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey)
+    return await getCachedRoutes(chain, inputToken, outputToken, maxHops)
   }
 
-  return updateCache(chain, POOLS, inputTokenID, outputTokenID, maxHops, cacheKey)
+  const routes = []
+  for (const route of JSON.parse(redis_routes) || []) {
+    const pools = route.pools.map(p => allPools.get(p))
+
+    if (pools.every(p => p != undefined)) {
+      routes.push(new Route(pools, inputToken, outputToken))
+    }
+  }
+
+  if (!ROUTES_EXPIRATION_TIMES[cacheKey] || Date.now() > ROUTES_EXPIRATION_TIMES[cacheKey]) {
+    if (!ROUTES_UPDATING[cacheKey]) {
+      updateCacheInBackground(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey)
+    }
+  }
+
+  return routes
 }
 
-async function updateCache(chain, POOLS, inputTokenID, outputTokenID, maxHops, cacheKey) {
-  const input = findToken(POOLS, inputTokenID)
-  const output = findToken(POOLS, outputTokenID)
+async function updateCache(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
+  const input = findToken(pools, inputToken.id)
+  const output = findToken(pools, outputToken.id)
 
   if (!input || !output) {
-    console.error('getCachedPools: INVALID input/output:', chain, { cacheKey })
-    return []
+    throw new Error(`${chain} ${cacheKey} getCachedPools: INVALID input/output:`)
   }
 
   try {
     ROUTES_UPDATING[cacheKey] = true
-    const routes = await computeRoutesInWorker(input, output, POOLS, maxHops)
-    console.log('cacheUpdated: ', cacheKey)
-    ROUTES[cacheKey] = routes
+
+    const routes: any = await computeRoutesInWorker(input, output, pools, maxHops)
+    const redis_routes = routes.map(({ input, output, pools }) => {
+      return {
+        input: Token.toJSON(input),
+        output: Token.toJSON(output),
+        pools: pools.map(p => p.id)
+      }
+    })
+
+    await redis.set('routes_' + cacheKey, JSON.stringify(redis_routes))
+    console.log('cacheUpdated:', cacheKey)
+
     ROUTES_EXPIRATION_TIMES[cacheKey] = Date.now() + ROUTES_CACHE_TIMEOUT * 1000
     return routes
   } catch (error) {
@@ -82,26 +108,26 @@ async function updateCache(chain, POOLS, inputTokenID, outputTokenID, maxHops, c
   }
 }
 
-function updateCacheInBackground(chain, POOLS, inputTokenID, outputTokenID, maxHops, cacheKey) {
+function updateCacheInBackground(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
   setTimeout(() => {
     console.log('update background cache for', cacheKey)
-    updateCache(chain, POOLS, inputTokenID, outputTokenID, maxHops, cacheKey).catch((error) =>
+    updateCache(chain, pools, inputToken, outputToken, maxHops, cacheKey).catch((error) =>
       console.error('Error updating cache in background:', error)
     ).then(() => console.log('cache updated in background', cacheKey))
   }, 0)
 }
 
-function findToken(POOLS, tokenID) {
-  return POOLS.find((p) => p.tokenA.id === tokenID)?.tokenA || POOLS.find((p) => p.tokenB.id === tokenID)?.tokenB
+function findToken(pools, tokenID) {
+  return pools.find((p) => p.tokenA.id === tokenID)?.tokenA || pools.find((p) => p.tokenB.id === tokenID)?.tokenB
 }
 
-function computeRoutesInWorker(input, output, POOLS, maxHops) {
+function computeRoutesInWorker(input, output, pools, maxHops) {
   return new Promise((resolve, reject) => {
     const worker = new Worker('./server/services/apiV2Service/workers/computeAllRoutesWorker.js', {
       workerData: {
         input: Token.toJSON(input),
         output: Token.toJSON(output),
-        POOLS: POOLS.map(p => Pool.toBuffer(p)),
+        pools: pools.map(p => Pool.toBuffer(p)),
         maxHops
       },
     })
@@ -161,19 +187,13 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   const cachedRoutes = await getCachedRoutes(
     network.name,
-    poolsArray.filter((p: any) => p.tickDataProvider.ticks.length > 0),
-    input, output,
+    inputToken,
+    outputToken,
     Math.min(maxHops, 3)
   )
 
-  const routes = []
-  for (const route of cachedRoutes) {
-    // Update pools in route inscance
-    const freshPools = route.pools.map(p => allPools.get(p.id))
-
-    if (freshPools.every(p => p != undefined)) {
-      routes.push(new Route(freshPools, route.input, route.output))
-    }
+  if (cachedRoutes.length == 0) {
+    return res.status(403).send('No route found')
   }
 
   let trade
@@ -186,8 +206,8 @@ swapRouter.get('/getRoute', async (req, res) => {
       //   : await Trade.bestTradeExactOutReadOnly(nodes, routes, amount);
     } else {
       ;[trade] = exactIn
-        ? Trade.bestTradeExactIn(routes, amount)
-        : Trade.bestTradeExactOut(routes, amount)
+        ? Trade.bestTradeExactIn(cachedRoutes, amount)
+        : Trade.bestTradeExactOut(cachedRoutes, amount)
     }
   } catch (e) {
     console.error('GET ROUTE ERROR', e)
