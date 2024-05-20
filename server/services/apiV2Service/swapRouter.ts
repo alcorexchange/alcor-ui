@@ -16,7 +16,7 @@ const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 
 const POOLS = {}
 const ROUTES_EXPIRATION_TIMES = {}
-const ROUTES_CACHE_TIMEOUT = 60 * 10 // 5H
+const ROUTES_CACHE_TIMEOUT = 60 * 30 // 5H
 const ROUTES_UPDATING = {} // Объект для отслеживания обновлений кеша
 
 subscriber.subscribe('swap:pool:instanceUpdated', msg => {
@@ -110,10 +110,9 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
 
 function updateCacheInBackground(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
   setTimeout(() => {
-    console.log('update background cache for', cacheKey)
     updateCache(chain, pools, inputToken, outputToken, maxHops, cacheKey).catch((error) =>
       console.error('Error updating cache in background:', error)
-    ).then(() => console.log('cache updated in background', cacheKey))
+    )
   }, 0)
 }
 
