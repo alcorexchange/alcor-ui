@@ -34,7 +34,7 @@ subscriber.subscribe('swap:pool:instanceUpdated', msg => {
 
 async function getAllPools(chain): Promise<Map<string, Pool>> {
   if (!POOLS[chain]) {
-    //const pools = await getPools(chain, true, (p) => p.active && BigInt(p.liquidity) > BigInt(0))
+    //const poos = await getPools(chain, true, (p) => p.active && BigInt(p.liquidity) > BigInt(0))
     const pools = await getPools(chain, true, (p) => p.active)
     POOLS[chain] = new Map(pools.map(p => [p.id, p]))
     console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
@@ -48,7 +48,7 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
 
   const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
   const allPools = await getAllPools(chain)
-  const liquidPools = Array.from(allPools.values()).filter((p: any) => p.tickDataProvider.ticks.length > 0)
+  const liquidPools = Array.from(allPools.values()).filter((p: any) => p.active && p.tickDataProvider.ticks.length > 0)
 
   const redis_routes = await redis.get('routes_' + cacheKey)
 
