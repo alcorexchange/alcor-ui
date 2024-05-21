@@ -26,7 +26,8 @@
         :tokens='tokens',
         @selected='$emit("tokenSelected", $event)'
       )
-  .bottom {{ renderBottom }}
+  .bottom
+    .left {{ renderBottom }}
   .disabled-overlay(v-if="disabled")
     .icon
       i.el-icon-lock
@@ -47,7 +48,18 @@ export default {
     WarnMessage,
   },
 
-  props: ['token', 'tokens', 'disabled', 'value', 'showMaxButton', 'locked', 'label', 'disabledMessage', 'readonly', 'tokenBalance'],
+  props: [
+    'token',
+    'tokens',
+    'disabled',
+    'value',
+    'showMaxButton',
+    'locked',
+    'label',
+    'disabledMessage',
+    'readonly',
+    'tokenBalance',
+  ],
 
   data: () => ({
     localValue: null,
@@ -86,14 +98,15 @@ export default {
       if (this.token && getPrecision(value) > (this.token.decimals ?? this.token.precision)) {
         // TO fixed precision
         const [num, fraction] = value.split('.')
-        value = num + '.' + fraction.slice(0, (this.token.decimals ?? this.token.precision))
+        value = num + '.' + fraction.slice(0, this.token.decimals ?? this.token.precision)
       }
 
       this.localValue = value
       this.$emit('input', value)
     },
     onBalanceClick() {
-      if (this.user) this.$emit('input', this.$tokenBalance(this.token.symbol ?? this.token.currency, this.token.contract))
+      if (this.user)
+        this.$emit('input', this.$tokenBalance(this.token.symbol ?? this.token.currency, this.token.contract))
     },
   },
 
@@ -108,7 +121,9 @@ export default {
       return this.token ? this.label || '' : ''
     },
     renderBottom() {
-      return this.token ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol ?? this.token.currency, this.token.contract)}` : ''
+      return this.token
+        ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol ?? this.token.currency, this.token.contract)}`
+        : ''
     },
     ...mapState(['user']),
   },
@@ -151,9 +166,11 @@ export default {
   }
   .bottom {
     min-height: 18px;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
+    .left {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+    }
   }
   .main {
     display: flex;
