@@ -16,7 +16,7 @@ const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 
 const POOLS = {}
 const ROUTES_EXPIRATION_TIMES = {}
-const ROUTES_CACHE_TIMEOUT = 60 * 30 // 5H
+const ROUTES_CACHE_TIMEOUT = 60 * 20 // 5H
 const ROUTES_UPDATING = {} // Объект для отслеживания обновлений кеша
 
 subscriber.subscribe('swap:pool:instanceUpdated', msg => {
@@ -61,7 +61,10 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   for (const route of JSON.parse(redis_routes) || []) {
     const pools = route.pools.map(p => allPools.get(p))
 
-    if (pools.every(p => p != undefined)) {
+    const poolsValid = pools.every(p => p != undefined && p.active && p.tickDataProvider.ticks.length > 0)
+
+    if (poolsValid) {
+      // Pools might change, so cached route no more active
       routes.push(new Route(pools, inputToken, outputToken))
     }
   }
