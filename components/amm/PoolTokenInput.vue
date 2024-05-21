@@ -18,7 +18,7 @@
       @focus="onFocus"
     )
     .input-after
-      MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token" v-if="!!token && user && !readonly")
+      MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token" v-if="showMaxButton")
       SelectToken(
         :locked='!!locked',
         :token='token',
@@ -27,7 +27,7 @@
       )
   .bottom
     .left {{ renderBottom }}
-    PreSelections
+    PreSelections(v-if="showMaxButton")
   .disabled-overlay(v-if="disabled")
     .icon
       i.el-icon-lock
@@ -108,6 +108,9 @@ export default {
       return this.$tokenBalance(this.token.symbol ?? this.token.currency, this.token.contract)
     },
 
+    showMaxButton() {
+      return !!this.token && this.user && !this.readonly
+    },
     renderLabel() {
       return this.token ? this.label || '' : ''
     },
