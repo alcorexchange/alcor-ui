@@ -19,7 +19,6 @@
     )
     .input-after
       MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token" v-if="!!token && user && !readonly")
-      //- v-if='showMaxButton',
       SelectToken(
         :locked='!!locked',
         :token='token',
@@ -28,6 +27,7 @@
       )
   .bottom
     .left {{ renderBottom }}
+    PreSelections
   .disabled-overlay(v-if="disabled")
     .icon
       i.el-icon-lock
@@ -40,26 +40,17 @@ import SelectToken from '~/components/modals/amm/SelectToken2'
 import MaxBage from '~/components/UI/input/MaxBage'
 import WarnMessage from '~/components/UI/input/WarnMessage'
 import { getPrecision } from '~/utils'
+import PreSelections from '~/components/amm/PoolTokenInputPreSelect.vue'
 
 export default {
   components: {
     SelectToken,
     MaxBage,
     WarnMessage,
+    PreSelections,
   },
 
-  props: [
-    'token',
-    'tokens',
-    'disabled',
-    'value',
-    'showMaxButton',
-    'locked',
-    'label',
-    'disabledMessage',
-    'readonly',
-    'tokenBalance',
-  ],
+  props: ['token', 'tokens', 'disabled', 'value', 'locked', 'label', 'disabledMessage', 'readonly', 'tokenBalance'],
 
   data: () => ({
     localValue: null,
@@ -166,6 +157,10 @@ export default {
   }
   .bottom {
     min-height: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 4px;
     .left {
       font-size: 0.8rem;
       display: flex;
