@@ -61,10 +61,10 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   for (const route of JSON.parse(redis_routes) || []) {
     const pools = route.pools.map(p => allPools.get(p))
 
+    // Pools might change, so pool in cached route no more active/has liquidity
     const poolsValid = pools.every(p => p != undefined && p.active && p.tickDataProvider.ticks.length > 0)
 
     if (poolsValid) {
-      // Pools might change, so cached route no more active
       routes.push(new Route(pools, inputToken, outputToken))
     }
   }
