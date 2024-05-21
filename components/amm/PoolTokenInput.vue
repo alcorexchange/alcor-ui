@@ -27,7 +27,7 @@
       )
   .bottom
     .left {{ renderBottom }}
-    PreSelections(v-if="showMaxButton")
+    PreSelections(v-if="showMaxButton" :max="balance" @setValue="input($event)")
   .disabled-overlay(v-if="disabled")
     .icon
       i.el-icon-lock

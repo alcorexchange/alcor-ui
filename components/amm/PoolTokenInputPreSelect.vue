@@ -1,6 +1,6 @@
 <template lang="pug">
   .pre-selections
-    AlcorButton.selection-button(v-for="item in values")
+    AlcorButton.selection-button(v-for="item in values" @click="handleSelect(item)")
       span.fs-10.disable {{ item }} %
 </template>
 
@@ -12,9 +12,21 @@ export default {
     AlcorButton,
   },
 
+  props: ['max'],
+
   data: () => ({
     values: [15, 25, 50, 75, 100],
   }),
+
+  methods: {
+    handleSelect(percentage) {
+      if (!this.max) return
+
+      const value = (this.max * percentage) / 100
+
+      this.$emit('setValue', `${value}`)
+    },
+  },
 }
 </script>
 
