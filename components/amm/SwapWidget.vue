@@ -528,6 +528,7 @@ export default {
 
     async calcInput(value) {
       try {
+        this.loading = true
         await this.tryCalcInput(value)
       } catch (e) {
         this.reset({ amountB: this.amountB })
@@ -600,6 +601,7 @@ export default {
 
     async calcOutput(value) {
       try {
+        this.loading = true
         await this.tryCalcOutput(value)
       } catch (e) {
         this.reset({ amountA: this.amountA })
