@@ -1,7 +1,7 @@
 <template lang="pug">
-  .pre-selections
-    AlcorButton.selection-button(v-for="item in values" @click="handleSelect(item)")
-      span.fs-10.disable {{ item }} %
+.pre-selections
+  AlcorButton.selection-button(v-for="item in values" @click="handleSelect(item)")
+    span.fs-10.disable {{ item }} %
 </template>
 
 <script>
@@ -15,7 +15,7 @@ export default {
   props: ['max'],
 
   data: () => ({
-    values: [15, 25, 50, 75, 100],
+    values: [15, 25, 50, 75],
   }),
 
   methods: {
@@ -37,7 +37,7 @@ export default {
   .selection-button {
     background: transparent;
     border: 1px solid var(--border-color);
-    padding: 2px 4px;
+    padding: 1px 4px;
   }
 }
 </style>
