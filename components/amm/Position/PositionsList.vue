@@ -65,7 +65,7 @@ el-table.position-table.custom-responsive-table(
     template(#header)
       span.total-value-header
         span.title {{ $t("Total") }}
-        span  ${{ totalPositionsValue | commaFloat(2) }}
+        span  ( ${{ totalPositionsValue | commaFloat(2) }} )
     template(slot-scope='{row}')
       span $ {{ row.totalValue | commaFloat(2) }}
 
