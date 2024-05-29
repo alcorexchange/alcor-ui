@@ -64,8 +64,8 @@ el-table.position-table.custom-responsive-table(
   el-table-column(:label='$t("Total Value")' width="180" v-if="!isMobile" sortable sort-by="totalValue")
     template(#header)
       span.total-value-header
-        span.title {{ $t("Total Value") }}
-        span  $ {{ totalPositionsValue.toFixed(2) }}
+        span {{ $t("Total") }}
+        span.total-posiions-value  ( ${{ totalPositionsValue | commaFloat(2) }} )
     template(slot-scope='{row}')
       span $ {{ row.totalValue | commaFloat(2) }}
 
@@ -152,6 +152,9 @@ export default {
   line-height: 12px;
   padding: 4px;
   border-radius: 4px;
+}
+.total-posiions-value {
+  color: var(--text-default);
 }
 .total-value-header {
   // display: inline-flex;
