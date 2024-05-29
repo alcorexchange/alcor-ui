@@ -201,21 +201,21 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://discord.com/invite/brixsociety',
+        link: 'https://discord.gg/nanotopia-gr',
         image: require('@/assets/images/swap-banner-1.png'),
         colors: [
-          'rgba(226,215,0,0.2)',
-          'rgba(0,95,0, 1)',
-          'rgba(0,113,0,1)',
+          'rgba(114,255,186,0.2)',
+          'rgba(32,57,45, 1)',
+          'rgba(32,57,45,1)',
         ],
       },
       {
         link: 'https://nfthive.io/drop/8415',
-        image: require('@/assets/images/swap-banner-2.jpg'),
+        image: require('@/assets/images/swap-banner-2.gif'),
         colors: [
-          'rgba(126,184,232,0.2)',
-          'rgba(232,206,45,1)',
-          'rgba(0,17,48, 1)',
+          'rgba(83,138,161,0.2)',
+          'rgba(134,102,56,1)',
+          'rgba(131,192,213, 1)',
         ],
       },
     ]
