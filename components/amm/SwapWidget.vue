@@ -210,7 +210,7 @@ export default {
         ],
       },
       {
-        link: 'https://game.nftbattleminers.com/?src=alcorS5',
+        link: 'https://nfthive.io/drop/8415',
         image: require('@/assets/images/swap-banner-2.gif'),
         colors: [
           'rgba(83,138,161,0.2)',
