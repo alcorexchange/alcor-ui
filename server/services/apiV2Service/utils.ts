@@ -19,7 +19,7 @@ export function parseTrade(trade, slippage, receiver) {
     const output = outputAmount.toFixed()
 
     const memo = `${tradeType}#${route.join(',')}#${receiver}#${minReceived.toExtendedAsset()}#0`
-    return { input, output, percent, memo, maxSent: maxSent.toFixed(), minReceived: minReceived.toFixed() }
+    return { input, route, output, percent, memo, maxSent: maxSent.toFixed(), minReceived: minReceived.toFixed() }
   })
 
   const result = {
