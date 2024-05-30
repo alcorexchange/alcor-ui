@@ -1,10 +1,11 @@
 import { performance } from 'perf_hooks'
 import { Worker } from 'worker_threads'
 import { createClient } from 'redis'
-import { Trade, Percent, Token, Pool, Route, TickListDataProvider } from '@alcorexchange/alcor-swap-sdk'
+import { TradeType, Trade, Percent, Token, Pool, Route, TickListDataProvider } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 import { tryParseCurrencyAmount } from '../../../utils/amm'
 import { getPools } from '../swapV2Service/utils'
+import { parseTrade } from './utils'
 
 export const swapRouter = Router()
 
@@ -159,7 +160,7 @@ swapRouter.get('/getRoute', async (req, res) => {
     return res.status(403).send('Invalid amount')
   }
 
-  slippage = slippage ? new Percent(slippage * 100, 10000) : new Percent(30, 10000)
+  slippage = slippage ? new Percent(parseFloat(slippage) * 100, 10000) : new Percent(30, 10000)
 
   maxHops = !isNaN(parseInt(maxHops)) ? parseInt(maxHops) : TRADE_LIMITS.maxHops
 
@@ -201,11 +202,13 @@ swapRouter.get('/getRoute', async (req, res) => {
   let trade
   try {
     if (v2) {
-      return res.status(403).send('')
-      // const nodes = Object.keys(network.client_nodes);
-      // [trade] = exactIn
-      //   ? await Trade.bestTradeExactInReadOnly(nodes, routes, amount)
-      //   : await Trade.bestTradeExactOutReadOnly(nodes, routes, amount);
+      trade = Trade.bestTradeWithSplit(
+        cachedRoutes,
+        amount,
+        [5, 25, 50, 75, 100],
+        exactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
+        { minSplits: 1, maxSplits: 8 }
+      )
     } else {
       ;[trade] = exactIn
         ? Trade.bestTradeExactIn(cachedRoutes, amount)
@@ -229,29 +232,9 @@ swapRouter.get('/getRoute', async (req, res) => {
     return res.status(403).send('No route found')
   }
 
-  const method = exactIn ? 'swapexactin' : 'swapexactout'
-  const route = trade.route.pools.map((p) => p.id)
+  const parsedTrade = parseTrade(trade, slippage, receiver)
 
-  const maxSent = exactIn ? trade.inputAmount : trade.maximumAmountIn(slippage)
-  const minReceived = exactIn ? trade.minimumAmountOut(slippage) : trade.outputAmount
-
-  const memo = `${method}#${route.join(',')}#${receiver}#${minReceived.toExtendedAsset()}#0`
-
-  const result = {
-    input: trade.inputAmount.toFixed(),
-    output: trade.outputAmount.toFixed(),
-    minReceived: minReceived.toFixed(),
-    maxSent: maxSent.toFixed(),
-    priceImpact: trade.priceImpact.toSignificant(2),
-    memo,
-    route,
-    executionPrice: {
-      numerator: trade.executionPrice.numerator.toString(),
-      denominator: trade.executionPrice.denominator.toString(),
-    },
-  }
-
-  return res.json(result)
+  return res.json(parsedTrade)
 })
 
 export default swapRouter
