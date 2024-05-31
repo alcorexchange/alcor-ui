@@ -513,11 +513,11 @@ export default {
 
     calcInputDebounced: debounce(function(value) {
       this.calcInput(value)
-    }, 500),
+    }, 800),
 
     calcOutputDebounced: debounce(function(value) {
       this.calcOutput(value)
-    }, 500),
+    }, 800),
 
     async calcInput(value) {
       try {
@@ -528,8 +528,6 @@ export default {
         console.error('calcInput', e)
         const reason = e?.response?.data ? e?.response?.data : e.message
         this.$notify({ type: 'error', title: 'Input Calculation', message: reason })
-      } finally {
-        this.loading = false
       }
     },
 
@@ -579,6 +577,8 @@ export default {
           this.priceImpact = priceImpact
           this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
           this.maximumSend = maxSent
+
+          this.loading = false
           resolve()
         }).catch(e => {
           if (currentPromise !== lastOutputPromise) {
@@ -586,6 +586,7 @@ export default {
             return console.log('NOT CURRENT RESPONCE')
           }
 
+          this.loading = false
           reject(e)
         })
 
@@ -602,8 +603,6 @@ export default {
         console.error('calcOutput', e)
         const reason = e?.response?.data ? e?.response?.data : e.message
         this.$notify({ type: 'error', title: 'Output Calculation', message: reason })
-      } finally {
-        this.loading = false
       }
     },
 
@@ -652,6 +651,8 @@ export default {
           this.priceImpact = priceImpact
           this.minReceived = minReceived
           this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
+
+          this.loading = false
           resolve()
         }).catch(e => {
           if (currentPromise !== lastOutputPromise) {
@@ -659,6 +660,7 @@ export default {
             return console.log('NOT CURRENT RESPONCE')
           }
 
+          this.loading = false
           reject(e)
         })
 
