@@ -1,33 +1,48 @@
 <template lang="pug">
-.swap-route-component
-  token-image(:src="$tokenLogo(route.input.symbol, route.input.contract)" height="24")
+div
+  .swap-route-component(v-for="swap in swapsWithPools").mb-1
+    token-image(:src="$tokenLogo(tokenA.symbol, tokenA.contract)" height="24")
 
-  .d-flex.route
-    .line
-    .node.mx-2 100%
-    .w-100.d-flex.justify-content-around
-        template(v-for="{fee, tokenA, tokenB} in route.pools")
-          el-tooltip(:content="`${tokenA.symbol}/${tokenB.symbol} ${fee / 10000}% ${$t('pool')}`" class="fee-tooltip")
-            .node.d-flex.align-items-center.gap-8
-              pair-icons(
-                :token1="{ symbol: tokenA.symbol, contract: tokenA.contract}"
-                :token2="{ symbol: tokenB.symbol, contract: tokenB.contract}"
-                size="24"
-                direction="row"
-              )
-              .fs-12.ml-3 {{ fee / 10000 }}%
+    .d-flex.route
+      .line
+      .node.mx-2 {{ swap.percent }}%
+      .w-100.d-flex.justify-content-around
+          template(v-for="{ tokenA, tokenB, fee } in swap.route.pools")
+            el-tooltip(:content="`${tokenA.symbol}/${tokenB.symbol} ${fee / 10000}% ${$t('pool')}`" class="fee-tooltip")
+              .node.d-flex.align-items-center.gap-8
+                pair-icons(
+                  :token1="{ symbol: tokenA.symbol, contract: tokenA.contract}"
+                  :token2="{ symbol: tokenB.symbol, contract: tokenB.contract}"
+                  size="24"
+                  direction="row"
+                )
+                .fs-12.ml-3 {{ fee / 10000 }}%
 
-  token-image(:src="$tokenLogo(route.output.symbol, route.output.contract)" height="24")
+    token-image(:src="$tokenLogo(tokenB.symbol, tokenB.contract)" height="24")
 
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import PairIcons from '~/components/PairIcons'
+import { constructPoolInstance } from '~/utils/amm'
 
 export default {
   components: { TokenImage, PairIcons },
-  props: ['route']
+  props: ['swaps', 'tokenA', 'tokenB'],
+
+  computed: {
+    ...mapState('amm', ['pools']),
+
+    swapsWithPools() {
+      return this.swaps.map(s => {
+        s.route.pools = s.route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId)))
+
+        return s
+      })
+    }
+  }
 }
 </script>
 
