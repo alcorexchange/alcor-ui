@@ -6,6 +6,8 @@
     img(src="@/assets/icons/Twitter.svg")
   a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
     img(src="@/assets/icons/Discord.svg")
+  a(href="https://github.com/alcorexchange/alcor-ui" target="_blank" class="github")
+    img(src="@/assets/icons/Github.svg")
 
 </template>
 
@@ -23,6 +25,19 @@ export default {
   img {
     width: 24px;
     height: 24px;
+  }
+  .github {
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    img {
+      width: 18px;
+      height: 18px;
+    }
   }
 }
 </style>
