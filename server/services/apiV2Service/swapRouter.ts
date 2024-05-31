@@ -162,7 +162,7 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   slippage = slippage ? new Percent(parseFloat(slippage) * 100, 10000) : new Percent(30, 10000)
 
-  maxHops = !isNaN(parseInt(maxHops)) ? parseInt(maxHops) : TRADE_LIMITS.maxHops
+  maxHops = Math.min(3, !isNaN(parseInt(maxHops)) ? parseInt(maxHops) : TRADE_LIMITS.maxHops)
 
   const exactIn = trade_type === 'EXACT_INPUT'
 
@@ -192,7 +192,7 @@ swapRouter.get('/getRoute', async (req, res) => {
     network.name,
     inputToken,
     outputToken,
-    Math.min(maxHops, 3)
+    maxHops
   )
 
   if (cachedRoutes.length == 0) {
@@ -205,7 +205,7 @@ swapRouter.get('/getRoute', async (req, res) => {
       trade = Trade.bestTradeWithSplit(
         cachedRoutes,
         amount,
-        [5, 10, 15, 25, 50, 75, 100],
+        maxHops > 2 ? [25, 50, 100] : [5, 10, 15, 25, 50, 75, 100],
         exactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
         { minSplits: 1, maxSplits: 15 }
       )
