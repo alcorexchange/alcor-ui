@@ -205,9 +205,9 @@ swapRouter.get('/getRoute', async (req, res) => {
       trade = Trade.bestTradeWithSplit(
         cachedRoutes,
         amount,
-        [5, 25, 50, 75, 100],
+        [5, 10, 15, 25, 50, 75, 100],
         exactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
-        { minSplits: 1, maxSplits: 8 }
+        { minSplits: 1, maxSplits: 10 }
       )
     } else {
       ;[trade] = exactIn
