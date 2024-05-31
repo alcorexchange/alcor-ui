@@ -81,7 +81,7 @@ export default {
 
       const balances = this.$store.getters['wallet/balances']
         .filter((b) => {
-          if (parseFloat(b.amount) == 0) return false
+          //if (parseFloat(b.amount) == 0) return false
 
           return b.id.toLowerCase().includes(this.search.toLowerCase())
         })
