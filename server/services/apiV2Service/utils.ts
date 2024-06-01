@@ -6,7 +6,7 @@ import invariant from 'tiny-invariant'
 
 import { getBestSwapRoute, CurrencyAmount, Route, Currency, Percent, Trade, TradeType } from '@alcorexchange/alcor-swap-sdk'
 
-const WorkerPool = workerpool.pool(path.resolve(__dirname, 'workers/computeTradeFromRoute.js'), { maxWorkers: 8 })
+const WorkerPool = workerpool.pool(path.resolve(__dirname, 'workers/computeTradeFromRoute.js'), { maxWorkers: 6 })
 
 export async function bestTradeWithSplitMultiThreaded(
   _routes: Route<Currency, Currency>[],
