@@ -204,11 +204,12 @@ swapRouter.get('/getRoute', async (req, res) => {
   let trade
   try {
     if (v2) {
-      trade = await (maxHops > 2 ? bestTradeWithSplitMultiThreaded : Trade.bestTradeWithSplit)(
+      //trade = await (maxHops > 2 ? bestTradeWithSplitMultiThreaded : Trade.bestTradeWithSplit)(
+      trade = Trade.bestTradeWithSplit(
         cachedRoutes,
         amount,
-        //maxHops > 2 ? [25, 50, 75, 100] : [5, 10, 15, 25, 50, 75, 100],
-        [5, 10, 15, 25, 50, 75, 100],
+        maxHops > 2 ? [25, 50, 75, 100] : [5, 10, 15, 25, 50, 75, 100],
+        //[5, 10, 15, 25, 50, 75, 100],
         exactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
         { minSplits: 1, maxSplits: 15 }
       )
