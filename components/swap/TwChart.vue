@@ -173,8 +173,6 @@ export default {
     }, 500),
 
     reset() {
-      console.log('reset called')
-
       if (this.widget && this.onResetCacheNeededCallback) {
         this.onResetCacheNeededCallback()
         this.widget.activeChart().resetData()
@@ -266,7 +264,6 @@ export default {
           },
 
           unsubscribeBars: (subscriberUID) => {
-            console.log('unsubscribeBars called...')
             // this.$socket.emit('unsubscribe', {
             //   room: 'ticker',
             //   params: {

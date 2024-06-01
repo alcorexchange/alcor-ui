@@ -343,7 +343,7 @@ export default {
     },
 
     'user.name'() {
-      this.recalculate()
+      this.reset()
     },
 
     slippage() {
@@ -374,8 +374,6 @@ export default {
     toggleTokens() {
       if (this.loading) return
 
-      this.loading = true
-
       const amountB_before = this.amountB
 
       this.reset()
@@ -384,7 +382,7 @@ export default {
       this.$store.dispatch('amm/swap/flipTokens')
       this.amountA = amountB_before
 
-      this.calcOutput(this.amountA)
+      if (parseFloat(this.amountA)) this.calcOutput(this.amountA)
     },
 
     setTokenA(token) {
@@ -419,6 +417,7 @@ export default {
     },
 
     reset({ amountA = null, amountB = null } = {}) {
+      this.loading = false
       this.amountA = amountA
       this.amountB = amountB
 
@@ -499,16 +498,14 @@ export default {
 
     onTokenAInput(val) {
       this.amountB = null
-      this.loading = true
       this.lastField = 'input'
-      this.calcOutputDebounced(val)
+      if (parseFloat(val)) this.calcOutputDebounced(val)
     },
 
     onTokenBInput(val) {
       this.amountA = null
-      this.loading = true
       this.lastField = 'output'
-      this.calcInputDebounced(val)
+      if (parseFloat(val)) this.calcInputDebounced(val)
     },
 
     calcInputDebounced: debounce(function(value) {

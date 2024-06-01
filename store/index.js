@@ -468,7 +468,6 @@ export const actions = {
   async loadUserBalancesLightAPI({ state, commit }) {
     if (!state.user) return
 
-    console.log('loadUserBalancesLightAPI')
     try {
       const url = `${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`
       const response = await axios.get(url)
