@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@alcorexchange/alcor-swap-sdk@^1.0.35":
-  version "1.0.35"
-  resolved "https://registry.yarnpkg.com/@alcorexchange/alcor-swap-sdk/-/alcor-swap-sdk-1.0.35.tgz#7518e10436b57de4550ca0d77afc3200740c57d0"
-  integrity sha512-oabSexcUjinbvTrEV0G415RjPUZZ4sFSkVdgjI+U+tt/vXFll9+LWLZZiUoROPGzI3NzTHIi/DrWsC9lR4Qkyw==
+"@alcorexchange/alcor-swap-sdk@^1.0.38":
+  version "1.0.38"
+  resolved "https://registry.yarnpkg.com/@alcorexchange/alcor-swap-sdk/-/alcor-swap-sdk-1.0.38.tgz#9891efa7847cf832d41e2f1f909dabcea84dcbce"
+  integrity sha512-WX/mFiC6XDE+qWas9ZZTLnvAItgLBjHhPD2kFdsKRZxquTBdA6HRJcY2wtfY4GPWkrT1tht1qP/VTK7IxVwdqw==
   dependencies:
     big.js "^5.2.2"
     decimal.js-light "^2.5.0"
@@ -14241,6 +14241,11 @@ worker-farm@^1.7.0:
   integrity sha512-rvw3QTZc8lAxyVrqcSGVm5yP/IJ2UcB3U0graE3LCFoZ0Yn2x4EoVSqJKdB/T5M+FLcRPjz4TDacRf3OCfNUzw==
   dependencies:
     errno "~0.1.7"
+
+workerpool@^9.1.1:
+  version "9.1.1"
+  resolved "https://registry.yarnpkg.com/workerpool/-/workerpool-9.1.1.tgz#9ba4d534a79a5517c1e1b9d1014151516829be8d"
+  integrity sha512-EFoFTSEo9m4V4wNrwzVRjxnf/E/oBpOzcI/R5CIugJhl9RsCiq525rszo4AtqcjQQoqFdu2E3H82AnbtpaQHvg==
 
 wrap-ansi@^7.0.0:
   version "7.0.0"

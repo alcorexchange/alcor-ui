@@ -17,7 +17,7 @@
     "analyze": "nuxt build --analyze"
   },
   "dependencies": {
-    "@alcorexchange/alcor-swap-sdk": "^1.0.35",
+    "@alcorexchange/alcor-swap-sdk": "^1.0.38",
     "@azukisiromochi/vue-mo.js": "^1.0.2",
     "@eosrio/hyperion-stream-client": "^1.0.3",
     "@ethersproject/units": "^5.7.0",
@@ -90,7 +90,8 @@
     "vue-virtual-scroller": "^1.1.2",
     "vuex-persistedstate": "^3.0.1",
     "vuex-router-sync": "^5.0.0",
-    "web3-utils": "^1.6.0"
+    "web3-utils": "^1.6.0",
+    "workerpool": "^9.1.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.10",
