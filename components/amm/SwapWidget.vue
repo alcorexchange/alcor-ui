@@ -517,6 +517,8 @@ export default {
     }, 800),
 
     async calcInput(value) {
+      if (!parseFloat(value)) return
+
       try {
         this.loading = true
         await this.tryCalcInput(value)
@@ -592,6 +594,8 @@ export default {
     },
 
     async calcOutput(value) {
+      if (!parseFloat(value)) return
+
       try {
         this.loading = true
         await this.tryCalcOutput(value)
