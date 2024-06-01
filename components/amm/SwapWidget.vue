@@ -343,7 +343,7 @@ export default {
     },
 
     'user.name'() {
-      this.recalculate()
+      this.reset()
     },
 
     slippage() {
@@ -374,8 +374,6 @@ export default {
     toggleTokens() {
       if (this.loading) return
 
-      this.loading = true
-
       const amountB_before = this.amountB
 
       this.reset()
@@ -384,7 +382,7 @@ export default {
       this.$store.dispatch('amm/swap/flipTokens')
       this.amountA = amountB_before
 
-      this.calcOutput(this.amountA)
+      if (parseFloat(this.amountA)) this.calcOutput(this.amountA)
     },
 
     setTokenA(token) {
@@ -397,8 +395,8 @@ export default {
       }
       this.$store.dispatch('amm/swap/setTokenA', token)
 
-      this.route = null
-      this.swaps = null
+      this.reset()
+
       if (this.tokenA && this.tokenB) this.calcOutput(this.amountA)
     },
 
@@ -413,12 +411,13 @@ export default {
 
       this.$store.dispatch('amm/swap/setTokenB', token)
 
-      this.route = null
-      this.swaps = null
+      this.reset()
+
       if (this.tokenA && this.tokenB) this.calcOutput(this.amountA)
     },
 
     reset({ amountA = null, amountB = null } = {}) {
+      this.loading = false
       this.amountA = amountA
       this.amountB = amountB
 
@@ -499,27 +498,27 @@ export default {
 
     onTokenAInput(val) {
       this.amountB = null
-      this.loading = true
       this.lastField = 'input'
-      this.calcOutputDebounced(val)
+      if (parseFloat(val)) this.calcOutputDebounced(val)
     },
 
     onTokenBInput(val) {
       this.amountA = null
-      this.loading = true
       this.lastField = 'output'
-      this.calcInputDebounced(val)
+      if (parseFloat(val)) this.calcInputDebounced(val)
     },
 
     calcInputDebounced: debounce(function(value) {
       this.calcInput(value)
-    }, 500),
+    }, 800),
 
     calcOutputDebounced: debounce(function(value) {
       this.calcOutput(value)
-    }, 500),
+    }, 800),
 
     async calcInput(value) {
+      if (!parseFloat(value)) return
+
       try {
         this.loading = true
         await this.tryCalcInput(value)
@@ -528,8 +527,6 @@ export default {
         console.error('calcInput', e)
         const reason = e?.response?.data ? e?.response?.data : e.message
         this.$notify({ type: 'error', title: 'Input Calculation', message: reason })
-      } finally {
-        this.loading = false
       }
     },
 
@@ -579,6 +576,8 @@ export default {
           this.priceImpact = priceImpact
           this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
           this.maximumSend = maxSent
+
+          this.loading = false
           resolve()
         }).catch(e => {
           if (currentPromise !== lastOutputPromise) {
@@ -586,6 +585,7 @@ export default {
             return console.log('NOT CURRENT RESPONCE')
           }
 
+          this.loading = false
           reject(e)
         })
 
@@ -594,6 +594,8 @@ export default {
     },
 
     async calcOutput(value) {
+      if (!parseFloat(value)) return
+
       try {
         this.loading = true
         await this.tryCalcOutput(value)
@@ -602,8 +604,6 @@ export default {
         console.error('calcOutput', e)
         const reason = e?.response?.data ? e?.response?.data : e.message
         this.$notify({ type: 'error', title: 'Output Calculation', message: reason })
-      } finally {
-        this.loading = false
       }
     },
 
@@ -652,6 +652,8 @@ export default {
           this.priceImpact = priceImpact
           this.minReceived = minReceived
           this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
+
+          this.loading = false
           resolve()
         }).catch(e => {
           if (currentPromise !== lastOutputPromise) {
@@ -659,6 +661,7 @@ export default {
             return console.log('NOT CURRENT RESPONCE')
           }
 
+          this.loading = false
           reject(e)
         })
 
