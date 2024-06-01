@@ -204,7 +204,7 @@ swapRouter.get('/getRoute', async (req, res) => {
   let trade
   try {
     if (v2) {
-      trade = await bestTradeWithSplitMultiThreaded(
+      trade = await (maxHops > 2 ? bestTradeWithSplitMultiThreaded : Trade.bestTradeWithSplit)(
         cachedRoutes,
         amount,
         //maxHops > 2 ? [25, 50, 75, 100] : [5, 10, 15, 25, 50, 75, 100],
