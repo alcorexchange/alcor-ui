@@ -397,8 +397,8 @@ export default {
       }
       this.$store.dispatch('amm/swap/setTokenA', token)
 
-      this.route = null
-      this.swaps = null
+      this.reset()
+
       if (this.tokenA && this.tokenB) this.calcOutput(this.amountA)
     },
 
@@ -413,8 +413,8 @@ export default {
 
       this.$store.dispatch('amm/swap/setTokenB', token)
 
-      this.route = null
-      this.swaps = null
+      this.reset()
+
       if (this.tokenA && this.tokenB) this.calcOutput(this.amountA)
     },
 
