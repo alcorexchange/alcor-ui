@@ -63,8 +63,8 @@ export default {
       const symbolB = this.pool?.tokenB?.symbol
 
       return this.isSorted
-        ? symbolA + '_' + symbolB
-        : symbolB + '_' + symbolA
+        ? symbolB + '_' + symbolA
+        : symbolA + '_' + symbolB
     },
   },
 
@@ -235,7 +235,7 @@ export default {
           getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
             this.resolution = resolution
             this.$axios.get(`/v2/swap/pools/${this.pool?.id}/candles`,
-              { params: { resolution, from: from * 1000, to: to * 1000, reverse: !this.isSorted } })
+              { params: { resolution, from: from * 1000, to: to * 1000, reverse: this.isSorted } })
               .then(({ data: charts }) => {
                 onHistoryCallback(charts, { noData: charts.length == 0 })
 
