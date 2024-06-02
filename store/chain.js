@@ -2,7 +2,6 @@ import { Api } from 'enf-eosjs'
 import { getChainRpc, getMultyEndRpc } from '../utils/eosjs'
 
 
-
 import config from '~/config'
 
 import WCW from '~/plugins/wallets/WCW'
@@ -50,6 +49,14 @@ export const actions = {
   },
 
   async autoLogin({ state, rootState, dispatch, commit, getters }) {
+    const { viewAccount } = rootState.route.query
+
+    if (viewAccount) {
+      console.log('set pre selected account', viewAccount)
+      commit('setUser', { name: viewAccount, authorization: [] }, { root: true })
+      return
+    }
+
     console.log('try autoLogin..')
     const loginned = await state.wallet.checkLogin()
     if (!loginned) return false
