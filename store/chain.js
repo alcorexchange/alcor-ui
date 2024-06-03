@@ -49,6 +49,7 @@ export const actions = {
   },
 
   async autoLogin({ state, rootState, dispatch, commit, getters }) {
+    console.log('autoLogin')
     const { viewAccount } = rootState.route.query
 
     if (viewAccount) {
