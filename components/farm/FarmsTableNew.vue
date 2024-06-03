@@ -73,12 +73,6 @@ export default {
       if (this.sortDirection === 0) return sorted.reverse()
       return this.farmPools
     },
-    userStakes() {
-      // TODO что то теперь состояние стейкед не обновляет
-      const pool = this.farmPools.find((fp) => fp.id == this.extendedRow.id)
-
-      return pool.incentives
-    },
   },
 
   methods: {

@@ -20,7 +20,7 @@ export default ({ app: { store, $axios } }, inject) => {
     // TODO
     setInterval(() => {
       logHeapSizeInMB()
-    }, 2000)
+    }, 1000)
 
 
     $axios.setBaseURL(store.state.baseUrl + '/api')

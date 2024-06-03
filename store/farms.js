@@ -288,12 +288,10 @@ function getAverageAPR(incentives) {
 
 export const getters = {
   farmPools(state, getters, rootState, rootGetters) {
-    const { userStakes, farmPoolsWithAPR } = state
-
-    return farmPoolsWithAPR.map((pool) => {
+    return state.farmPoolsWithAPR.map((pool) => {
       const poolIncentives = pool.incentives.map((incentive) => {
         const incentiveStats = pool.positions.map((position) => {
-          const stake = userStakes.find(
+          const stake = state.userStakes.find(
             (s) => s.incentiveId === incentive.id && s.pool === pool.id && s.posId === position.id
           )
 
