@@ -39,25 +39,22 @@ export const actions = {
 
     commit('setWallets', wallets)
 
-    if (state.lastWallet) {
-      commit('setWallet', new state.wallets[state.lastWallet](rootState.network, this.$rpc))
-      dispatch('autoLogin')
-    }
-
-    // FIXME For tests
-    if (rootState?.user?.name) dispatch('afterLoginHook')
-  },
-
-  async autoLogin({ state, rootState, dispatch, commit, getters }) {
-    console.log('autoLogin')
     const { viewAccount } = rootState.route.query
 
     if (viewAccount) {
       console.log('set pre selected account', viewAccount)
       commit('setUser', { name: viewAccount, authorization: [] }, { root: true })
+      dispatch('afterLoginHook')
       return
     }
 
+    if (state.lastWallet) {
+      commit('setWallet', new state.wallets[state.lastWallet](rootState.network, this.$rpc))
+      dispatch('autoLogin')
+    }
+  },
+
+  async autoLogin({ state, rootState, dispatch, commit, getters }) {
     console.log('try autoLogin..')
     const loginned = await state.wallet.checkLogin()
     if (!loginned) return false
