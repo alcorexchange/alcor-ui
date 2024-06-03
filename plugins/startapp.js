@@ -17,11 +17,10 @@ function logHeapSizeInMB() {
 
 export default ({ app: { store, $axios } }, inject) => {
   window.onNuxtReady(() => {
-    // TODO
-    setInterval(() => {
-      logHeapSizeInMB()
-    }, 1000)
-
+    // FOR MEMORY LEAKS DEBUG!
+    // setInterval(() => {
+    //   logHeapSizeInMB()
+    // }, 1000)
 
     $axios.setBaseURL(store.state.baseUrl + '/api')
 
