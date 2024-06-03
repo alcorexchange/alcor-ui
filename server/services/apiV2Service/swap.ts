@@ -1,11 +1,5 @@
-import { performance } from 'perf_hooks'
-import JSBI from 'jsbi'
-
-import { Position } from '@alcorexchange/alcor-swap-sdk'
-
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
-import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import { SwapBar, Swap, SwapPool, SwapChartPoint } from '../../models'
 import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
 import { sqrtRatioToPrice, getLiquidityRangeChart } from '../../../utils/amm.js'
