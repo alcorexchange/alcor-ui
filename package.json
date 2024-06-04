@@ -80,6 +80,7 @@
     "v-click-outside": "^3.1.2",
     "vue-apexcharts": "^1.6.0",
     "vue-cat-carousel": "^0.9.3-6",
+    "vue-github-button": "1",
     "vue-grid-layout": "^2.3.12",
     "vue-gtag": "1.16.1",
     "vue-infinite-loading": "^2.4.5",

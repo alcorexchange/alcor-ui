@@ -11,6 +11,9 @@ footer(:class="{ isMobile }").alcor-inner
           .title.muted Socials
           FooterSocialIcons
 
+        //- <!-- Place this tag where you want the button to render. -->
+        GithubButton(href="https://github.com/alcorexchange/alcor-ui" data-color-scheme="no-preference: light; light: light; dark: light;" data-show-count="true" aria-label="Star alcorexchange/alcor-ui on GitHub" class="mb-2") Star
+
         span.muted © {{ new Date().getFullYear()  }} Alcor
 
       .column(v-for="col in sections")
@@ -124,6 +127,7 @@ footer(:class="{ isMobile }").alcor-inner
 
 <script>
 import axios from 'axios'
+import GithubButton from 'vue-github-button'
 import MobileFooter from './MobileFooter.vue'
 import FooterSocialIcons from './FooterSocialIcons.vue'
 
@@ -131,6 +135,7 @@ export default {
   components: {
     MobileFooter,
     FooterSocialIcons,
+    GithubButton,
   },
   data() {
     return {
