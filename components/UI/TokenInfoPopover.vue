@@ -1,5 +1,5 @@
 <template lang="pug">
-ElTooltip(placement="top" :openDelay="240" popperClass="token-info-popper" :visibleArrow="false")
+ElTooltip(placement="top" :openDelay="400" popperClass="token-info-popper" :visibleArrow="false")
   template(#content)
     .token-info-popover-content
       .header
