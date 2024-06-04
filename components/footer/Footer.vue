@@ -11,7 +11,6 @@ footer(:class="{ isMobile }").alcor-inner
           .title.muted Socials
           FooterSocialIcons
 
-        //- <!-- Place this tag where you want the button to render. -->
         GithubButton(href="https://github.com/alcorexchange/alcor-ui" data-color-scheme="no-preference: light; light: light; dark: light;" data-show-count="true" aria-label="Star alcorexchange/alcor-ui on GitHub" class="mb-2") Star
 
         span.muted © {{ new Date().getFullYear()  }} Alcor
