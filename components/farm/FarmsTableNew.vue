@@ -14,6 +14,7 @@
   .table-items
     FarmItemNew(
       v-for="farm in sortedItems"
+      :key="farm.id"
       :farm="farm"
       :finished="finished"
       @claimAll="claimAll"
@@ -26,7 +27,6 @@
 </template>
 
 <script>
-import { Big } from 'big.js'
 import PairIcons from '@/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
@@ -37,7 +37,6 @@ import AuthOnly from '~/components/AuthOnly.vue'
 import FarmItemNew from '~/components/farm/FarmItemNew.vue'
 import Sorter from '~/components/Sorter.vue'
 
-import { assetToAmount } from '~/utils'
 export default {
   name: 'FarmsTable',
   components: {

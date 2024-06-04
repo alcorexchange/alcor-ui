@@ -56,6 +56,13 @@ function getRewardPerToken(incentive) {
   return rewardPerToken
 }
 
+function getStakeStatus(stakingStatuses) {
+  if (stakingStatuses.length === 0) return null
+  if (stakingStatuses.every(Boolean)) return 'staked'
+  if (stakingStatuses.includes(true)) return 'partiallyStaked'
+  return 'notStaked'
+}
+
 export const state = () => ({
   incentives: [],
   farmPoolsWithAPR: [],
@@ -64,7 +71,7 @@ export const state = () => ({
   farmPools: [],
   view: 'SIMPLE',
   stakedOnly: false,
-  hideZeroAPR: true
+  hideZeroAPR: true,
 })
 
 export const mutations = {
@@ -87,10 +94,10 @@ export const actions = {
       if (this._vm.$nuxt.$route.name && this._vm.$nuxt.$route.name.includes('farm')) {
         dispatch('calculateUserStakes')
       }
-    }, 2000)
+    }, 3000)
   },
 
-  setFarmPoolsWithAPR({ commit, state, rootState, rootGetters }) {
+  setFarmPoolsWithAPR({ commit, dispatch, state, rootState, rootGetters }) {
     const { incentives } = state
     const poolsPlainWithStatsAndUserData = rootGetters['amm/poolsPlainWithStatsAndUserData']
 
@@ -111,6 +118,7 @@ export const actions = {
     })
 
     commit('setFarmPoolsWithAPR', r)
+    dispatch('constructFarmPools')
   },
 
   async loadIncentives({ rootState, commit }) {
@@ -178,6 +186,39 @@ export const actions = {
     }
 
     commit('setUserStakes', userStakes)
+    dispatch('constructFarmPools')
+  },
+
+  constructFarmPools({ state, commit }) {
+    const farmPools = state.farmPoolsWithAPR.map((pool) => {
+      const poolIncentives = pool.incentives.map((incentive) => {
+        const incentiveStats = pool.positions.map((position) => {
+          const stake = state.userStakes.find(
+            (s) => s.incentiveId === incentive.id && s.pool === pool.id && s.posId === position.id
+          )
+
+          return {
+            staked: Boolean(stake),
+            incentive,
+            ...stake,
+            incentiveId: incentive.id,
+            posId: position.id,
+            position,
+          }
+        })
+
+        const stakeStatus = getStakeStatus(incentiveStats.map((i) => i.staked))
+
+        return { ...incentive, incentiveStats, stakeStatus }
+      })
+
+      return {
+        ...pool,
+        incentives: poolIncentives,
+      }
+    })
+
+    commit('setFarmPools', farmPools)
   },
 
   async updateStakesAfterAction({ dispatch }) {
@@ -287,40 +328,7 @@ function getAverageAPR(incentives) {
 }
 
 export const getters = {
-  farmPools(state, getters, rootState, rootGetters) {
-    return state.farmPoolsWithAPR.map((pool) => {
-      const poolIncentives = pool.incentives.map((incentive) => {
-        const incentiveStats = pool.positions.map((position) => {
-          const stake = state.userStakes.find(
-            (s) => s.incentiveId === incentive.id && s.pool === pool.id && s.posId === position.id
-          )
-
-          return {
-            staked: Boolean(stake),
-            incentive,
-            ...stake,
-            incentiveId: incentive.id,
-            posId: position.id,
-            position,
-          }
-        })
-
-        const stakeStatus = getStakeStatus(incentiveStats.map((i) => i.staked))
-
-        return { ...incentive, incentiveStats, stakeStatus }
-      })
-
-      return {
-        ...pool,
-        incentives: poolIncentives,
-      }
-    })
-  },
-}
-
-function getStakeStatus(stakingStatuses) {
-  if (stakingStatuses.length === 0) return null
-  if (stakingStatuses.every(Boolean)) return 'staked'
-  if (stakingStatuses.includes(true)) return 'partiallyStaked'
-  return 'notStaked'
+  // farmPools(state) {
+  //   return state.farmPools
+  // }
 }
