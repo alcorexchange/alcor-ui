@@ -2,7 +2,6 @@ import { Api } from 'enf-eosjs'
 import { getChainRpc, getMultyEndRpc } from '../utils/eosjs'
 
 
-
 import config from '~/config'
 
 import WCW from '~/plugins/wallets/WCW'
@@ -40,13 +39,19 @@ export const actions = {
 
     commit('setWallets', wallets)
 
+    const { viewAccount } = rootState.route.query
+
+    if (viewAccount) {
+      console.log('set pre selected account', viewAccount)
+      commit('setUser', { name: viewAccount, authorization: [] }, { root: true })
+      dispatch('afterLoginHook')
+      return
+    }
+
     if (state.lastWallet) {
       commit('setWallet', new state.wallets[state.lastWallet](rootState.network, this.$rpc))
       dispatch('autoLogin')
     }
-
-    // FIXME For tests
-    if (rootState?.user?.name) dispatch('afterLoginHook')
   },
 
   async autoLogin({ state, rootState, dispatch, commit, getters }) {

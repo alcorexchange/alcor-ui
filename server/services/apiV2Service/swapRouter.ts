@@ -5,7 +5,7 @@ import { TradeType, Trade, Percent, Token, Pool, Route, TickListDataProvider } f
 import { Router } from 'express'
 import { tryParseCurrencyAmount } from '../../../utils/amm'
 import { getPools } from '../swapV2Service/utils'
-import { parseTrade } from './utils'
+import { bestTradeWithSplitMultiThreaded, parseTrade } from './utils'
 
 export const swapRouter = Router()
 
@@ -162,7 +162,7 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   slippage = slippage ? new Percent(parseFloat(slippage) * 100, 10000) : new Percent(30, 10000)
 
-  maxHops = !isNaN(parseInt(maxHops)) ? parseInt(maxHops) : TRADE_LIMITS.maxHops
+  maxHops = Math.min(3, !isNaN(parseInt(maxHops)) ? parseInt(maxHops) : TRADE_LIMITS.maxHops)
 
   const exactIn = trade_type === 'EXACT_INPUT'
 
@@ -192,8 +192,10 @@ swapRouter.get('/getRoute', async (req, res) => {
     network.name,
     inputToken,
     outputToken,
-    Math.min(maxHops, 3)
+    maxHops
   )
+
+  cachedRoutes.sort((a, b) => a.midPrice.greaterThan(b.midPrice) ? -1 : 1)
 
   if (cachedRoutes.length == 0) {
     return res.status(403).send('No route found')
@@ -202,12 +204,14 @@ swapRouter.get('/getRoute', async (req, res) => {
   let trade
   try {
     if (v2) {
+      //trade = await (maxHops > 2 ? bestTradeWithSplitMultiThreaded : Trade.bestTradeWithSplit)(
       trade = Trade.bestTradeWithSplit(
         cachedRoutes,
         amount,
-        [5, 10, 15, 25, 50, 75, 100],
+        maxHops > 2 ? [25, 50, 75, 100] : [5, 10, 15, 25, 50, 75, 100],
+        //[5, 10, 15, 25, 50, 75, 100],
         exactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
-        { minSplits: 1, maxSplits: 8 }
+        { minSplits: 1, maxSplits: 10 }
       )
     } else {
       ;[trade] = exactIn

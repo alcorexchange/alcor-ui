@@ -30,50 +30,45 @@ export default {
       const { hideZeroAPR } = this.$store.state.farms
       const onlyContracts = this.$route.query?.contracts?.split(',') || []
       const search = this.search.toLowerCase()
+      const searchContracts = new Set(onlyContracts)
 
-      let pools = this.$store.getters['farms/farmPools']
-        .map((p) => {
-          const incentives = p.incentives.filter((i) => {
-            if (hideZeroAPR && i.apr == 0) return false
-
+      return this.$store.state.farms.farmPools
+        .reduce((filteredPools, pool) => {
+          // Фильтруем стимулы
+          const incentives = pool.incentives.filter(i => {
+            if (hideZeroAPR && i.apr === 0) return false
             if (this.finished) {
-              return i.isFinished && i.stakeStatus != 'notStaked'
-            } else {
-              return !i.isFinished
+              return i.isFinished && i.stakeStatus !== 'notStaked'
             }
+            return !i.isFinished
           })
-          return { ...p, incentives }
-        })
-        .filter((p) => p.incentives.length > 0)
 
-      if (onlyContracts.length > 0) {
-        pools = pools.filter((p) =>
-          onlyContracts.includes(p.tokenA.contract) ||
-          onlyContracts.includes(p.tokenB.contract)
-        )
-      }
+          // Если нет подходящих стимулов, пропускаем этот пул
+          if (incentives.length === 0) return filteredPools
 
-      if (this.stakedOnly) {
-        pools = pools.filter((p) =>
-          p.incentives
-            .flatMap((i) => i.incentiveStats)
-            .some((i) => i.staked)
-        )
-      }
+          // Фильтрация по контрактам
+          if (searchContracts.size > 0 &&
+            !searchContracts.has(pool.tokenA.contract) &&
+            !searchContracts.has(pool.tokenB.contract)) {
+            return filteredPools
+          }
 
-      pools = pools.filter((p) => {
-        const slug = (
-          p.tokenA.contract +
-          p.tokenA.quantity.split(' ')[1] +
-          p.tokenB.contract +
-          p.tokenB.quantity.split(' ')[1]
-        ).toLowerCase()
-        return slug.includes(search)
-      })
+          // Фильтрация только по застейканным
+          if (this.stakedOnly && !incentives.some(i => i.incentiveStats.some(stat => stat.staked))) {
+            return filteredPools
+          }
 
-      pools.sort((a, b) => (b?.poolStats?.tvlUSD || 0) - (a?.poolStats?.tvlUSD || 0))
+          // Фильтрация по поисковому запросу
+          const slug = (pool.tokenA.contract + pool.tokenA.quantity.split(' ')[1] + pool.tokenB.contract + pool.tokenB.quantity.split(' ')[1]).toLowerCase()
+          if (!slug.includes(search)) {
+            return filteredPools
+          }
 
-      return pools
+          // Добавляем пул к результирующему массиву, если он прошёл все фильтры
+          filteredPools.push({ ...pool, incentives })
+          return filteredPools
+        }, [])
+        .sort((a, b) => (b?.poolStats?.tvlUSD || 0) - (a?.poolStats?.tvlUSD || 0))
     }
   },
 

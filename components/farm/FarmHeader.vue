@@ -71,12 +71,14 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import AlcorSwitch from '@/components/AlcorSwitch'
 import AlcorLink from '@/components/AlcorLink'
 import AlcorButton from '@/components/AlcorButton'
 import GradientBorder from '@/components/alcor-element/GradientBorder'
 import TokenImage from '~/components/elements/TokenImage'
 import { getPrecision } from '~/utils'
+
 export default {
   name: 'FarmHeader',
 
@@ -99,6 +101,10 @@ export default {
   },
 
   computed: {
+    ...mapState({
+      farmPools: state => state.farms.farmPools
+    }),
+
     hideZeroAPR: {
       set(val) {
         this.$store.commit('farms/setHideZeroAPR', val)
@@ -112,7 +118,7 @@ export default {
     // The finished stakes that should be unstaked
     stakedStakes() {
       const stakes = []
-      this.$store.getters['farms/farmPools']
+      this.farmPools
         // pools
         .forEach((p) =>
           p.incentives
@@ -132,7 +138,7 @@ export default {
     // None finished incentives that should be staked
     unstakedStakes() {
       const stakes = []
-      this.$store.getters['farms/farmPools']
+      this.farmPools
         // pools
         .forEach((p) =>
           p.incentives
@@ -153,7 +159,7 @@ export default {
     noneFinishedStakes() {
       const stakes = []
 
-      this.$store.getters['farms/farmPools'].forEach((pool) => {
+      this.farmPools.forEach((pool) => {
         pool.incentives
           .filter((incentive) => !incentive.isFinished && incentive.stakeStatus != 'notStaked')
           .forEach((incentive) => {
@@ -170,7 +176,7 @@ export default {
 
       const precisions = {}
 
-      this.$store.getters['farms/farmPools'].forEach((farm) => {
+      this.farmPools.forEach((farm) => {
         farm.incentives
           .filter((i) => !i.isFinished)
           .forEach((incentive) => {
@@ -274,12 +280,12 @@ export default {
   &.is-checked .el-switch__core::after {
     margin-left: -18px !important;
   }
-  // &.is-checked {
-  //   .el-switch__core {
-  //     background-color: var(--main-action-green);
-  //     border-color: var(--main-action-green);
-  //   }
-  // }
+  /* &.is-checked { */
+  /*   .el-switch__core { */
+  /*     background-color: var(--main-action-green); */
+  /*     border-color: var(--main-action-green); */
+  /*   } */
+  /* } */
 }
 .farm-header-container {
   display: flex;

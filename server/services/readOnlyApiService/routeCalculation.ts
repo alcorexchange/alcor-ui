@@ -119,7 +119,7 @@ export async function getBestTradeByReadOnly(amount, routes, tradeType, nodes, m
 
       sortedInsert(
         trades,
-        Trade.createUncheckedTrade({ route, inputAmount, outputAmount, tradeType }),
+        Trade.createUncheckedTrade({ route, inputAmount, outputAmount, tradeType, percent: 100 }),
         maxNumResults,
         tradeComparator
       )
