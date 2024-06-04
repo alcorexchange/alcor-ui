@@ -279,7 +279,6 @@ export default {
 
   methods: {
     setPool() {
-      console.log('SET POOL')
       if (this.pool) return
 
       const _pool = this.$store.state.amm.pools.find((p) => p.id == this.id)

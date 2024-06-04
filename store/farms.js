@@ -87,7 +87,7 @@ export const actions = {
       if (this._vm.$nuxt.$route.name && this._vm.$nuxt.$route.name.includes('farm')) {
         dispatch('calculateUserStakes')
       }
-    }, 1000)
+    }, 2000)
   },
 
   setFarmPoolsWithAPR({ commit, state, rootState, rootGetters }) {
