@@ -10,6 +10,9 @@
             .text
               p Click to see FAQ Page.
           .el-icon-info(slot="reference" @click="openInNewTab('https://docs.alcor.exchange/alcor-swap/liquidity-provider-faq')").ml-2.pointer
+      template(#end)
+        Settings
+
     .main-section.mt-2
       //- 1 start
       .section-1
@@ -141,6 +144,7 @@ import { mapActions, mapState, mapGetters } from 'vuex'
 import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
 
+import Settings from '~/components/amm/Settings'
 import SelectToken2 from '~/components/modals/amm/SelectToken2'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import LiquidityChartRangeInput from '~/components/amm/range'
@@ -175,6 +179,7 @@ export default {
     AuthOnly,
     AlcorSwitch,
     Zoom,
+    Settings,
     AlcorRadio,
     PageHeader,
     PositionFeeAndShare

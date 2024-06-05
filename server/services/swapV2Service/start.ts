@@ -27,7 +27,7 @@ export async function main() {
   subscriber.pSubscribe('chainAction:*:swap.alcor:*', action => {
     const { chain, name, data } = JSON.parse(action)
 
-    if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
+    if (['logmint', 'logburn', 'logswap', 'logcollect', 'transferpos'].includes(name)) {
       console.log('subscribe pool update', { chain, name, poolId: data.poolId })
       throttledPoolUpdate(chain, Number(data.poolId))
     }

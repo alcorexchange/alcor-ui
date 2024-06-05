@@ -2,6 +2,10 @@
 div(v-loading="!position && !this.positionNotFound")
   alcor-container.manage-liquidity-component(v-if="position && position.pool")
     PageHeader(:title="title")
+      template(v-slot:end)
+        el-tooltip(class="item" effect="dark" content="Transfer Position" placement="top")
+          .el-icon-position.pointer.fs-18.mr-1(@click="transferPos")
+
     .main.gap-16.pt-3
       .left
         PositionInfo(:position="position" :tokensInverted="tokensInverted")
@@ -158,6 +162,52 @@ export default {
   },
 
   methods: {
+    transferPos() {
+      this.$prompt('Please enter receiver account', 'Transfer Position', {
+        confirmButtonText: 'Transfer',
+        cancelButtonText: 'Cancel',
+      }).then(async ({ value: to }) => {
+        try {
+          await this.$rpc.get_account(to)
+        } catch (e) {
+          return this.$notify({
+            type: 'warning',
+            message: 'Account does not exists'
+          })
+        }
+
+        console.log(this.position)
+        const { id, pool, owner, tickLower, tickUpper } = this.position
+        const actions = [
+          {
+            account: this.$store.state.network.amm.contract,
+            name: 'transferpos',
+            authorization: [this.$store.state.user.authorization],
+
+            data: {
+              poolId: pool.id,
+              owner,
+              to,
+              tickLower,
+              tickUpper,
+              memo: ''
+            }
+          }
+        ]
+
+        try {
+          await this.$store.dispatch('chain/sendTransaction', actions)
+        } catch (e) {
+          return this.$notify({
+            type: 'error',
+            message: e.message
+          })
+        }
+
+        setTimeout(() => this.loadPosition(), 4000)
+      })
+    },
+
     async loadPosition() {
       try {
         const { data } = await this.$axios.get('/v2/swap/pools/positions/' + this.$route.params.id)

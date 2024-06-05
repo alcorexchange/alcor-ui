@@ -5,23 +5,22 @@
     span.title {{ title }}
     slot(name='afterTitile')
   .end
-    slot(name='end')
-      .d-flex.gap-2.align-items-center
-        Settings
+    .d-flex.gap-2.align-items-center
+      slot(name='end')
 </template>
 
 <script>
 import ReturnLink from '@/components/ReturnLink'
-import Settings from '~/components/amm/Settings'
 import AlcorButton from '~/components/AlcorButton'
 export default {
   name: 'AMMPageHeader',
-  props: ['title'],
+
   components: {
     ReturnLink,
-    Settings,
     AlcorButton
-  }
+  },
+
+  props: ['title'],
 }
 </script>
 
