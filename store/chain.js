@@ -120,6 +120,7 @@ export const actions = {
 
       commit('setUser', null, { root: true })
       commit('setUserOrders', [], { root: true })
+      window.location = window.location.origin
       return
     }
 
