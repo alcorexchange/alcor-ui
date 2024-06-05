@@ -113,6 +113,17 @@ export const actions = {
   },
 
   logout({ state, dispatch, commit, getters, rootState }) {
+    const { viewAccount } = rootState.route.query
+
+    if (viewAccount) {
+      dispatch('unsubscribeToAccountPushes')
+
+      commit('setUser', null, { root: true })
+      commit('setUserOrders', [], { root: true })
+      return
+    }
+
+
     console.log('logout..')
     state?.wallet?.logout()
     commit('setLastWallet', null)

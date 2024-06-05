@@ -4,10 +4,6 @@ import { fetchAllRows } from '~/utils/eosjs'
 import { parseAsset } from '~/utils'
 import { sqrt } from '~/utils/bigint'
 
-
-const PRECISION_MULTIPLIER = BigInt('1000000000000000000')
-
-
 function formatIncentive(incentive) {
   const rewardAsset = Asset.fromString(incentive.reward.quantity)
 
@@ -18,7 +14,7 @@ function formatIncentive(incentive) {
     incentive.isFinished ? 0 : (incentive.periodFinish - Math.floor(Date.now() / 1000)) / 86400
   )
 
-  const rewardPerDay = (BigInt(incentive.rewardRateE18) * BigInt(60 * 60 * 24)) / (PRECISION_MULTIPLIER - BigInt(1))
+  const rewardPerDay = (BigInt(incentive.rewardRateE18) * BigInt(60 * 60 * 24)) / (BigInt('1000000000000000000') - BigInt(1))
   const totalReward = rewardPerDay * BigInt(incentive.durationInDays)
 
   incentive.rewardPerDay = Asset.fromUnits(rewardPerDay, rewardAsset.symbol).toString().split(' ')[0]
@@ -31,51 +27,17 @@ function formatIncentive(incentive) {
   return incentive
 }
 
-function getRewardPerToken(incentive) {
-  // Helper function to get the current or period finish time as applicable
-  function lastTimeRewardApplicable(periodFinish) {
-    const currentTime = Math.floor(Date.now() / 1000) // Get current time in seconds
-    return currentTime < periodFinish ? currentTime : periodFinish
-  }
-
-  if (incentive.totalStakingWeight === 0) {
-    return BigInt(incentive.rewardPerTokenStored) // Return early if no staking weight
-  }
-
-  const periodFinish = parseInt(incentive.periodFinish)
-  const lastUpdateTime = BigInt(incentive.lastUpdateTime)
-  const rewardRateE18 = BigInt(incentive.rewardRateE18)
-  const totalStakingWeight = BigInt(incentive.totalStakingWeight)
-
-  // Calculate the difference in time applicable for the reward calculation
-  const timeDifference = BigInt(lastTimeRewardApplicable(periodFinish)) - lastUpdateTime
-
-  // Calculate the reward per token
-  const rewardPerToken = BigInt(incentive.rewardPerTokenStored) + (timeDifference * rewardRateE18) / totalStakingWeight
-
-  return rewardPerToken
-}
-
-function getStakeStatus(stakingStatuses) {
-  if (stakingStatuses.length === 0) return null
-  if (stakingStatuses.every(Boolean)) return 'staked'
-  if (stakingStatuses.includes(true)) return 'partiallyStaked'
-  return 'notStaked'
-}
-
 export const state = () => ({
   incentives: [],
   farmPoolsWithAPR: [],
-  userStakes: [],
   plainUserStakes: [],
   farmPools: [],
   view: 'SIMPLE',
   stakedOnly: false,
-  hideZeroAPR: true,
+  hideZeroAPR: true
 })
 
 export const mutations = {
-  setUserStakes: (state, stakes) => state.userStakes = stakes,
   setPlainUserStakes: (state, stakes) => state.plainUserStakes = stakes,
   setIncentives: (state, incentives) => state.incentives = incentives,
   setFarmPools: (state, farmPools) => state.farmPools = farmPools,
@@ -88,16 +50,9 @@ export const mutations = {
 export const actions = {
   init({ state, commit, dispatch, rootState, getters }) {
     dispatch('loadIncentives') //We do it after all tokens fetched
-
-    setInterval(() => {
-      // Recelculate rewards
-      if (this._vm.$nuxt.$route.name && this._vm.$nuxt.$route.name.includes('farm')) {
-        dispatch('calculateUserStakes')
-      }
-    }, 3000)
   },
 
-  setFarmPoolsWithAPR({ commit, dispatch, state, rootState, rootGetters }) {
+  setFarmPoolsWithAPR({ commit, state, rootState, rootGetters }) {
     const { incentives } = state
     const poolsPlainWithStatsAndUserData = rootGetters['amm/poolsPlainWithStatsAndUserData']
 
@@ -118,7 +73,6 @@ export const actions = {
     })
 
     commit('setFarmPoolsWithAPR', r)
-    dispatch('constructFarmPools')
   },
 
   async loadIncentives({ rootState, commit }) {
@@ -154,71 +108,6 @@ export const actions = {
     if (actions.length == 0) return console.error('NOT ACTION TO SUBMIT')
 
     return await dispatch('chain/sendTransaction', actions, { root: true })
-  },
-
-  calculateUserStakes({ state, commit, dispatch, rootState, getters }) {
-    // We need this method to trigger to recalculate user rewards (that depends on time)
-    const userStakes = []
-
-    for (const userStake of state.plainUserStakes) {
-      const totalStakingWeight = BigInt(userStake.incentive.totalStakingWeight)
-      const stakingWeight = BigInt(userStake.stakingWeight)
-      const userRewardPerTokenPaid = BigInt(userStake.userRewardPerTokenPaid)
-      const rewards = BigInt(userStake.rewards)
-
-      const rewardPerToken = getRewardPerToken(userStake.incentive)
-
-      const earnedAmount = stakingWeight * (rewardPerToken - userRewardPerTokenPaid)
-      const reward = earnedAmount / PRECISION_MULTIPLIER + rewards
-
-      const rewardToken = Asset.fromUnits(reward, Asset.fromString(userStake.incentive.reward.quantity).symbol)
-
-      userStake.farmedReward = rewardToken.toString()
-
-      const userSharePercent = (stakingWeight * BigInt(100) * BigInt(1000)) / totalStakingWeight
-      userStake.userSharePercent = Number(userSharePercent) / 1000
-
-      userStake.dailyRewards = userStake.incentive.isFinished ? 0 : (userStake.incentive.rewardPerDay * userStake.userSharePercent) / 100
-      userStake.dailyRewards = this._vm.$options.filters.commaFloat(userStake.dailyRewards, Math.min(rewardToken.symbol.precision), 8)
-      userStake.dailyRewards += ' ' + userStake.incentive.reward.quantity.split(' ')[1]
-
-      userStakes.push(userStake)
-    }
-
-    commit('setUserStakes', userStakes)
-    dispatch('constructFarmPools')
-  },
-
-  constructFarmPools({ state, commit }) {
-    const farmPools = state.farmPoolsWithAPR.map((pool) => {
-      const poolIncentives = pool.incentives.map((incentive) => {
-        const incentiveStats = pool.positions.map((position) => {
-          const stake = state.userStakes.find(
-            (s) => s.incentiveId === incentive.id && s.pool === pool.id && s.posId === position.id
-          )
-
-          return {
-            staked: Boolean(stake),
-            incentive,
-            ...stake,
-            incentiveId: incentive.id,
-            posId: position.id,
-            position,
-          }
-        })
-
-        const stakeStatus = getStakeStatus(incentiveStats.map((i) => i.staked))
-
-        return { ...incentive, incentiveStats, stakeStatus }
-      })
-
-      return {
-        ...pool,
-        incentives: poolIncentives,
-      }
-    })
-
-    commit('setFarmPools', farmPools)
   },
 
   async updateStakesAfterAction({ dispatch }) {
@@ -272,7 +161,6 @@ export const actions = {
 
     // Commit user stakes and calculate
     commit('setPlainUserStakes', userStakes)
-    dispatch('calculateUserStakes')
   },
 }
 
@@ -328,7 +216,40 @@ function getAverageAPR(incentives) {
 }
 
 export const getters = {
-  // farmPools(state) {
-  //   return state.farmPools
-  // }
+  farmPools(state) {
+    return state.farmPoolsWithAPR.map((pool) => {
+      const poolIncentives = pool.incentives.map((incentive) => {
+        const incentiveStats = pool.positions.map((position) => {
+          const stake = state.plainUserStakes.find(
+            (s) => s.incentiveId === incentive.id && s.pool === pool.id && s.posId === position.id
+          )
+
+          return {
+            staked: Boolean(stake),
+            incentive,
+            ...stake,
+            incentiveId: incentive.id,
+            posId: position.id,
+            position,
+          }
+        })
+
+        const stakeStatus = getStakeStatus(incentiveStats.map((i) => i.staked))
+
+        return { ...incentive, incentiveStats, stakeStatus }
+      })
+
+      return {
+        ...pool,
+        incentives: poolIncentives,
+      }
+    })
+  },
+}
+
+function getStakeStatus(stakingStatuses) {
+  if (stakingStatuses.length === 0) return null
+  if (stakingStatuses.every(Boolean)) return 'staked'
+  if (stakingStatuses.includes(true)) return 'partiallyStaked'
+  return 'notStaked'
 }

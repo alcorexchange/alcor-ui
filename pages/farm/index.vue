@@ -32,7 +32,7 @@ export default {
       const search = this.search.toLowerCase()
       const searchContracts = new Set(onlyContracts)
 
-      return this.$store.state.farms.farmPools
+      return this.$store.getters['farms/farmPools']
         .reduce((filteredPools, pool) => {
           // Фильтруем стимулы
           const incentives = pool.incentives.filter(i => {

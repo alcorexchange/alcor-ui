@@ -48,8 +48,8 @@
           AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
       el-badge.header-action-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
         AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
-      el-badge(v-if="totalRewards.length && !finished" type="success"  :value="totalRewards.length")
-        el-tooltip
+      el-badge(v-if="noneFinishedStakes.length && !finished" type="success"  :value="noneFinishedStakes.length")
+        el-tooltip(v-model="showTotal")
           AlcorButton.farm-claim-button(access @click="claimTotal") Claim All Rewards
           template(#content)
             .mb-2 Total Rewards
@@ -71,14 +71,12 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import AlcorSwitch from '@/components/AlcorSwitch'
 import AlcorLink from '@/components/AlcorLink'
 import AlcorButton from '@/components/AlcorButton'
 import GradientBorder from '@/components/alcor-element/GradientBorder'
 import TokenImage from '~/components/elements/TokenImage'
-import { getPrecision } from '~/utils'
-
+import { calculateUserStake } from '~/utils/farms.ts'
 export default {
   name: 'FarmHeader',
 
@@ -96,15 +94,14 @@ export default {
     return {
       search: '',
       // this data is added to hide the AlcorSwitch component when closed, the popover keeps the content in render causing width calculations of switch not work.
+      interval: null,
+      showTotal: false,
+      totalRewards: [],
       advancedSettingActive: false,
     }
   },
 
   computed: {
-    ...mapState({
-      farmPools: state => state.farms.farmPools
-    }),
-
     hideZeroAPR: {
       set(val) {
         this.$store.commit('farms/setHideZeroAPR', val)
@@ -118,7 +115,7 @@ export default {
     // The finished stakes that should be unstaked
     stakedStakes() {
       const stakes = []
-      this.farmPools
+      this.$store.getters['farms/farmPools']
         // pools
         .forEach((p) =>
           p.incentives
@@ -138,7 +135,7 @@ export default {
     // None finished incentives that should be staked
     unstakedStakes() {
       const stakes = []
-      this.farmPools
+      this.$store.getters['farms/farmPools']
         // pools
         .forEach((p) =>
           p.incentives
@@ -159,7 +156,7 @@ export default {
     noneFinishedStakes() {
       const stakes = []
 
-      this.farmPools.forEach((pool) => {
+      this.$store.getters['farms/farmPools'].forEach((pool) => {
         pool.incentives
           .filter((incentive) => !incentive.isFinished && incentive.stakeStatus != 'notStaked')
           .forEach((incentive) => {
@@ -169,22 +166,42 @@ export default {
 
       return stakes
     },
+  },
 
-    // None Finished total rewards
-    totalRewards() {
+  watch: {
+    search(val) {
+      this.$emit('update:search', val)
+    },
+
+    showTotal(open) {
+      if (open) {
+        this.setTotalRewards()
+        this.interval = setInterval(() => this.setTotalRewards(), 1000)
+      } else {
+        clearInterval(this.interval)
+      }
+    }
+  },
+
+  methods: {
+    setTotalRewards() {
       const reward = {}
 
       const precisions = {}
 
-      this.farmPools.forEach((farm) => {
+      this.$store.getters['farms/farmPools'].forEach((farm) => {
         farm.incentives
           .filter((i) => !i.isFinished)
           .forEach((incentive) => {
             incentive.incentiveStats
               .filter((s) => s.staked)
               .forEach((s) => {
-                const [amount, symbol] = s.farmedReward.split(' ')
-                precisions[symbol] = getPrecision(incentive.reward.quantity.split(' ')[0])
+                const staked = calculateUserStake(s)
+
+                const symbol = staked.farmedReward.symbol.name
+                const amount = staked.farmedReward
+
+                precisions[symbol] = staked.farmedReward.symbol.precision
 
                 if (reward[symbol]) {
                   reward[symbol].amount = reward[symbol].amount + parseFloat(amount)
@@ -200,22 +217,14 @@ export default {
           })
       })
 
-      return Object.values(reward).map((r) => {
+      this.totalRewards = Object.values(reward).map((r) => {
         return {
           ...r,
           amount: r.amount?.toFixed(r.precision),
         }
       })
     },
-  },
 
-  watch: {
-    search(val) {
-      this.$emit('update:search', val)
-    },
-  },
-
-  methods: {
     async claimTotal() {
       const stakes = this.noneFinishedStakes
       try {
