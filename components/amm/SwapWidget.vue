@@ -510,11 +510,11 @@ export default {
 
     calcInputDebounced: debounce(function(value) {
       this.calcInput(value)
-    }, 800),
+    }, 600),
 
     calcOutputDebounced: debounce(function(value) {
       this.calcOutput(value)
-    }, 800),
+    }, 600),
 
     async calcInput(value) {
       if (!parseFloat(value)) return
