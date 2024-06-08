@@ -174,7 +174,7 @@ swapRouter.get('/getRoute', async (req, res) => {
   const inputToken = findToken(poolsArray, input)
   const outputToken = findToken(poolsArray, output)
 
-  if (!inputToken || !outputToken) {
+  if (!inputToken || !outputToken || inputToken.equals(outputToken)) {
     return res.status(403).send('Invalid input/output')
   }
 
