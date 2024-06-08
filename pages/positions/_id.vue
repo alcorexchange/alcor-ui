@@ -204,7 +204,7 @@ export default {
           })
         }
 
-        setTimeout(() => this.loadPosition(), 4000)
+        setTimeout(() => this.loadPosition(), 5000)
       })
     },
 
