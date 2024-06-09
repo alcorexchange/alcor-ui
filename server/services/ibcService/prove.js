@@ -124,7 +124,7 @@ export class IBCTransfer {
   }
 
   async waitForLIB(chain, _tx, packedTx, retry_trx_num_blocks) {
-    let retries = 3
+    let retries = 5
 
     while (retries != 0) {
       try {
