@@ -78,7 +78,7 @@ export default {
     },
 
     isSorted() {
-      this.resetDebounced()
+      this.reset()
     },
 
     pool(from, to) {
