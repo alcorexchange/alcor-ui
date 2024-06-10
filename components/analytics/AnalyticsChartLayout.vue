@@ -5,6 +5,9 @@ AlcorContainer.analytics-chart
       .mode-items(v-if="modes")
         .mode(v-for="item in modes" :class="{active: selectedMode === item.value}" @click="$emit('update:selectedMode', item.value)") {{ item.value }}
     .d-flex
+      AlcorButton(compact flat @click="$emit('revertChart')").mr-1
+        .el-icon-refresh
+        | Revert Chart
       .mode-items
         .mode(v-for="item in resolutions" :class="{active: selectedResolution === item.value}" @click="$emit('update:selectedResolution', item.value)") {{ item.title }}
   .chart-container
@@ -15,12 +18,14 @@ AlcorContainer.analytics-chart
 <script>
 import AlcorContainer from '@/components/AlcorContainer'
 import AlcorRadio from '@/components/AlcorRadio'
+import AlcorButton from '~/components/AlcorButton'
 
 export default {
   name: 'AnalyticsChart',
   components: {
     AlcorContainer,
     AlcorRadio,
+    AlcorButton
   },
   props: ['modes', 'selectedMode', 'selectedResolution'],
   data() {

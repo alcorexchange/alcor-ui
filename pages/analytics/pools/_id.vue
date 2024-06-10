@@ -8,8 +8,10 @@ div(v-if="pool && stats").analytics-pool-detail-page
       :modes="chartModes"
       :selectedMode.sync="selectedMode"
       :selectedResolution.sync="selectedResolution"
+      @revertChart="toggleReverse"
+      v-loading="chartLoading"
     )
-      component(:is="renderChart" :pool="pool" width='100%' height="100%" ref="chart" :series="renderSeries" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined" :tooltipFormatter="tooltipFormatter")
+      component(:is="renderChart" :isSorted="reverse" :pool="pool" width='100%' height="100%" ref="chart" :series="renderSeries" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined" :tooltipFormatter="tooltipFormatter")
         #swap_tv_chart_container
 
   VirtualTable.virtual-table(
@@ -72,7 +74,9 @@ export default {
   data() {
     return {
       pool: null,
+      reverse: true,
       loading: true,
+      chartLoading: false,
       selectedResolution: 'All',
       selectedMode: 'Price',
 
@@ -278,6 +282,13 @@ export default {
   },
 
   methods: {
+    toggleReverse() {
+      this.reverse = !this.reverse
+
+      this.chartLoading = true
+      setTimeout(() => this.chartLoading = false, 2000)
+    },
+
     setPool() {
       if (this.pool) return
 
