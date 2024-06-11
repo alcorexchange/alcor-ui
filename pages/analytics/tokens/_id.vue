@@ -16,13 +16,14 @@
         height="400px"
         style="min-height: 400px")
 
-  AnalyticsTabs(:items="tabs" v-model="activeTab")
+  div
+    AnalyticsTabs(:items="tabs" v-model="activeTab").mb-1
 
-  AnalyticsPoolsTable(v-if="activeTab === 'pools'" :pools="pools" title="")
+    AnalyticsPoolsTable(v-if="activeTab === 'pools'" :pools="pools" title="")
 
-  AnalyticsSpotPairsTable(v-if="activeTab === 'spot'" :pairs="markets")
+    AnalyticsSpotPairsTable(v-if="activeTab === 'spot'" :pairs="markets")
 
-  HoldersList(v-if="activeTab === 'holders'" :items="holders" :total="stats.supply")
+    HoldersList(v-if="activeTab === 'holders'" :items="holders" :total="stats.supply")
 
 </template>
 
