@@ -5,12 +5,22 @@
     ElTableColumn(label="Account" v-slot="scope")
       .account {{ scope.row[0] }}
     ElTableColumn(label="Amount" v-slot="scope") {{ scope.row[1] | commaFloat }}
+    ElTableColumn(v-if="!isMobile" label="Share" v-slot="scope") {{ getPercentage(scope.row[1]) }}%
 </template>
 
 <script>
 export default {
   name: 'AnalyticsHoldersList',
-  props: ['items'],
+  props: ['items', 'total'],
+  methods: {
+    getPercentage(amount) {
+      if (!this.total) return '0.00'
+
+      const total = this.total.split(' ')[0]
+      console.log(amount, total)
+      return ((amount * 100) / total).toFixed(2)
+    },
+  },
 }
 </script>
 

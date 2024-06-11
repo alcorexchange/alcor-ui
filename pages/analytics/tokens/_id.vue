@@ -25,7 +25,7 @@
 
     AnalyticsSpotPairsTable(:pairs="markets")
 
-  HoldersList(v-if="activeTab === 'holders'" :items="holders")
+  HoldersList(v-if="activeTab === 'holders'" :items="holders" :total="stats.supply")
 
 </template>
 
