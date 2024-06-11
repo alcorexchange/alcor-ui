@@ -228,7 +228,8 @@ export default {
   },
 
   watch: {
-    token() {
+    token(n, old) {
+      if (n && n.id === old?.id) return
       this.fetchStats()
       this.fetchHolders()
       this.fetchCharts()
