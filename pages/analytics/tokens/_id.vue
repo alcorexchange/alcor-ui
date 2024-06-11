@@ -218,7 +218,6 @@ export default {
       set(v) {
         this.$router.replace({
           query: { tab: v },
-          replace: true,
         })
       },
       get() {
