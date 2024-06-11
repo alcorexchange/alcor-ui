@@ -12,6 +12,8 @@ div(v-if="pool && stats").analytics-pool-detail-page
       component(:is="renderChart" :pool="pool" width='100%' height="100%" ref="chart" :series="renderSeries" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined" :tooltipFormatter="tooltipFormatter")
         #swap_tv_chart_container
 
+  AnalyticsTabs.mb-2(:items="tabs" v-model="activeTab")
+
   VirtualTable.virtual-table(
     :table="tableData"
     defaultSortKey="totalValue"
@@ -42,6 +44,7 @@ import AnalyticsStats from '~/components/analytics/AnalyticsStats'
 import AnalyticsChartLayout from '~/components/analytics/AnalyticsChartLayout'
 import AnalyticsChart from '~/components/analytics/AnalyticsChart'
 import AnalyticsPoolHeader from '~/components/analytics/pool/AnalyticsPoolHeader'
+import AnalyticsTabs from '~/components/analytics/AnalyticsTabs.vue'
 import ReturnLink from '~/components/ReturnLink.vue'
 
 export default {
@@ -62,7 +65,8 @@ export default {
     Volume: StackedColumns,
     Bars,
     ReturnLink,
-    SwapTwChart
+    SwapTwChart,
+    AnalyticsTabs,
   },
 
   fetch({ params, error }) {
@@ -79,10 +83,26 @@ export default {
       chart: [],
 
       liquiditySeries: [{ name: 'lol', data: [], type: 'area' }],
+
+      tabs: [
+        { label: 'Positions', value: 'positions' },
+        { label: 'Swaps', value: 'swaps' },
+      ],
     }
   },
 
   computed: {
+    activeTab: {
+      set(v) {
+        this.$router.push({
+          query: { tab: v },
+          replace: true,
+        })
+      },
+      get() {
+        return this.$route.query.tab || 'positions'
+      },
+    },
     columnStats() {
       return [
         {
