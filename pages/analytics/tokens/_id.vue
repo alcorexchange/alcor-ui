@@ -16,6 +16,8 @@
         height="400px"
         style="min-height: 400px")
 
+  AnalyticsTabs(:items="tabs" v-model="activeTab")
+
   AnalyticsPoolsTable(:pools="pools" title="Pools")
 
   AnalyticsSectionHeader(title="Spot Pairs")
@@ -39,6 +41,7 @@ import LineChart from '~/components/charts/Line.vue'
 import AnalyticsPoolsTable from '~/components/analytics/AnalyticsPoolsTable'
 import AnalyticsSectionHeader from '~/components/analytics/AnalyticsSectionHeader'
 import AnalyticsSpotPairsTable from '~/components/analytics/AnalyticsSpotPairsTable'
+import AnalyticsTabs from '~/components/analytics/AnalyticsTabs'
 import AlcorButton from '~/components/AlcorButton'
 
 export default {
@@ -53,6 +56,7 @@ export default {
     AnalyticsPoolsTable,
     AnalyticsSpotPairsTable,
     AnalyticsSectionHeader,
+    AnalyticsTabs,
   },
 
   data() {
@@ -196,6 +200,24 @@ export default {
           data,
         },
       ]
+    },
+    tabs() {
+      return [
+        { label: 'Pools', value: 'pools' },
+        { label: 'Spot', value: 'spot' },
+        { label: 'Holders', value: 'holders' },
+      ]
+    },
+    activeTab: {
+      set(v) {
+        this.$router.push({
+          query: { tab: v },
+          replace: true,
+        })
+      },
+      get() {
+        return this.$route.query.tab || 'حخخمس'
+      },
     },
   },
 
