@@ -18,13 +18,12 @@
 
   AnalyticsTabs(:items="tabs" v-model="activeTab")
 
-  AnalyticsPoolsTable(:pools="pools" title="Pools")
+  AnalyticsPoolsTable(v-if="activeTab === 'pools'" :pools="pools" title="")
 
-  AnalyticsSectionHeader(title="Spot Pairs")
-    template(#action)
-      AlcorButton Explore
+  template(v-if="activeTab === 'spot'")
+    AnalyticsSectionHeader( title="Spot Pairs")
 
-  AnalyticsSpotPairsTable(:pairs="markets")
+    AnalyticsSpotPairsTable(:pairs="markets")
 </template>
 
 <script>

@@ -1,8 +1,6 @@
 <template lang="pug">
 div
   AnalyticsSectionHeader.mb-2(:title="title")
-    template(#action)
-      AlcorButton Explore
     template(#afterTitle)
       el-input.search-input(size='small' placeholder='Search' v-model="search" prefix-icon='el-icon-search')
   div.table-container
