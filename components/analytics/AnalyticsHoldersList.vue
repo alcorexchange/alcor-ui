@@ -17,7 +17,6 @@ export default {
       if (!this.total) return '0.00'
 
       const total = this.total.split(' ')[0]
-      console.log(amount, total)
       return ((amount * 100) / total).toFixed(2)
     },
   },
