@@ -24,11 +24,15 @@
     AnalyticsSectionHeader( title="Spot Pairs")
 
     AnalyticsSpotPairsTable(:pairs="markets")
+
+  HoldersList(v-if="activeTab === 'holders'" :items="holders")
+
 </template>
 
 <script>
 import { mapState } from 'vuex'
 
+import axios from 'axios'
 import JSBI from 'jsbi'
 import { Token, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import AnalyticsTokenHeader from '@/components/analytics/AnalyticsTokenHeader'
@@ -41,6 +45,7 @@ import AnalyticsPoolsTable from '~/components/analytics/AnalyticsPoolsTable'
 import AnalyticsSectionHeader from '~/components/analytics/AnalyticsSectionHeader'
 import AnalyticsSpotPairsTable from '~/components/analytics/AnalyticsSpotPairsTable'
 import AnalyticsTabs from '~/components/analytics/AnalyticsTabs'
+import HoldersList from '~/components/analytics/AnalyticsHoldersList.vue'
 import AlcorButton from '~/components/AlcorButton'
 
 export default {
@@ -56,6 +61,7 @@ export default {
     AnalyticsSpotPairsTable,
     AnalyticsSectionHeader,
     AnalyticsTabs,
+    HoldersList,
   },
 
   data() {
@@ -64,6 +70,7 @@ export default {
       quoteToken: null,
       selectedResolution: 'All',
       charts: [],
+      holders: [],
     }
   },
 
@@ -223,6 +230,7 @@ export default {
   watch: {
     token() {
       this.fetchStats()
+      this.fetchHolders()
       this.fetchCharts()
     },
 
@@ -236,12 +244,25 @@ export default {
   },
 
   mounted() {
+    this.fetchHolders()
     this.fetchStats()
     this.quoteToken = this.$store.state.network.baseToken.symbol
     console.log('this', this.$route)
   },
 
   methods: {
+    async fetchHolders() {
+      if (!this.token) return
+      try {
+        const url = `${this.$store.state.network.lightapi}/api/topholders/${this.$store.state.network.name}/${this.token.contract}/${this.token.symbol}/100`
+        const { data } = await axios.get(url)
+        console.log(data)
+        this.holders = data
+      } catch (error) {
+        console.log('error loading token holders', error)
+      }
+    },
+
     async fetchStats() {
       if (!this.token) return
 
