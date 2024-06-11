@@ -348,7 +348,7 @@ swap.get('/pools/:id/swaps', async (req, res) => {
   console.log(q)
   const swaps = await Swap.find(q)
     .select('pool recipient trx_id sender sqrtPriceX64 totalUSDVolume tokenA tokenB time')
-    .sort({ time: 1 })
+    .sort({ time: -1 })
     .skip(skip)
     .limit(limit)
     .lean()
