@@ -216,7 +216,7 @@ export default {
         })
       },
       get() {
-        return this.$route.query.tab || 'حخخمس'
+        return this.$route.query.tab || 'pools'
       },
     },
   },
