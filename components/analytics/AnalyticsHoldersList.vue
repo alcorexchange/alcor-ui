@@ -1,5 +1,5 @@
 <template lang="pug">
-  ElTable(:data="items").analytics-holders-list
+  ElTable(:data="items" rowClassName="pointer" @row-click="handleRowClick").analytics-holders-list
     ElTableColumn(label="#" v-slot="scope" width="60")
       span {{ scope.$index + 1 }}
     ElTableColumn(label="Account" v-slot="scope")
@@ -18,6 +18,9 @@ export default {
 
       const total = this.total.split(' ')[0]
       return ((amount * 100) / total).toFixed(2)
+    },
+    handleRowClick(row) {
+      this.openInNewTab(this.monitorAccount(row[0]))
     },
   },
 }
