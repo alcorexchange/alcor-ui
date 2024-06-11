@@ -1,7 +1,7 @@
 <template lang="pug">
   ElTable(:data="items").analytics-holders-list
-    ElTableColumn(label="#" v-slot="scope")
-      span {{ scope.$index }}
+    ElTableColumn(label="#" v-slot="scope" width="60")
+      span {{ scope.$index + 1 }}
     ElTableColumn(label="Account" v-slot="scope")
       .account {{ scope.row[0] }}
     ElTableColumn(label="Amount" v-slot="scope") {{ scope.row[1] | commaFloat }}
