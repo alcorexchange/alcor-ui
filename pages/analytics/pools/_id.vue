@@ -94,9 +94,8 @@ export default {
   computed: {
     activeTab: {
       set(v) {
-        this.$router.push({
+        this.$router.replace({
           query: { tab: v },
-          replace: true,
         })
       },
       get() {
