@@ -20,10 +20,7 @@
 
   AnalyticsPoolsTable(v-if="activeTab === 'pools'" :pools="pools" title="")
 
-  template(v-if="activeTab === 'spot'")
-    AnalyticsSectionHeader( title="Spot Pairs")
-
-    AnalyticsSpotPairsTable(:pairs="markets")
+  AnalyticsSpotPairsTable(v-if="activeTab === 'spot'" :pairs="markets")
 
   HoldersList(v-if="activeTab === 'holders'" :items="holders" :total="stats.supply")
 
