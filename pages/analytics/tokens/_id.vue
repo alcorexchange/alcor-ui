@@ -254,7 +254,6 @@ export default {
       try {
         const url = `${this.$store.state.network.lightapi}/api/topholders/${this.$store.state.network.name}/${this.token.contract}/${this.token.symbol}/100`
         const { data } = await axios.get(url)
-        console.log(data)
         this.holders = data
       } catch (error) {
         console.log('error loading token holders', error)
