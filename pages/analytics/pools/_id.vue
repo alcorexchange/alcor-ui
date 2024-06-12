@@ -15,12 +15,15 @@ div(v-if="pool && stats").analytics-pool-detail-page
   AnalyticsTabs.mb-2(:items="tabs" v-model="activeTab")
 
   VirtualTable.virtual-table(
+    v-if="activeTab === 'positions'"
     :table="tableData"
     defaultSortKey="totalValue"
     v-loading="loading"
   )
     template(#row="{ item }")
       AnalyticsPositionRow.analytics-position-row(:position="item" @showPosition="showPosition")
+
+  AnalyticsSwapsList(v-if="activeTab === 'swaps'" :pool="pool")
 </template>
 
 <script>
@@ -45,6 +48,7 @@ import AnalyticsChartLayout from '~/components/analytics/AnalyticsChartLayout'
 import AnalyticsChart from '~/components/analytics/AnalyticsChart'
 import AnalyticsPoolHeader from '~/components/analytics/pool/AnalyticsPoolHeader'
 import AnalyticsTabs from '~/components/analytics/AnalyticsTabs.vue'
+import AnalyticsSwapsList from '~/components/analytics/AnalyticsSwapsList.vue'
 import ReturnLink from '~/components/ReturnLink.vue'
 
 export default {
@@ -67,6 +71,7 @@ export default {
     ReturnLink,
     SwapTwChart,
     AnalyticsTabs,
+    AnalyticsSwapsList,
   },
 
   fetch({ params, error }) {
