@@ -1,7 +1,7 @@
 <template lang="pug">
   VirtualTable(:table="virtualTableData" @update="handleUpdate").table
     template(#row="{item}")
-      .item.fs-14
+      .item.fs-14.pointer(@click="handleItemClick(item.trx_id)")
         .time {{ item.time | moment('YYYY-MM-DD HH:mm') }}
         .amount.d-flex.flex-column.gap-4.token-amount-items(v-if="pool")
           .amount-item
@@ -20,6 +20,8 @@
             div {{ pool.tokenB.symbol }}
 
         .usd(v-if="!isMobile") ${{ item.totalUSDVolume | commaFloat(2) }}
+        .wallet(v-if="!isMobile")
+          a(:href="monitorAccount(item.sender)" target="_blank" @click.stop).text-default.hover-opacity {{ item.sender }}
 </template>
 
 <script>
@@ -57,7 +59,13 @@ export default {
         {
           label: 'USD',
           value: 'usd',
-          width: '640px',
+          width: '440px',
+          desktopOnly: true,
+        },
+        {
+          label: 'Wallet',
+          value: 'wallet',
+          width: '200px',
           desktopOnly: true,
         },
       ]
@@ -97,6 +105,13 @@ export default {
         this.getSwaps()
       }
     },
+
+    handleItemClick(tx) {
+      this.openInNewTab(this.monitorTx(tx))
+    },
+    handleAccountClick(acc) {
+      this.openInNewTab(this.monitorAccount(acc))
+    },
   },
 }
 </script>
@@ -127,9 +142,18 @@ export default {
     }
   }
   .usd {
-    width: 640px;
+    width: 440px;
     display: flex;
     justify-content: flex-end;
+  }
+
+  .wallet {
+    width: 200px;
+    display: flex;
+    justify-content: flex-end;
+    a {
+      color: var(--text-default);
+    }
   }
 
   .amount-item {
