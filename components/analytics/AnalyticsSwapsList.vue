@@ -47,7 +47,7 @@ export default {
         {
           label: 'Time',
           value: 'time',
-          width: '150px',
+          width: '250px',
         },
         {
           label: 'Amount',
@@ -57,7 +57,7 @@ export default {
         {
           label: 'USD',
           value: 'usd',
-          width: '740px',
+          width: '640px',
           desktopOnly: true,
         },
       ]
@@ -112,7 +112,7 @@ export default {
   }
 
   .time {
-    width: 150px;
+    width: 250px;
     @media only screen and (max-width: 1176px) {
       width: 50%;
     }
@@ -127,7 +127,7 @@ export default {
     }
   }
   .usd {
-    width: 740px;
+    width: 640px;
     display: flex;
     justify-content: flex-end;
   }
