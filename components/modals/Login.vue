@@ -17,18 +17,24 @@
       span.line
     .items(v-if='wallets.length > 0')
       .item
-        AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
-          img.mr-2(:src='wallets[0].logo', height='30')
-          span {{ $t('Get') }} {{ $t(wallets[0].name) }}
-      .item
         AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
           img.mr-2(:src='wallets[1].logo', height='30')
           span {{ $t('Get') }} {{ $t(wallets[1].name) }}
+      .item
+        AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
+          img.mr-2(:src='wallets[0].logo', height='30')
+          span {{ $t('Get') }} {{ $t(wallets[0].name) }}
     .divider
       span.line
       .text {{ $t("Create Account") }}
       span.line
     .items(v-if='wallets[0]')
+      .item(v-if="network.name == 'wax'")
+        AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
+          img.mr-2(:src='wallets[1].logo', height='30')
+          .details
+            span {{ $t('Get') }} {{ $t(wallets[1].name) }}
+            span.description From Wax Team
       .item
         AlcorButton.button(alternative, @click='openInNewTab("https://create.anchor.link/create?return_url=https%3A%2F%2Funicove.com%2F&scope=unicove")')
           img.mr-2(:src='wallets[0].logo', height='30')
