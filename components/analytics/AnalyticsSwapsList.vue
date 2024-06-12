@@ -19,7 +19,7 @@
             div {{ item.tokenB }}
             div {{ pool.tokenB.symbol }}
 
-        .usd(v-if="!isMobile") {{ item.totalUSDVolume | commaFloat }}
+        .usd(v-if="!isMobile") ${{ item.totalUSDVolume | commaFloat(2) }}
 </template>
 
 <script>
