@@ -1,7 +1,7 @@
 <template lang="pug">
   VirtualTable(:table="virtualTableData" @update="handleUpdate").table
     template(#row="{item}")
-      .item
+      .item.fs-14
         .time {{ item.time | moment('YYYY-MM-DD HH:mm') }}
         .amount.d-flex.flex-column.gap-4.token-amount-items(v-if="pool")
           .amount-item
@@ -9,15 +9,15 @@
               :src='$tokenLogo(pool.tokenA.symbol, pool.tokenA.contract)',
               height='18'
             )
-            .fs-14 {{ item.tokenA }}
-            .fs-14 {{ pool.tokenA.symbol }}
+            div {{ item.tokenA }}
+            div {{ pool.tokenA.symbol }}
           .amount-item
             TokenImage(
               :src='$tokenLogo(pool.tokenB.symbol, pool.tokenB.contract)',
               height='18'
             )
-            .fs-14 {{ item.tokenB }}
-            .fs-14 {{ pool.tokenB.symbol }}
+            div {{ item.tokenB }}
+            div {{ pool.tokenB.symbol }}
 
         .usd(v-if="!isMobile") {{ item.totalUSDVolume | commaFloat }}
 </template>
@@ -106,6 +106,11 @@ export default {
   display: flex;
   padding: 10px 20px;
   align-items: center;
+
+  @media only screen and (max-width: 1176px) {
+    padding: 10px;
+  }
+
   .time {
     width: 150px;
     @media only screen and (max-width: 1176px) {
