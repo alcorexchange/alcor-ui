@@ -1,27 +1,47 @@
 <template lang="pug">
-  VirtualTable(:table="virtualTableData" @update="handleUpdate").table
+  VirtualTable(:table="virtualTableData" v-if="pool" @update="handleUpdate").table
     template(#row="{item}")
       .item.fs-14.pointer(@click="handleItemClick(item.trx_id)")
         .time {{ item.time | moment('YYYY-MM-DD HH:mm') }}
-        .amount.d-flex.flex-column.gap-4.token-amount-items(v-if="pool")
+
+        .in.d-flex.flex-column.gap-4.token-amount-items
           .amount-item
-            TokenImage(
-              :src='$tokenLogo(pool.tokenA.symbol, pool.tokenA.contract)',
-              height='18'
-            )
-            div {{ item.tokenA }}
-            div {{ pool.tokenA.symbol }}
+            template(v-if="item.tokenA > 0")
+              TokenImage(
+                :src='$tokenLogo(pool.tokenA.symbol, pool.tokenA.contract)',
+                height='18'
+              )
+              div {{ item.tokenA }}
+              div {{ pool.tokenA.symbol }}
+            template(v-if="item.tokenA < 0")
+              TokenImage(
+                :src='$tokenLogo(pool.tokenB.symbol, pool.tokenB.contract)',
+                height='18'
+              )
+              div {{ item.tokenB }}
+              div {{ pool.tokenB.symbol }}
+
+        .out.d-flex.flex-column.gap-4.token-amount-items
           .amount-item
-            TokenImage(
-              :src='$tokenLogo(pool.tokenB.symbol, pool.tokenB.contract)',
-              height='18'
-            )
-            div {{ item.tokenB }}
-            div {{ pool.tokenB.symbol }}
+            template(v-if="item.tokenB < 0")
+              TokenImage(
+                :src='$tokenLogo(pool.tokenB.symbol, pool.tokenB.contract)',
+                height='18'
+              )
+              div {{ -item.tokenB }}
+              div {{ pool.tokenB.symbol }}
+
+            template(v-if="item.tokenB > 0")
+              TokenImage(
+                :src='$tokenLogo(pool.tokenA.symbol, pool.tokenA.contract)',
+                height='18'
+              )
+              div {{ -item.tokenA }}
+              div {{ pool.tokenA.symbol }}
 
         .usd(v-if="!isMobile") ${{ item.totalUSDVolume | commaFloat(2) }}
-        .wallet(v-if="!isMobile")
-          a(:href="monitorAccount(item.sender)" target="_blank" @click.stop).text-default.hover-opacity {{ item.sender }}
+        .recipient(v-if="!isMobile")
+          a(:href="monitorAccount(item.recipient)" target="_blank" @click.stop).text-default.hover-opacity {{ item.recipient }}
 </template>
 
 <script>
@@ -52,8 +72,13 @@ export default {
           width: '250px',
         },
         {
-          label: 'Amount',
-          value: 'amount',
+          label: 'in',
+          value: 'in',
+          width: '200px',
+        },
+        {
+          label: 'out',
+          value: 'out',
           width: '200px',
         },
         {
@@ -63,8 +88,8 @@ export default {
           desktopOnly: true,
         },
         {
-          label: 'Wallet',
-          value: 'wallet',
+          label: 'recipient',
+          value: 'recipient',
           width: '200px',
           desktopOnly: true,
         },
