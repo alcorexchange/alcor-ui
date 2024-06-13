@@ -72,13 +72,13 @@ export default {
           width: '200px',
         },
         {
-          label: 'in',
+          label: 'In',
           value: 'in',
           width: '200px',
           desktopOnly: true,
         },
         {
-          label: 'out',
+          label: 'Out',
           value: 'out',
           width: '200px',
         },
@@ -89,7 +89,7 @@ export default {
           desktopOnly: true,
         },
         {
-          label: 'recipient',
+          label: 'Recipient',
           value: 'recipient',
           width: '280px',
           desktopOnly: true,
