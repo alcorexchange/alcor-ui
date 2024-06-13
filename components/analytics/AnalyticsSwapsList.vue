@@ -40,8 +40,8 @@
               div {{ pool.tokenA.symbol }}
 
         .usd(v-if="!isMobile") ${{ item.totalUSDVolume | commaFloat(2) }}
-        .recipient(v-if="!isMobile")
-          a(:href="monitorAccount(item.recipient)" target="_blank" @click.stop).text-default.hover-opacity {{ item.recipient }}
+        .wallet(v-if="!isMobile")
+          a(:href="monitorAccount(item.recipient)" target="_blank" @click.stop).hover-opacity {{ item.recipient }}
 </template>
 
 <script>
@@ -69,7 +69,7 @@ export default {
         {
           label: 'Time',
           value: 'time',
-          width: '250px',
+          width: '200px',
         },
         {
           label: 'in',
@@ -84,13 +84,13 @@ export default {
         {
           label: 'USD',
           value: 'usd',
-          width: '440px',
+          width: '200px',
           desktopOnly: true,
         },
         {
           label: 'recipient',
           value: 'recipient',
-          width: '200px',
+          width: '280px',
           desktopOnly: true,
         },
       ]
@@ -152,12 +152,13 @@ export default {
   }
 
   .time {
-    width: 250px;
+    width: 200px;
     @media only screen and (max-width: 1176px) {
       width: 50%;
     }
   }
-  .amount {
+  .in,
+  .out {
     width: 200px;
     display: flex;
     align-items: flex-end;
@@ -167,13 +168,13 @@ export default {
     }
   }
   .usd {
-    width: 440px;
+    width: 200px;
     display: flex;
     justify-content: flex-end;
   }
 
   .wallet {
-    width: 200px;
+    width: 280px;
     display: flex;
     justify-content: flex-end;
     a {
@@ -190,11 +191,11 @@ export default {
 }
 .table {
   ::v-deep {
-    .header.mobile .header__column {
-      @media only screen and (max-width: 1176px) {
-        width: 50% !important;
-      }
-    }
+    // .header.mobile .header__column {
+    //   @media only screen and (max-width: 1176px) {
+    //     width: 50% !important;
+    //   }
+    // }
   }
 }
 </style>
