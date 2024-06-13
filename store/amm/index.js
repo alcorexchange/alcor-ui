@@ -229,6 +229,11 @@ export const getters = {
     return new Map(state.poolsStats.map((p) => [p.id, p]))
   },
 
+  poolStatsWithoutScam(state, getters, rootState) {
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    return state.poolsStats.filter((pool) => !scamContractsSet.has(pool.tokenA.contract) && !scamContractsSet.has(pool.tokenB.contract))
+  },
+
   positions(state) {
     const poolMap = new Map(state.pools.map((pool) => [pool.id, pool]))
 

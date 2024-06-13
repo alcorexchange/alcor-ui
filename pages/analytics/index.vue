@@ -50,7 +50,7 @@ export default {
   computed: {
     ...mapState(['markets', 'network']),
     pools() {
-      return this.$store.state.amm.poolsStats
+      return this.$store.getters['amm/poolStatsWithoutScam']
     },
     spotPairs() {
       return this.markets

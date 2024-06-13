@@ -20,7 +20,7 @@ export default ({ app: { store, $axios } }, inject) => {
     // FOR MEMORY LEAKS DEBUG!
     setInterval(() => {
       logHeapSizeInMB()
-    }, 1000)
+    }, 2000)
 
     $axios.setBaseURL(store.state.baseUrl + '/api')
 

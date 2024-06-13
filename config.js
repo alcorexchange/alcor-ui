@@ -441,6 +441,7 @@ const networks = {
       'bosibc.io',
       'junkoqwertyu',
       'orderofomnis',
+      'bullwaxtoken'
       // 'bmpm.gm',
       // 'bobocoin.gm'
     ],

@@ -14,13 +14,18 @@ div(v-if="pool && stats").analytics-pool-detail-page
       component(:is="renderChart" :isSorted="reverse" :pool="pool" width='100%' height="100%" ref="chart" :series="renderSeries" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined" :tooltipFormatter="tooltipFormatter")
         #swap_tv_chart_container
 
+  AnalyticsTabs.mb-2(:items="tabs" v-model="activeTab")
+
   VirtualTable.virtual-table(
+    v-if="activeTab === 'positions'"
     :table="tableData"
     defaultSortKey="totalValue"
     v-loading="loading"
   )
     template(#row="{ item }")
       AnalyticsPositionRow.analytics-position-row(:position="item" @showPosition="showPosition")
+
+  AnalyticsSwapsList(v-if="activeTab === 'swaps'" :pool="pool")
 </template>
 
 <script>
@@ -44,6 +49,8 @@ import AnalyticsStats from '~/components/analytics/AnalyticsStats'
 import AnalyticsChartLayout from '~/components/analytics/AnalyticsChartLayout'
 import AnalyticsChart from '~/components/analytics/AnalyticsChart'
 import AnalyticsPoolHeader from '~/components/analytics/pool/AnalyticsPoolHeader'
+import AnalyticsTabs from '~/components/analytics/AnalyticsTabs.vue'
+import AnalyticsSwapsList from '~/components/analytics/AnalyticsSwapsList.vue'
 import ReturnLink from '~/components/ReturnLink.vue'
 
 export default {
@@ -64,7 +71,9 @@ export default {
     Volume: StackedColumns,
     Bars,
     ReturnLink,
-    SwapTwChart
+    SwapTwChart,
+    AnalyticsTabs,
+    AnalyticsSwapsList,
   },
 
   fetch({ params, error }) {
@@ -83,10 +92,25 @@ export default {
       chart: [],
 
       liquiditySeries: [{ name: 'lol', data: [], type: 'area' }],
+
+      tabs: [
+        { label: 'Positions', value: 'positions' },
+        { label: 'Swaps', value: 'swaps' },
+      ],
     }
   },
 
   computed: {
+    activeTab: {
+      set(v) {
+        this.$router.replace({
+          query: { tab: v },
+        })
+      },
+      get() {
+        return this.$route.query.tab || 'positions'
+      },
+    },
     columnStats() {
       return [
         {
