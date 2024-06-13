@@ -4,7 +4,7 @@
       .item.fs-14.pointer(@click="handleItemClick(item.trx_id)")
         .time {{ item.time | moment('YYYY-MM-DD HH:mm') }}
 
-        .in.d-flex.flex-column.gap-4.token-amount-items
+        .in.d-flex.flex-column.gap-4.token-amount-items(v-if="!isMobile")
           .amount-item
             template(v-if="item.tokenA > 0")
               TokenImage(
@@ -75,6 +75,7 @@ export default {
           label: 'in',
           value: 'in',
           width: '200px',
+          desktopOnly: true,
         },
         {
           label: 'out',
@@ -103,7 +104,7 @@ export default {
       return {
         header,
         data,
-        itemSize: 66,
+        itemSize: 61,
         pageMode: true,
       }
     },
@@ -144,7 +145,7 @@ export default {
 <style scoped lang="scss">
 .item {
   display: flex;
-  padding: 10px 20px;
+  padding: 20px 20px;
   align-items: center;
 
   @media only screen and (max-width: 1176px) {
@@ -191,11 +192,11 @@ export default {
 }
 .table {
   ::v-deep {
-    // .header.mobile .header__column {
-    //   @media only screen and (max-width: 1176px) {
-    //     width: 50% !important;
-    //   }
-    // }
+    .header.mobile .header__column {
+      @media only screen and (max-width: 1176px) {
+        width: 50% !important;
+      }
+    }
   }
 }
 </style>
