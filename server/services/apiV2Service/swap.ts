@@ -200,7 +200,7 @@ swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
 
   let { tokenA, tokenB } = pool
 
-  if (inverted.toLowerCase() == 'true') {
+  if (inverted?.toLowerCase() == 'true') {
     [tokenA, tokenB] = [tokenB, tokenA]
   }
 
@@ -215,7 +215,6 @@ swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
     }
   }).filter(r => r.y > 0)
 
-  //res.header('Access-Control-Allow-Origin', '*')
   res.json(result)
 })
 

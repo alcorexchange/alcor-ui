@@ -238,7 +238,7 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
 
   const q = { chain: network.name, market: market.id }
   if (type) q.type = type == 'buy' ? 'buymatch' : 'sellmatch'
-  if (from || to) {
+  if (!isNaN(from) || !isNaN(to)) {
     q.time = {}
 
     if (from) q.time.$gte = new Date(parseInt(from))
@@ -269,48 +269,6 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
   res.json(matches)
 })
 
-// spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
-//   const { ticker_id } = req.params
-//   const network = req.app.get('network')
-
-//   const market = await Market.findOne({ ticker_id, chain: network.name })
-//   if (!market) return res.status(404).send(`Ticker ${ticker_id} not found or closed :(`)
-
-//   const { from, to, resolution, limit } = req.query
-//   if (!resolution) return res.status(404).send('Incorrect resolution..')
-
-//   const where = { chain: network.name, timeframe: resolution.toString(), market: parseInt(market.id) }
-
-//   if (from && to) {
-//     where.time = {
-//       $gte: new Date(parseInt(from)),
-//       $lte: new Date(parseInt(to))
-//     }
-//   }
-
-//   const q = [
-//     { $match: where },
-//     { $sort: { time: 1 } },
-//     {
-//       $project: {
-//         time: { $toLong: '$time' },
-//         open: 1,
-//         high: 1,
-//         low: 1,
-//         close: 1,
-//         volume: 1
-//       }
-//     }
-//   ]
-
-//   if (limit) q.push({ $limit: parseInt(limit) })
-
-//   const charts = await Bar.aggregate(q)
-//   charts.map(c => { delete c._id })
-
-//   res.json(charts)
-// })
-
 // время в UTC стартовое надо
 spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
   const { ticker_id } = req.params
@@ -327,11 +285,11 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
     chain: network.name,
     timeframe: resolution.toString(),
     market: parseInt(market.id),
-    time: {
-      $gte: new Date(parseInt(from)),
-      $lte: new Date(parseInt(to)),
-    },
+    time: {},
   }
+
+  if (from && !isNaN(from)) where.time.$gte = new Date(parseInt(from))
+  if (to && !isNaN(to)) where.time.$lte = new Date(parseInt(to))
 
   const q = [
     { $match: where },
@@ -353,7 +311,7 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
   let lastKnownPrice = null
   const charts = await Bar.aggregate(q)
 
-  if (charts.length === 0 && from) {
+  if (charts.length === 0 && !isNaN(from)) {
     const lastPriceQuery = await Bar.findOne({
       chain: network.name,
       market: parseInt(market.id),

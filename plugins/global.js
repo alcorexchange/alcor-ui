@@ -38,7 +38,8 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     } else if (subdomain.length <= 2) {
       commit('setNetwork', config.networks.wax)
     } else {
-      commit('setNetwork', config.networks[subdomain[0]])
+      const network = config.networks[subdomain[0]]
+      commit('setNetwork', network || config.networks.wax)
     }
   }
 
