@@ -150,6 +150,12 @@ export default {
               icon: 'menu-ibc',
             },
             {
+              title: 'WAX Token Bridge',
+              description: 'Bridge from Solana, Polygon, Ethereum, BNB and other',
+              href: 'https://bridge.mycloudwallet.com',
+              icon: 'wcw-bridge',
+            },
+            {
               title: 'Simple Bridge',
               description: 'Use SimpleSwap to buy & swap crypto',
               to: '/buy-crypto',
