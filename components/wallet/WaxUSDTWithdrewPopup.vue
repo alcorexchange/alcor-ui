@@ -3,8 +3,7 @@
     template(#title)
       .title-container
         i.el-icon-wallet
-        .text Withdraw USDT from WAX
-
+        .text Withdraw USDT to CEX from WAX
     .main(v-if="this.$store.state.user && this.$store.state.user.name")
       h6.mb-2.red
         | USE ONLY ALCOR UI FOR USDT Withdrawal on WAX
