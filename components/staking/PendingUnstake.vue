@@ -18,7 +18,7 @@
               .amount {{ item.withdrawToken.quantity.split(' ')[0] }}
               .symbol.fs-14.disable {{ item.withdrawToken.quantity.split(' ')[1] }}
           .section
-            .section-type.disable.pb-1.fs-14 Bruned
+            .section-type.disable.pb-1.fs-14 Burned
             .section-amount
               TokenImage(:src="$tokenLogo(item.requestToken.quantity.split(' ')[1], item.requestToken.contract)" height="20")
               .amount {{ item.requestToken.quantity.split(' ')[0] }}

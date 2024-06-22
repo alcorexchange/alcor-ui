@@ -4,14 +4,18 @@
     chain-select
   .right
     .user-detail(v-if='user')
-      .balance(@click='openInNewTab(monitorAccount(user.name))') {{ systemBalance | commaFloat }}
-      el-dropdown
+      .balance(@click='openInNewTab(monitorAccount(user.name))')
+        span {{ systemBalance.split(' ')[0] | commaFloat }}
+        span.balance-symbol {{ systemBalance.split(' ')[1] }}
+      ElDropdown(@command="logout")
         .user-name {{ user.name }}
           i.el-icon-arrow-down.text-muted.ml-1
-        el-dropdown-menu.dropdown-container
-          .d-item(@click='logout') {{ $t('Logout') }}
+        template(#dropdown)
+          ElDropdownMenu
+            ElDropdownItem(command="logout") {{ $t('Logout') }}
+              //- .d-item(@click='logout')
     AlcorButton.connect-button(
-      v-else='',
+      v-else,
       @click='$store.dispatch("chain/mainLogin")'
     )
       | {{ $t('Connect Wallet') }}
@@ -71,7 +75,7 @@ export default {
   components: {
     AlcorButton,
     Settings,
-    ChainSelect
+    ChainSelect,
     // AlcorLink
   },
 
@@ -91,9 +95,7 @@ export default {
     },
 
     networks() {
-      return Object.values(config.networks).filter((n) =>
-        ['eos', 'telos', 'wax', 'bos', 'proton'].includes(n.name)
-      )
+      return Object.values(config.networks).filter((n) => ['eos', 'telos', 'wax', 'bos', 'proton'].includes(n.name))
     },
   },
   //   props: {
@@ -113,10 +115,7 @@ export default {
     },
     changeChain(chain) {
       // TODO Move to config: APP_DOMAIN
-      const location =
-        chain == 'wax'
-          ? 'https://alcor.exchange/'
-          : `https://${chain}.alcor.exchange/`
+      const location = chain == 'wax' ? 'https://alcor.exchange/' : `https://${chain}.alcor.exchange/`
 
       this.loading = true
       window.location = location + window.location.pathname.split('/')[1] || ''
@@ -179,30 +178,37 @@ export default {
 }
 
 .user-detail {
+  font-size: 14px;
   border-radius: var(--radius);
-  background: var(--btn-default);
+  background: var(--background-color-third);
   display: flex;
   align-items: center;
   padding: 2px;
-  height: 36px;
 }
 
 .balance {
-  padding: 4px 8px;
+  padding: 4px;
   cursor: pointer;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   // font-size: 0.75rem;
+  .balance-symbol {
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: var(--radius);
+    background-color: var(--bg-alter-2);
+  }
 }
 
 .user-name {
   padding: 4px 8px;
+  font-size: 14px !important;
   background: var(--background-color-base);
+  color: var(--text-default);
   border-radius: var(--radius);
-  cursor: pointer;
   white-space: nowrap;
-  // @media only screen and (max-width: 310px) {
-  //   font-size: 0.75rem;
-  // }
 }
 
 .settings {
@@ -216,7 +222,6 @@ export default {
 }
 
 @media only screen and (max-width: 600px) {
-
   //.connect-nav {
   //  .left {
   //    margin-right: auto;
