@@ -4,12 +4,12 @@ import { asset } from 'eos-common'
 import { cacheSeconds } from 'route-cache'
 import { Position as PositionClass } from '@alcorexchange/alcor-swap-sdk'
 
-import { getIncentives } from './farms'
 import { Router } from 'express'
 import { createClient } from 'redis'
-import { Swap, PositionHistory, Position } from '../../models'
+import { Match, Swap, PositionHistory, Position } from '../../models'
 import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
 import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
+import { getIncentives } from './farms'
 
 // TODO Account validation
 export const account = Router()
@@ -252,6 +252,56 @@ account.get('/:account', async (req, res) => {
   res.json({ account, todo: 'some account data' })
 })
 
+account.get('/:account/deals', async (req, res) => {
+  try {
+    const network = req.app.get('network')
+    const { account } = req.params
+    const { from, to, limit, skip, market } = req.query as any
+
+    const $match: any = {
+      chain: network.name,
+      $or: [{ asker: account }, { bidder: account }],
+    }
+
+    if (market) {
+      $match.market = parseInt(market, 10)
+    }
+
+    if (from && to) {
+      $match.time = {
+        $gte: new Date(parseFloat(from) * 1000),
+        $lte: new Date(parseFloat(to) * 1000),
+      }
+    }
+
+    const pipeline: any[] = [
+      { $match },
+      { $sort: { time: -1 } },
+      {
+        $project: {
+          time: 1,
+          bid: 1,
+          ask: 1,
+          unit_price: 1,
+          trx_id: 1,
+          market: 1,
+          type: 1,
+          bidder: 1,
+          asker: 1,
+        },
+      },
+    ]
+
+    if (skip) pipeline.push({ $skip: parseInt(skip, 10) })
+    if (limit) pipeline.push({ $limit: parseInt(limit, 10) })
+
+    const history = await Match.aggregate(pipeline)
+
+    res.json(history)
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while fetching deals.' })
+  }
+})
 
 account.get('/:account/poolsPositionsIn', async (req, res) => {
   const network: Network = req.app.get('network')

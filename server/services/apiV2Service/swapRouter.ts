@@ -188,18 +188,23 @@ swapRouter.get('/getRoute', async (req, res) => {
     return res.status(403).send('Invalid amount')
   }
 
-  const cachedRoutes = await getCachedRoutes(
-    network.name,
-    inputToken,
-    outputToken,
-    maxHops
-  )
-
-  cachedRoutes.sort((a, b) => a.midPrice.greaterThan(b.midPrice) ? -1 : 1)
+  let cachedRoutes = []
+  try {
+    cachedRoutes = await getCachedRoutes(
+      network.name,
+      inputToken,
+      outputToken,
+      maxHops
+    )
+  } catch (e) {
+    return res.status(403).send('No route found')
+  }
 
   if (cachedRoutes.length == 0) {
     return res.status(403).send('No route found')
   }
+
+  cachedRoutes.sort((a, b) => a.midPrice.greaterThan(b.midPrice) ? -1 : 1)
 
   let trade
   try {
