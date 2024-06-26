@@ -93,7 +93,12 @@ export default {
       ]
 
       await this.$store.dispatch('chain/sendTransaction', actions)
-      setTimeout(() => this.$store.dispatch('farms/loadIncentives'), 1000)
+
+      setTimeout(() => {
+        this.$store.dispatch('farms/loadIncentives').then(() => {
+          this.$store.dispatch('farms/setFarmPoolsWithAPR')
+        })
+      }, 1000)
     },
   },
 }
