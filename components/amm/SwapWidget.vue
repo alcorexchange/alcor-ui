@@ -204,12 +204,12 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://discord.gg/nanotopia-gr',
-        image: require('@/assets/images/swap-banner-1.png'),
+        link: 'https://t.me/pugtapper_bot?start=frid339079880',
+        image: require('@/assets/images/swap-banner-1.jpg'),
         colors: [
-          'rgba(114,255,186,0.2)',
-          'rgba(32,57,45, 1)',
-          'rgba(32,57,45,1)',
+          'rgba(179,92,223,0.2)',
+          'rgba(67,153,228, 1)',
+          'rgba(180,209,83,1)',
         ],
       },
       {
