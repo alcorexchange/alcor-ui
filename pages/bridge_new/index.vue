@@ -6,7 +6,7 @@
   .side.to
     // hide label when connected.
     BridgeConnect(label="To custom recipient" beforeConnect="or" :hideLabel="false").my-1
-    BridgeToInput(label="to" :locked="true")
+    BridgeToInput(label="to" placeholder="0.0" :locked="true")
   //- .recepient
   .process
     BridgeProcess

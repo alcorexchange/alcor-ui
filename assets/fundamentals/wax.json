@@ -582,5 +582,31 @@
           "https://discord.com/invite/Xtsde6p9m7"
       ],
       "description": "Next-gen meme & cross-chain coin on Solana & wax_io. Bark Loud, Bark Proud! 🦴"
+  }, 
+  "TETRA@tetra": {
+    "name": "TETRA",
+    "website": {
+        "link": "https://know.tetra.earth/",
+        "name": "Tetra Knowbase"
+    },
+    "tags": [
+        "dgov",
+        "web4",
+        "NFT",
+        "Social",
+        "fundraising"
+    ],
+    "description": "Tetra makes ideas real by Raising Awareness (RA, the voting token). Tetra helps citizens raises awareness for projects, and earn. Your ups (upvotes) get the word out about what creators are doing, spuring organic engagement. Upvotes work similar to reddit with r/ being your community. RA is one tokenized upvote. Earn RA while Raising Awareness for the people + projects you're passionate about. Tetra is an extension of the core tech and algorith developed by cXc.world, an app also by Gudasol.",
+    "github": "https://github.com/TetraGrids",
+    "socials": [
+        "https://know.tetra.earth/",
+        "https://linktr.ee/tetra.earth",
+        "https://twitter.com/tetragrids",
+        "https://www.youtube.com/@tetragrids",
+        "https://discord.gg/ZSU5BgGTAY",
+        "https://t.me/tetragrids",
+        "https://www.facebook.com/tetra.earth",
+        "https://www.reddit.com/r/cXcMusic"
+    ]
   }
 }

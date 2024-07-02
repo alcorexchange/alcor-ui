@@ -304,12 +304,6 @@ export const actions = {
     console.timeEnd('setMarketsRelatedPool')
   },
 
-  loadUserLiqudityPositions({ state, commit }) {
-    this.$axios.get(`/account/${state.user.name}/liquidity_positions`).then((r) => {
-      commit('setLiquidityPositions', r.data)
-    })
-  },
-
   async loadUserOrders({ state, commit, dispatch }) {
     if (!state.user || !state.user.name) return
 
