@@ -213,12 +213,12 @@ export default {
         ],
       },
       {
-        link: 'https://game.nftbattleminers.com/?src=alcorS5',
-        image: require('@/assets/images/swap-banner-2.gif'),
+        link: 'https://medium.com/@nft-battle-miners/nbm-alchemy-everything-you-need-to-know-27cca263512f',
+        image: require('@/assets/images/swap-banner-2.jpg'),
         colors: [
-          'rgba(83,138,161,0.2)',
-          'rgba(134,102,56,1)',
-          'rgba(131,192,213, 1)',
+          'rgba(109,224,251,0.2)',
+          'rgba(122,103,50,1)',
+          'rgba(213,193,121, 1)',
         ],
       },
     ]
