@@ -349,8 +349,8 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
-    hyperion: 'https://wax-history.eosdac.io',
-    //hyperion: 'https://wax.eu.eosamsterdam.net',
+    //hyperion: 'https://wax-history.eosdac.io',
+    hyperion: 'https://wax.eu.eosamsterdam.net',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
@@ -418,8 +418,8 @@ const networks = {
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [
       /* USDT put others after */ 763,
-      125,
-      134
+      185,
+      843
     ],
     BANNER_MARKETS: [],
 
