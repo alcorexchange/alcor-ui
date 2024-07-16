@@ -180,7 +180,7 @@ function getAPR(incentive, poolStats, tokens) {
   const tokenA = Asset.fromFloat(poolStats.tokenA.quantity, Asset.Symbol.fromParts(poolStats.tokenA.symbol, poolStats.tokenA.decimals))
   const tokenB = Asset.fromFloat(poolStats.tokenB.quantity, Asset.Symbol.fromParts(poolStats.tokenB.symbol, poolStats.tokenB.decimals))
 
-  const absoluteTotalStaked = sqrt(BigInt(tokenA.units.toString()) * BigInt(tokenB.units.toString()))
+  const absoluteTotalStaked = sqrt(BigInt(tokenA.units.toString()) * BigInt(tokenB.units.toString())) || 1n
 
   const stakedPercent_bn = (BigInt(incentive.totalStakingWeight) * BigInt(100) * BigInt(1000)) / absoluteTotalStaked
   const stakedPercent = Number(stakedPercent_bn) / 1000
