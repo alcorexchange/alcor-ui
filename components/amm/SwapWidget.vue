@@ -204,21 +204,21 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://t.me/pugtapper_bot?start=frid339079880',
-        image: require('@/assets/images/swap-banner-1.jpg'),
+        link: 'https://nfthive.io/drop/9248+9249+9250',
+        image: require('@/assets/images/swap-banner-1.png'),
         colors: [
-          'rgba(179,92,223,0.2)',
-          'rgba(67,153,228, 1)',
-          'rgba(180,209,83,1)',
+          'rgba(39,1,82,0.2)',
+          'rgba(254,191,95, 1)',
+          'rgba(36,186,175,1)',
         ],
       },
       {
-        link: 'https://medium.com/@nft-battle-miners/nbm-alchemy-everything-you-need-to-know-27cca263512f',
-        image: require('@/assets/images/swap-banner-2.jpg'),
+        link: 'https://machiavellic.io/season-0-1/',
+        image: require('@/assets/images/swap-banner-2.gif'),
         colors: [
-          'rgba(109,224,251,0.2)',
-          'rgba(122,103,50,1)',
-          'rgba(213,193,121, 1)',
+          'rgba(177,14,20,0.2)',
+          'rgba(224,193,131,1)',
+          'rgba(225,103,51, 1)',
         ],
       },
     ]
