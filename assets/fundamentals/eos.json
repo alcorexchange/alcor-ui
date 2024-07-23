@@ -1,1 +1,22 @@
-{}
+{
+  "RSTORY@rstorytokens": {
+  "name": "Rstory",
+  "website": {
+    "link": "https://rstory.io/",
+    "name": "rstory.io"
+  },
+  "tags": [
+    "Media",
+    "Publishing",
+    "Philanthropy"
+  ],
+  "socials": [
+    "https://t.me/rstory_official",
+    "https://twitter.com/Rstory_Official",
+    "https://www.facebook.com/groups/rstoryofficial/",
+    "https://hive.blog/@rstory"	
+  ],
+  "github": "https://github.com/ma-da/rstory",
+  "description": "The Rstory website connects to Anchor wallet and the EOS blockchain to determine if the user has an Rstory token. It the user has a token, links to digital products stored on IPFS are constructed and made available to the user."
+}
+}
