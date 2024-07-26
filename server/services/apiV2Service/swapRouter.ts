@@ -9,33 +9,37 @@ import { bestTradeWithSplitMultiThreaded, parseTrade } from './utils'
 
 export const swapRouter = Router()
 
-const redis = createClient()
+const redisClient = createClient()
 const subscriber = createClient()
-subscriber.connect()
+
+const connectRedis = async (client) => {
+  if (!client.isOpen) {
+    await client.connect()
+  }
+}
 
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
-
 const POOLS = {}
-const ROUTES_EXPIRATION_TIMES = {}
-const ROUTES_CACHE_TIMEOUT = 60 * 20 // 5H
-const ROUTES_UPDATING = {} // Объект для отслеживания обновлений кеша
+const ROUTES_CACHE_TIMEOUT = 60 * 20 // 20 минут
+const ROUTES_UPDATING_TIMEOUT = 60 * 10 // 5 минут
 
-subscriber.subscribe('swap:pool:instanceUpdated', msg => {
-  const { chain, buffer } = JSON.parse(msg)
-  const pool = Pool.fromBuffer(Buffer.from(buffer, 'hex'))
+subscriber.connect().then(() => {
+  subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
+    const { chain, buffer } = JSON.parse(msg)
+    const pool = Pool.fromBuffer(Buffer.from(buffer, 'hex'))
 
-  if (!POOLS[chain]) return getAllPools(chain)
+    if (!POOLS[chain]) return getAllPools(chain)
 
-  if (!pool) {
-    console.warn('ADDING NULL POOL TO POOLS MAP!', pool)
-  }
+    if (!pool) {
+      console.warn('ADDING NULL POOL TO POOLS MAP!', pool)
+    }
 
-  POOLS[chain].set(pool.id, pool)
+    POOLS[chain].set(pool.id, pool)
+  })
 })
 
-async function getAllPools(chain): Promise<Map<string, Pool>> {
+async function getAllPools(chain) {
   if (!POOLS[chain]) {
-    //const poos = await getPools(chain, true, (p) => p.active && BigInt(p.liquidity) > BigInt(0))
     const pools = await getPools(chain, true, (p) => p.active)
     POOLS[chain] = new Map(pools.map(p => [p.id, p]))
     console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
@@ -45,34 +49,42 @@ async function getAllPools(chain): Promise<Map<string, Pool>> {
 }
 
 async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
-  if (!redis.isOpen) await redis.connect()
+  await connectRedis(redisClient)
 
   const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
   const allPools = await getAllPools(chain)
   const liquidPools = Array.from(allPools.values()).filter((p: any) => p.active && p.tickDataProvider.ticks.length > 0)
 
-  const redis_routes = await redis.get('routes_' + cacheKey)
+  let redisRoutes = await redisClient.get('routes_' + cacheKey)
+  let cacheExpiration = await redisClient.get('routes_expiration_' + cacheKey)
 
-  if (!redis_routes) {
+  const currentTime = Date.now()
+  const isCacheExpired = !cacheExpiration || currentTime > parseInt(cacheExpiration, 10)
+
+  if (!redisRoutes && isCacheExpired) {
     await updateCache(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey)
-    return await getCachedRoutes(chain, inputToken, outputToken, maxHops)
+    redisRoutes = await redisClient.get('routes_' + cacheKey)
+  } else if (isCacheExpired) {
+    const updatingKey = 'updating_' + cacheKey
+    const isUpdating = await redisClient.get(updatingKey)
+
+    if (!isUpdating) {
+      await redisClient.set(updatingKey, 'true', {
+        EX: ROUTES_UPDATING_TIMEOUT,
+        NX: true // Only set the key if it does not already exist
+      })
+      updateCacheInBackground(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey)
+    }
   }
 
   const routes = []
-  for (const route of JSON.parse(redis_routes) || []) {
+  for (const route of JSON.parse(redisRoutes) || []) {
     const pools = route.pools.map(p => allPools.get(p))
 
-    // Pools might change, so pool in cached route no more active/has liquidity
     const poolsValid = pools.every(p => p != undefined && p.active && p.tickDataProvider.ticks.length > 0)
 
     if (poolsValid) {
       routes.push(new Route(pools, inputToken, outputToken))
-    }
-  }
-
-  if (!ROUTES_EXPIRATION_TIMES[cacheKey] || Date.now() > ROUTES_EXPIRATION_TIMES[cacheKey]) {
-    if (!ROUTES_UPDATING[cacheKey]) {
-      updateCacheInBackground(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey)
     }
   }
 
@@ -88,27 +100,23 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
   }
 
   try {
-    ROUTES_UPDATING[cacheKey] = true
+    const routes = await computeRoutesInWorker(input, output, pools, maxHops)
+    const redisRoutes = routes.map(({ input, output, pools }) => ({
+      input: Token.toJSON(input),
+      output: Token.toJSON(output),
+      pools: pools.map(p => p.id)
+    }))
 
-    const routes: any = await computeRoutesInWorker(input, output, pools, maxHops)
-    const redis_routes = routes.map(({ input, output, pools }) => {
-      return {
-        input: Token.toJSON(input),
-        output: Token.toJSON(output),
-        pools: pools.map(p => p.id)
-      }
-    })
-
-    await redis.set('routes_' + cacheKey, JSON.stringify(redis_routes))
+    await redisClient.set('routes_' + cacheKey, JSON.stringify(redisRoutes))
+    await redisClient.set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT * 1000).toString())
     console.log('cacheUpdated:', cacheKey)
 
-    ROUTES_EXPIRATION_TIMES[cacheKey] = Date.now() + ROUTES_CACHE_TIMEOUT * 1000
     return routes
   } catch (error) {
     console.error('Error computing routes in worker:', error)
     return []
   } finally {
-    delete ROUTES_UPDATING[cacheKey]
+    await redisClient.del('updating_' + cacheKey)
   }
 }
 
@@ -132,7 +140,7 @@ function computeRoutesInWorker(input, output, pools, maxHops) {
         output: Token.toJSON(output),
         pools: pools.map(p => Pool.toBuffer(p)),
         maxHops
-      },
+      }
     })
 
     worker.on('message', routes => {

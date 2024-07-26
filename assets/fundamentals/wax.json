@@ -498,13 +498,14 @@
             "Social",
             "Metaverse"
         ],
-        "description": "PXJ is the token of the Pixel Journey; an educational project with the topic of exploring everything Wax, and each of our widely connected ecosystems have to offer. PXJ is already paired up across 40 different LPs across Wax, offering a vast number of possibilities to pair up. PXJ will be required for Pixel Journey collectibles crafting, and may in the future get a role in our PixelDAO.",
+        "description": "PXJ is the token of the Pixel Journey; an educational project with the topic of exploring everything Wax, Web3, and each of our widely connected ecosystems have to offer. PXJ is already paired up across +100 different LP pairs across Wax, offering a vast number of possibilities to pair up. PXJ will be required for Pixel Journey collectibles crafting, upgrades and may in the future get a role in our PixelDAO.",
         "socials": [
             "https://docs.pixeljourney.xyz",
             "https://discord.gg/7nvdUwtxF4",
-            "https://twitter.com/0xPixelJourney",
-            "https://twitter.com/PixelJourney_ES",
-            "https://uncut.network/user/4295809399"
+						"https://t.me/pixel_journey",
+            "https://twitter.com/PxJourney",
+            "https://uncut.network/user/4295809399",
+						"https://medium.com/@HenrikPiga"
         ]
     },
     "PAGE@pixeltbanker": {
@@ -582,7 +583,7 @@
           "https://discord.com/invite/Xtsde6p9m7"
       ],
       "description": "Next-gen meme & cross-chain coin on Solana & wax_io. Bark Loud, Bark Proud! 🦴"
-  }, 
+  },
   "TETRA@tetra": {
     "name": "TETRA",
     "website": {

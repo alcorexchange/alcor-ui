@@ -4,7 +4,7 @@
     SelectNetwork(:networks="networksMock" v-model="selectedNetwork")
   .main
     el-input.amount(
-      placeholder='Enter Adderss',
+      :placeholder='placeholder',
       :value='localValue',
       :disabled='inputDisabled'
       @input='input',
@@ -32,10 +32,7 @@ export default {
     AlcorButton
   },
 
-  props: [
-    'value',
-    'label',
-  ],
+  props: ['value', 'label', 'placeholder'],
 
   data: () => ({
     localValue: null,

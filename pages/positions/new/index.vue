@@ -216,14 +216,14 @@ export default {
 
       // TODO Different ranges for different feeAmounts
       priceRangeItems: [
-        { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
+        { text: 'Infinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
         { text: '+/-5%', lowerValue: -5, higherValue: 5 },
         { text: '+/-30%', lowerValue: -30, higherValue: 30 },
         { text: '-10%/+50%', lowerValue: -10, higherValue: 50 },
         { text: '-50%/+10%', lowerValue: -50, higherValue: 10 },
 
         // 500
-        // { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
+        // { text: 'Infinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
         // { text: '+/-5%', lowerValue: -5, higherValue: 5 },
         // { text: '+/-10%', lowerValue: -10, higherValue: 10 },
         // { text: '-2%/+10', lowerValue: -2, higherValue: 10 },

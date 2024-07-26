@@ -98,7 +98,6 @@ export default {
   },
 
   data: () => ({
-    loading: true,
     loadedPosition: null,
     tokensInverted: false,
     positionNotFound: false

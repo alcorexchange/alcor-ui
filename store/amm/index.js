@@ -182,11 +182,12 @@ export const actions = {
 
     commit(
       'setPools',
-      rows.filter(
-        (p) =>
-          !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
-          !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)
-      )
+      rows
+      // rows.filter(
+      //   (p) =>
+      //     !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
+      //     !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)
+      // )
     )
 
     dispatch('setMarketsRelatedPool', {}, { root: true })
