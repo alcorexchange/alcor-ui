@@ -2,7 +2,7 @@
 .layout-header-search
   ElPopover(trigger="focus" v-model="visible" :visibleArrow="false" width="240" popperClass="layout-search-popper" )
     template(#reference)
-      ElInput(placeholder="Search tokens" v-model="search" size="small" prefix-icon="el-icon-search")
+      ElInput(placeholder="Search tokens" v-model="search" size="small" prefix-icon="el-icon-search" @input="handleInput")
     div.dropdown-content
       .tabs
         AlcorButton(@click="activeTab = 'tokens'" :class="{active: activeTab === 'tokens'}" compact).tab-item
@@ -99,7 +99,7 @@ export default {
 
       return temp.filter((pool) =>
         // Only search in token object
-        [...Object.values(pool.A), ...Object.values(pool.tokenB)].some((v) =>
+        [...Object.values(pool.tokenA), ...Object.values(pool.tokenB)].some((v) =>
           `${v}`.toLowerCase().includes(this.search.toLowerCase())
         )
       )
@@ -109,6 +109,9 @@ export default {
     handleItemClick() {
       this.visible = false
       this.search = ''
+    },
+    handleInput() {
+      console.log('handle input')
     },
   },
 }
