@@ -609,5 +609,27 @@
         "https://www.facebook.com/tetra.earth",
         "https://www.reddit.com/r/cXcMusic"
     ]
+  },
+    "GUDA@guda.guda": {
+        "name": "GUDA",
+        "website": {
+            "link": "https://guda.guda.love/",
+            "name": "GUDA"
+        },
+        "tags": [
+            "Social",
+            "Challenge",
+            "celebrity",
+            "meme",
+            "NFT"
+        ],
+        "description": "GUDA is more than a symbol; it is a badge of honor, a testament to your journey through the shadows and your emergence into the light. 🜛 Earn Gudabits for IRL challenges that transmute your shadows, found in Discord. Every Gudabit (0.00000001 GUDA) is redeemable for an NFT, via the drops.guda contract. Full info: https://guda.guda.love",
+        "github": "https://github.com/dougbutner/guda-token",
+        "socials": [
+            "https://discord.com/invite/MrRXZYhHfp",
+            "https://linktr.ee/gudasol",
+            "https://twitter.com/GUDA_coin",
+            "https://youtube.com/@gudasol"
+        ]
   }
 }
