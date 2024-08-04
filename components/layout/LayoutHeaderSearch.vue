@@ -46,7 +46,7 @@
                   PairIcons(
                     :token1="{contract: item.tokenA.contract, symbol: item.tokenA.symbol}"
                     :token2="{contract: item.tokenB.contract, symbol: item.tokenB.symbol}"
-                    size="18"
+                    size="16"
                   )
                 .pool-item-details
                   .pool-item-details-head
