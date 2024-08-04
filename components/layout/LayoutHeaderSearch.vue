@@ -107,11 +107,14 @@ export default {
   },
   methods: {
     handleItemClick() {
+      console.log('item click')
       this.visible = false
-      this.search = ''
     },
     handleInput() {
-      console.log('handle input')
+      if (!this.visible) this.visible = true
+    },
+    handleHide() {
+      this.search = ''
     },
   },
 }
