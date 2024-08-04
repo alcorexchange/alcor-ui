@@ -41,7 +41,7 @@
             v-if="filteredPools.length"
           )
             template(#default="{ item }")
-              .item.pool-item.pointer.hover-bg-lighter
+              NuxtLink(:to="localeRoute(`/analytics/pools/${item.id}`)").item.pool-item.pointer.hover-bg-lighter
                 .image
                   PairIcons(
                     :token1="{contract: item.tokenA.contract, symbol: item.tokenA.symbol}"
