@@ -5,8 +5,10 @@
       ElInput(placeholder="Search tokens" v-model="search" size="small" prefix-icon="el-icon-search")
     div.dropdown-content
       .tabs
-        AlcorButton(@click="activeTab = 'tokens'" :class="{active: activeTab === 'tokens'}").tab-item.fs-14 Top Tokens
-        AlcorButton(@click="activeTab = 'pools'" :class="{active: activeTab === 'pools'}").tab-item.fs-14 Top Pools
+        AlcorButton(@click="activeTab = 'tokens'" :class="{active: activeTab === 'tokens'}" compact).tab-item
+          span.fs-12 Top Tokens
+        AlcorButton(@click="activeTab = 'pools'" :class="{active: activeTab === 'pools'}" compact).tab-item
+          span.fs-12 Top Pools
         //- ElRadioGroup(v-model="activeTab" size="small")
         //-   ElRadioButton(label="tokens") Top Tokens
         //-   ElRadioButton(label="pools") Top Pools
@@ -23,10 +25,10 @@
                 .image
                   TokenImage(
                     :src='$tokenLogo(item.symbol, item.contract)',
-                    height="20"
+                    height="18"
                   )
-                span.symbol {{ item.symbol }}
-                span.contract.muted.fs-12 {{ item.contract }}
+                span.symbo.fs-14 {{ item.symbol }}
+                span.contract.muted.fs-10 {{ item.contract }}
               .end.fs-12
                 .price ${{ item.usd_price.toFixed(4) }}
         .no-items(v-else) No Tokens Found.
@@ -81,8 +83,10 @@ export default {
     display: flex;
     gap: 4px;
     .tab-item {
-      font-size: 14px;
       background: transparent !important;
+      &:hover {
+        background: var(--hover) !important;
+      }
       &.active {
         background: var(--btn-default) !important;
       }
