@@ -641,7 +641,6 @@
         "tags": [
             "politifi",
             "Meme",
-            "celebrity",
             "vote",
             "dgov"
         ],
@@ -680,5 +679,26 @@ If you've never searched XPX under Alcor farms, you will 🌾. ",
         "https://vote.xparty.win",
         "https://t.me/XPX_Bulls"
     ]
-}
+  }
+  "TRUMPX@trump.xpx": {
+    "name": "TRUMPX",
+    "website": {
+        "link": "https://xparty.win/",
+        "name": "XParty.win"
+    },
+    "tags": [
+        "politifi",
+        "vote",
+        "dgov",
+        "Trump",
+        "Meme"
+    ],
+    "description": "You awake in 2042 🇺🇸, the world is on the brink, and the 2024 elections seem like a distant memory—one that desperately needs a second chance 🔴. You are given an ancient technology to rewrite history, but the time machine seems… off.. Arriving in 2024 you find an alternate USA, USAX. Still, there's hope. The ancient technology of Memecoins seems to be working. But will anyone use it to vote, or just keep speculating on the price? If you've never read our lore, you will. 🗳 vote.xparty.win",
+    "socials": [
+        "https://x.com/XPartyUSA/",
+        "https://discord.com/invite/t6GKwSHcQz",
+        "https://vote.xparty.win",
+        "https://t.me/XPX_Bulls"
+    ]
+  }
 }
