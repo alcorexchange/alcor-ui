@@ -631,5 +631,74 @@
             "https://twitter.com/GUDA_coin",
             "https://youtube.com/@gudasol"
         ]
+  },
+    "XPX@xparty": {
+        "name": "XPX",
+        "website": {
+            "link": "https://xparty.win/",
+            "name": "XParty.win"
+        },
+        "tags": [
+            "politifi",
+            "Meme",
+            "vote",
+            "dgov"
+        ],
+        "description": "XPX is a novel RAP token (Ratcheting Asset Peg) 🔧, similar to a stablecoin pegged to WAX. It operates with a market maker where buy orders are placed for the same amount of XPX sold. There are no team-allocated XPX tokens, no marketing budget, just 100% of the supply listed on the market 📊. 
+
+XPX will consistently have reward pools 💎 but will never serve as the reward token itself. 
+
+To maintain its value, XPX employs a strategy where every XPX token sold is used to buy back the token. When the sell order is gone, XPX starts ratcheting, moving up the starting price 2% while maintaining market stabilization mechanisms that rise as well 📈. You can run this market maker by executing the 'partytime' action on maker.xpx with freecover = 0 ⚙️. 
+The market maker targets a support level of 0.98 WAX with 62% of liquidity and an additional 10% at 0.96 WAX, and descending orders until 0.62. The weighted gap in all buy orders is calculated to be 6.6%, which is taken as fees to run the project 🔍. 
+
+If you've never searched XPX under Alcor farms, you will 🌾. ",
+        "socials": [
+            "https://x.com/XPartyUSA/",
+		    "https://discord.com/invite/t6GKwSHcQz",
+            "https://vote.xparty.win",
+		    "https://t.me/XPX_Bulls"
+        ]
+  },
+  "HARRISX@harris.xpx": {
+    "name": "HARRISX",
+    "website": {
+        "link": "https://xparty.win/",
+        "name": "XParty.win"
+    },
+    "tags": [
+        "politifi",
+        "vote",
+        "dgov",
+        "Harris",
+        "Meme"
+    ],
+    "description": "You awake in 2042 🇺🇸, the world is on the brink, and the 2024 elections seem like a distant memory—one that desperately needs a second chance 🔵. You are given an ancient technology to rewrite history, but the time machine seems… off.. Arriving in 2024 you find an alternate USA, USAX. Still, there's hope. The ancient technology of Memecoins seems to be working. But will anyone use it to vote, or just keep speculating on the price? If you've never read our lore, you will. 🗳 vote.xparty.win",
+    "socials": [
+        "https://x.com/XPartyUSA/",
+        "https://discord.com/invite/t6GKwSHcQz",
+        "https://vote.xparty.win",
+        "https://t.me/XPX_Bulls"
+    ]
+  }
+  "TRUMPX@trump.xpx": {
+    "name": "TRUMPX",
+    "website": {
+        "link": "https://xparty.win/",
+        "name": "XParty.win"
+    },
+    "tags": [
+        "politifi",
+        "vote",
+        "dgov",
+        "Trump",
+        "Meme"
+    ],
+    "description": "You awake in 2042 🇺🇸, the world is on the brink, and the 2024 elections seem like a distant memory—one that desperately needs a second chance 🔴. You are given an ancient technology to rewrite history, but the time machine seems… off.. Arriving in 2024 you find an alternate USA, USAX. Still, there's hope. The ancient technology of Memecoins seems to be working. But will anyone use it to vote, or just keep speculating on the price? If you've never read our lore, you will. 🗳 vote.xparty.win",
+    "socials": [
+        "https://x.com/XPartyUSA/",
+        "https://discord.com/invite/t6GKwSHcQz",
+        "https://vote.xparty.win",
+        "https://t.me/XPX_Bulls"
+    ]
   }
 }
