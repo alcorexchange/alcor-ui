@@ -192,5 +192,10 @@ export default {
       }
     }
   }
+
+  .no-items {
+    padding: 40px 8px;
+    text-align: center;
+  }
 }
 </style>
