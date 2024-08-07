@@ -21,7 +21,7 @@
             v-if="filteredTokens.length"
           )
             template(#default="{ item }")
-              NuxtLink(:to="localeRoute(`/analytics/tokens/${item.id}`)" @click="handleItemClick").item.token-item.pointer.hover-bg-lighter
+              NuxtLink(:to="localeRoute(`/analytics/tokens/${item.id}`)").item.token-item.pointer.hover-bg-lighter
                 .start
                   .image
                     TokenImage(
@@ -41,7 +41,7 @@
             v-if="filteredPools.length"
           )
             template(#default="{ item }")
-              NuxtLink(:to="localeRoute(`/analytics/pools/${item.id}`)" @click="handleItemClick").item.pool-item.pointer.hover-bg-lighter
+              NuxtLink(:to="localeRoute(`/analytics/pools/${item.id}`)").item.pool-item.pointer.hover-bg-lighter
                 .image
                   PairIcons(
                     :token1="{contract: item.tokenA.contract, symbol: item.tokenA.symbol}"
@@ -105,11 +105,12 @@ export default {
       )
     },
   },
-  methods: {
-    handleItemClick() {
-      console.log('item click')
+  watch: {
+    '$route.path'() {
       this.visible = false
     },
+  },
+  methods: {
     handleInput() {
       if (!this.visible) this.visible = true
     },
