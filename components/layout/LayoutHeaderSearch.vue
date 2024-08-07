@@ -1,6 +1,6 @@
 <template lang="pug">
 .layout-header-search
-  ElPopover(trigger="focus" v-model="visible" :visibleArrow="false" width="240" popperClass="layout-search-popper" )
+  ElPopover(trigger="focus" v-model="visible" :visibleArrow="false" width="240" popperClass="layout-search-popper" @after-leave="handleHide")
     template(#reference)
       ElInput(placeholder="Search tokens" v-model="search" size="small" prefix-icon="el-icon-search" @input="handleInput")
     div.dropdown-content
