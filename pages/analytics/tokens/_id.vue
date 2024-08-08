@@ -183,7 +183,7 @@ export default {
 
       const tokenA = new Token(_tokenA.contract, _tokenA.decimals, _tokenA.symbol)
       const tokenB = new Token(_tokenB.contract, _tokenB.decimals, _tokenB.symbol)
-
+      console.log({ tokenA, tokenB })
       data = this.charts.map((c) => {
         const price = new Price(
           tokenA.sortsBefore(tokenB) ? tokenA : tokenB,
