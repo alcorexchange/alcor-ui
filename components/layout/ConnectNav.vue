@@ -140,14 +140,13 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
 }
 
 .theme-toggle-button {
   border-radius: 50% !important;
-  margin: 4px 8px;
-  margin-right: 0;
+  margin: 4px 0;
   color: var(--text-default) !important;
 
   &.mobile {

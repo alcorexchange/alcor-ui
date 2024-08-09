@@ -123,7 +123,7 @@ export default {
 
 <style lang="scss">
 .layout-header-search {
-  width: 240px;
+  width: 180px;
 }
 </style>
 
