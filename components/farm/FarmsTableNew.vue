@@ -4,11 +4,13 @@
     .header-item Pair
     .header-item Total Staked
     .header-item.sortable
-      span(@click="handleSort()") APR
-      Sorter(:sortBy="sortKey" :activeSort="{ key: sortKey, route: sortDirection }" @change="handleSort")
+      span(@click="toggleSort('apr')") APR
+      Sorter(sortBy="apr" :activeSort="{ key: sortKey, route: sortDirection }" @change="handleSort")
     .header-item Total Reward
     .header-item Daily Rewards
-    .header-item Rem. Time
+    .header-item.sortable
+      span(@click="toggleSort('time')") Rem. Time
+      Sorter(sortBy="time" :activeSort="{ key: sortKey, route: sortDirection }" @change="handleSort")
     .header-item
     .header-item
   .table-items
@@ -56,7 +58,6 @@ export default {
   data: () => {
     return {
       extendedRow: null,
-      // Currently only 'apr' is supported.
       sortKey: 'apr',
       sortDirection: null,
     }
@@ -65,24 +66,59 @@ export default {
   computed: {
     sortedItems() {
       const farms = [...(this.farmPools || [])]
-      const sorted = farms.sort((a, b) => {
-        return (a.avgAPR > b.avgAPR ? -1 : 1)
-      })
-      if (this.sortDirection === 1) return sorted
-      if (this.sortDirection === 0) return sorted.reverse()
+
+      const isTimeSort = this.sortKey === 'time'
+      const isAprSort = this.sortKey === 'apr'
+
+      if (isAprSort) {
+        const aprSorted = farms.sort((a, b) => {
+          return b.avgAPR > a.avgAPR ? -1 : 1
+        })
+
+        if (this.sortDirection === 1) return aprSorted
+        if (this.sortDirection === 0) return aprSorted.reverse()
+      }
+
+      if (isTimeSort) {
+        const timeSorted = farms.sort((a, b) => {
+          const avgA = a.incentives.reduce((sum, incentive) => sum + incentive.daysRemain, 0) / a.incentives.length
+          const avgB = b.incentives.reduce((sum, incentive) => sum + incentive.daysRemain, 0) / b.incentives.length
+
+          return avgA - avgB
+        })
+
+        if (this.sortDirection === 1) return timeSorted
+        if (this.sortDirection === 0) return timeSorted.reverse()
+      }
+
       return this.farmPools
     },
   },
 
   methods: {
-    handleSort(sort) {
-      if (!sort) {
+    handleSort(newSort) {
+      console.log({ newSort })
+
+      if (this.sortKey == newSort.key && this.sortDirection == newSort.route) {
+        this.sortKey = null
+        this.sortDirection = null
+        return
+      }
+
+      this.sortDirection = newSort.route
+      this.sortKey = newSort.key
+    },
+
+    // Clicking on text instead of arrows
+    toggleSort(newKey) {
+      if (this.sortKey === newKey) {
         if (this.sortDirection === null) this.sortDirection = 1
         else if (this.sortDirection === 1) this.sortDirection = 0
         else this.sortDirection = null
-        return
+      } else {
+        this.sortKey = newKey
+        this.sortDirection = 1
       }
-      this.sortDirection = sort.route
     },
 
     addLiquidity(row) {

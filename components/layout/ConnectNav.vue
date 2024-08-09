@@ -20,6 +20,7 @@
     )
       | {{ $t('Connect Wallet') }}
 
+    LayoutHeaderSearch(v-if="!isMobile")
     AlcorButton.theme-toggle-button.desktop(
       v-if='$route.name != "index"',
       :icon-only-alt='true',
@@ -70,12 +71,14 @@ import AlcorButton from '@/components/AlcorButton'
 import config from '~/config'
 import Settings from '~/components/layout/Settings'
 import ChainSelect from '~/components/elements/ChainSelect'
+import LayoutHeaderSearch from '~/components/layout/LayoutHeaderSearch'
 
 export default {
   components: {
     AlcorButton,
     Settings,
     ChainSelect,
+    LayoutHeaderSearch,
     // AlcorLink
   },
 
@@ -137,14 +140,13 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
 }
 
 .theme-toggle-button {
   border-radius: 50% !important;
-  margin: 4px 8px;
-  margin-right: 0;
+  margin: 4px 0;
   color: var(--text-default) !important;
 
   &.mobile {

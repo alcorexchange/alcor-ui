@@ -82,6 +82,8 @@ export default {
     tokenB() {
       const { baseToken } = this.$store.state.network
 
+      if (this.tokenA == baseToken.id) return this.usd_token.id
+
       return this.quoteToken == this.usd_token.symbol
         ? this.usd_token.id
         : `${baseToken.symbol}-${baseToken.contract}`.toLowerCase()
@@ -170,8 +172,6 @@ export default {
       //   quotes.push({ value: this.usd_token.symbol })
       // }
 
-      console.log({ quotes })
-
       return quotes
     },
 
@@ -183,7 +183,6 @@ export default {
 
       const tokenA = new Token(_tokenA.contract, _tokenA.decimals, _tokenA.symbol)
       const tokenB = new Token(_tokenB.contract, _tokenB.decimals, _tokenB.symbol)
-
       data = this.charts.map((c) => {
         const price = new Price(
           tokenA.sortsBefore(tokenB) ? tokenA : tokenB,
@@ -245,7 +244,6 @@ export default {
     this.fetchHolders()
     this.fetchStats()
     this.quoteToken = this.$store.state.network.baseToken.symbol
-    console.log('this', this.$route)
   },
 
   methods: {

@@ -133,6 +133,7 @@ export default {
           // prettier-ignore
           return `${p.feesA.split(' ')[1]}${p.feesB.split(' ')[1]}`.toLowerCase().includes(this.search?.toLowerCase() || '')
         })
+        .toSorted((a, b) => b.totalValue - a.totalValue)
     },
     totalPositionsValue() {
       return this.positions.reduce((value, position) => value + position.totalValue, 0)
