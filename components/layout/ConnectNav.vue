@@ -1,7 +1,7 @@
 <template lang="pug">
 .connect-nav
   .left(v-if="!isMobile").mr-2
-    chain-select
+    ChainSelect
   .right
     .user-detail(v-if='user')
       .balance(@click='openInNewTab(monitorAccount(user.name))')

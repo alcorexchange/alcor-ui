@@ -3,13 +3,13 @@
   .connection-status.mr-2
   el-dropdown(trigger="click")
     .network-selection
-      img.mr-2(
+      img(
         :src='require("~/assets/icons/" + current_chain.name + ".png")',
         height=25
       )
 
-      span(v-if='isMobile') {{ current_chain.name }}
-      span(v-else) {{ current_chain.desc }}
+      //- span(v-if='isMobile') {{ current_chain.name }}
+      //- span(v-else) {{ current_chain.desc }}
       i.el-icon-arrow-down.ml-1
 
     template(#dropdown='')
@@ -38,7 +38,7 @@ export default {
   data() {
     return {
       loading: false,
-      show: true
+      show: true,
     }
   },
 
@@ -50,10 +50,8 @@ export default {
     },
 
     networks() {
-      return Object.values(config.networks).filter((n) =>
-        ['eos', 'telos', 'wax', 'bos', 'proton'].includes(n.name)
-      )
-    }
+      return Object.values(config.networks).filter((n) => ['eos', 'telos', 'wax', 'bos', 'proton'].includes(n.name))
+    },
   },
 
   methods: {
@@ -62,15 +60,12 @@ export default {
       this.show = !this.show
     },
     changeChain(to) {
-      const location =
-        to == 'wax'
-          ? 'https://alcor.exchange/'
-          : `https://${to}.alcor.exchange/`
+      const location = to == 'wax' ? 'https://alcor.exchange/' : `https://${to}.alcor.exchange/`
 
       this.loading = true
       window.location = location + window.location.pathname.split('/')[1] || ''
-    }
-  }
+    },
+  },
 }
 </script>
 
