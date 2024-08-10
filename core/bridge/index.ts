@@ -9,14 +9,63 @@ enum BridgeStatus {
   Failed,
 }
 
+const supportedTokens: { [key: string]: string[] } = {
+  'Solana-Ethereum': ['USDT', 'USDC'],
+  'Ethereum-Solana': ['USDT', 'USDC'],
+  'BSC-Ethereum': ['BUSD', 'USDT'],
+}
+
+// Функция для получения списка уникальных исходных блокчейнов (sourceChains)
+function getSourceChains(): string[] {
+  const chains = new Set<string>()
+
+  for (const pair of Object.keys(supportedTokens)) {
+    const [sourceChain] = pair.split('-')
+    chains.add(sourceChain)
+  }
+
+  return Array.from(chains)
+}
+
+// Получение списка токенов для выбранной исходной цепочки
+function getTokensForSourceChain(sourceChain: string): string[] {
+  const tokens = new Set<string>()
+
+  for (const [pair, tokenList] of Object.entries(supportedTokens)) {
+    const [fromChain] = pair.split('-')
+    if (fromChain === sourceChain) {
+      tokenList.forEach((token) => tokens.add(token))
+    }
+  }
+
+  return Array.from(tokens)
+}
+
+// Получение списка возможных блокчейнов для отправки токена
+function getDestinationChainsForToken(fromChain: string, tokenSymbol: string): string[] {
+  const chains = new Set<string>()
+
+  for (const [pair, tokens] of Object.entries(supportedTokens)) {
+    if (tokens.includes(tokenSymbol)) {
+      const [sourceChain, destinationChain] = pair.split('-')
+      if (sourceChain === fromChain) {
+        chains.add(destinationChain)
+      }
+    }
+  }
+
+  return Array.from(chains)
+}
+
+
 // Пример класса токена
 class Token {
-    symbol: string;
-    contract: string;
+  symbol: string
+  contract: string
 
-    constructor(symbol: string) {
-      this.symbol = symbol
-    }
+  constructor(symbol: string) {
+    this.symbol = symbol
+  }
 }
 
 // Класс для кошелька
@@ -153,9 +202,11 @@ class BridgeProcess {
   getBridgeAddress(fromChain: Blockchain, toChain: Blockchain): string {
     const key = `${fromChain.constructor.name}-${toChain.constructor.name}`
     const address = BridgeProcess.bridgeAddresses[key]
+
     if (!address) {
       throw new Error(`No bridge address defined for ${key}`)
     }
+
     return address
   }
 
