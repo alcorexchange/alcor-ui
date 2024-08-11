@@ -10,7 +10,7 @@
       .logged-in-button.fs-14
         .image-container
           img(src="@/assets/icons/eos.png")
-        span gus.fring
+        span name
         // TODO: find proper logout icon
         i.el-icon-right
 </template>
@@ -19,9 +19,28 @@
 import AlcorButton from '@/components/AlcorButton.vue'
 export default {
   components: {
-    AlcorButton
+    AlcorButton,
   },
-  props: ['label', 'beforeConnect', 'hideLabel'],
+  props: ['label', 'beforeConnect', 'hideLabel', 'message', 'sourceName'],
+  computed: {},
+  methods: {
+    async connectFromWallet() {
+      try {
+        const { wallet, name, authorization } = await this.$store.dispatch('chain/asyncLogin', {
+          chain: this.sourceName,
+          message: this.message,
+        })
+
+        this.emit('connect', { wallet, name, authorization })
+      } catch (e) {
+        this.$notify({
+          type: 'warning',
+          title: 'Wallet not connected',
+          message: e,
+        })
+      }
+    },
+  },
 }
 </script>
 

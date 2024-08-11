@@ -1,12 +1,12 @@
 <template lang="pug">
 .bridge-page.d-flex.flex-column.gap-8
   .side.from
-    BridgeConnect(label="from").my-1
+    BridgeConnect(label="From").my-1
     BridgeInput(label="from" :tokens="availableAssets")
   .side.to
     // hide label when connected.
     BridgeConnect(label="To custom recipient" beforeConnect="or" :hideLabel="false").my-1
-    BridgeToInput(label="to" placeholder="0.0" :locked="true")
+    BridgeToInput(placeholder="Enter Address")
   //- .recepient
   .process
     BridgeProcess
@@ -32,18 +32,26 @@ export default {
     BridgeInput,
     BridgeToInput,
     BridgeConnect,
-    BridgeProcess
+    BridgeProcess,
   },
+
+  data: () => ({
+    formData: {
+      amount: null,
+      sender: null,
+      receiver: null,
+    },
+  }),
+
   computed: {
     ...mapGetters({
-      availableAssets: 'ibcBridge/availableAssets'
+      availableAssets: 'ibcBridge/availableAssets',
     }),
     renderSubmitText() {
       return 'Bridge X TO C'
-    }
+    },
   },
-  methods: {
-  }
+  methods: {},
 }
 </script>
 
@@ -62,7 +70,7 @@ export default {
     filter: none !important;
   }
 }
-.submit:hover{
+.submit:hover {
   background: var(--main-green) !important;
   color: var(--text-theme) !important;
 }
