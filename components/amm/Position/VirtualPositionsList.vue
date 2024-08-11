@@ -36,7 +36,7 @@ VirtualTable(:table="virtualTableData").virtual-positions-list
             span {{ item.amountB | commaFloat }}
       .total.fs-14
         span $ {{ item.totalValue | commaFloat(2) }}
-      .unclaimed.fs-14
+      .unclaimed.fs-14(v-if="!isMobile")
         span(:style="{color: $percentColor(1)}") $ {{ item.totalFeesUSD | commaFloat(3) }}
       .action(v-if="!isMobile")
         AlcorButton(compact) {{ $t('Manage') }}
@@ -64,6 +64,7 @@ export default {
         {
           label: this.$t('Assets in Position'),
           width: '240px',
+          mobileWidth: '100%',
         },
         {
           label: this.$t('Range'),
@@ -81,12 +82,14 @@ export default {
           sortable: true,
           value: 'totalValue',
           slot: 'total',
+          mobileWidth: '180px',
         },
         {
           label: 'Unclaimed Fees',
           value: 'totalFeesUSD',
           sortable: true,
           width: '150px',
+          desktopOnly: true,
         },
         {
           label: this.$t('Action'),
@@ -144,7 +147,7 @@ export default {
     width: 240px;
 
     @media only screen and (max-width: 1176px) {
-      width: 33%;
+      width: 100%;
     }
   }
   .range {
@@ -156,14 +159,11 @@ export default {
   .total {
     width: 180px;
     @media only screen and (max-width: 1176px) {
-      width: 33%;
+      width: 180px;
     }
   }
   .unclaimed {
     width: 150px;
-    @media only screen and (max-width: 1176px) {
-      width: 33%;
-    }
   }
 }
 

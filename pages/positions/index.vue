@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   PositionHeader
-  PositionsList(@positionClick='managePosition')
+  //- PositionsList(@positionClick='managePosition')
   VirtualPositionsList(@positionClick='managePosition')
   DepricatedPools
 </template>
