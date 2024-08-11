@@ -30,9 +30,9 @@ VirtualTable(:table="virtualTableData").virtual-positions-list
 
           .fs-12.d-flex.gap-4(:class="{ red: false }")
             span {{ item.amountB | commaFloat }}
-      .total
+      .total.fs-14
         span $ {{ item.totalValue | commaFloat(2) }}
-      .unclaimed
+      .unclaimed.fs-14
         span(:style="{color: $percentColor(1)}") $ {{ item.totalFeesUSD | commaFloat(3) }}
       .action
         AlcorButton(compact) {{ $t('Manage') }}
