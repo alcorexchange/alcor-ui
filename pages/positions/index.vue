@@ -2,7 +2,7 @@
 div
   PositionHeader
   PositionsList(@positionClick='managePosition')
-  VirtualPositionsList
+  VirtualPositionsList(@positionClick='managePosition')
   DepricatedPools
 </template>
 

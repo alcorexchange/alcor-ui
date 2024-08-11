@@ -13,7 +13,8 @@ recycle-scroller(
   template(#before)
     div.header(:class="{ 'mobile': isMobile }")
       div.header__column(v-for="head in table.header" v-if="!isMobile || !head.desktopOnly" :key="head.value" :style="{ width: head.width }" )
-        span(:class="{ pointer: head.sortable }" @click="() => head.sortable ? sort({ key: head.value, route: 0 }) : null") {{ $t(head.label) }}
+        span(:class="{ pointer: head.sortable }" @click="() => head.sortable ? sort({ key: head.value, route: 0 }) : null")
+          slot(:name="`${head.slot}-header`") {{ $t(head.label) }}
         sorter(v-if="head.sortable" :sort-by="head.value" :active-sort="activeSort" @change="sort")
   template(v-slot="{ item }")
     slot(name="row" :item="item")

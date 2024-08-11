@@ -1,7 +1,11 @@
 <template lang="pug">
 VirtualTable(:table="virtualTableData").virtual-positions-list
+  template(#total-header)
+    span.total-value-header
+      span {{ $t("Total") }}
+      span.total-posiions-value  ( ${{ totalPositionsValue | commaFloat(2) }} )
   template(#row="{ item }")
-    .virtual-position-row
+    .virtual-position-row.pointer(@click="$emit('positionClick', item)")
       .assets
         .assets-inner.d-flex.align-items-center.gap-12.px-2.py-2
           PairIcons(:token1="item.pool.tokenA" :token2="item.pool.tokenB" size="20")
@@ -76,6 +80,7 @@ export default {
           width: '180px',
           sortable: true,
           value: 'totalValue',
+          slot: 'total',
         },
         {
           label: 'Unclaimed Fees',
@@ -193,6 +198,7 @@ export default {
     font-weight: 400;
     font-size: 12px;
     justify-content: flex-start;
+    color: var(--text-disable);
   }
 }
 .earn {
