@@ -11,7 +11,7 @@ VirtualTable(:table="virtualTableData").virtual-positions-list
           PairIcons(:token1="item.pool.tokenA" :token2="item.pool.tokenB" size="20")
           .fs-14 {{ item.pool.tokenA.symbol }} / {{ item.pool.tokenB.symbol }}
           .tag {{ item.pool.fee / 10000 }}%
-      .range.d-flex.flex-column
+      .range.d-flex.flex-column(v-if="!isMobile")
         .d-flex.align-items-center.gap-4
           .indicator(:class="{ 'in-range': item.inRange }")
           .fs-10 {{ item.inRange ? 'In Range': 'Out of Range' }}
@@ -23,7 +23,7 @@ VirtualTable(:table="virtualTableData").virtual-positions-list
           .d-flex.gap-4
             .fs-12.disable MAX
             .fs-12.contrast {{ item.priceUpper }}
-      .pool.d-flex.flex-column
+      .pool.d-flex.flex-column(v-if="!isMobile")
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(item.pool.tokenA.symbol, item.pool.tokenA.contract)' height="12")
           .fs-12.d-flex.gap-4
@@ -38,7 +38,7 @@ VirtualTable(:table="virtualTableData").virtual-positions-list
         span $ {{ item.totalValue | commaFloat(2) }}
       .unclaimed.fs-14
         span(:style="{color: $percentColor(1)}") $ {{ item.totalFeesUSD | commaFloat(3) }}
-      .action
+      .action(v-if="!isMobile")
         AlcorButton(compact) {{ $t('Manage') }}
 </template>
 
@@ -142,6 +142,10 @@ export default {
   align-items: center;
   .assets {
     width: 240px;
+
+    @media only screen and (max-width: 1176px) {
+      width: 33%;
+    }
   }
   .range {
     width: 250px;
@@ -151,9 +155,15 @@ export default {
   }
   .total {
     width: 180px;
+    @media only screen and (max-width: 1176px) {
+      width: 33%;
+    }
   }
   .unclaimed {
     width: 150px;
+    @media only screen and (max-width: 1176px) {
+      width: 33%;
+    }
   }
 }
 
