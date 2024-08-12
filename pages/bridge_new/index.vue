@@ -5,7 +5,7 @@
     BridgeInput(label="from" :tokens="availableAssets")
   .side.to
     // hide label when connected.
-    BridgeConnect(label="To custom recipient" beforeConnect="or" :connection.sync="destinationWallet").my-1
+    BridgeConnect(label="To custom recipient" connectLabel="or" :connection.sync="destinationWallet").my-1
     BridgeToInput(placeholder="Enter Address")
   //- .recepient
   .process

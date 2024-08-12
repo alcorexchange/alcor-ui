@@ -42,6 +42,7 @@ export default {
   methods: {
     handleConnectClick() {
       if (!this.sourceName) return
+      // TODO: Notify to select chain first
       this.connectWallet()
     },
     async connectWallet() {
@@ -94,5 +95,8 @@ export default {
       object-fit: contain;
     }
   }
+}
+.alcor-button {
+  padding: 4px 10px !important;
 }
 </style>
