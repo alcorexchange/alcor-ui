@@ -3,7 +3,7 @@
   .label {{  label }}
   .connect
 
-    .connectLabel(v-if="renderConnectLabel") {{ renderConnectLabel }}
+    .label(v-if="renderConnectLabel") {{ renderConnectLabel }}
 
     AlcorButton(v-if="connection" @click="$emit('logout')")
       .logged-in-button.fs-14
@@ -70,6 +70,9 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  .label {
+    color: var(--text-disable);
+  }
 }
 .connect {
   display: flex;
@@ -97,6 +100,6 @@ export default {
   }
 }
 .alcor-button {
-  padding: 4px 10px !important;
+  padding: 2px 10px !important;
 }
 </style>
