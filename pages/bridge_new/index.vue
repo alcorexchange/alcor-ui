@@ -36,11 +36,6 @@ export default {
   },
 
   data: () => ({
-    formData: {
-      amount: null,
-      sender: null,
-      receiver: null,
-    },
     sourceWallet: null,
     destinationWallet: null,
   }),
