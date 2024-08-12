@@ -1,18 +1,18 @@
 <template lang="pug">
 .bridge-connect()
-  .label {{ hideLabel ? '' : label }}
+  .label {{  label }}
   .connect
-    .beforeConnect {{ hideLabel ? '' : beforeConnect }}
-    // not connected
-    //- AlcorButton Connect
-    // connected
-    AlcorButton
+
+    .connectLabel(v-if="renderConnectLabel") {{ renderConnectLabel }}
+
+    AlcorButton(v-if="connection")
       .logged-in-button.fs-14
         .image-container
           img(src="@/assets/icons/eos.png")
-        span name
+        span {{ connection.name }}
         // TODO: find proper logout icon
         i.el-icon-right
+    AlcorButton(v-else @click="handleConnectClick") Connect
 </template>
 
 <script>
@@ -21,17 +21,37 @@ export default {
   components: {
     AlcorButton,
   },
-  props: ['label', 'beforeConnect', 'hideLabel', 'message', 'sourceName'],
-  computed: {},
+  props: [
+    'label',
+    'connectLabel',
+
+    'dialogMessage',
+
+    // Selected Chain
+    'sourceName',
+
+    // Wallet connection, { wallet, name, authorization }
+    'connection',
+  ],
+  computed: {
+    renderConnectLabel() {
+      if (this.connection) return null
+      return this.connectLabel
+    },
+  },
   methods: {
-    async connectFromWallet() {
+    handleConnectClick() {
+      if (!this.sourceName) return
+      this.connectWallet()
+    },
+    async connectWallet() {
       try {
         const { wallet, name, authorization } = await this.$store.dispatch('chain/asyncLogin', {
           chain: this.sourceName,
-          message: this.message,
+          message: this.dialogMessage,
         })
 
-        this.emit('connect', { wallet, name, authorization })
+        this.emit('update:connection', { wallet, name, authorization })
       } catch (e) {
         this.$notify({
           type: 'warning',
