@@ -78,6 +78,7 @@ export default {
     handleSourceChange() {
       if (this.sourceName == this.destinationName) {
         this.destinationName = null
+        this.tryLogout('receiver')
       }
 
       if (this.sourceWallet) {
@@ -88,6 +89,7 @@ export default {
     handleDestinationChange() {
       if (this.destinationName == this.sourceName) {
         this.sourceName = null
+        this.tryLogout('sender')
       }
 
       if (this.destinationWallet) {
