@@ -6,7 +6,6 @@
     el-input.amount(
       :placeholder='placeholder',
       :value='value',
-      :disabled='inputDisabled'
       @input="$emit('input', $event)",
       @blur='onBlur',
       @focus="onFocus"
@@ -17,7 +16,7 @@
         i.el-icon-check(v-if="addressStatus === 'valid'")
         i.el-icon-close(v-if="addressStatus === 'invalid'")
       AlcorButton(iconOnly @click="onPaste")
-        i.el-icon-copy-document
+        i.el-icon-s-order
 </template>
 
 <script>
