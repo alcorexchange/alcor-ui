@@ -6,7 +6,7 @@
   .side.to
     // hide label when connected.
     BridgeConnect(label="To custom recipient" connectLabel="or" :connection.sync="destinationWallet" :network="$store.state.ibcBridge.destinationName" @logout="tryLogout('receiver')").my-1
-    BridgeToInput(placeholder="Enter Address" @networkChange="handleDestinationChange")
+    BridgeToInput(placeholder="Enter Address" @networkChange="handleDestinationChange" v-model="customAddress")
   //- .recepient
   .process
     BridgeProcess
@@ -38,6 +38,7 @@ export default {
   data: () => ({
     sourceWallet: null,
     destinationWallet: null,
+    customAddress: null,
   }),
 
   computed: {

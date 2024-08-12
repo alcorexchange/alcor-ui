@@ -5,9 +5,9 @@
   .main
     el-input.amount(
       :placeholder='placeholder',
-      :value='localValue',
+      :value='value',
       :disabled='inputDisabled'
-      @input='input',
+      @input="$emit('input', $event)",
       @blur='onBlur',
       @focus="onFocus"
     )
@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import { debounce } from 'lodash'
 import { mapMutations, mapGetters } from 'vuex'
 import SelectNetwork from '@/components/modals/SelectNetwork'
 import AlcorButton from '@/components/AlcorButton'
@@ -35,7 +36,6 @@ export default {
   props: ['value', 'label', 'placeholder'],
 
   data: () => ({
-    localValue: null,
     search: '',
     focused: false,
     networksMock: [
@@ -63,7 +63,7 @@ export default {
     selectedNetwork: {
       set(chain) {
         this.setDestinationName(chain)
-        this.validateAddress()
+        this.validateAddress(this.value)
       },
 
       get() {
@@ -81,8 +81,8 @@ export default {
   },
 
   watch: {
-    value(value) {
-      this.localValue = value
+    value(v) {
+      this.validateAddressDebounced(v)
     },
   },
 
@@ -92,16 +92,20 @@ export default {
       setDestinationName: 'ibcBridge/setDestinationName',
     }),
 
-    async validateAddress() {
+    validateAddressDebounced: debounce(function (value) {
+      this.validateAddress(value)
+    }, 400),
+
+    async validateAddress(value) {
       const { destination } = this
-      if (!destination || !this.localValue || (this.localValue && this.localValue.length < 4)) {
+      if (!destination || !value || (value && value.length < 4)) {
         this.addressStatus = undefined
         return
       }
       const destinationRpc = getMultyEndRpc(Object.keys(destination.client_nodes))
       try {
         this.addressStatus = 'loading'
-        await destinationRpc.get_account(this.localValue)
+        await destinationRpc.get_account(value)
         this.addressStatus = 'valid'
       } catch (e) {
         this.addressStatus = 'invalid'
@@ -111,7 +115,7 @@ export default {
     async onPaste() {
       try {
         const res = await navigator.clipboard.readText()
-        this.localValue = res
+        this.$emit('input', res)
       } catch (e) {}
     },
     onBlur() {
@@ -121,12 +125,6 @@ export default {
     onFocus() {
       this.$emit('focus')
       this.focused = true
-    },
-
-    input(value) {
-      this.localValue = value
-      this.$emit('input', value)
-      this.validateAddress()
     },
     onNetworkSelect(e) {
       this.selectedNetwork = e
