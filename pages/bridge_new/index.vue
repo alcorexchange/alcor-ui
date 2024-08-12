@@ -1,11 +1,11 @@
 <template lang="pug">
 .bridge-page.d-flex.flex-column.gap-8
   .side.from
-    BridgeConnect(label="From" :connection.sync="sourceWallet").my-1
+    BridgeConnect(label="From" :connection.sync="sourceWallet" :network="$store.state.ibcBridge.sourceName").my-1
     BridgeInput(label="from" :tokens="availableAssets")
   .side.to
     // hide label when connected.
-    BridgeConnect(label="To custom recipient" connectLabel="or" :connection.sync="destinationWallet").my-1
+    BridgeConnect(label="To custom recipient" connectLabel="or" :connection.sync="destinationWallet" :network="$store.state.ibcBridge.destinationName").my-1
     BridgeToInput(placeholder="Enter Address")
   //- .recepient
   .process

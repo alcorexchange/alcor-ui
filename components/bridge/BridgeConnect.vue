@@ -27,8 +27,8 @@ export default {
 
     'dialogMessage',
 
-    // Selected Chain
-    'sourceName',
+    // Selected Network
+    'network',
 
     // Wallet connection, { wallet, name, authorization }
     'connection',
@@ -41,14 +41,14 @@ export default {
   },
   methods: {
     handleConnectClick() {
-      if (!this.sourceName) return
+      if (!this.network) return
       // TODO: Notify to select chain first
       this.connectWallet()
     },
     async connectWallet() {
       try {
         const { wallet, name, authorization } = await this.$store.dispatch('chain/asyncLogin', {
-          chain: this.sourceName,
+          chain: this.network,
           message: this.dialogMessage,
         })
 
