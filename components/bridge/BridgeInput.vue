@@ -1,7 +1,7 @@
 <template lang="pug">
 .bridge-token(:class="{focused, notSelected: !!token}")
   .before
-    SelectNetwork(:networks="networksMock" v-model="selectedNetwork")
+    SelectNetwork(:networks="networksMock" v-model="selectedNetwork" @input="$emit('networkChange')")
   .main
     .label-and-balance
       .label {{ label }}
@@ -41,15 +41,7 @@ export default {
     SelectNetwork,
   },
 
-  props: [
-    'token',
-    'tokens',
-    'value',
-    'showMaxButton',
-    'locked',
-    'label',
-    'isSource'
-  ],
+  props: ['token', 'tokens', 'value', 'showMaxButton', 'locked', 'label', 'isSource'],
 
   data: () => ({
     localValue: null,
@@ -58,20 +50,21 @@ export default {
     networksMock: [
       {
         value: 'eos',
-        label: 'EOS'
+        label: 'EOS',
       },
       {
         value: 'wax',
-        label: 'WAX'
+        label: 'WAX',
       },
       {
         value: 'telos',
-        label: 'Telos'
-      }, {
+        label: 'Telos',
+      },
+      {
         value: 'ux',
-        label: 'UX Network'
-      }
-    ]
+        label: 'UX Network',
+      },
+    ],
   }),
 
   computed: {
@@ -79,13 +72,13 @@ export default {
       return this.token ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol, this.token.contract)}` : ''
     },
     selectedNetwork: {
-      set (chain) {
+      set(chain) {
         return this.setSourceName(chain)
       },
 
-      get () {
+      get() {
         return this.$store.state.ibcBridge.sourceName
-      }
+      },
     },
     ...mapState(['user']),
   },
@@ -93,7 +86,7 @@ export default {
   watch: {
     value(value) {
       this.localValue = value
-    }
+    },
   },
 
   methods: {
@@ -101,6 +94,7 @@ export default {
       setSourceName: 'ibcBridge/setSourceName',
       setDestinationName: 'ibcBridge/setDestinationName',
     }),
+
     onBlur() {
       this.$emit('blur')
       this.focused = false
@@ -123,9 +117,8 @@ export default {
     },
     onBalanceClick() {
       if (this.user) this.$emit('input', this.$tokenBalance(this.token.symbol, this.token.contract))
-    }
+    },
   },
-
 }
 </script>
 

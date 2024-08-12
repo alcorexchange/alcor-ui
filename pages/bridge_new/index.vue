@@ -2,11 +2,11 @@
 .bridge-page.d-flex.flex-column.gap-8
   .side.from
     BridgeConnect(label="From" :connection.sync="sourceWallet" :network="$store.state.ibcBridge.sourceName" @logout="tryLogout('sender')").my-1
-    BridgeInput(label="from" :tokens="availableAssets")
+    BridgeInput(label="from" :tokens="availableAssets" @networkChange="handleSourceChange")
   .side.to
     // hide label when connected.
     BridgeConnect(label="To custom recipient" connectLabel="or" :connection.sync="destinationWallet" :network="$store.state.ibcBridge.destinationName" @logout="tryLogout('receiver')").my-1
-    BridgeToInput(placeholder="Enter Address")
+    BridgeToInput(placeholder="Enter Address" @networkChange="handleDestinationChange")
   //- .recepient
   .process
     BridgeProcess
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import AlcorContainer from '@/components/AlcorContainer'
 import BridgeHeader from '@/components/bridge/BridgeHeader'
 import BridgeInput from '@/components/bridge/BridgeInput'
@@ -44,12 +44,57 @@ export default {
     ...mapGetters({
       availableAssets: 'ibcBridge/availableAssets',
     }),
+
+    sourceName: {
+      set(chain) {
+        return this.setSourceName(chain)
+      },
+      get() {
+        return this.$store.state.ibcBridge.sourceName
+      },
+    },
+
+    destinationName: {
+      set(chain) {
+        this.setDestinationName(chain)
+      },
+
+      get() {
+        return this.$store.state.ibcBridge.destinationName
+      },
+    },
+
     renderSubmitText() {
       return 'Bridge X TO C'
     },
   },
 
   methods: {
+    ...mapMutations({
+      setSourceName: 'ibcBridge/setSourceName',
+      setDestinationName: 'ibcBridge/setDestinationName',
+    }),
+
+    handleSourceChange() {
+      if (this.sourceName == this.destinationName) {
+        this.destinationName = null
+      }
+
+      if (this.sourceWallet) {
+        this.tryLogout('sender')
+      }
+    },
+
+    handleDestinationChange() {
+      if (this.destinationName == this.sourceName) {
+        this.sourceName = null
+      }
+
+      if (this.destinationWallet) {
+        this.tryLogout('receiver')
+      }
+    },
+
     tryLogout(side) {
       if (side === 'sender') {
         // FIXME: Is this async function?
