@@ -5,7 +5,7 @@
 
     .connectLabel(v-if="renderConnectLabel") {{ renderConnectLabel }}
 
-    AlcorButton(v-if="connection")
+    AlcorButton(v-if="connection" @click="$emit('logout')")
       .logged-in-button.fs-14
         .image-container
           img(:src="require(`@/assets/icons/${network}.png`)")
