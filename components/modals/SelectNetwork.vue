@@ -126,7 +126,7 @@ export default {
     height: 42px;
     width: 42px;
     border-radius: 50%;
-    padding: 8px;
+    padding: 6px;
     background: var(--background-color-base);
     img {
       width: 100%;

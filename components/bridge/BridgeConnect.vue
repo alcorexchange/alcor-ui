@@ -8,7 +8,7 @@
     AlcorButton(v-if="connection")
       .logged-in-button.fs-14
         .image-container
-          img(src="@/assets/icons/eos.png")
+          img(:src="require(`@/assets/icons/${network}.png`)")
         span {{ connection.name }}
         // TODO: find proper logout icon
         i.el-icon-right
@@ -52,7 +52,7 @@ export default {
           message: this.dialogMessage,
         })
 
-        this.emit('update:connection', { wallet, name, authorization })
+        this.$emit('update:connection', { wallet, name, authorization })
       } catch (e) {
         this.$notify({
           type: 'warning',
