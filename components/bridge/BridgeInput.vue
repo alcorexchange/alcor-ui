@@ -4,7 +4,7 @@
     SelectNetwork(:networks="networksMock" v-model="selectedNetwork" @input="$emit('networkChange')")
   .main
     .label-and-balance
-      .label {{ label }}
+      .fs-12 Amount
       .balance.disable(v-if="token" @click="onBalanceClick" :class="{clickable: !!user}") {{ $t('Balance') }}: {{ $tokenBalance(token.symbol, token.contract) | commaFloat }}
     .input-and-select
       // TODO Make dot separation for decimal point instead comma
