@@ -7,11 +7,13 @@ div.pools
         i.el-icon-plus
         .fs-14 {{ $t('New Position') }}
   .table.el-card.is-always-shadow
-    PositionsList(@positionClick="$router.push(localeRoute($event.link))" :search="search")
+    //- PositionsList(@positionClick="$router.push(localeRoute($event.link))" :search="search")
+    VirtualPositionsList(@positionClick="$router.push(localeRoute($event.link))" :search="search")
 </template>
 
 <script>
 import PositionsList from '~/components/amm/Position/PositionsList'
+import VirtualPositionsList from '~/components/amm/Position/VirtualPositionsList'
 import AlcorButton from '~/components/AlcorButton'
 
 export default {
@@ -19,6 +21,7 @@ export default {
   components: {
     PositionsList,
     AlcorButton,
+    VirtualPositionsList,
   },
   data: () => ({
     search: '',
