@@ -19,7 +19,7 @@ recycle-scroller(
   template(v-slot="{ item }")
     slot(name="row" :item="item")
 
-  template(#empty)
+  template(#empty v-if="!sortedData || !sortedData.length")
     slot(name="empty")
 </template>
 
