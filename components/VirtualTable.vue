@@ -18,6 +18,9 @@ recycle-scroller(
         sorter(v-if="head.sortable" :sort-by="head.value" :active-sort="activeSort" @change="sort")
   template(v-slot="{ item }")
     slot(name="row" :item="item")
+
+  template(#empty)
+    slot(name="empty")
 </template>
 
 <script>
