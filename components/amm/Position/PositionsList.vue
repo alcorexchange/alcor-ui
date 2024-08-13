@@ -73,7 +73,6 @@ el-table.position-table.custom-responsive-table(
     template(slot-scope='{row}')
       span(:style="{color: $percentColor(1)}") $ {{ row.totalFeesUSD | commaFloat(3) }}
 
-
   //- el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
   //-   template(slot-scope='{row}')
   //-     span(:style="{color: $percentColor(row.pNl)}") $ {{ row.pNl | commaFloat(2) }}
@@ -156,10 +155,6 @@ export default {
 }
 .total-posiions-value {
   color: var(--text-default);
-}
-.total-value-header {
-  // display: inline-flex;
-  // flex-direction: column;
 }
 .indicator {
   width: 6px;

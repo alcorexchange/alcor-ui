@@ -185,10 +185,6 @@ export default {
 .total-posiions-value {
   color: var(--text-default);
 }
-.total-value-header {
-  // display: inline-flex;
-  // flex-direction: column;
-}
 .indicator {
   width: 6px;
   height: 6px;
