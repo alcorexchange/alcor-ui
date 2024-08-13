@@ -233,6 +233,11 @@ export default {
 </script>
 
 <style lang="scss">
+@media only screen and (max-width: 600px) {
+  .el-message-box {
+    width: 95% !important;
+  }
+}
 .position-loading {
   min-height: 300px;
 }
