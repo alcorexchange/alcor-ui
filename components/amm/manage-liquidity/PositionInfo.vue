@@ -30,8 +30,8 @@
       .amount-value.fs-18 {{ position.amountA.toFixed() | commaFloat(position.pool.tokenA.decimals) }}
       .amount-usd-value.fs-14.color-action (${{ amountAUSD }})
 
-    .icon-and-symbol
-      .d-flex.align-items-center.gap-6.token-b
+    .icon-and-symbol.token-b
+      .d-flex.align-items-center.gap-6
         TokenImage.token-image(:src="$tokenLogo(position.pool.tokenB.symbol, position.pool.tokenB.contract)" height="25")
         span.fs-18.symbol {{ position.amountB.currency.symbol }}
       span.contract {{ position.pool.tokenB.contract }}
