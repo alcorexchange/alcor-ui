@@ -1,6 +1,7 @@
 <template lang="pug">
 .connect-nav
-  .left(v-if="!isMobile").mr-2
+  .left.d-flex.gap-8(v-if="!isMobile")
+    LayoutHeaderSearch(v-if="!isMobile")
     ChainSelect
   .right
     .user-detail(v-if='user')
@@ -20,7 +21,6 @@
     )
       | {{ $t('Connect Wallet') }}
 
-    LayoutHeaderSearch(v-if="!isMobile")
     AlcorButton.theme-toggle-button.desktop(
       v-if='$route.name != "index"',
       :icon-only-alt='true',
