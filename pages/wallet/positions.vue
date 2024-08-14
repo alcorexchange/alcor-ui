@@ -204,14 +204,14 @@ export default {
         await this.$store.dispatch('chain/cancelorder', {
           account: this.user.name,
           market_id: order.market_id,
-          type: order.type == 'buy' ? 'bid' : 'ask',
+          type: ['buy', 'bid'].includes(order.type) ? 'buy' : 'sell',
           order_id: order.id,
         })
+
+        this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
       } catch (e) {
         this.$notify({ title: 'Order cancel error', message: e.message, type: 'warning' })
       }
-
-      this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
     },
 
     async cancelAll({ orders }) {
