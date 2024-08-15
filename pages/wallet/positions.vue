@@ -34,7 +34,7 @@ div.wallet
     el-table.alcor-table(
       :data='filteredPositions',
       style='width: 100%',
-      row-class="pointer"
+      row-class-name="pointer"
       rowKey="id"
       @expand-change="handleExpandChange"
       :expandRowKeys="expanded"
