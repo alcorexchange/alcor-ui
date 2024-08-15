@@ -198,7 +198,6 @@ export default {
 
   methods: {
     handleExpandChange(row, expanded) {
-      console.log('expand change', expanded)
       this.expanded = expanded.map(({ id }) => id)
     },
 
