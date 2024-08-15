@@ -111,8 +111,8 @@ div.wallet
       )
         template(slot-scope='{row}')
           .actions
-            el-button(size="medium" type="text" @click="trade(row)").green.hover-opacity {{ $t('Trade') }}
-            el-button(size="medium" type="text" @click="cancelAll(row)").red.hover-opacity {{ $t('Cancel All Orders') }}
+            el-button(size="medium" type="text" @click.prevent="trade(row)").green.hover-opacity {{ $t('Trade') }}
+            el-button(size="medium" type="text" @click.prevent="cancelAll(row)").red.hover-opacity {{ $t('Cancel All Orders') }}
 
 </template>
 
@@ -202,7 +202,10 @@ export default {
       this.expanded = expanded.map(({ id }) => id)
     },
 
-    handleRowClick(row) {
+    handleRowClick(row, _, event) {
+      // Don't trigger on clicking actions
+      if (event.defaultPrevented) return
+
       if (this.expanded.includes(row.id)) {
         this.expanded = this.expanded.filter((id) => id != row.id)
         return
