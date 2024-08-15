@@ -24,7 +24,7 @@ el-table.my-trade-history(
 
   el-table-column(:label='$t("Price")' width=100)
     template(slot-scope='scope')
-      span {{ scope.row.unit_price | commaFloat(6) }}
+      span {{ scope.row.unit_price | commaFloat(8) }}
 
   template(slot='append')
     infinite-loading(
