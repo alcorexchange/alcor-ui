@@ -2,7 +2,8 @@
 div.pools
   .table-header
     el-input(v-model="search" prefix-icon="el-icon-search" :placeholder="$t('Search Token')")
-    .end
+    .end.d-flex.gap-10
+      ClaimAllButton
       AlcorButton(to="/positions/new" access tag="nuxt-link")
         i.el-icon-plus
         .fs-14 {{ $t('New Position') }}
@@ -15,6 +16,7 @@ div.pools
 import PositionsList from '~/components/amm/Position/PositionsList'
 import VirtualPositionsList from '~/components/amm/Position/VirtualPositionsList'
 import AlcorButton from '~/components/AlcorButton'
+import ClaimAllButton from '~/components/amm/Position/PositionsClaimAllButton'
 
 export default {
   name: 'WalletLiquidityPools',
@@ -22,6 +24,7 @@ export default {
     PositionsList,
     AlcorButton,
     VirtualPositionsList,
+    ClaimAllButton,
   },
   data: () => ({
     search: '',
