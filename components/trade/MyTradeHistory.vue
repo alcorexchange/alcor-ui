@@ -9,7 +9,7 @@ el-table.my-trade-history(
       span {{ scope.row.time | moment("YYYY-MM-DD HH:mm") }}
   el-table-column(:label='$t("Pair")')
     template(slot-scope='{ row }')
-      NuxtLink(:to="localeRoute(`/trade/${row.slug}`)" target="_blank" @click.stop).hover-opacity.link {{ row.market_symbol }}
+      NuxtLink(:to="localeRoute(`/trade/${row.market_slug}`)" target="_blank" @click.prevent).hover-opacity.link {{ row.market_symbol }}
   el-table-column(:label='$t("Side")', width='80')
     template.text-success(slot-scope='scope')
       span.text-primary(v-if='scope.row.side == "buy"') {{ $t('BUY') }}
@@ -88,11 +88,8 @@ export default {
     },
 
     rowClick(row, _, event) {
-      console.log(row)
-
-      if (event.defaultPrevented) return
-      console.log(event)
-
+      // for some reason event.defaultPrevented does not work, checking if <a /> is clicked
+      if (event.target.closest('a')) return
       this.openInNewTab(this.monitorTx(row.trx_id))
     },
 
