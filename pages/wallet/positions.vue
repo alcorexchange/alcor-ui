@@ -26,6 +26,7 @@ div.wallet
 
       el-button.btn(size="mini" @click="openInNewTab('https://t.me/alcorexchange')") {{ $t('Buy more order slots') }}
 
+  pre {{ expanded }}
   virtual-table(v-if="isMobile" :table="virtualTableData")
     template(#row="{ item }")
       wallet-position-row(:item="item" @cancel="cancelOrder(item)")
@@ -33,6 +34,11 @@ div.wallet
     el-table.alcor-table(
       :data='filteredPositions',
       style='width: 100%',
+      row-class="pointer"
+      rowKey="id"
+      @expand-change="handleExpandChange"
+      :expandRowKeys="expanded"
+      @row-click="handleRowClick"
     )
       el-table-column(type="expand")
         template(#default="{ row }")
@@ -80,7 +86,7 @@ div.wallet
             )
 
             div.asset
-              span.asset-name {{ row.symbol }}
+              span.asset-name {{ row.symbol }} {{ row.id }}
               span.asset-contract.cancel {{ row.quote_token.contract }}
 
       el-table-column(
@@ -129,6 +135,7 @@ export default {
     search: '',
     onlyBuy: false,
     onlySell: false,
+    expanded: [],
   }),
 
   computed: {
@@ -190,6 +197,20 @@ export default {
   },
 
   methods: {
+    handleExpandChange(row, expanded) {
+      console.log('expand change', expanded)
+      this.expanded = expanded.map(({ id }) => id)
+    },
+
+    handleRowClick(row) {
+      if (this.expanded.includes(row.id)) {
+        this.expanded = this.expanded.filter((id) => id != row.id)
+        return
+      }
+
+      this.expanded.push(row.id)
+    },
+
     trade(position) {
       this.$router.push({
         name: `trade-index-id___${this.$i18n.locale}`,
