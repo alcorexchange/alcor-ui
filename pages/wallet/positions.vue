@@ -28,7 +28,7 @@ div.wallet
 
   virtual-table(v-if="isMobile" :table="virtualTableData")
     template(#row="{ item }")
-      wallet-position-row(:item="item")
+      wallet-position-row(:item="item" @cancel="cancelOrder(item)")
   .table.el-card(v-else)
     el-table.alcor-table(
       :data='filteredPositions',
