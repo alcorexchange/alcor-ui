@@ -26,7 +26,6 @@ div.wallet
 
       el-button.btn(size="mini" @click="openInNewTab('https://t.me/alcorexchange')") {{ $t('Buy more order slots') }}
 
-  pre {{ expanded }}
   virtual-table(v-if="isMobile" :table="virtualTableData")
     template(#row="{ item }")
       wallet-position-row(:item="item" @cancel="cancelOrder(item)")
@@ -86,7 +85,7 @@ div.wallet
             )
 
             div.asset
-              span.asset-name {{ row.symbol }} {{ row.id }}
+              span.asset-name {{ row.symbol }}
               span.asset-contract.cancel {{ row.quote_token.contract }}
 
       el-table-column(
