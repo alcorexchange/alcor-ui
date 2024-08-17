@@ -19,7 +19,7 @@
         :item="farm"
         :active="active"
         :data-index="index"
-        :size-dependencies="[farm.incentives.length]"
+        :size-dependencies="[farm.incentives.length, farm.expanded]"
       )
         FarmItemNew(
           :farm="farm"
