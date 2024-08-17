@@ -4,24 +4,23 @@ import config from '../../../config'
 import { initialUpdate as swapInitialUpdate } from '../swapV2Service'
 
 import { getSettings } from '../../utils'
-import { updatePools } from '../swapV2Service'
 import { updateGlobalStats } from './analytics'
-import { newPoolsAction } from './pools'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats } from './swap'
 import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
 
-import { streamHyperion, streamByNode } from './streamers'
+import { streamHyperion, streamByGreymass } from './streamers'
 
 const providers = {
   hyperion: streamHyperion,
-  node: streamByNode
+  node: streamByGreymass
 }
 
 export function startUpdaters() {
   if (process.env.NETWORK) {
     console.log('NETWORK=', process.env.NETWORK)
-    updater(process.env.NETWORK, 'node', ['swap', 'prices', 'markets'])
+    //updater(process.env.NETWORK, 'node', ['swap', 'prices', 'markets'])
+    updater(process.env.NETWORK, 'node', ['swap'])
   } else {
     updater('eos', 'node', ['markets', 'prices', 'swap'])
     updater('wax', 'node', ['markets', 'prices', 'swap'])
@@ -59,14 +58,17 @@ export async function updater(chain, provider, services) {
 
     updateTokensPrices(network)
 
-    setInterval(() => updateSystemPrice(network), 1 * 60 * 1000)
+    setInterval(() => updateSystemPrice(network), 3 * 60 * 1000)
     setInterval(() => updateTokensPrices(network), 1 * 60 * 1000)
   }
 
   if (services.includes('markets')) {
     console.log('Start market updater for', chain)
 
+    console.time('update markets for ' + network.name)
     await updateMarkets(network)
+    console.timeEnd('update markets for ' + network.name)
+
     setInterval(() => updateMarkets(network), 1 * 60 * 1000)
 
     streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
@@ -74,18 +76,11 @@ export async function updater(chain, provider, services) {
       .catch(e => { console.log(`${network.name} (${network.contract}) Updater Error!`, e); process.exit(1) })
   }
 
-  if (services.includes('pools')) {
-    console.log('start pools updater for', chain)
-    streamer(network, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog', 'transfer'])
-      .catch(e => { console.log(`${network.name} (${network.pools.contract}) Updater Error!`, e); process.exit(1) })
-  }
-
   if (services.includes('swap')) {
     console.log('start swap updater for', chain)
 
-    //await updatePools(chain)
     await updatePoolsStats(chain)
-    setInterval(() => updatePoolsStats(chain), 1 * 60 * 1000)
+    setInterval(() => updatePoolsStats(chain), 10 * 60 * 1000)
 
     streamer(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'], 300)
       .catch(e => { console.log(`${network.name} (${network.amm.contract}) Updater Error!`, e); process.exit(1) })

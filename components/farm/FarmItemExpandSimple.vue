@@ -13,13 +13,13 @@
         td
           .d-flex.flex-column
             .icon-and-value
-              span {{ row.amountA | nFormat }}
+              span {{ positions.amountA | nFormat }}
               span.color-grey-thirdly {{ farm.tokenA.quantity.split(' ')[1] }}
             .icon-and-value
-              span {{ row.amountB | nFormat }}
+              span {{ positions.amountB | nFormat }}
               span.color-grey-thirdly {{ farm.tokenB.quantity.split(' ')[1] }}
         td
-          span {{ row.aggregatedPoolShare }}%
+          span {{ positions.aggregatedPoolShare }}%
         //- TODO: daily earned or incentives
         td
           .d-flex.flex-column.gap-2
@@ -39,22 +39,13 @@
               AlcorButton(bordered danger compact @click="unstakeAllIncentives" v-if="canUnstake || finished").danger.farm-unstake-button Unstake
 
             AlcorButton(compact access @click="unstakeAllIncentives" v-else).farm-claim-button Claim And Unstake
-  //.left
-    .item
-      .title.muted.fs-14.mb-1 Farmed Rewards
-      .rewards
-        .icon-and-value(v-for="reward in farmedRewards")
-          TokenImage(:src="$tokenLogo(reward.symbol, reward.contract)" width="14px" height="14px")
-          span {{ reward.amount | commaFloat }} {{ reward.symbol }}
-    .item.fs-14
-      .muted.mb-1 Reward Share
-      span {{ aggregatedPoolShare }}%
 </template>
 
 <script>
-import { getPrecision } from '~/utils'
+import { calculateUserStake } from '~/utils/farms.ts'
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
+
 export default {
   name: 'FarmItemExpand',
   components: {
@@ -64,30 +55,37 @@ export default {
 
   props: ['farm', 'finished'],
 
+  data() {
+    return {
+      incentiveStats: [],
+      interval: null,
+    }
+  },
+
   computed: {
+    farmedRewards() {
+      return this.getAggregated()
+    },
+
+    dailyRewards() {
+      return this.getAggregated('daily')
+    },
+
     canClaim() {
       return !this.finished && this.canUnstake
     },
+
     canStake() {
       if (this.finished) return false
       return !!this.farm.incentives.find((incentive) => {
         return !!incentive.incentiveStats.find((stat) => !stat.staked)
       })
     },
+
     canUnstake() {
       return !!this.farm.incentives.find((incentive) => {
         return !!incentive.incentiveStats.find((stat) => stat.staked)
       })
-    },
-
-    farmedRewards() {
-      // Aggregated reward
-      return this.getReward('farmed')
-    },
-
-    dailyRewards() {
-      // Aggregated reward
-      return this.getReward('daily')
     },
 
     aggregatedStakes() {
@@ -99,11 +97,7 @@ export default {
       return allStats
     },
 
-    // TODO Estimated reward
-    row() {
-      // AVG Share by staked to incentive
-      const row = {}
-
+    positions() {
       const sharesByIncentive = []
       let amountA = 0
       let amountB = 0
@@ -113,14 +107,12 @@ export default {
         amountB += parseFloat(p.amountB)
       })
 
-      this.farm.incentives.forEach((incentive) => {
-        let poolShare = 0
+      let poolShare = 0
 
-        incentive.incentiveStats.forEach((stat) => {
-          if (stat.userSharePercent) poolShare += stat.userSharePercent
-        })
-        sharesByIncentive.push(poolShare)
+      this.incentiveStats.forEach((stat) => {
+        if (stat.userSharePercent) poolShare += calculateUserStake(stat).userSharePercent
       })
+      sharesByIncentive.push(poolShare)
 
       return {
         aggregatedPoolShare:
@@ -131,30 +123,55 @@ export default {
     },
   },
 
+  mounted() {
+    this.setIncentiveStats()
+    this.interval = setInterval(() => {
+      this.setIncentiveStats()
+    }, 1000)
+  },
+
+  beforeDestroy() {
+    clearInterval(this.interval)
+  },
+
   methods: {
-    getReward(mode) {
+    setIncentiveStats() {
+      const incentiveStats = []
+
+      for (const incentive of this.farm.incentives) {
+        for (const incentiveStat of incentive.incentiveStats) {
+          if (!incentiveStat.staked) continue
+
+          const staked = calculateUserStake(incentiveStat)
+          if (staked == null) continue
+
+          incentiveStats.push(staked)
+        }
+      }
+
+      this.incentiveStats = incentiveStats
+    },
+
+    getAggregated(field) {
       const reward = {}
-
       const precisions = {}
-      this.farm.incentives.forEach((incentive) => {
-        incentive.incentiveStats
-          .filter((s) => s.staked)
-          .forEach((s) => {
-            const [amount, symbol] = s[mode === 'daily' ? 'dailyRewards' : 'farmedReward'].split(' ')
-            precisions[symbol] = getPrecision(incentive.reward.quantity.split(' ')[0])
 
-            if (reward[symbol]) {
-              reward[symbol].amount = reward[symbol].amount + parseFloat(amount)
-            } else {
-              reward[symbol] = {
-                symbol,
-                amount: parseFloat(amount),
-                precision: precisions[symbol],
-                contract: incentive.reward.contract,
-              }
-            }
-          })
-      })
+      for (const staked of this.incentiveStats) {
+        const symbol = staked.farmedReward.symbol.name
+        const amount = staked[field === 'daily' ? 'dailyRewards' : 'farmedReward']
+
+        precisions[symbol] = staked.farmedReward.symbol.precision
+
+        if (reward[symbol]) {
+          reward[symbol].amount = reward[symbol].amount + parseFloat(amount)
+        } else {
+          reward[symbol] = {
+            symbol,
+            amount: parseFloat(amount),
+            precision: precisions[symbol],
+          }
+        }
+      }
 
       return Object.values(reward).map((r) => {
         return {
@@ -222,6 +239,6 @@ table {
   }
 }
 
-@media only screen and(max-width: 640px) {
+@media only screen and (max-width: 640px) {
 }
 </style>

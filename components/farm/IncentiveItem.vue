@@ -15,7 +15,7 @@
               AlcorButton(compact @click="$emit('stakeAll', incentive)" v-if="!finished").farm-stake-button Stake All
               AlcorButton(:class="finished ? 'access' : 'danger bordered'" compact @click="$emit('unstakeAll', incentive)").farm-unstake-button {{ finished ? 'Claim & Unstake All' : 'Unstake All' }}
       tbody
-        template(v-for="stat in incentive.incentiveStats")
+        template(v-for="stat in incentiveStats")
           tr(v-if="stat.staked")
             td
               .d-flex.flex-column
@@ -28,14 +28,12 @@
             td {{ stat.userSharePercent }}%
             td
               .icon-and-value
-                //- TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-                span {{ stat.dailyRewards.split(' ')[0] }}
-                span.color-grey-thirdly {{ stat.dailyRewards.split(' ')[1] }}
+                span {{ stat.dailyRewards | commaFloat(stat.farmedReward.symbol.precision) }}
+                span.color-grey-thirdly {{ stat.farmedReward.symbol.name }}
             td
               .icon-and-value
-                //- TokenImage(:src="$tokenLogo(incentive.reward.quantity.split(' ')[1], incentive.reward.contract)" width="14px" height="14px")
-                span {{ stat.farmedReward.split(' ')[0] | commaFloat }}
-                span.color-grey-thirdly {{ stat.farmedReward.split(' ')[1] }}
+                span {{ stat.farmedReward | commaFloat(stat.farmedReward.symbol.precision) }}
+                span.color-grey-thirdly {{ stat.farmedReward.symbol.name }}
             td
               .d-flex.flex-column.gap-2
                 NuxtLink.position-link(:to="localeRoute(`/positions/${stat.posId}`)") \#{{ stat.posId }}
@@ -61,6 +59,8 @@
 </template>
 
 <script>
+import { calculateUserStake } from '~/utils/farms.ts'
+
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
 export default {
@@ -68,7 +68,33 @@ export default {
     TokenImage,
     AlcorButton,
   },
+
   props: ['incentive', 'finished'],
+
+  data() {
+    return {
+      interval: null,
+      incentiveStats: []
+    }
+  },
+
+  mounted() {
+    this.calcIncentiveStats()
+    this.interval = setInterval(() => {
+      this.calcIncentiveStats()
+    }, 1000)
+  },
+
+  beforeDestroy() {
+    clearInterval(this.interval)
+  },
+
+  methods: {
+    calcIncentiveStats() {
+      this.incentiveStats = this.incentive.incentiveStats.map(is => calculateUserStake(is)).filter(i => i !== null)
+    }
+  }
+
 }
 </script>
 

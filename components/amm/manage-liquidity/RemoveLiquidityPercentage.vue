@@ -82,7 +82,8 @@ export default {
       try {
         await this.remove()
 
-        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+        setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 5000)
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 2000)
 
         if (this.percent == 100) return this.$router.push('/positions')
         this.percent = 100

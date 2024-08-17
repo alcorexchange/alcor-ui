@@ -1,6 +1,6 @@
 import { performance } from 'perf_hooks'
 
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 
 import { ABI, APIClient, Action, Transaction } from '@wharfkit/antelope'
 
@@ -119,7 +119,7 @@ export async function getBestTradeByReadOnly(amount, routes, tradeType, nodes, m
 
       sortedInsert(
         trades,
-        Trade.createUncheckedTrade({ route, inputAmount, outputAmount, tradeType }),
+        Trade.createUncheckedTrade({ route, inputAmount, outputAmount, tradeType, percent: 100 }),
         maxNumResults,
         tradeComparator
       )

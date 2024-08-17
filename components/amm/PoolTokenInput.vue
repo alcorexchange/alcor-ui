@@ -2,7 +2,7 @@
 .pool-token-input(:class="{focused, notSelected: !!token, readonly}")
   .label-and-balance
     .label {{ renderLabel }}
-    .balance.disable(v-if="token" :class="{clickable: !!user && !readonly}" @click="onBalanceClick") {{ $t('Balance') }}: {{ $tokenBalance(token.symbol || token.currency, token.contract) | commaFloat }}
+    .balance.disable(v-if="token" :class="{clickable: !!user && !readonly}" @click="onBalanceClick") {{ $t('Balance') }}: {{ balance | commaFloat }}
   .main
     // TODO Make dot separation for decimal point instead comma
     el-input.amount(
@@ -11,20 +11,23 @@
       :value='localValue',
       :readonly="readonly"
       :tabindex="readonly ? '-1': '0'"
+      inputmode="decimal"
+      type="number"
       @input='input',
       @blur='onBlur',
       @focus="onFocus"
     )
     .input-after
-      MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token" v-if="!!token && user && !readonly")
-      //- v-if='showMaxButton',
+      MaxBage.max-bage.mr-1(@max="$emit('input', $event)" :token="token" v-if="showMaxButton")
       SelectToken(
         :locked='!!locked',
         :token='token',
         :tokens='tokens',
         @selected='$emit("tokenSelected", $event)'
       )
-  .bottom {{ renderBottom }}
+  .bottom
+    .left {{ renderBottom }}
+    PreSelections(v-if="showMaxButton" :max="balance" @setValue="input($event)")
   .disabled-overlay(v-if="disabled")
     .icon
       i.el-icon-lock
@@ -37,15 +40,17 @@ import SelectToken from '~/components/modals/amm/SelectToken2'
 import MaxBage from '~/components/UI/input/MaxBage'
 import WarnMessage from '~/components/UI/input/WarnMessage'
 import { getPrecision } from '~/utils'
+import PreSelections from '~/components/amm/PoolTokenInputPreSelect.vue'
 
 export default {
   components: {
     SelectToken,
     MaxBage,
     WarnMessage,
+    PreSelections,
   },
 
-  props: ['token', 'tokens', 'disabled', 'value', 'showMaxButton', 'locked', 'label', 'disabledMessage', 'readonly'], // TODO Disabled
+  props: ['token', 'tokens', 'disabled', 'value', 'locked', 'label', 'disabledMessage', 'readonly', 'tokenBalance'],
 
   data: () => ({
     localValue: null,
@@ -84,23 +89,35 @@ export default {
       if (this.token && getPrecision(value) > (this.token.decimals ?? this.token.precision)) {
         // TO fixed precision
         const [num, fraction] = value.split('.')
-        value = num + '.' + fraction.slice(0, (this.token.decimals ?? this.token.precision))
+        value = num + '.' + fraction.slice(0, this.token.decimals ?? this.token.precision)
       }
 
       this.localValue = value
       this.$emit('input', value)
     },
     onBalanceClick() {
-      if (this.user) this.$emit('input', this.$tokenBalance(this.token.symbol ?? this.token.currency, this.token.contract))
+      if (this.user)
+        this.$emit('input', this.$tokenBalance(this.token.symbol ?? this.token.currency, this.token.contract))
     },
   },
 
   computed: {
+    balance() {
+      if (this.tokenBalance) return this.tokenBalance
+
+      return this.$tokenBalance(this.token.symbol ?? this.token.currency, this.token.contract)
+    },
+
+    showMaxButton() {
+      return !!this.token && this.user && !this.readonly
+    },
     renderLabel() {
       return this.token ? this.label || '' : ''
     },
     renderBottom() {
-      return this.token ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol ?? this.token.currency, this.token.contract)}` : ''
+      return this.token
+        ? `~$${this.$tokenToUSD(this.localValue, this.token.symbol ?? this.token.currency, this.token.contract)}`
+        : ''
     },
     ...mapState(['user']),
   },
@@ -143,9 +160,15 @@ export default {
   }
   .bottom {
     min-height: 18px;
-    font-size: 0.8rem;
     display: flex;
+    justify-content: space-between;
     align-items: center;
+    padding-top: 4px;
+    .left {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+    }
   }
   .main {
     display: flex;

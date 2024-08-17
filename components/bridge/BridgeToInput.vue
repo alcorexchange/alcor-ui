@@ -1,13 +1,12 @@
 <template lang="pug">
 .bridge-to-input(:class="{focused}")
   .before
-    SelectNetwork(:networks="networksMock" v-model="selectedNetwork")
+    SelectNetwork(:networks="networksMock" v-model="selectedNetwork" @input="$emit('networkChange')")
   .main
     el-input.amount(
-      placeholder='Enter Adderss',
-      :value='localValue',
-      :disabled='inputDisabled'
-      @input='input',
+      :placeholder='placeholder',
+      :value='value',
+      @input="$emit('input', $event)",
       @blur='onBlur',
       @focus="onFocus"
     )
@@ -17,10 +16,11 @@
         i.el-icon-check(v-if="addressStatus === 'valid'")
         i.el-icon-close(v-if="addressStatus === 'invalid'")
       AlcorButton(iconOnly @click="onPaste")
-        i.el-icon-copy-document
+        i.el-icon-s-order
 </template>
 
 <script>
+import { debounce } from 'lodash'
 import { mapMutations, mapGetters } from 'vuex'
 import SelectNetwork from '@/components/modals/SelectNetwork'
 import AlcorButton from '@/components/AlcorButton'
@@ -29,48 +29,45 @@ import { getMultyEndRpc } from '~/utils/eosjs'
 export default {
   components: {
     SelectNetwork,
-    AlcorButton
+    AlcorButton,
   },
 
-  props: [
-    'value',
-    'label',
-  ],
+  props: ['value', 'label', 'placeholder'],
 
   data: () => ({
-    localValue: null,
     search: '',
     focused: false,
     networksMock: [
       {
         value: 'eos',
-        label: 'EOS'
+        label: 'EOS',
       },
       {
         value: 'wax',
-        label: 'WAX'
+        label: 'WAX',
       },
       {
         value: 'telos',
-        label: 'Telos'
-      }, {
+        label: 'Telos',
+      },
+      {
         value: 'ux',
-        label: 'UX Network'
-      }
+        label: 'UX Network',
+      },
     ],
     addressStatus: undefined, // 'valid', 'invalid', 'loading'
   }),
 
   computed: {
     selectedNetwork: {
-      set (chain) {
+      set(chain) {
         this.setDestinationName(chain)
-        this.validateAddress()
+        this.validateAddress(this.value)
       },
 
-      get () {
+      get() {
         return this.$store.state.ibcBridge.destinationName
-      }
+      },
     },
 
     inputDisabled() {
@@ -79,13 +76,13 @@ export default {
 
     ...mapGetters({
       destination: 'ibcBridge/destination',
-    })
+    }),
   },
 
   watch: {
-    value(value) {
-      this.localValue = value
-    }
+    value(v) {
+      this.validateAddressDebounced(v)
+    },
   },
 
   methods: {
@@ -94,16 +91,20 @@ export default {
       setDestinationName: 'ibcBridge/setDestinationName',
     }),
 
-    async validateAddress() {
+    validateAddressDebounced: debounce(function (value) {
+      this.validateAddress(value)
+    }, 400),
+
+    async validateAddress(value) {
       const { destination } = this
-      if (!destination || !this.localValue || (this.localValue && this.localValue.length < 4)) {
+      if (!destination || !value || (value && value.length < 4)) {
         this.addressStatus = undefined
         return
       }
       const destinationRpc = getMultyEndRpc(Object.keys(destination.client_nodes))
       try {
         this.addressStatus = 'loading'
-        await destinationRpc.get_account(this.localValue)
+        await destinationRpc.get_account(value)
         this.addressStatus = 'valid'
       } catch (e) {
         this.addressStatus = 'invalid'
@@ -113,9 +114,8 @@ export default {
     async onPaste() {
       try {
         const res = await navigator.clipboard.readText()
-        this.localValue = res
-      } catch (e) {
-      }
+        this.$emit('input', res)
+      } catch (e) {}
     },
     onBlur() {
       this.$emit('blur')
@@ -125,17 +125,10 @@ export default {
       this.$emit('focus')
       this.focused = true
     },
-
-    input(value) {
-      this.localValue = value
-      this.$emit('input', value)
-      this.validateAddress()
-    },
     onNetworkSelect(e) {
       this.selectedNetwork = e
     },
   },
-
 }
 </script>
 
@@ -180,9 +173,15 @@ export default {
     align-items: center;
   }
   .address-status {
-    &.loading { color: var(--text-default) }
-    &.valid { color: var(--main-green) }
-    &.invalid { color: var(--main-red) }
+    &.loading {
+      color: var(--text-default);
+    }
+    &.valid {
+      color: var(--main-green);
+    }
+    &.invalid {
+      color: var(--main-red);
+    }
   }
 
   .el-input-group__append,

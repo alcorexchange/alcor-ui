@@ -1,7 +1,7 @@
 import WebSocket from 'ws'
 
-import { Api } from 'eosjs'
-import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig'
+import { Api } from 'enf-eosjs'
+import { JsSignatureProvider } from 'enf-eosjs/dist/eosjs-jssig'
 
 
 const IBC_WORKS_ACCOUNTS = {
@@ -124,6 +124,23 @@ export class IBCTransfer {
   }
 
   async waitForLIB(chain, _tx, packedTx, retry_trx_num_blocks) {
+    let retries = 5
+
+    while (retries != 0) {
+      try {
+        return await this.tryWaitForLIB(chain, _tx, packedTx, retry_trx_num_blocks)
+      } catch (e) {
+        console.log('ibc wait for LIB, retrying', e)
+        this.socketsQueue.nextSocket()
+      }
+
+      retries--
+    }
+
+    throw new Error('IBC wait for LIB error after retries')
+  }
+
+  async tryWaitForLIB(chain, _tx, packedTx, retry_trx_num_blocks) {
     let tx = JSON.parse(JSON.stringify(_tx))
 
     const transaction_id = tx.processed.id
@@ -189,6 +206,14 @@ export class IBCTransfer {
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(this.socketsQueue.getNextSocket())
 
+      ws.addEventListener('error', e => {
+        reject(e)
+      })
+
+      const timeout = setTimeout(() => {
+        reject(new Error('IBC request TIMEOUT'))
+      }, 3000)
+
       console.log('getBlockActions', tx.processed.block_num)
       ws.addEventListener('open', (event) =>
         ws.send(
@@ -200,7 +225,23 @@ export class IBCTransfer {
       )
 
       ws.addEventListener('message', (event) => {
-        const res = JSON.parse(event.data)
+        clearTimeout(timeout)
+
+        let res
+        try {
+          res = JSON.parse(event.data)
+        } catch (e) {
+          return reject('IBC SERVER JSON ERROR')
+        }
+
+        if (res.type == 'error') {
+          return reject(res.error)
+        }
+
+        if (!res.txs) {
+          return reject('IBC SERVER INVALID RESPONCE')
+        }
+
         console.log('res', res)
         const firhoseTx = res.txs.find((r) =>
           r.find((s) => s.transactionId.toLowerCase() === transaction_id.toLowerCase())

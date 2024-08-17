@@ -1,15 +1,27 @@
-import { performance } from 'perf_hooks'
-import JSBI from 'jsbi'
-
-import { Position } from '@alcorexchange/alcor-swap-sdk'
-
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
-import { Swap, SwapPool, SwapChartPoint } from '../../models'
+import { SwapBar, Swap, SwapPool, SwapChartPoint } from '../../models'
 import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
-import { getLiquidityRangeChart } from '../../../utils/amm.js'
+import { sqrtRatioToPrice, getLiquidityRangeChart } from '../../../utils/amm.js'
+import { resolutions } from '../updaterService/charts'
 import { getPositionStats } from './account'
 
+function getSwapBarPriceAsString(price, tokenA, tokenB, reverse) {
+  price = sqrtRatioToPrice(price, tokenA, tokenB)
+  if (reverse) price = price.invert()
+  return price.toSignificant()
+}
+
+function formatCandle(candle, volumeField, tokenA, tokenB, reverse) {
+  candle.volume = candle[volumeField]
+  candle.open = getSwapBarPriceAsString(candle.open, tokenA, tokenB, reverse)
+  candle.high = getSwapBarPriceAsString(candle.high, tokenA, tokenB, reverse)
+  candle.low = getSwapBarPriceAsString(candle.low, tokenA, tokenB, reverse)
+  candle.close = getSwapBarPriceAsString(candle.close, tokenA, tokenB, reverse)
+
+  delete candle._id
+  delete candle[volumeField]
+}
 
 export const swap = Router()
 
@@ -120,7 +132,9 @@ swap.get('/charts', async (req, res) => {
 
 swap.get('/pools/:id', async (req, res) => {
   const network: Network = req.app.get('network')
-  const { id } = req.params
+  const { id }: { id: string } = req.params
+
+  if (isNaN(parseInt(id))) return res.status(403).send('Invalid pool id')
 
   const filter: { chain: string, id?: number } = { chain: network.name }
 
@@ -186,7 +200,7 @@ swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
 
   let { tokenA, tokenB } = pool
 
-  if (inverted.toLowerCase() == 'true') {
+  if (inverted?.toLowerCase() == 'true') {
     [tokenA, tokenB] = [tokenB, tokenA]
   }
 
@@ -201,8 +215,111 @@ swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
     }
   }).filter(r => r.y > 0)
 
-  //res.header('Access-Control-Allow-Origin', '*')
   res.json(result)
+})
+
+swap.get('/pools/:id/candles', async (req, res) => {
+  try {
+    const network: Network = req.app.get('network')
+    const { id } = req.params
+    const { from, to, resolution, limit, volumeField = 'volumeUSD' }: any = req.query
+
+    const reverse = req.query.reverse === 'true'
+
+    if (!resolution) return res.status(400).send('Resolution is required.')
+    const frame = resolutions[resolution] * 1000
+
+    if (limit && isNaN(parseInt(limit))) return res.status(400).send('Invalid limit.')
+
+    const pool = await SwapPool.findOne({ id, chain: network.name })
+    if (!pool) return res.status(404).send(`Pool ${id} is not found`)
+
+    const where: any = { chain: network.name, timeframe: resolution.toString(), pool: parseInt(pool.id) }
+    if (from && to) {
+      where.time = {
+        $gte: new Date(parseInt(from)),
+        $lte: new Date(parseInt(to))
+      }
+    }
+
+    const $project: any = {
+      time: { $toLong: '$time' },
+      open: 1,
+      high: 1,
+      low: 1,
+      close: 1,
+    }
+
+    $project[volumeField] = 1
+
+    const q: any = [
+      { $match: where },
+      { $sort: { time: 1 } },
+      { $project }
+    ]
+
+    if (limit) q.push({ $limit: parseInt(limit) })
+
+    let lastKnownPrice = null
+    const candles = await SwapBar.aggregate(q)
+
+    if (candles.length === 0 && from) {
+      const lastPriceQuery = await SwapBar.findOne({
+        chain: network.name,
+        pool: parseInt(pool.id),
+        timeframe: resolution.toString(),
+        time: { $lt: new Date(parseInt(from)) },
+      }).sort({ time: -1 })
+
+      lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
+      if (!lastPriceQuery) return res.json([])
+    } else {
+      lastKnownPrice = candles[0].close
+    }
+
+    lastKnownPrice = getSwapBarPriceAsString(lastKnownPrice, pool.tokenA, pool.tokenB, reverse)
+
+    const filledCandles = []
+    let expectedTime = parseInt(from)
+
+    candles.forEach((candle, index) => {
+      formatCandle(candle, volumeField, pool.tokenA, pool.tokenB, reverse)
+      candle.open = lastKnownPrice
+
+      while (candle.time > expectedTime) {
+        filledCandles.push({
+          time: expectedTime,
+          open: lastKnownPrice,
+          high: lastKnownPrice,
+          low: lastKnownPrice,
+          close: lastKnownPrice,
+          volume: 0,
+        })
+        expectedTime += frame
+      }
+
+      filledCandles.push(candle)
+      lastKnownPrice = candle.close
+      expectedTime += frame
+    })
+
+    // Handle trailing empty candles if necessary
+    while (expectedTime <= parseInt(to)) {
+      filledCandles.push({
+        time: expectedTime,
+        open: lastKnownPrice,
+        high: lastKnownPrice,
+        low: lastKnownPrice,
+        close: lastKnownPrice,
+        volume: 0,
+      })
+      expectedTime += frame
+    }
+
+    res.json(filledCandles)
+  } catch (error) {
+    res.status(500).send('An unexpected error occurred.')
+  }
 })
 
 swap.get('/pools/:id/swaps', async (req, res) => {
@@ -230,7 +347,7 @@ swap.get('/pools/:id/swaps', async (req, res) => {
   console.log(q)
   const swaps = await Swap.find(q)
     .select('pool recipient trx_id sender sqrtPriceX64 totalUSDVolume tokenA tokenB time')
-    .sort({ time: 1 })
+    .sort({ time: -1 })
     .skip(skip)
     .limit(limit)
     .lean()

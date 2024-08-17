@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import axios from 'axios'
 
-import { Percent, Position } from '@alcorexchange/alcor-swap-sdk'
+import { Percent, Token } from '@alcorexchange/alcor-swap-sdk'
 
+import { parseExtendedAssetPlain } from '~/utils'
 import { fetchAllRows } from '~/utils/eosjs'
 import { constructPosition, constructPoolInstance } from '~/utils/amm'
 
-const DEFAULT_SLIPPAGE = 0.5
+const DEFAULT_SLIPPAGE = 10
 
 export const state = () => ({
   pools: [],
@@ -19,12 +20,14 @@ export const state = () => ({
   // Api
   poolsStats: [],
   history: [],
+  allTokens: [],
 
   // TODO move to module
   selectedTokenA: null,
   selectedTokenB: null,
   slippage: DEFAULT_SLIPPAGE,
   maxHops: 2,
+  recalculateOnPriceChange: true,
 
   last_pool_subscribed: null
 })
@@ -32,10 +35,12 @@ export const state = () => ({
 export const mutations = {
   setPools: (state, pools) => state.pools = pools,
 
+  setAllTokens: (state, tokens) => state.allTokens = tokens,
   setPositions: (state, positions) => state.positions = positions,
   setPlainPositions: (state, positions) => state.plainPositions = positions,
   setSlippage: (state, slippage) => state.slippage = slippage,
   setMaxHops: (state, maxHops) => state.maxHops = maxHops,
+  setRecalculateOnPriceChange: (state, recalculateOnPriceChange) => state.recalculateOnPriceChange = recalculateOnPriceChange,
   setLastPoolSubscribed: (state, poolId) => state.last_pool_subscribed = poolId,
 
   setPoolsStats: (state, stats) => state.poolsStats = stats,
@@ -68,7 +73,7 @@ export const actions = {
     dispatch('fetchPools')
     dispatch('fetchPoolsStats')
 
-    this.$socket.on('account:update-positions', positions => {
+    this.$socket.on('account:update-positions', (positions) => {
       console.log('account:update-positions!!!')
       // TODO Handle positions id's
       dispatch('fetchPositions')
@@ -82,8 +87,8 @@ export const actions = {
     //   })
     // })
 
-    this.$socket.on('swap:pool:update', data => {
-      data.forEach(pool => {
+    this.$socket.on('swap:pool:update', (data) => {
+      data.forEach((pool) => {
         commit('updatePool', pool)
       })
     })
@@ -110,9 +115,11 @@ export const actions = {
     dispatch('fetchPositionsHistory')
   },
 
-  async fetchPoolsStats({ state, commit }) {
+  async fetchPoolsStats({ dispatch, state, commit }) {
     const { data: pools } = await this.$axios.get('/v2/swap/pools')
     commit('setPoolsStats', pools)
+
+    setTimeout(() => dispatch('farms/setFarmPoolsWithAPR', {}, { root: true }), 1)
   },
 
   async fetchPositions({ state, commit, rootState, dispatch }) {
@@ -121,6 +128,8 @@ export const actions = {
     const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
     commit('setPositions', positions)
     dispatch('farms/loadUserStakes', {}, { root: true })
+
+    setTimeout(() => dispatch('farms/setFarmPoolsWithAPR', {}, { root: true }), 1)
   },
 
   async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {
@@ -132,43 +141,22 @@ export const actions = {
       this.$axios.get('/v2/account/' + owner + '/positions-history', {
         params: {
           skip,
-          limit: ITEMS_PER_PAGE
-        }
+          limit: ITEMS_PER_PAGE,
+        },
       }),
       this.$axios.get('/v2/account/' + owner + '/swap-history', {
         params: {
           skip,
-          limit: ITEMS_PER_PAGE
-        }
+          limit: ITEMS_PER_PAGE,
+        },
       }),
     ])
-    const merged = [...position.data, ...swap.data.map(item => ({ ...item, type: 'swap' }))]
+    const merged = [...position.data, ...swap.data.map((item) => ({ ...item, type: 'swap' }))]
     commit('setHistory', page == 1 ? merged : [...merged, ...state.history])
 
     // To check on LoadMore
     return merged
   },
-
-  // FIXME We do not user ticks on UI side
-  // updateTickOfPool({ state, commit }, { poolId, tick }) {
-  //   const ticks = cloneDeep(state.ticks[poolId] ?? [])
-
-  //   const old = ticks.findIndex(old_tick => {
-  //     return old_tick.id == tick.id
-  //   })
-
-  //   if (old != -1) {
-  //     if (tick.liquidityGross == 0) {
-  //       ticks.splice(old, 1)
-  //     } else {
-  //       ticks[old] = tick
-  //     }
-  //   } else if (tick.liquidityGross !== 0) {
-  //     ticks.push(tick)
-  //   }
-
-  //   commit('setTicks', { poolId, ticks })
-  // },
 
   async fetchTicksOfPool({ commit, rootState }, poolId) {
     if (isNaN(poolId)) return
@@ -179,35 +167,6 @@ export const actions = {
     commit('setTicks', { poolId, ticks })
   },
 
-  // async poolUpdate({ state, commit, rootState, dispatch }, poolId) {
-  //   if (isNaN(poolId)) return
-  //   console.log('pool update triggered')
-
-  //   const { network } = rootState
-
-  //   // TODO Send pool with push
-  //   const [pool] = await fetchAllRows(this.$rpc, {
-  //     code: network.amm.contract,
-  //     scope: network.amm.contract,
-  //     table: 'pools',
-  //     limit: 1,
-  //     lower_bound: poolId,
-  //     upper_bound: poolId
-  //   })
-
-  //   if (!pool) return console.error('Pool not found!', poolId)
-
-  //   // FIXME Here pools are broken JSBI i guess
-  //   const old_pools = cloneDeep(state.pools)
-  //   const old_pool = old_pools.findIndex(o => o.id == pool.id)
-
-  //   if (old_pool != -1) {
-  //     old_pools[old_pool] = pool
-  //   } else { old_pools.push(pool) }
-
-  //   commit('setPools', old_pools)
-  // },
-
   async fetchPools({ state, commit, rootState, dispatch }) {
     //console.log('fetchPools')
     // TODO Redo with api (if it will work safely)
@@ -215,52 +174,107 @@ export const actions = {
 
     const { network } = rootState
 
-    const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
+    const rows = await fetchAllRows(this.$rpc, {
+      code: network.amm.contract,
+      scope: network.amm.contract,
+      table: 'pools',
+    })
 
-    commit('setPools', rows.filter(p => !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
-      !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)))
+    commit(
+      'setPools',
+      rows
+      // rows.filter(
+      //   (p) =>
+      //     !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
+      //     !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)
+      // )
+    )
+
+    dispatch('setMarketsRelatedPool', {}, { root: true })
+    dispatch('setAllTokens')
+    setTimeout(() => dispatch('farms/setFarmPoolsWithAPR', {}, { root: true }), 1)
+  },
+
+  setAllTokens({ state, commit, rootState }) {
+    const tokens = []
+    const tokenIds = new Set()
+
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    rootState.amm.pools.forEach((p) => {
+      const tokenA = parseExtendedAssetPlain(p.tokenA)
+      const tokenB = parseExtendedAssetPlain(p.tokenB)
+
+      if (!scamContractsSet.has(tokenA.contract) && !tokenIds.has(tokenA.id)) {
+        tokenIds.add(tokenA.id)
+        tokens.push(tokenA)
+      }
+
+      if (!scamContractsSet.has(tokenB.contract) && !tokenIds.has(tokenB.id)) {
+        tokenIds.add(tokenB.id)
+        tokens.push(tokenB)
+      }
+    })
+
+    commit('setAllTokens', tokens)
   },
 }
 
 export const getters = {
   slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
 
+  tokensMap(state) {
+    return new Map(state.allTokens.map(t => [t.id, new Token(t.contract, t.decimals, t.symbol)]))
+  },
+
+  poolStatsMap(state) {
+    return new Map(state.poolsStats.map((p) => [p.id, p]))
+  },
+
+  poolStatsWithoutScam(state, getters, rootState) {
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    return state.poolsStats.filter((pool) => !scamContractsSet.has(pool.tokenA.contract) && !scamContractsSet.has(pool.tokenB.contract))
+  },
+
   positions(state) {
-    const positions = []
+    const poolMap = new Map(state.pools.map((pool) => [pool.id, pool]))
 
-    for (const position of state.positions) {
-      const pool = state.pools.find(p => p.id == position.pool)
-      if (!pool) continue
-
-      const positionInstance = constructPosition(
-        constructPoolInstance(pool),
-        position
-      )
-
-      if (positionInstance) positions.push(positionInstance)
-    }
-
-    return positions
+    return state.positions
+      .map((position) => {
+        const pool = poolMap.get(position.pool)
+        return pool ? constructPosition(constructPoolInstance(pool), position) : null
+      })
+      .filter((position) => position !== null)
   },
 
   poolsPlainWithStatsAndUserData(state, getters, rootState) {
-    const _poolStats = new Map(state.poolsStats.map(p => [p.id, p]))
-    const positions = state.positions
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    const poolStatsMap = getters.poolStatsMap
 
-    const pools = []
-    for (const pool of state.pools) {
-      if (
-        rootState.network.SCAM_CONTRACTS.includes(pool.tokenA.contract) ||
-        rootState.network.SCAM_CONTRACTS.includes(pool.tokenB.contract)
-      ) continue
-
-      pools.push({
+    return state.pools
+      .filter((pool) => !scamContractsSet.has(pool.tokenA.contract) && !scamContractsSet.has(pool.tokenB.contract))
+      .map((pool) => ({
         ...pool,
-        poolStats: _poolStats.get(pool.id),
-        positions: positions.filter(p => p.pool == pool.id)
-      })
-    }
+        poolStats: poolStatsMap.get(pool.id),
+        positions: state.positions.filter((p) => p.pool === pool.id),
+      }))
+  },
 
-    return pools
+  poolsMapWithStatsAndUserData(state, getters, rootState) {
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    const poolStatsMap = getters.poolStatsMap
+
+    const poolsMap = new Map()
+
+    state.pools
+      .filter((pool) => !scamContractsSet.has(pool.tokenA.contract) && !scamContractsSet.has(pool.tokenB.contract))
+      .forEach((pool) => {
+        poolsMap.set(pool.id, {
+          ...pool,
+          poolStats: poolStatsMap.get(pool.id),
+          positions: state.positions.filter((p) => p.pool === pool.id),
+        })
+      })
+
+    return poolsMap
   },
 }

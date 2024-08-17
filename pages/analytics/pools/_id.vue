@@ -8,24 +8,33 @@ div(v-if="pool && stats").analytics-pool-detail-page
       :modes="chartModes"
       :selectedMode.sync="selectedMode"
       :selectedResolution.sync="selectedResolution"
+      @revertChart="toggleReverse"
+      v-loading="chartLoading"
     )
-      component(:is="renderChart" width='100%' height="100%" ref="chart" :series="renderSeries" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined" :tooltipFormatter="tooltipFormatter")
+      component(:is="renderChart" :isSorted="reverse" :pool="pool" width='100%' height="100%" ref="chart" :series="renderSeries" class="chart" :color="selectedMode === 'Fees' ? '#723de4' : undefined" :tooltipFormatter="tooltipFormatter")
+        #swap_tv_chart_container
+
+  AnalyticsTabs.mb-2(:items="tabs" v-model="activeTab")
 
   VirtualTable.virtual-table(
+    v-if="activeTab === 'positions'"
     :table="tableData"
     defaultSortKey="totalValue"
     v-loading="loading"
   )
     template(#row="{ item }")
       AnalyticsPositionRow.analytics-position-row(:position="item" @showPosition="showPosition")
+
+  AnalyticsSwapsList(v-if="activeTab === 'swaps'" :pool="pool")
 </template>
 
 <script>
 import JSBI from 'jsbi'
 import { mapActions } from 'vuex'
-import { Token, tickToPrice, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
+import { tickToPrice, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import { isTicksAtLimit, constructPoolInstance } from '~/utils/amm'
 
+import SwapTwChart from '~/components/swap/TwChart'
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
 import PositionFees from '~/components/amm/PositionFees'
@@ -40,6 +49,8 @@ import AnalyticsStats from '~/components/analytics/AnalyticsStats'
 import AnalyticsChartLayout from '~/components/analytics/AnalyticsChartLayout'
 import AnalyticsChart from '~/components/analytics/AnalyticsChart'
 import AnalyticsPoolHeader from '~/components/analytics/pool/AnalyticsPoolHeader'
+import AnalyticsTabs from '~/components/analytics/AnalyticsTabs.vue'
+import AnalyticsSwapsList from '~/components/analytics/AnalyticsSwapsList.vue'
 import ReturnLink from '~/components/ReturnLink.vue'
 
 export default {
@@ -60,6 +71,9 @@ export default {
     Volume: StackedColumns,
     Bars,
     ReturnLink,
+    SwapTwChart,
+    AnalyticsTabs,
+    AnalyticsSwapsList,
   },
 
   fetch({ params, error }) {
@@ -68,17 +82,35 @@ export default {
 
   data() {
     return {
+      pool: null,
+      reverse: true,
       loading: true,
+      chartLoading: false,
       selectedResolution: 'All',
-      selectedMode: 'TVL',
+      selectedMode: 'Price',
 
       chart: [],
 
       liquiditySeries: [{ name: 'lol', data: [], type: 'area' }],
+
+      tabs: [
+        { label: 'Positions', value: 'positions' },
+        { label: 'Swaps', value: 'swaps' },
+      ],
     }
   },
 
   computed: {
+    activeTab: {
+      set(v) {
+        this.$router.replace({
+          query: { tab: v },
+        })
+      },
+      get() {
+        return this.$route.query.tab || 'positions'
+      },
+    },
     columnStats() {
       return [
         {
@@ -119,7 +151,7 @@ export default {
         },
         {
           title: 'Total positions',
-          value: this.loadedPositions?.length,
+          value: this.positions?.length,
         },
       ]
     },
@@ -158,24 +190,16 @@ export default {
     renderChart() {
       if (this.selectedMode === 'Volume') return 'Volume'
       if (this.selectedMode === 'Ticks') return 'Bars'
-      if (this.selectedMode === 'Price') return 'LineChart'
+      if (this.selectedMode === 'Price') return 'SwapTwChart'
       return 'LineChart'
     },
 
     chartModes() {
-      //return [{ value: 'TVL' }, { value: 'Volume' }, { value: 'Ticks' }]
-      return [{ value: 'TVL' }, { value: 'Volume' }, { value: 'Price' }]
+      return [{ value: 'Price' }, { value: 'Volume' }, { value: 'TVL' }]
     },
 
     id() {
       return this.$route.params.id
-    },
-
-    pool() {
-      const _pool = this.$store.state.amm.pools.find((p) => p.id == this.id)
-      if (!_pool) return
-
-      return constructPoolInstance(_pool)
     },
 
     stats() {
@@ -183,6 +207,7 @@ export default {
     },
 
     positions() {
+      console.log('positions computed')
       return this.loadedPositions
         .map((p) => {
           if (!this.pool) return {}
@@ -205,6 +230,7 @@ export default {
         })
         .filter((p) => p.pool)
     },
+
     tableData() {
       const header = [
         {
@@ -263,20 +289,42 @@ export default {
       },
       immediate: true,
     },
+
+    '$store.state.amm.pools'() {
+      this.setPool()
+    },
+
     selectedResolution() {
       this.getChart()
     },
   },
 
   mounted() {
+    this.setPool()
     this.fetchPositions()
     this.fetchLiquidityChart()
   },
 
   methods: {
+    toggleReverse() {
+      this.reverse = !this.reverse
+
+      this.chartLoading = true
+      setTimeout(() => this.chartLoading = false, 2000)
+    },
+
+    setPool() {
+      if (this.pool) return
+
+      const _pool = this.$store.state.amm.pools.find((p) => p.id == this.id)
+      if (!_pool) return
+
+      this.pool = constructPoolInstance(_pool)
+    },
+
     tooltipFormatter(value) {
       if (this.selectedMode === 'TVL') {
-        return `$${value}`
+        return `$${this.$options.filters.commaFloat(value, 2)}`
       }
       return value
     },

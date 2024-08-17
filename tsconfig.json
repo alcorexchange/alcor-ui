@@ -20,7 +20,9 @@
         "target": "es6",
         "moduleResolution": "node",
         "esModuleInterop": true,
-        "module": "commonjs"
+        "module": "commonjs",
+        "lib": ["DOM"],
+        "sourceMap": true
     },
 
     "include": [

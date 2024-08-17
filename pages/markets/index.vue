@@ -20,9 +20,6 @@ no-ssr
         el-radio-button(:label="network.USD_TOKEN.split('-')[0].toUpperCase()")
           span {{ network.USD_TOKEN.split('-')[0].toUpperCase() }}
 
-        el-radio-button(v-if='network.name == "eos"', label='USDT')
-          span {{ $t('USDT') }}
-
         el-radio-button(value='cross-chain', label='Cross-Chain')
           span {{ $t('Cross-Chain') }}
 
@@ -226,10 +223,7 @@ export default {
             return (
               this.network.USD_TOKEN.includes(i.base_token.contract) ||
               ibcTokens.includes(i.base_token.contract) ||
-              ibcTokens.includes(i.quote_token.contract) ||
-
-              Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
-              Object.keys(this.network.withdraw).includes(i.base_token.str)
+              ibcTokens.includes(i.quote_token.contract)
             )
           })
           break

@@ -7,7 +7,7 @@
     .main(v-if="this.$store.state.user && this.$store.state.user.name")
       blockquote.blockquote.text-left
         p.text-wrap.mb-0
-          | We use the EOS network as a USDT provider. When withdrawing, you must select the EOS network.
+          | Alcor use the EOS network as a USDT provider. When withdrawing, you must select the EOS network.
         footer.blockquote-footer.mt-1
           | Carefully read the instructions before making a deposit.
         footer.blockquote-footer.mt-1

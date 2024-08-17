@@ -1,5 +1,6 @@
 <template lang="pug">
-  el-dialog(:visible.sync="visible" width="25%" v-if="user").text-left.dialog
+.small-dialog-wrapper
+  el-dialog(:visible.sync="visible" v-if="user").text-left.dialog
     template(#title)
       .title-container
         i.el-icon-wallet
@@ -18,7 +19,7 @@
         span {{$t('Balance') }}
           el-button(type="text" @click="fullAmount").ml-1.hoverable  {{ tokenBalance | commaFloat }}
 
-        el-input(type="number" v-model="form.amount" clearable @change="amountChange" placeholder="amount").w-100
+        el-input(type="number" v-model="form.amount" clearable placeholder="amount").w-100
           span(slot="suffix").mr-1 {{ token.currency }}
         .text ~${{ usdValue }}
 
@@ -178,6 +179,10 @@ export default {
     async submit() {
       const memo = this.form.memo?.trim() || ''
 
+      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(
+        this.token.decimals
+      )
+
       try {
         if (this.network.CEX_CONTRACTS.includes(this.form.address) && memo == '') {
           await this.$confirm(
@@ -215,17 +220,23 @@ export default {
         this.visible = false
 
         const txid = r.transaction_id || r.transaction.id.toString()
-        this.$alert(
-          `<a class="pointer" href="${this.monitorTx(txid)}" target="_blank">Transaction id</a>`,
-          'Transaction complete!',
-          {
-            dangerouslyUseHTMLString: true,
-            confirmButtonText: 'OK',
-            callback: (action) => {
-              this.$notify({ title: 'Token transfered!', type: 'success' })
-            }
-          }
-        )
+        this.$notify({
+          title: 'Token sent',
+          message: `Tx id: ${txid}`,
+          type: 'success'
+        })
+
+        // this.$alert(
+        //   `<a class="pointer" href="${this.monitorTx(txid)}" target="_blank">Transaction id</a>`,
+        //   'Transaction complete!',
+        //   {
+        //     dangerouslyUseHTMLString: true,
+        //     confirmButtonText: 'OK',
+        //     callback: (action) => {
+        //       this.$notify({ title: 'Token transfered!', type: 'success' })
+        //     }
+        //   }
+        // )
       } catch (e) {
         captureException(e)
         this.$notify({

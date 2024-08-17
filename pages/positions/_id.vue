@@ -2,6 +2,10 @@
 div(v-loading="!position && !this.positionNotFound")
   alcor-container.manage-liquidity-component(v-if="position && position.pool")
     PageHeader(:title="title")
+      template(v-slot:end)
+        el-tooltip(class="item" effect="dark" content="Transfer Position" placement="top")
+          .el-icon-position.pointer.fs-18.mr-1(@click="transferPos")
+
     .main.gap-16.pt-3
       .left
         PositionInfo(:position="position" :tokensInverted="tokensInverted")
@@ -90,14 +94,13 @@ export default {
     LiquidityChartRangeInput,
     AlcorSwitch,
     AlcorButton,
-    ManageLiquidityMinMaxPrices
+    ManageLiquidityMinMaxPrices,
   },
 
   data: () => ({
-    loading: true,
     loadedPosition: null,
     tokensInverted: false,
-    positionNotFound: false
+    positionNotFound: false,
   }),
 
   computed: {
@@ -107,16 +110,13 @@ export default {
 
     position() {
       const posId = this.$route.params.id
-      const position = this.$store.getters['amm/positions']?.find(p => p.id == posId)
+      const position = this.$store.getters['amm/positions']?.find((p) => p.id == posId)
 
       if (!position && this.loadedPosition) {
-        const pool = this.$store.state.amm.pools.find(p => p.id == this.loadedPosition.pool)
+        const pool = this.$store.state.amm.pools.find((p) => p.id == this.loadedPosition.pool)
         if (!pool) return
 
-        const positionInstance = constructPosition(
-          constructPoolInstance(pool),
-          this.loadedPosition
-        )
+        const positionInstance = constructPosition(constructPoolInstance(pool), this.loadedPosition)
 
         return positionInstance
       }
@@ -144,11 +144,18 @@ export default {
     },
 
     ticksAtLimit() {
-      const { tickSpaceLimits, position: { tickLower, tickUpper, pool: { fee } } } = this
+      const {
+        tickSpaceLimits,
+        position: {
+          tickLower,
+          tickUpper,
+          pool: { fee },
+        },
+      } = this
 
       return {
         LOWER: fee && tickLower === tickSpaceLimits.LOWER,
-        UPPER: fee && tickUpper === tickSpaceLimits.UPPER
+        UPPER: fee && tickUpper === tickSpaceLimits.UPPER,
       }
     },
   },
@@ -158,6 +165,52 @@ export default {
   },
 
   methods: {
+    transferPos() {
+      this.$prompt('Please enter receiver account', 'Transfer Position', {
+        confirmButtonText: 'Transfer',
+        cancelButtonText: 'Cancel',
+      }).then(async ({ value: to }) => {
+        try {
+          await this.$rpc.get_account(to)
+        } catch (e) {
+          return this.$notify({
+            type: 'warning',
+            message: 'Account does not exists',
+          })
+        }
+
+        console.log(this.position)
+        const { id, pool, owner, tickLower, tickUpper } = this.position
+        const actions = [
+          {
+            account: this.$store.state.network.amm.contract,
+            name: 'transferpos',
+            authorization: [this.$store.state.user.authorization],
+
+            data: {
+              poolId: pool.id,
+              owner,
+              to,
+              tickLower,
+              tickUpper,
+              memo: '',
+            },
+          },
+        ]
+
+        try {
+          await this.$store.dispatch('chain/sendTransaction', actions)
+        } catch (e) {
+          return this.$notify({
+            type: 'error',
+            message: e.message,
+          })
+        }
+
+        setTimeout(() => this.loadPosition(), 5000)
+      })
+    },
+
     async loadPosition() {
       try {
         const { data } = await this.$axios.get('/v2/swap/pools/positions/' + this.$route.params.id)
@@ -174,13 +227,17 @@ export default {
 
     toggleTokens() {
       this.tokensInverted = !this.tokensInverted
-    }
+    },
   },
-
 }
 </script>
 
 <style lang="scss">
+@media only screen and (max-width: 600px) {
+  .el-message-box {
+    width: 95% !important;
+  }
+}
 .position-loading {
   min-height: 300px;
 }
@@ -190,50 +247,52 @@ export default {
   width: 100%;
   max-width: 920px;
   margin: 50px auto;
-  .main{
+  .main {
     display: flex;
-    .left, .right{
+    .left,
+    .right {
       flex: 1;
     }
   }
-  .claim-fees-button{
+  .claim-fees-button {
     padding: 4px 8px;
     font-weight: 500;
     border: none !important;
     color: var(--text-theme) !important;
-    &:hover{
+    &:hover {
       background: var(--main-green) !important;
     }
-    &.submit{
+    &.submit {
       padding: 14px;
       border-radius: 6px;
     }
   }
 
-  .increase-button{
+  .increase-button {
     color: var(--border-active-color);
     font-weight: 500;
     padding: 4px 8px;
   }
-  .token-image{
-    width: 16px; height: 16px;
+  .token-image {
+    width: 16px;
+    height: 16px;
   }
-  .separator{
+  .separator {
     width: 100%;
     border-bottom: 1px solid var(--border-1-color);
   }
-  .info{
+  .info {
     background-color: var(--selector-bg) !important;
   }
 }
 </style>
 <style scoped lang="scss">
-@media only screen and (max-width: 860px){
-  .main{
+@media only screen and (max-width: 860px) {
+  .main {
     flex-direction: column;
     gap: 40px;
   }
-  .manage-liquidity-component{
+  .manage-liquidity-component {
     margin-top: 20px;
   }
 }

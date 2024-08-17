@@ -1,4 +1,6 @@
-import { getMultyEndRpc } from '../utils/eosjs'
+import { Api } from 'enf-eosjs'
+import { getChainRpc, getMultyEndRpc } from '../utils/eosjs'
+
 
 import config from '~/config'
 
@@ -37,13 +39,19 @@ export const actions = {
 
     commit('setWallets', wallets)
 
+    const { viewAccount } = rootState.route.query
+
+    if (viewAccount) {
+      console.log('set pre selected account', viewAccount)
+      commit('setUser', { name: viewAccount, authorization: [] }, { root: true })
+      dispatch('afterLoginHook')
+      return
+    }
+
     if (state.lastWallet) {
       commit('setWallet', new state.wallets[state.lastWallet](rootState.network, this.$rpc))
       dispatch('autoLogin')
     }
-
-    // FIXME For tests
-    if (rootState?.user?.name) dispatch('afterLoginHook')
   },
 
   async autoLogin({ state, rootState, dispatch, commit, getters }) {
@@ -105,6 +113,18 @@ export const actions = {
   },
 
   logout({ state, dispatch, commit, getters, rootState }) {
+    const { viewAccount } = rootState.route.query
+
+    if (viewAccount) {
+      dispatch('unsubscribeToAccountPushes')
+
+      commit('setUser', null, { root: true })
+      commit('setUserOrders', [], { root: true })
+      window.location = window.location.origin
+      return
+    }
+
+
     console.log('logout..')
     state?.wallet?.logout()
     commit('setLastWallet', null)
@@ -652,7 +672,6 @@ export const actions = {
           : signedTx.serializedTransaction
       }
 
-      // TODO Протестить если ошибка от ноды
       return await this.$rpc.send_transaction(packedTx)
     } catch (e) {
       throw e
@@ -660,6 +679,15 @@ export const actions = {
       dispatch('update', {}, { root: true })
       commit('loading/CLOSE', {}, { root: true })
     }
+  },
+
+  async sendReadOnlyTransaction(
+    { state, rootState, dispatch, getters, commit },
+    actions
+  ) {
+    const api = new Api({ rpc: this.$rpc, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() })
+
+    return await api.transact({ actions }, { broadcast: true, readOnly: true, blocksBehind: 3, expireSeconds: 72 })
   }
 }
 

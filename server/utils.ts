@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 import { createClient } from 'redis'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { getMultyEndRpc } from '../utils/eosjs'
@@ -16,6 +16,21 @@ export async function getToken(chain: string, id: string) {
   const tokens = await getTokens(chain)
 
   return tokens.find(t => t.id == id)
+}
+
+export function getFailOverAlcorOnlyRpc(network) {
+  // Try alcore's node first for updating orderbook
+  const nodes = [network.protocol + '://' + network.host + ':' + network.port]
+    .concat(Object.keys(network.client_nodes))
+    .filter(n => n.includes('alcor'))
+
+  const direct = process.env[network.name.toUpperCase() + '_DIRECT_NODE']
+
+  if (direct) nodes.unshift(direct)
+
+  const rpc = getMultyEndRpc(nodes, false)
+
+  return rpc
 }
 
 export function getFailOverRpc(network) {

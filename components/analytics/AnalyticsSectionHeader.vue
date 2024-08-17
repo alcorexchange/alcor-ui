@@ -1,7 +1,7 @@
 <template lang="pug">
 .analytics-section-header
   .title
-    h2  {{ title }}
+    h2(v-if="title")  {{ title }}
     slot(name="afterTitle")
   .actions
     slot(name="action")

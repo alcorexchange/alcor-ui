@@ -45,8 +45,8 @@
                 inactive-color='#161617'
               )
 
-          swap-button.swap-button(v-if="item.i == 'limit-market' && relatedPool" :pool="relatedPool.id")
-            | {{ $t('SWAP') }} ({{ relatedPool.rate }} {{ base_token.symbol.name }})
+          swap-button.swap-button(v-if="item.i == 'limit-market' && relatedPool" :pool="relatedPool")
+            | {{ $t('SWAP') }} ({{ (relatedPool.tokenB.id == base_token.id ? relatedPool.tokenAPrice : relatedPool.tokenBPrice).toSignificant() }} {{ base_token.symbol.name }})
 
           FeeRate.feebutton(v-if="item.i == 'limit-market'")
 

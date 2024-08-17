@@ -16,18 +16,21 @@
         height="400px"
         style="min-height: 400px")
 
-  AnalyticsPoolsTable(:pools="pools" title="Pools")
+  div
+    AnalyticsTabs(:items="tabs" v-model="activeTab").mb-1
 
-  AnalyticsSectionHeader(title="Spot Pairs")
-    template(#action)
-      AlcorButton Explore
+    AnalyticsPoolsTable(v-if="activeTab === 'pools'" :pools="pools" title="")
 
-  AnalyticsSpotPairsTable(:pairs="markets")
+    AnalyticsSpotPairsTable(v-if="activeTab === 'spot'" :pairs="markets")
+
+    HoldersList(v-if="activeTab === 'holders'" :items="holders" :total="stats.supply")
+
 </template>
 
 <script>
 import { mapState } from 'vuex'
 
+import axios from 'axios'
 import JSBI from 'jsbi'
 import { Token, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import AnalyticsTokenHeader from '@/components/analytics/AnalyticsTokenHeader'
@@ -39,6 +42,8 @@ import LineChart from '~/components/charts/Line.vue'
 import AnalyticsPoolsTable from '~/components/analytics/AnalyticsPoolsTable'
 import AnalyticsSectionHeader from '~/components/analytics/AnalyticsSectionHeader'
 import AnalyticsSpotPairsTable from '~/components/analytics/AnalyticsSpotPairsTable'
+import AnalyticsTabs from '~/components/analytics/AnalyticsTabs'
+import HoldersList from '~/components/analytics/AnalyticsHoldersList.vue'
 import AlcorButton from '~/components/AlcorButton'
 
 export default {
@@ -53,6 +58,8 @@ export default {
     AnalyticsPoolsTable,
     AnalyticsSpotPairsTable,
     AnalyticsSectionHeader,
+    AnalyticsTabs,
+    HoldersList,
   },
 
   data() {
@@ -61,6 +68,7 @@ export default {
       quoteToken: null,
       selectedResolution: 'All',
       charts: [],
+      holders: [],
     }
   },
 
@@ -73,6 +81,8 @@ export default {
 
     tokenB() {
       const { baseToken } = this.$store.state.network
+
+      if (this.tokenA == baseToken.id) return this.usd_token.id
 
       return this.quoteToken == this.usd_token.symbol
         ? this.usd_token.id
@@ -162,8 +172,6 @@ export default {
       //   quotes.push({ value: this.usd_token.symbol })
       // }
 
-      console.log({ quotes })
-
       return quotes
     },
 
@@ -175,7 +183,6 @@ export default {
 
       const tokenA = new Token(_tokenA.contract, _tokenA.decimals, _tokenA.symbol)
       const tokenB = new Token(_tokenB.contract, _tokenB.decimals, _tokenB.symbol)
-
       data = this.charts.map((c) => {
         const price = new Price(
           tokenA.sortsBefore(tokenB) ? tokenA : tokenB,
@@ -197,11 +204,30 @@ export default {
         },
       ]
     },
+    tabs() {
+      return [
+        { label: 'Pools', value: 'pools' },
+        { label: 'Spot', value: 'spot' },
+        { label: 'Holders', value: 'holders' },
+      ]
+    },
+    activeTab: {
+      set(v) {
+        this.$router.replace({
+          query: { tab: v },
+        })
+      },
+      get() {
+        return this.$route.query.tab || 'pools'
+      },
+    },
   },
 
   watch: {
-    token() {
+    token(n, old) {
+      if (n && n.id === old?.id) return
       this.fetchStats()
+      this.fetchHolders()
       this.fetchCharts()
     },
 
@@ -215,12 +241,23 @@ export default {
   },
 
   mounted() {
+    this.fetchHolders()
     this.fetchStats()
     this.quoteToken = this.$store.state.network.baseToken.symbol
-    console.log('this', this.$route)
   },
 
   methods: {
+    async fetchHolders() {
+      if (!this.token) return
+      try {
+        const url = `${this.$store.state.network.lightapi}/api/topholders/${this.$store.state.network.name}/${this.token.contract}/${this.token.symbol}/100`
+        const { data } = await axios.get(url)
+        this.holders = data
+      } catch (error) {
+        console.log('error loading token holders', error)
+      }
+    },
+
     async fetchStats() {
       if (!this.token) return
 

@@ -161,10 +161,10 @@ module.exports = {
     '@nuxtjs/sentry',
     'nuxt-highcharts',
     //'vue-github-buttons/nuxt',
-    'nuxt-imagemin',
     'vue-scrollto/nuxt',
     '@nuxtjs/i18n',
-    'cookie-universal-nuxt'
+    'cookie-universal-nuxt',
+    '@nuxt/image'
     //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
   i18n: {
@@ -205,30 +205,33 @@ module.exports = {
    */
   sentry: {
     dsn: 'https://b28cbcd4c0ba438bbb8b6baeebf5fba0@sentry.alcor.exchange/2',
-    disabled: isDev,
+    disabled: true, // TODO DISABLED FOR NOW! (second server host sentry)
     publishRelease: true
   },
 
   buildModules: [
     '@nuxtjs/color-mode',
-    '@nuxtjs/device'
+    '@nuxtjs/device',
   ],
-
   /*
    ** Build configuration
    */
   build: {
     standalone: true,
 
-    extend(config, ctx) {
+    extend(config, { isDev, isClient }) {
       config.resolve.alias.jsbi = path.resolve(__dirname, 'node_modules', 'jsbi', 'dist', 'jsbi-cjs.js')
 
       config.node = {
         fs: 'empty'
       }
 
+      if (isClient) {
+        config.devtool = 'source-map'
+      }
+
       // Run ESLint on save
-      if (ctx.isDev && ctx.isClient) {
+      if (isDev && isClient) {
         config.module.rules.push({
           enforce: 'pre',
           test: /\.(js|vue)$/,

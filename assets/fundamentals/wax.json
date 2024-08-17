@@ -498,13 +498,14 @@
             "Social",
             "Metaverse"
         ],
-        "description": "PXJ is the token of the Pixel Journey; an educational project with the topic of exploring everything Wax, and each of our widely connected ecosystems have to offer. PXJ is already paired up across 40 different LPs across Wax, offering a vast number of possibilities to pair up. PXJ will be required for Pixel Journey collectibles crafting, and may in the future get a role in our PixelDAO.",
+        "description": "PXJ is the token of the Pixel Journey; an educational project with the topic of exploring everything Wax, Web3, and each of our widely connected ecosystems have to offer. PXJ is already paired up across +100 different LP pairs across Wax, offering a vast number of possibilities to pair up. PXJ will be required for Pixel Journey collectibles crafting, upgrades and may in the future get a role in our PixelDAO.",
         "socials": [
             "https://docs.pixeljourney.xyz",
             "https://discord.gg/7nvdUwtxF4",
-            "https://twitter.com/0xPixelJourney",
-            "https://twitter.com/PixelJourney_ES",
-            "https://uncut.network/user/4295809399"
+						"https://t.me/pixel_journey",
+            "https://twitter.com/PxJourney",
+            "https://uncut.network/user/4295809399",
+						"https://medium.com/@HenrikPiga"
         ]
     },
     "PAGE@pixeltbanker": {
@@ -582,5 +583,115 @@
           "https://discord.com/invite/Xtsde6p9m7"
       ],
       "description": "Next-gen meme & cross-chain coin on Solana & wax_io. Bark Loud, Bark Proud! 🦴"
+  },
+  "TETRA@tetra": {
+    "name": "TETRA",
+    "website": {
+        "link": "https://know.tetra.earth/",
+        "name": "Tetra Knowbase"
+    },
+    "tags": [
+        "dgov",
+        "web4",
+        "NFT",
+        "Social",
+        "fundraising"
+    ],
+    "description": "Tetra makes ideas real by Raising Awareness (RA, the voting token). Tetra helps citizens raises awareness for projects, and earn. Your ups (upvotes) get the word out about what creators are doing, spuring organic engagement. Upvotes work similar to reddit with r/ being your community. RA is one tokenized upvote. Earn RA while Raising Awareness for the people + projects you're passionate about. Tetra is an extension of the core tech and algorith developed by cXc.world, an app also by Gudasol.",
+    "github": "https://github.com/TetraGrids",
+    "socials": [
+        "https://know.tetra.earth/",
+        "https://linktr.ee/tetra.earth",
+        "https://twitter.com/tetragrids",
+        "https://www.youtube.com/@tetragrids",
+        "https://discord.gg/ZSU5BgGTAY",
+        "https://t.me/tetragrids",
+        "https://www.facebook.com/tetra.earth",
+        "https://www.reddit.com/r/cXcMusic"
+    ]
+  },
+    "GUDA@guda.guda": {
+        "name": "GUDA",
+        "website": {
+            "link": "https://guda.guda.love/",
+            "name": "GUDA"
+        },
+        "tags": [
+            "Social",
+            "Challenge",
+            "celebrity",
+            "meme",
+            "NFT"
+        ],
+        "description": "GUDA is more than a symbol; it is a badge of honor, a testament to your journey through the shadows and your emergence into the light. 🜛 Earn Gudabits for IRL challenges that transmute your shadows, found in Discord. Every Gudabit (0.00000001 GUDA) is redeemable for an NFT, via the drops.guda contract. Full info: https://guda.guda.love",
+        "github": "https://github.com/dougbutner/guda-token",
+        "socials": [
+            "https://discord.com/invite/MrRXZYhHfp",
+            "https://linktr.ee/gudasol",
+            "https://twitter.com/GUDA_coin",
+            "https://youtube.com/@gudasol"
+        ]
+  },
+  "XPX@xparty": {
+    "name": "XPX",
+    "website": {
+      "link": "https://xparty.win/",
+      "name": "XParty.win"
+    },
+    "tags": [
+      "politifi",
+      "Meme",
+      "vote",
+      "dgov"
+    ],
+    "description": "XPX is a novel RAP token (Ratcheting Asset Peg) 🔧, similar to a stablecoin pegged to WAX. It operates with a market maker where buy orders are placed for the same amount of XPX sold. There are no team-allocated XPX tokens, no marketing budget, just 100% of the supply listed on the market 📊. XPX will consistently have reward pools 💎 but will never serve as the reward token itself. To maintain its value, XPX employs a strategy where every XPX token sold is used to buy back the token. When the sell order is gone, XPX starts ratcheting, moving up the starting price 2% while maintaining market stabilization mechanisms that rise as well 📈. You can run this market maker by executing the 'partytime' action on maker.xpx with freecover = 0 ⚙️. The market maker targets a support level of 0.98 WAX with 62% of liquidity and an additional 10% at 0.96 WAX, and descending orders until 0.62. The weighted gap in all buy orders is calculated to be 6.6%, which is taken as fees to run the project 🔍. If you've never searched XPX under Alcor farms, you will 🌾.",
+    "socials": [
+      "https://x.com/XPartyUSA/",
+      "https://discord.com/invite/t6GKwSHcQz",
+      "https://vote.xparty.win",
+      "https://t.me/XPX_Bulls"
+    ]
+  },
+  "HARRISX@harris.xpx": {
+    "name": "HARRISX",
+    "website": {
+        "link": "https://xparty.win/",
+        "name": "XParty.win"
+    },
+    "tags": [
+        "politifi",
+        "vote",
+        "dgov",
+        "Harris",
+        "Meme"
+    ],
+    "description": "You awake in 2042 🇺🇸, the world is on the brink, and the 2024 elections seem like a distant memory—one that desperately needs a second chance 🔵. You are given an ancient technology to rewrite history, but the time machine seems… off.. Arriving in 2024 you find an alternate USA, USAX. Still, there's hope. The ancient technology of Memecoins seems to be working. But will anyone use it to vote, or just keep speculating on the price? If you've never read our lore, you will. 🗳 vote.xparty.win",
+    "socials": [
+        "https://x.com/XPartyUSA/",
+        "https://discord.com/invite/t6GKwSHcQz",
+        "https://vote.xparty.win",
+        "https://t.me/XPX_Bulls"
+    ]
+  },
+  "TRUMPX@trump.xpx": {
+    "name": "TRUMPX",
+    "website": {
+        "link": "https://xparty.win/",
+        "name": "XParty.win"
+    },
+    "tags": [
+        "politifi",
+        "vote",
+        "dgov",
+        "Trump",
+        "Meme"
+    ],
+    "description": "You awake in 2042 🇺🇸, the world is on the brink, and the 2024 elections seem like a distant memory—one that desperately needs a second chance 🔴. You are given an ancient technology to rewrite history, but the time machine seems… off.. Arriving in 2024 you find an alternate USA, USAX. Still, there's hope. The ancient technology of Memecoins seems to be working. But will anyone use it to vote, or just keep speculating on the price? If you've never read our lore, you will. 🗳 vote.xparty.win",
+    "socials": [
+        "https://x.com/XPartyUSA/",
+        "https://discord.com/invite/t6GKwSHcQz",
+        "https://vote.xparty.win",
+        "https://t.me/XPX_Bulls"
+    ]
   }
 }

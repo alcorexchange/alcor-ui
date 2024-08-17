@@ -105,23 +105,30 @@ export default {
     },
 
     filteredAssets() {
-      const tokens = [...this.tokens || []]
+      // Сначала проверяем наличие токенов, чтобы избежать лишних операций
+      if (!this.tokens) return []
 
-      if (!tokens) return []
+      // Создаем копию tokens, как это важно для логики работы
+      const tokens = [...this.tokens]
 
-      tokens.forEach(t => t.balance = this.$tokenBalance(t.currency || t.symbol, t.contract))
+      // Добавляем баланс к каждому токену, возможно стоит кешировать результаты этой функции если они не изменяются часто
+      tokens.forEach(t => {
+        t.balance = this.$tokenBalance(t.currency || t.symbol, t.contract)
+      })
 
-      // TODO ID are broken here
-      // tokens.forEach(t => {
-      //   t.id = (t.currency ?? t.symbol) + '-' + t.contract
-      //   t.balance = this.$tokenBalance(t.currency ?? t.symbol, t.contract)
-      // })
-
+      // Сортируем токены по балансу в убывающем порядке
       tokens.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance))
 
-      return tokens?.filter((asset) =>
-        Object.values(asset).join().toLowerCase().includes(this.search.toLowerCase())
-      ) || []
+      // Если строка поиска пуста, возвращаем отсортированные токены
+      if (!this.search.trim()) return tokens
+
+      // Нормализуем строку поиска и фильтруем токены
+      const searchLower = this.search.toLowerCase()
+      const r = tokens.filter(asset =>
+        Object.values(asset).some(val => String(val).toLowerCase().includes(searchLower))
+      )
+
+      return r
     },
 
     ...mapState(['network'])

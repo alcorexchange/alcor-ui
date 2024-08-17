@@ -1,22 +1,23 @@
 <template lang="pug">
-.wallet-row
-  .token.pointer(@click="$router.push('/analytics/tokens/' + item.id)").hoverable
+.wallet-row(@click="$router.push('/analytics/tokens/' + item.id)").hoverable.pointer
+  .token
     .token-image
       token-image(:src='$tokenLogo(item.currency, item.contract)', :height="isMobile ? '20' : '30'")
     .asset
-      el-dropdown(v-if="isMobile" trigger="click")
-        .asset__drop(v-if="isMobile")
+      el-dropdown(v-if="isMobile" trigger="click" @command="handleDropdownClick")
+        //- click.stop prevents the click event to being sent to .wallet-row so navigation does not happen
+        .asset__drop(v-if="isMobile" @click.stop)
           .asset__name {{ item.currency }}
           i.el-icon-caret-bottom
         el-dropdown-menu.dropdown(slot="dropdown" placement="botom-start" v-if="useActions")
           // CEX deposit
-          template(v-if="network.name == 'wax' && item.contract == 'usdt.alcor'")
+          //- template(v-if="network.name == 'wax' && item.contract == 'usdt.alcor'")
             alcor-button
             //el-button(type="text" @click="$emit('openDeposit')").hover-opacity {{ $t('Deposit') }}
 
-          el-button(type="text" @click="$emit('openTransfer', item)").hover-opacity {{ $t('Transfer') }}
-          el-button(type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Pools') }}
-          el-button.hover-opacity(type="text" @click="$emit('trade', item)") {{ $t('Trade') }}
+          el-dropdown-item(command="openTransfer") {{ $t('Transfer') }}
+          el-dropdown-item(command="pools") {{ $t('Pools') }}
+          el-dropdown-item(command="trade") {{ $t('Trade') }}
 
       .asset__name(v-else) {{ item.currency }}
       .asset__contract.cancel {{ item.contract }}
@@ -42,15 +43,15 @@
 
     // USDT CEX DEPOSIT BUTTONS
     template(v-if="network.name == 'wax' && item.contract == 'usdt.alcor'")
-      el-button(size="medium" type="text" @click="$emit('openWithdraw', item)").hover-opacity Withdraw
-      el-button(size="medium" type="text" @click="$emit('openDeposit', item)").hover-opacity Deposit
+      el-button(size="medium" type="text" @click.stop="$emit('openWithdraw', item)").hover-opacity Withdraw
+      el-button(size="medium" type="text" @click.stop="$emit('openDeposit', item)").hover-opacity Deposit
 
     template(v-if="item.contract.includes('ibc.')")
-      el-button(size="medium" type="text" @click="$router.push('/bridge')").hover-opacity Bridge
+      el-button(size="medium" type="text" @click.stop="$router.push('/bridge')").hover-opacity Bridge
 
-    el-button(size="medium" type="text" @click="$emit('openTransfer', item)").hover-opacity {{ $t('Transfer') }}
-    el-button(size="medium" type="text" @click="$emit('pools', item)").hover-opacity {{ $t('Swap') }}
-    el-button.hover-opacity(size="medium" type="text" @click="$emit('trade', item)") {{ $t('Trade') }}
+    el-button(size="medium" type="text" @click.stop="$emit('openTransfer', item)").hover-opacity {{ $t('Transfer') }}
+    el-button(size="medium" type="text" @click.stop="$emit('pools', item)").hover-opacity {{ $t('Swap') }}
+    el-button.hover-opacity(size="medium" type="text" @click.stop="$emit('trade', item)") {{ $t('Trade') }}
 </template>
 
 <script>
@@ -64,8 +65,13 @@ export default {
 
   computed: {
     ...mapState(['network']),
-  }
+  },
 
+  methods: {
+    handleDropdownClick(action) {
+      this.$emit(action, this.item)
+    },
+  },
 }
 </script>
 
@@ -83,7 +89,6 @@ export default {
   .el-button--text {
     color: var(--main-green);
   }
-
 }
 
 .wallet-row {
@@ -119,7 +124,6 @@ export default {
       @media only screen and (max-width: 1176px) {
         font-size: 14px;
       }
-
     }
 
     &__contract {

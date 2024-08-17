@@ -1,11 +1,11 @@
 import { createClient } from 'redis'
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 import { fetchAllRows, getChainRpc } from '../../../utils/eosjs'
 import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
 import { parseExtendedAsset, littleEndianToDesimal, parseAsset } from '../../../utils'
 import { Match, Market } from '../../models'
 import config from '../../../config'
-import { markeBars } from './charts'
+import { makeSpotBars } from './charts'
 
 // TODO Тут от докера прокидываем
 let redisClient
@@ -51,7 +51,8 @@ export async function newMatch(match, network) {
         time: '@timestamp' in match ? match['@timestamp'] : match.block_time,
         block_num
       })
-      await markeBars(m)
+
+      await makeSpotBars(m)
       redisClient.publish('market_action', `${network.name}_${market.id}_${name}`)
     } catch (e) {
       console.log('handle match err..', e, 'retrying...')
@@ -142,8 +143,6 @@ export async function getMarketStats(network, market_id) {
 }
 
 export async function updateMarkets(network) {
-  console.log('update market for ', network.name)
-
   const rpc = getChainRpc(network.name)
 
   let rows

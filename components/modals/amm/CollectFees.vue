@@ -82,22 +82,6 @@ export default {
     }
   },
   methods: {
-    async submit() {
-      if (!this.position) return this.$notify({ type: 'Error', title: 'No position' })
-
-      try {
-        // TODO Notify & update position
-        this.visible = false
-        // setTimeout(() => {
-        //   this.$store.dispatch('amm/poolUpdate', this.position?.pool?.id)
-        //   this.$store.dispatch('amm/fetchPositions')
-        // }, 1000)
-      } catch (e) {
-        console.error(e)
-        this.$notify({ type: 'error', title: 'Collect', message: e.message })
-      }
-    },
-
     async collect() {
       const { tokenA, tokenB } = this.position.pool
       const { owner, lower, upper } = this.position
@@ -136,6 +120,7 @@ export default {
 
       console.log({ actions })
       const result = await this.$store.dispatch('chain/sendTransaction', actions)
+      setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 5000)
       console.log('result', result)
     }
   }

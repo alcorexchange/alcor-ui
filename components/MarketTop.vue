@@ -4,7 +4,7 @@
     .title {{ $t(titles[idx]) }}
     .market-item.pointer(v-for="market in marketList" @click="() => $router.push({ name: `trade-index-id___${$i18n.locale}`, params: { id: market.slug } })")
       .item-name
-        token-image.token(:src='$tokenLogo(market.quote_token.symbol.name, market.quote_token.contract)')
+        TokenInfoImage.token(:symbol="market.quote_token.symbol.name" :contract="market.quote_token.contract")
         .token-name  {{ market.quote_token.symbol.name }} / {{ market.base_token.symbol.name }}
       .item-price(v-if="titles[idx] === 'Top Volume'") ${{ $systemToUSD(market.volume24) }}
       .item-price(v-else) {{ market.last_price.toFixed(5) }}
@@ -12,17 +12,17 @@
 </template>
 
 <script>
-import TokenImage from '~/components/elements/TokenImage'
+import TokenInfoImage from '~/components/elements/TokenInfoImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 
 export default {
-  components: { TokenImage, ChangePercent },
+  components: { TokenInfoImage, ChangePercent },
   props: ['newListings', 'topGainers', 'topVolume'],
   data() {
     return {
-      titles: ['New Listings', 'Top Gainers', 'Top Volume']
+      titles: ['New Listings', 'Top Gainers', 'Top Volume'],
     }
-  }
+  },
 }
 </script>
 
@@ -34,9 +34,8 @@ export default {
   gap: 2px;
 
   @media (max-width: 600px) {
-    flex-direction: column
+    flex-direction: column;
   }
-
 }
 
 .market-list {
@@ -52,7 +51,6 @@ export default {
     width: 100%;
     border-radius: 8px;
   }
-
 }
 
 .market-item {
@@ -73,7 +71,6 @@ export default {
   @media (max-width: 600px) {
     border-radius: 8px;
   }
-
 }
 
 .market-list:last-of-type {
@@ -82,7 +79,6 @@ export default {
   @media (max-width: 600px) {
     border-radius: 8px;
   }
-
 }
 
 .title,

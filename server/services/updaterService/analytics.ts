@@ -40,7 +40,6 @@ export async function updateGlobalStats(network, day?) {
     const priceB = tokens.find(t => t.id == pool.tokenB.id)?.usd_price || 0
 
     swapTradingVolume += pool.volumeUSD24
-    //swapFees += pool.volumeUSD24 * (pool.fee / 10000 / 100) / 2 // divide by 2 because we get fee only from output token
     swapFees += pool.volumeUSD24 * (pool.fee / 10000 / 100)
 
     const isTokenASystem = pool.tokenA.id == system_token

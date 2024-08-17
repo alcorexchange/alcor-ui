@@ -1,25 +1,26 @@
 <template lang="pug">
 alcor-container.p-3.w-100.chart-container-inner
   .d-flex.justify-content-between
-    el-radio-group.custom-radio.p-1.bg-base.br-4(
+    el-radio-group.custom-radio.p-1.br-4(
       v-model='activeTab',
       size='small'
     )
       el-radio-button.pointer(v-for="{ label, value } in tabs" :label='value') {{ label }}
 
-    el-radio-group.custom-radio.p-1.bg-base.br-4(
+    el-radio-group.custom-radio.p-1.br-4(
+      v-mutted="activeTab == 'Price'"
       v-model='activeTime',
       size='small'
     )
       el-radio-button.pointer(v-for="{ label, value } in times" :label='value') {{ label }}
 
-  //.p-absolute
-    .d-flex.gap-6.align-items-center.p-relative.t-15
-      .indicator.primary
-      .fs-20 Swap $2.5 B
-      .indicator.secondary
-      .fs-20 Spot $2.5 B
-  .header(v-if="sortedA && sortedB")
+  //- .p-absolute
+  //-   .d-flex.gap-6.align-items-center.p-relative.t-15
+  //-     .indicator.primary
+  //-     .fs-20 Swap $2.5 B
+  //-     .indicator.secondary
+  //-     .fs-20 Spot $2.5 B
+  .header(v-if="sortedA && sortedB && activeTab !== 'Price'")
     .pair-container
       PairIcons(
         :token1="sortedA"
@@ -41,7 +42,15 @@ alcor-container.p-3.w-100.chart-container-inner
       //.change()
         i(:class="`el-icon-caret-${false? 'bottom': 'top'}`" v-if="true")
         span.text 10%
+  .mt-2(v-else)
+
+  .no-chart.disable(v-if="!shouldShowCharts || !chartForPool")
+    img(src="@/assets/icons/candle-icon.svg")
+    //- i.el-icon-data-analysis
+    span(v-if="!shouldShowCharts")  Select both tokens to show the graph
+    span(v-else)  No pool between tokens to pull chart data from
   component(
+    v-else
     :is="activeTab"
     :series="series"
     height="400px"
@@ -49,7 +58,10 @@ alcor-container.p-3.w-100.chart-container-inner
     style="min-height: 400px"
     :events="chartEvents"
     :tooltipFormatter="renderTooltipFormatter"
+    :pool="chartForPool"
+    :isSorted="isSorted"
   )
+    #swap_tv_chart_container
 </template>
 
 <script>
@@ -58,18 +70,19 @@ import { mapGetters, mapState } from 'vuex'
 
 import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 
+import SwapTwChart from '~/components/swap/TwChart'
+
 import Line from '~/components/charts/Line.vue'
 import StackedColumns from '~/components/charts/StackedColumns'
 import StepLine from '~/components/charts/StepLine'
 import AlcorContainer from '~/components/AlcorContainer'
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
-import { constructPoolInstance } from '~/utils/amm'
+import { constructPoolInstance, parseToken } from '~/utils/amm'
 
 export default {
   components: {
-    Price: Line,
-    //Tvl: MultiLine,
+    Price: SwapTwChart,
     Tvl: Line,
     Depth: StepLine,
     Volume: StackedColumns,
@@ -90,9 +103,14 @@ export default {
       { label: 'All', value: 'All' },
     ],
     price: undefined,
+    chartForPool: null,
   }),
 
   computed: {
+    shouldShowCharts() {
+      return this.sortedA && this.sortedB
+    },
+
     renderTooltipFormatter() {
       const TVLFormatter = (v) => `$${this.$options.filters.commaFloat(v, 2)}`
       return this.activeTab === 'Tvl' ? TVLFormatter : undefined
@@ -221,8 +239,23 @@ export default {
   },
 
   methods: {
+    findChartForPool() {
+      if (!this.tokenA || !this.tokenB) return null
+
+      const pool = this.$store.getters['amm/poolsPlainWithStatsAndUserData'].filter(p => {
+        const tokenA = parseToken(p.tokenA)
+        const tokenB = parseToken(p.tokenB)
+
+        return (this.tokenA.id == tokenA.id && this.tokenB.id == tokenB.id) ||
+          (this.tokenA.id == tokenB.id && this.tokenB.id == tokenA.id)
+      }).sort((a, b) => b?.poolStats?.tvlUSD - a?.poolStats?.tvlUSD)[0]
+
+      this.chartForPool = pool ? constructPoolInstance(pool) : null
+    },
+
     async fetchCharts() {
       if (!this.tokenA || !this.tokenB) return
+      this.findChartForPool()
 
       try {
         const { data } = await this.$axios.get('/v2/swap/charts', {
@@ -354,6 +387,32 @@ export default {
     &.isZero {
       color: var(--text-default);
     }
+  }
+}
+.no-chart {
+  display: flex;
+  min-height: 400px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 500;
+  text-align: center;
+  img {
+    width: 48px;
+    font-size: 2rem;
+  }
+}
+</style>
+<style>
+#swap_tv_chart_container {
+  height: 400px;
+  width: 100%;
+}
+
+@media only screen and (max-width: 1000px) {
+  #swap_tv_chart_container {
+    height: 360px;
   }
 }
 </style>

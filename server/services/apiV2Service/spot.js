@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 import { write_decimal } from 'eos-common'
 
+import { resolutions } from '../updaterService/charts'
 import { SwapPool, Bar, Match, Market } from '../../models'
 import { getTokens } from '../../utils'
 
@@ -140,7 +141,6 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
   res.json(markets)
 })
 
-
 spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
@@ -151,6 +151,8 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   const tokens = await getTokens(network.name)
   const m = await Market.findOne({ ticker_id, chain: network.name })
     .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
+
+  if (!m) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
 
   formatTicker(m, tokens, network.GLOBAL_TOKENS)
   formatMarket(m, pools)
@@ -236,7 +238,7 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
 
   const q = { chain: network.name, market: market.id }
   if (type) q.type = type == 'buy' ? 'buymatch' : 'sellmatch'
-  if (from || to) {
+  if (!isNaN(from) || !isNaN(to)) {
     q.time = {}
 
     if (from) q.time.$gte = new Date(parseInt(from))
@@ -267,6 +269,7 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
   res.json(matches)
 })
 
+// время в UTC стартовое надо
 spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
   const { ticker_id } = req.params
   const network = req.app.get('network')
@@ -276,15 +279,17 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
 
   const { from, to, resolution, limit } = req.query
   if (!resolution) return res.status(404).send('Incorrect resolution..')
+  const frame = resolutions[resolution] * 1000
 
-  const where = { chain: network.name, timeframe: resolution.toString(), market: parseInt(market.id) }
-
-  if (from && to) {
-    where.time = {
-      $gte: new Date(parseInt(from)),
-      $lte: new Date(parseInt(to))
-    }
+  const where = {
+    chain: network.name,
+    timeframe: resolution.toString(),
+    market: parseInt(market.id),
+    time: {},
   }
+
+  if (from && !isNaN(from)) where.time.$gte = new Date(parseInt(from))
+  if (to && !isNaN(to)) where.time.$lte = new Date(parseInt(to))
 
   const q = [
     { $match: where },
@@ -296,15 +301,67 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
         high: 1,
         low: 1,
         close: 1,
-        volume: 1
-      }
-    }
+        volume: 1,
+      },
+    },
   ]
 
   if (limit) q.push({ $limit: parseInt(limit) })
 
+  let lastKnownPrice = null
   const charts = await Bar.aggregate(q)
-  charts.map(c => { delete c._id })
 
-  res.json(charts)
+  if (charts.length === 0 && !isNaN(from)) {
+    const lastPriceQuery = await Bar.findOne({
+      chain: network.name,
+      market: parseInt(market.id),
+      timeframe: resolution.toString(),
+      time: { $lt: new Date(parseInt(from)) },
+    }).sort({ time: -1 })
+
+    lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
+
+    // Если не найдена последняя цена, отправляем пустой ответ
+    if (!lastPriceQuery) return res.json([])
+  } else {
+    lastKnownPrice = charts[0].close
+  }
+
+  // Заполнение пустых свечей между данными
+  const filledCharts = []
+  let expectedTime = parseInt(from)
+
+  charts.forEach((chart, index) => {
+    chart.open = lastKnownPrice
+
+    while (chart.time > expectedTime) {
+      filledCharts.push({
+        time: expectedTime,
+        open: lastKnownPrice,
+        high: lastKnownPrice,
+        low: lastKnownPrice,
+        close: lastKnownPrice,
+        volume: 0,
+      })
+      expectedTime += parseInt(frame)
+    }
+    filledCharts.push(chart)
+    lastKnownPrice = chart.close
+    expectedTime += parseInt(frame)
+  })
+
+  // Добавление пустых свечей после последней полученной свечи до конца периода
+  while (expectedTime <= parseInt(to)) {
+    filledCharts.push({
+      time: expectedTime,
+      open: lastKnownPrice,
+      high: lastKnownPrice,
+      low: lastKnownPrice,
+      close: lastKnownPrice,
+      volume: 0,
+    })
+    expectedTime += parseInt(frame)
+  }
+
+  res.json(filledCharts)
 })

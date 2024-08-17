@@ -1,6 +1,6 @@
 <template lang="pug">
 .farm-create-page
-  AlcorContainer(class="alcor-container")
+  AlcorContainer.p-3(class="alcor-container")
     PageHeader(class="page-header" title="Create Farm")
       template(#end) &nbsp;
       .header-title.d-flex.gap-2
@@ -40,7 +40,7 @@
       template(v-if="feeOptions.length > 0")
         FeeTierSelection(:options="feeOptions" class="" v-model="selectedFeeTier").mt-2
 
-        RewardList(@newReward="onNewReward")
+        RewardList(@newReward="onNewReward" :canAdd="canAddRewards")
           FarmTokenInput(
             v-for="reward, index in rewardList"
             label="Amount"
@@ -52,6 +52,14 @@
             v-model="reward.amount"
           )
 
+        ElAlert(
+          title="Max Reward Count Reached"
+          description="You can not create farms with more than 10 active incentives, Please remove some rewards."
+          type="error"
+          :closable="false"
+          v-if="rewardCountExceeded"
+        )
+
         DistributionSelection(:options="distributionOptions" class=""  v-model="selectedDistribution")
 
         el-tag(v-if="feeToken" size="big" @click="buyFeeToken").pointer
@@ -59,15 +67,17 @@
           | {{ feeToken.quantity }}
           //img(:src="$tokenLogo(feeToken.symbol, feeToken.contract)" height="12").ml-1
 
-        AlcorButton(class="submit" access @click="create") Create Farm
+        AlcorButton(class="submit" access @click="create" :class="{disabled: submitDisabled}" :disabled="submitDisabled") {{ renderSubmitText }}
       template(v-else)
-        .farm-create-section-title No Pool Found
+        .no-pool.disable
+          i.el-icon-moon-night.fs-24
+          span.fs-14 No Pool Found
 
 </template>
 
 <script>
 // TODO Sort and add tokens logos
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import AlcorContainer from '@/components/AlcorContainer'
 import PageHeader from '@/components/amm/PageHeader'
 import Note from '@/components/farm/Note'
@@ -106,28 +116,57 @@ export default {
 
   computed: {
     ...mapState(['network', 'user']),
+    ...mapGetters('farms', ['farmPools']),
+
+    activeIncentivesLength() {
+      const poolId = this.poolId
+      if (poolId === null) return 0
+
+      const farmPool = this.farmPools.find((farm) => farm.id === poolId)
+
+      const activeIncentives = farmPool?.incentives.filter((i) => !i.isFinished)
+
+      return activeIncentives?.length || 0
+    },
+
+    allowedRewardCount() {
+      return 10 - this.activeIncentivesLength
+    },
+
+    canAddRewards() {
+      // is used to remove the add button
+      return this.rewardList.length < this.allowedRewardCount
+    },
+
+    rewardCountExceeded() {
+      // is used show warning and not allow submitting
+      return this.rewardList.length > this.allowedRewardCount
+    },
 
     feeOptions() {
-      const pools = this.$store.state.amm.pools.filter(p => {
+      const pools = this.$store.state.amm.pools.filter((p) => {
         return (
           (parseToken(p.tokenA).id == this.tokenA?.id && parseToken(p.tokenB).id == this.tokenB?.id) ||
           (parseToken(p.tokenA).id == this.tokenB?.id && parseToken(p.tokenB).id == this.tokenA?.id)
         )
       })
 
-      return pools.map(p => {
-        return { value: p.fee / 10000 }
-      }).sort((a, b) => a.value - b.value)
+      return pools
+        .map((p) => {
+          return { value: p.fee / 10000 }
+        })
+        .sort((a, b) => a.value - b.value)
     },
 
     poolId() {
       if (!this.selectedFeeTier) return null
 
-      const pool = this.$store.state.amm.pools.find(p => {
+      const pool = this.$store.state.amm.pools.find((p) => {
         return (
-          (parseToken(p.tokenA).id == this.tokenA?.id && parseToken(p.tokenB).id == this.tokenB?.id) ||
-          (parseToken(p.tokenA).id == this.tokenB?.id && parseToken(p.tokenB).id == this.tokenA?.id)
-        ) && p.fee == this.selectedFeeTier * 10000
+          ((parseToken(p.tokenA).id == this.tokenA?.id && parseToken(p.tokenB).id == this.tokenB?.id) ||
+            (parseToken(p.tokenA).id == this.tokenB?.id && parseToken(p.tokenB).id == this.tokenA?.id)) &&
+          p.fee == this.selectedFeeTier * 10000
+        )
       })
 
       return pool.id
@@ -142,24 +181,26 @@ export default {
 
       return {
         ...feeToken,
-        quantity: this.network.farmCreationFee.amount.toFixed(feeToken.decimals) + ' ' + feeToken.symbol
+        quantity: this.network.farmCreationFee.amount.toFixed(feeToken.decimals) + ' ' + feeToken.symbol,
       }
     },
 
     tokens() {
       const tokens = []
 
-      this.$store.state.amm.pools.forEach(p => {
+      this.$store.state.amm.pools.forEach((p) => {
         const tokenA = parseToken(p.tokenA)
         const tokenB = parseToken(p.tokenB)
 
         if (
           this.network.SCAM_CONTRACTS.includes(tokenA.contract) ||
           this.network.SCAM_CONTRACTS.includes(tokenB.contract)
-        ) { return }
+        ) {
+          return
+        }
 
-        if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
-        if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
+        if (tokens.filter((t) => t.id == tokenA.id).length == 0) tokens.push(tokenA)
+        if (tokens.filter((t) => t.id == tokenB.id).length == 0) tokens.push(tokenB)
       })
 
       return tokens
@@ -196,10 +237,18 @@ export default {
       return [1, 7, 30, 60, 90, 180, 240, 360].map((number) => ({
         value: number * 86400,
         display: `${number} Days`,
-        daily: token
-          ? `${(amount / number).toFixed(2)} ${token.currency}`
-          : '-',
+        daily: token ? `${(amount / number).toFixed(2)} ${token.currency}` : '-',
       }))
+    },
+
+    renderSubmitText() {
+      if (this.rewardCountExceeded) return 'Decrease Reward Count'
+      if (!this.selectedFeeTier) return 'Select Fee Tier'
+      return 'Create Farm'
+    },
+
+    submitDisabled() {
+      return this.rewardCountExceeded || !this.selectedFeeTier
     },
   },
 
@@ -275,10 +324,7 @@ export default {
 
       try {
         await this.submit()
-        setTimeout(
-          () => this.$store.dispatch('farms/updateStakesAfterAction'),
-          500
-        )
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
 
         this.$notify({
           type: 'info',
@@ -315,10 +361,7 @@ export default {
         lastIncentiveId += 1
         console.log('r.token', r.token)
         const reward = {
-          quantity:
-            parseFloat(r.amount).toFixed(r.token.decimals) +
-            ' ' +
-            r.token.currency,
+          quantity: parseFloat(r.amount).toFixed(r.token.decimals) + ' ' + r.token.currency,
           contract: r.token.contract,
         }
 
@@ -387,7 +430,7 @@ export default {
   padding-top: 60px;
   .alcor-container {
     width: 100%;
-    max-width: 450px;
+    max-width: 480px;
     margin: auto;
   }
 }
@@ -419,8 +462,23 @@ main {
   font-weight: bold;
 }
 
+.no-pool {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding-top: 8px;
+}
+
 .submit {
   padding: 10px 14px;
+  &.disabled {
+    background: var(--btn-default) !important;
+    color: #636366 !important;
+    border-color: var(--btn-default) !important;
+    opacity: 0.8;
+    filter: none !important;
+  }
 }
 </style>
 

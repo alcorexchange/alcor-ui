@@ -47,8 +47,8 @@ const MarketSchema = new mongoose.Schema({
   high24: { type: Number },
   low24: { type: Number }
 })
-MarketSchema.index({ chain: 1, id: 1 })
-MarketSchema.index({ chain: 1, ticker_id: 1 })
+MarketSchema.index({ chain: 1, id: 1 }, { unique: true })
+MarketSchema.index({ chain: 1, ticker_id: 1 }, { unique: true  })
 
 const PoolPairSchema = new mongoose.Schema({
   chain: { type: String, index: true },
@@ -157,6 +157,22 @@ const BarSchema = new mongoose.Schema({
   time: { type: Date, index: true }
 })
 BarSchema.index({ chain: 1, timeframe: 1, market: 1, time: -1 }, { background: true })
+
+const SwapBarSchema = new mongoose.Schema({
+  timeframe: { type: String, index: true },
+  chain: { type: String, index: true },
+  pool: { type: Number, index: true },
+
+  open: String,
+  high: String,
+  low: String,
+  close: String,
+  volumeA: { type: Number, default: 0 },
+  volumeB: { type: Number, default: 0 },
+  volumeUSD: { type: Number, default: 0 },
+  time: { type: Date, index: true }
+})
+SwapBarSchema.index({ chain: 1, timeframe: 1, market: 1, time: -1 }, { background: true })
 
 const PoolChartPointSchema = new mongoose.Schema({
   chain: { type: String, index: true },
@@ -285,12 +301,14 @@ const SwapSchema = new mongoose.Schema({
 
   time: { type: Date, index: true },
 })
+SwapSchema.index({ time: 1 }, { background: true })
 SwapSchema.index({ recipient: 1 }, { background: true })
 SwapSchema.index({ sender: 1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, recipient: 1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, sender: 1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
+SwapSchema.index({ chain: 1, pool: 1, time: 1 }, { background: true })
 
 const PositionSchema = new mongoose.Schema({
   id: { type: Number },
@@ -339,6 +357,7 @@ export const Liquidity = mongoose.model('Liquidity', LiquiditySchema)
 export const Exchange = mongoose.model('Exchange', ExchangeSchema)
 export const Match = mongoose.model('Match', MatchSchema)
 export const Bar = mongoose.model('Bar', BarSchema)
+export const SwapBar = mongoose.model('SwapBar', SwapBarSchema)
 export const PoolChartPoint = mongoose.model('PoolChartPoint', PoolChartPointSchema)
 export const Settings = mongoose.model('Settings', SettingsSchema)
 export const Swap = mongoose.model('Swap', SwapSchema)

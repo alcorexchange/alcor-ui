@@ -10,6 +10,9 @@
             .text
               p Click to see FAQ Page.
           .el-icon-info(slot="reference" @click="openInNewTab('https://docs.alcor.exchange/alcor-swap/liquidity-provider-faq')").ml-2.pointer
+      template(#end)
+        Settings
+
     .main-section.mt-2
       //- 1 start
       .section-1
@@ -141,7 +144,7 @@ import { mapActions, mapState, mapGetters } from 'vuex'
 import AlcorButton from '~/components/AlcorButton'
 import AlcorContainer from '~/components/AlcorContainer'
 
-import SelectToken from '~/components/modals/amm/SelectToken'
+import Settings from '~/components/amm/Settings'
 import SelectToken2 from '~/components/modals/amm/SelectToken2'
 import PoolTokenInput from '~/components/amm/PoolTokenInput'
 import LiquidityChartRangeInput from '~/components/amm/range'
@@ -165,7 +168,6 @@ import {
 
 export default {
   components: {
-    SelectToken,
     SelectToken2,
     PoolTokenInput,
     AlcorButton,
@@ -177,6 +179,7 @@ export default {
     AuthOnly,
     AlcorSwitch,
     Zoom,
+    Settings,
     AlcorRadio,
     PageHeader,
     PositionFeeAndShare
@@ -213,14 +216,14 @@ export default {
 
       // TODO Different ranges for different feeAmounts
       priceRangeItems: [
-        { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
+        { text: 'Infinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
         { text: '+/-5%', lowerValue: -5, higherValue: 5 },
         { text: '+/-30%', lowerValue: -30, higherValue: 30 },
         { text: '-10%/+50%', lowerValue: -10, higherValue: 50 },
         { text: '-50%/+10%', lowerValue: -50, higherValue: 10 },
 
         // 500
-        // { text: 'Inifinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
+        // { text: 'Infinity Range', higherValue: 'infinity', lowerValue: 'infinity' },
         // { text: '+/-5%', lowerValue: -5, higherValue: 5 },
         // { text: '+/-10%', lowerValue: -10, higherValue: 10 },
         // { text: '-2%/+10', lowerValue: -2, higherValue: 10 },
@@ -645,8 +648,7 @@ export default {
       try {
         await this.addLiquidity()
         this.updateBalances()
-        // await this.$store.dispatch('amm/poolUpdate', poolId)
-        setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 1500)
+        setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 5000)
       } catch (e) {
         console.error(e)
         this.$notify({ title: 'Add Position', message: e.message, type: 'error' })
@@ -875,11 +877,11 @@ export default {
 
       if (!price) return
 
-      const current = parseFloat((invertPrice ? price.invert() : price).toSignificant(6))
+      const current = parseFloat((invertPrice ? price.invert() : price).toSignificant(20))
 
       if (lowerValue == 'infinity') {
-        onLeftRangeInput(tickToPrice(tokenA, tokenB, tickSpaceLimits[isSorted ? 'LOWER' : 'UPPER']).toSignificant(5))
-        onRightRangeInput(tickToPrice(tokenA, tokenB, tickSpaceLimits[isSorted ? 'UPPER' : 'LOWER']).toSignificant(5))
+        onLeftRangeInput(tickToPrice(tokenA, tokenB, tickSpaceLimits[isSorted ? 'LOWER' : 'UPPER']).toSignificant(20))
+        onRightRangeInput(tickToPrice(tokenA, tokenB, tickSpaceLimits[isSorted ? 'UPPER' : 'LOWER']).toSignificant(20))
         return
       }
 
@@ -891,8 +893,8 @@ export default {
         ? current - (current * (-higherValue / 100))
         : current + (current * (higherValue / 100))
 
-      onLeftRangeInput(leftPrice.toFixed(5))
-      onRightRangeInput(rightPrice.toFixed(5))
+      onLeftRangeInput(leftPrice.toFixed(20))
+      onRightRangeInput(rightPrice.toFixed(20))
     },
   },
 

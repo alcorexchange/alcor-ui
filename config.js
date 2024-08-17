@@ -70,6 +70,17 @@ const networks = {
       contract: 'swap.alcor',
     },
 
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
+    },
+
     ibc: {
       name: 'eos',
       returnValueEnabled: true,
@@ -85,79 +96,6 @@ const networks = {
         'ibc.prove': ['ibc.wt.ux', 'ibc.wt.tlos', 'ibc.wt.wax'],
         'ibc.alcor': ['wombatbridge'],
       },
-    },
-
-    withdraw: {
-      // TODO Устарел формат, обновить
-      'TLOSP@steemenginex': {
-        desc: 'Telos peged token. You can buy it for EOS and withdraw to Telos 1:1',
-        network: {
-          name: 'Telos',
-          symbol: 'TLOS',
-        },
-        withdrawMemo: 'TLOS {account}',
-        gateway: 'steemenginex',
-      },
-
-      'BTCP@steemenginex': {
-        desc: 'Bitcoin peged token. You can buy it for EOS and withdraw to Bitcoin address. 1% fee and 0.0001 BTCP Minimum requirement!',
-        network: {
-          name: 'Bitcoin',
-          symbol: 'BTC',
-        },
-        withdrawMemo: 'BTC {account}',
-        gateway: 'steemenginex',
-      },
-
-      'SAND@sandiegocoin': {
-        desc: 'SAND peged token. You can buy it for EOS and withdraw to Hive-Engine address 1:1',
-        network: {
-          name: 'Hive-Engine',
-          symbol: 'Hive',
-        },
-        withdrawMemo: 'SAND {account}',
-        gateway: 'sandiegocoin',
-      },
-
-      'WEED@weedcashntwk': {
-        desc: 'WEED peged token. You can buy it for EOS and withdraw to Hive-Engine address 1:1',
-        network: {
-          name: 'Hive-Engine',
-          symbol: 'Hive',
-        },
-        withdrawMemo: 'WEED {account}',
-        gateway: 'weedcashntwk',
-      },
-
-      'PBTC@btc.ptokens': {
-        desc: 'Bitcoin peged token. You can buy it for EOS and withdraw to Bitcoin address 1:1',
-        network: {
-          name: 'Bitcoin',
-          symbol: 'BTC',
-        },
-        withdrawMemo: '{account}',
-        gateway: 'cross.chain',
-      },
-
-      'TLOS@ibc.wt.tlos': {
-        desc: 'Telos wrapped token. You can trade it and transfer between chains with no fee',
-        network: {
-          name: 'Telos',
-          symbol: 'TLOS',
-        },
-        withdrawMemo: '{account}',
-        gateway: 'cross.chain',
-      },
-
-      //'PETH@eth.ptokens': {
-      //  desc: 'Ethereum peged token. You can buy it for EOS and withdraw to Ethereum address 1:1',
-      //  network: {
-      //    name: 'Ethereum',
-      //    symbol: 'ETH'
-      //  },
-      //  withdrawMemo: '{account}',
-      //  gateway: 'cross.chain'
-      //},
     },
 
     RECOMMENDED_MARKETS: [
@@ -187,12 +125,25 @@ const networks = {
       'eos-eosio.token',
       'usdt-tethertether',
       'wax-ibc.wt.wax',
-      'tlos-ibc.wt.tlos',
-      'utx-ibc.wt.ux',
+      //'tlos-ibc.wt.tlos',
+      //'utx-ibc.wt.ux',
       'pgl-prospectorsg',
+      'wram-eosio.wram',
     ],
 
-    GLOBAL_TOKENS: []
+    GLOBAL_TOKENS: [
+      'eos-eosio.token',
+      'usdt-tethertether',
+      'wram-eosio.wram',
+      'pgl-prospectorsg',
+      'wax-ibc.wt.wax',
+      'chex-chexchexchex',
+      'iq-everipediaiq',
+      'box-token.defi',
+      'efx-effecttokens',
+      'wombat-wombatbridge',
+      'mlnk-swap.pcash',
+    ]
   },
 
   proton: {
@@ -251,14 +202,23 @@ const networks = {
       contract: 'swap.alcor',
     },
 
-    withdraw: {},
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
+    },
 
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
     PINNED_MARKETS: [493],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
-      'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr',
+      'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet'
     ],
     CEX_CONTRACTS: [],
 
@@ -321,6 +281,17 @@ const networks = {
       contract: 'swap.alcor',
     },
 
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
+    },
+
     ibc: {
       name: 'ux',
       returnValueEnabled: false,
@@ -334,8 +305,6 @@ const networks = {
         'ibc.prove': ['ibc.wt.wax', 'ibc.wt.tlos', 'ibc.wt.eos'],
       },
     },
-
-    withdraw: {},
 
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
@@ -380,8 +349,8 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
-    hyperion: 'https://wax-history.eosdac.io',
-    //hyperion: 'https://wax.eu.eosamsterdam.net',
+    //hyperion: 'https://wax-history.eosdac.io',
+    hyperion: 'https://wax.eu.eosamsterdam.net',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
@@ -391,8 +360,15 @@ const networks = {
       'https://wax-api2.alcor.exchange': 'Alcor API2',
       'https://wax-api.alcor.exchange': 'WAX Alcor - Finland',
       'https://wax.greymass.com': 'Greymass - Canada',
-      'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
-      'https://wax.pink.gg': 'Pink GG - Germany',
+      'https://api-wax-mainnet.wecan.dev': 'WeCan',
+      'https://wax.cryptolions.io': 'CryptoLions',
+      'https://wax.eosdac.io': 'EosDac',
+      'https://wax.eosusa.io': 'EosUSA',
+      'https://wax.api.eosnation.io': 'EosNation',
+      'https://hyperion6.sentnl.io': 'Sentnl',
+
+      // 'https://wax.eu.eosamsterdam.net': 'EOSAmsterdam - Amsterdam',
+      // 'https://wax.pink.gg': 'Pink GG - Germany',
     },
 
     otc: {
@@ -422,8 +398,6 @@ const networks = {
       }
     },
 
-    withdraw: {},
-
     ibc: {
       name: 'wax',
       returnValueEnabled: true,
@@ -444,8 +418,8 @@ const networks = {
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [
       /* USDT put others after */ 763,
-      136,
-      135
+      185,
+      843
     ],
     BANNER_MARKETS: [],
 
@@ -467,6 +441,7 @@ const networks = {
       'bosibc.io',
       'junkoqwertyu',
       'orderofomnis',
+      'bullwaxtoken'
       // 'bmpm.gm',
       // 'bobocoin.gm'
     ],
@@ -556,6 +531,17 @@ const networks = {
       contract: 'swap.alcor',
     },
 
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
+    },
+
     RECOMMENDED_MARKETS: ['KANDA@telokandaone', 'GUX@vapaeetokens'],
 
     PINNED_MARKETS: [],
@@ -578,48 +564,6 @@ const networks = {
 
       wrapTokenContracts: {
         'ibc.prove': ['ibc.wt.ux', 'ibc.wt.eos'],
-      },
-    },
-
-    withdraw: {
-      'EOSP@steemenginex': {
-        desc: 'EOS peged token. You can buy it for TLOS and withdraw to EOS 1:1. Gateway fee will be 1%(Steem-engine)',
-        withdrawMemo: 'TLOS {account}',
-        gateway: 'steemenginex',
-        network: {
-          name: 'EOS',
-          symbol: 'EOS',
-        },
-      },
-
-      'KANDA@telokandaone': {
-        desc: 'KANDA peged token. You can buy it for TLOS and withdraw to Hive-Engine. Gateway fee will be 1%(Hive-engine)',
-        withdrawMemo: 'KANDA {account}',
-        gateway: 'telokandaone',
-        network: {
-          name: 'Hive-Engine',
-          symbol: 'Hive',
-        },
-      },
-
-      'SAND@sandiegocoin': {
-        desc: 'SAND peged token. You can buy it for TLOS and withdraw to Hive-Engine address 1:1',
-        network: {
-          name: 'Hive-Engine',
-          symbol: 'Hive',
-        },
-        withdrawMemo: 'SAND {account}',
-        gateway: 'sandiegocoin',
-      },
-
-      'EOS@ibc.wt.eos': {
-        desc: 'EOS wrapped token. You can buy it for TLOS and transfer between chains with no fee',
-        network: {
-          name: 'Hive-Engine',
-          symbol: 'Hive',
-        },
-        withdrawMemo: 'SAND {account}',
-        gateway: 'sandiegocoin',
       },
     },
 
@@ -681,7 +625,6 @@ const networks = {
       }
     },
 
-    withdraw: {},
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
@@ -732,7 +675,6 @@ const networks = {
       fee: 'evodextester',
     },
 
-    withdraw: {},
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
@@ -786,7 +728,17 @@ const networks = {
       contract: 'ammcontract1',
     },
 
-    withdraw: {},
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
+    },
+
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],

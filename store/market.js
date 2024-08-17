@@ -2,7 +2,7 @@ import cloneDeep from 'lodash/cloneDeep'
 
 import { captureException } from '@sentry/browser'
 import { Big } from 'big.js'
-import { percentage } from '~/utils'
+import { parseToken, constructPoolInstance } from '~/utils/amm'
 
 import config from '~/config'
 
@@ -30,6 +30,7 @@ export const state = () => ({
   deals: [],
 
   streaming: false,
+  relatedPool: null,
   last_market_subscribed: null,
 
   orderLoading: false,
@@ -93,6 +94,7 @@ export const mutations = {
   setMarketActiveTab: (state, value) => state.markets_active_tab = value,
   setLastMarketSubscribed: (state, value) => state.last_market_subscribed = value,
   setMarketLayout: (state, layout) => state.markets_layout = layout,
+  setRelatedPool: (state, pool) => state.relatedPool = pool,
   setMarketToDefault: (state) => {
     state.markets_layout = [
       {
@@ -277,8 +279,8 @@ export const actions = {
       }
     })
 
-    // TODO Update balance each 5 seconds using
-    //set
+    dispatch('setRelatedPool')
+    dispatch('streamRelatedPoolUpdate')
   },
 
   update({ dispatch }) {
@@ -295,8 +297,10 @@ export const actions = {
     commit('setAsks', [])
   },
 
-  startStream({ rootState, commit }, market) {
+  startStream({ rootState, dispatch, commit }, market) {
     if (market === undefined) return
+
+    dispatch('setRelatedPool')
 
     this.$socket.emit('subscribe', { room: 'deals', params: { chain: rootState.network.name, market } })
     this.$socket.emit('subscribe', { room: 'orders', params: { chain: rootState.network.name, market } })
@@ -305,6 +309,31 @@ export const actions = {
 
     commit('setLastMarketSubscribed', market)
     commit('setStreaming', true)
+  },
+
+  streamRelatedPoolUpdate({ state, commit, rootState }) {
+    console.log('streamRelatedPoolUpdate')
+    this.$socket.on('swap:pool:update', data => {
+      const market = rootState.markets_obj[state.id]
+      const relatedPoolId = market?.relatedPool?.id
+
+      data.forEach(pool => {
+        if (pool.id == relatedPoolId) {
+          commit('setRelatedPool', pool)
+        }
+      })
+    })
+  },
+
+  setRelatedPool({ state, rootState, commit }) {
+    // wait for pools to be fetched(in case it's first load) and set relatedPool
+    setTimeout(function f() {
+      if (rootState.amm.pools.length > 0 && rootState.markets_obj[state.id]) {
+        commit('setRelatedPool', rootState.markets_obj[state.id]?.relatedPool)
+      } else {
+        setTimeout(f, 1000)
+      }
+    }, 1)
   },
 
   setMarket({ state, dispatch, commit }, market) {
@@ -680,19 +709,8 @@ export const getters = {
   },
 
   relatedPool(state, getters, rootState, rootGetters) {
-    const current = rootState.markets.filter(m => m.id == state.id)[0]
-    if (!current) return null
-    const pool = rootGetters['swap/pairs'].filter(p => p.i256 == current.i256)[0]
-    if (!pool) return null
-
-    if (pool.pool1.contract == current.quote_token.contract &&
-      pool.pool1.quantity.symbol.code().to_string() == current.quote_token.symbol.name) {
-      pool.rate = (parseFloat(pool.pool2.quantity) / parseFloat(pool.pool1.quantity)).toFixed(6)
-    } else {
-      pool.rate = (parseFloat(pool.pool1.quantity) / parseFloat(pool.pool2.quantity)).toFixed(6)
-    }
-
-    return pool
+    console.log('update related pool')
+    return state.relatedPool ? constructPoolInstance(state.relatedPool) : null
   },
 
   token(state) {
