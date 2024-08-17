@@ -90,7 +90,7 @@
 
 <script>
 import { Big } from 'big.js'
-import { IdState } from 'vue-virtual-scroller'
+// import { IdState } from 'vue-virtual-scroller'
 
 import PairIcons from '@/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
@@ -120,16 +120,16 @@ export default {
     Tag,
   },
   mixins: [
-    IdState({
-      idProp: (vm) => vm.farm.id,
-    }),
+    // IdState({
+    //   idProp: (vm) => vm.farm.id,
+    // }),
   ],
 
   props: ['farm', 'finished', 'expanded'],
 
-  idState() {
-    return {}
-  },
+  // idState() {
+  //   return {}
+  // },
 
   computed: {
     hasPosition() {
