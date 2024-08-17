@@ -57,10 +57,10 @@
           StakingStatus(v-for="incentive in farm.incentives" :status="incentive.stakeStatus" :finished="finished" )
       .detail-toggle-section
         template(v-if="isExpandable")
-          .toggle-button(:class="{ expanded: idState.expanded }")
+          .toggle-button(:class="{ expanded: expanded }")
             span.fs-14.color-green Details
-            i.fs-12(:class="idState.expanded ? 'el-icon-arrow-up' : 'el-icon-arrow-down'")
-    AuthOnly.auth-only.farm-item-expand(v-if="idState.expanded")
+            i.fs-12(:class="expanded ? 'el-icon-arrow-up' : 'el-icon-arrow-down'")
+    AuthOnly.auth-only.farm-item-expand(v-if="expanded")
       template(v-if="hasPosition")
         FarmItemExpandSimple(
           :farm="farm"
@@ -125,12 +125,10 @@ export default {
     }),
   ],
 
-  props: ['farm', 'finished'],
+  props: ['farm', 'finished', 'expanded'],
 
   idState() {
-    return {
-      expanded: false,
-    }
+    return {}
   },
 
   computed: {
@@ -168,7 +166,7 @@ export default {
 
     onItemClick() {
       if (!this.isExpandable) return
-      this.idState.expanded = !this.idState.expanded
+      this.$emit('expandChange', this.farm.id)
     },
   },
 }

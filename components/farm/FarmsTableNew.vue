@@ -19,6 +19,7 @@
         :item="farm"
         :active="active"
         :data-index="index"
+        :size-dependencies="[ farm.expanded ]"
       )
         FarmItemNew(
           :farm="farm"
@@ -29,6 +30,8 @@
           @claim="claim"
           @stake="stake"
           @unstake="unstake"
+          @expandChange="handleExpandChange"
+          :expanded="farm.expanded"
       )
   //- .table-items
   //-   FarmItemNew(
@@ -74,7 +77,7 @@ export default {
 
   data: () => {
     return {
-      extendedRow: null,
+      expandedItems: [],
       sortKey: 'apr',
       sortDirection: null,
     }
@@ -82,7 +85,12 @@ export default {
 
   computed: {
     sortedItems() {
-      const farms = [...(this.farmPools || [])]
+      const farms = [
+        ...(this.farmPools?.map((item) => ({
+          ...item,
+          expanded: this.expandedItems.includes(item.id),
+        })) || []),
+      ]
 
       const isTimeSort = this.sortKey === 'time'
       const isAprSort = this.sortKey === 'apr'
@@ -108,11 +116,21 @@ export default {
         if (this.sortDirection === 0) return timeSorted.reverse()
       }
 
-      return this.farmPools
+      return this.farmPools.map((item) => ({
+        ...item,
+        expanded: this.expandedItems.includes(item.id),
+      }))
     },
   },
 
   methods: {
+    handleExpandChange(id) {
+      if (this.expandedItems.includes(id)) {
+        this.expandedItems = this.expandedItems.filter((item) => item !== id)
+        return
+      }
+      this.expandedItems.push(id)
+    },
     handleSort(newSort) {
       console.log({ newSort })
 
