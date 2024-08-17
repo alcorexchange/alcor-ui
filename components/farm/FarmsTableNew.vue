@@ -30,19 +30,19 @@
           @stake="stake"
           @unstake="unstake"
       )
-  .table-items
-    FarmItemNew(
-      v-for="farm in sortedItems"
-      :key="farm.id"
-      :farm="farm"
-      :finished="finished"
-      @claimAll="claimAll"
-      @stakeAll="stakeAll"
-      @unstakeAll="unstakeAll"
-      @claim="claim"
-      @stake="stake"
-      @unstake="unstake"
-    )
+  //- .table-items
+  //-   FarmItemNew(
+  //-     v-for="farm in sortedItems"
+  //-     :key="farm.id"
+  //-     :farm="farm"
+  //-     :finished="finished"
+  //-     @claimAll="claimAll"
+  //-     @stakeAll="stakeAll"
+  //-     @unstakeAll="unstakeAll"
+  //-     @claim="claim"
+  //-     @stake="stake"
+  //-     @unstake="unstake"
+  //-   )
 </template>
 
 <script>
@@ -310,11 +310,11 @@ export default {
   font-size: 14px;
 }
 
-.table-items {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+// .table-items {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 8px;
+// }
 
 .recycle-scroller {
   height: 100%;
