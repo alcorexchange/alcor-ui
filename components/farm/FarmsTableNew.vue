@@ -13,7 +13,7 @@
       Sorter(sortBy="time" :activeSort="{ key: sortKey, route: sortDirection }" @change="handleSort")
     .header-item
     .header-item
-  DynamicScroller(:pageMode="true" class="recycle-scroller table-items" :minItemSize="82" listTag="div" :items="sortedItems")
+  DynamicScroller(:pageMode="true" class="recycle-scroller table-items" :minItemSize="isMobile ? 410 : 82" listTag="div" :items="sortedItems")
     template(#default="{ item: farm, index, active }")
       DynamicScrollerItem(
         :item="farm"

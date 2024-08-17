@@ -184,9 +184,6 @@ export default {
 }
 .farm-item.isExpandable {
   cursor: pointer;
-  &:hover {
-    background: var(--hover);
-  }
 }
 
 .token-container {
@@ -294,5 +291,12 @@ export default {
   .detail-toggle-section {
     justify-content: center;
   }
+}
+</style>
+
+<style lang="scss">
+// handle hovering using scroller
+.hover .farm-item.isExpandable {
+  background: var(--hover);
 }
 </style>
