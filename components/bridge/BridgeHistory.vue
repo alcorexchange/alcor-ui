@@ -53,7 +53,7 @@
 
     el-table-column(label="Status" width="140" className="status-col" align="right")
       template(slot-scope='{row}')
-        .status.pointer(@click="complete(row)" :class="{completed: getStatus(row.proven).isCompleted}" v-loading="row.tx.trx_id == retrying")
+        .status.pointer.hover-opacity(@click="complete(row)" :class="{completed: getStatus(row.proven).isCompleted}" v-loading="row.tx.trx_id == retrying")
           i(:class="getStatus(row.proven).icon")
           span {{ getStatus(row.proven).text }}
 </template>
