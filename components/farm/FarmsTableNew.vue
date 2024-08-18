@@ -13,7 +13,7 @@
       Sorter(sortBy="time" :activeSort="{ key: sortKey, route: sortDirection }" @change="handleSort")
     .header-item
     .header-item
-  DynamicScroller(:pageMode="true" class="recycle-scroller table-items" :minItemSize="isMobile ? 410 : 82" listTag="div" :items="sortedItems")
+  DynamicScroller(ref="scroller" :pageMode="true" class="recycle-scroller table-items" :minItemSize="isMobile ? 410 : 82" listTag="div" :items="sortedItems")
     template(#default="{ item: farm, index, active }")
       DynamicScrollerItem(
         :item="farm"
@@ -127,6 +127,9 @@ export default {
     handleExpandChange(id) {
       if (this.expandedItems.includes(id)) {
         this.expandedItems = this.expandedItems.filter((item) => item !== id)
+
+        // Fix for when item is closed sometimes keeps the gap.
+        this.$refs.scroller.forceUpdate()
         return
       }
       this.expandedItems.push(id)
