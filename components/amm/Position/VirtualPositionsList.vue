@@ -1,5 +1,9 @@
 <template lang="pug">
 VirtualTable(:table="virtualTableData").virtual-positions-list
+  template(#empty)
+    .d-flex.flex-column.align-items-center.gap-30.py-5.muted
+      i.el-icon-moon-night.fs-40
+      .fs-14.lh-14 {{ $t('Your active liquidity positions will appear here.') }}
   template(#total-header)
     span.total-value-header
       span {{ $t("Total") }}
@@ -180,10 +184,6 @@ export default {
 }
 .total-posiions-value {
   color: var(--text-default);
-}
-.total-value-header {
-  // display: inline-flex;
-  // flex-direction: column;
 }
 .indicator {
   width: 6px;
