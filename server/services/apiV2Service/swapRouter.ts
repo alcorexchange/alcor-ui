@@ -56,7 +56,7 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   const liquidPools = Array.from(allPools.values()).filter((p: any) => p.active && p.tickDataProvider.ticks.length > 0)
 
   let redisRoutes = await redisClient.get('routes_' + cacheKey)
-  let cacheExpiration = await redisClient.get('routes_expiration_' + cacheKey)
+  const cacheExpiration = await redisClient.get('routes_expiration_' + cacheKey)
 
   const currentTime = Date.now()
   const isCacheExpired = !cacheExpiration || currentTime > parseInt(cacheExpiration, 10)
