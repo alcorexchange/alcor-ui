@@ -100,7 +100,7 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
   }
 
   try {
-    const routes = await computeRoutesInWorker(input, output, pools, maxHops)
+    const routes: any = await computeRoutesInWorker(input, output, pools, maxHops)
     const redisRoutes = routes.map(({ input, output, pools }) => ({
       input: Token.toJSON(input),
       output: Token.toJSON(output),
