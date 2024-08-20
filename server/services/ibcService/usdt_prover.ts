@@ -122,7 +122,7 @@ async function proveTransfers(ibcToken, sourceChain, destinationChain, _native) 
       console.error('IBC WORKER ERROR', e)
     }
 
-    await sleep(6 * 1000)
+    await sleep(10 * 1000)
   }
 }
 
