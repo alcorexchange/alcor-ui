@@ -20,8 +20,8 @@ const connectRedis = async (client) => {
 
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const POOLS = {}
-const ROUTES_CACHE_TIMEOUT = 60 * 60 * 5 // 20 минут
-const ROUTES_UPDATING_TIMEOUT = 60 * 60 // 5 минут
+const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 3
+const ROUTES_UPDATING_TIMEOUT = 60 * 60 * 1
 
 subscriber.connect().then(() => {
   subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
