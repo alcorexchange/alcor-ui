@@ -92,6 +92,8 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
 }
 
 async function updateCache(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
+  const startTime = performance.now()
+
   const input = findToken(pools, inputToken.id)
   const output = findToken(pools, outputToken.id)
 
@@ -109,7 +111,10 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
 
     await redisClient.set('routes_' + cacheKey, JSON.stringify(redisRoutes))
     await redisClient.set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT * 1000).toString())
-    console.log('cacheUpdated:', cacheKey)
+
+    const endTime = performance.now()
+
+    console.log('cacheUpdated:', `${Math.round(endTime - startTime)} + ms ${cacheKey}`)
 
     return routes
   } catch (error) {
