@@ -92,6 +92,7 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
 }
 
 async function updateCache(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
+  console.log('start update cache', cacheKey)
   const startTime = performance.now()
 
   const input = findToken(pools, inputToken.id)
