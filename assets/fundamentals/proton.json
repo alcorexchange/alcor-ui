@@ -16,5 +16,22 @@
       "https://twitter.com/XPRtravel"
     ],
     "description": "Crypto Travel Deals is a global, crypto-only, travel portal built on the XPR Network blockchain. No gas fees, discounts for stakers, and affiliate income!"
+  },
+  "ARK@arcana": {
+    "name": "Noah's Ark",
+    "website": {
+      "link": "https://proton.alcor.exchange/trade/ark-arcana_xusdc-xtokens",
+      "name": "ARK / USDC"
+    },
+    "tags": [
+      "private",
+      "bot",
+      "liquidity",
+      "biblical"
+    ],
+    "socials": [
+      "https://godsark.org/ark-project/#this-is-a-church-not-a-ARK-project-link"
+    ],
+    "description": "Arcana is a private market maker service designed not for individual use but to serve bots that capitalize on arbitrage opportunities by utilizing liquidity from our extensive pools across all major coins on the XPR network. Our services help traders navigate the vast inflows and outflows of liquidity, creating minor disturbances within our private pools to stabilize the broader market and potentially the entire financial system, thanks to the significant collection of tokens and ARK pools on XPR. The ARK token enables market makers to build liquidity and is not intended to increase in price. NOAH provides rewards to ARK pools, enhancing our ability to monitor liquidity. Like ARK, NOAH is not designed to appreciate in value. DOVE, awarded to reward NOAH pools, also carries no expectation of price increase. In addition to supplying essential liquidity to underserved markets, a spot market offers targeted liquidity for bots to engage in trading. IMPORTANT: As a private service not intended for human users or investors, we advise against holding any of our tokens. The strategic nature of our service to bots requires us to open and maintain precise liquidity levels in open markets, but we do not offer these tokens to the general public. We have no website and are not a publicly disclosed project, the link is one charity we hope to support qith any profits. All profits are hereby perpetually given as a religious offering to the Lyran civilization and/or donated to reconstruct the Ark."
   }
 }
