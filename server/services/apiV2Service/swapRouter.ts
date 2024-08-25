@@ -115,7 +115,7 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
 
     const endTime = performance.now()
 
-    console.log('cacheUpdated:', `${Math.round(endTime - startTime)} + ms ${cacheKey}`)
+    console.log('cacheUpdated:', `${Math.round(endTime - startTime)}ms ${cacheKey}`)
 
     return routes
   } catch (error) {
