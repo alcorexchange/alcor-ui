@@ -22,7 +22,7 @@
       .asset__name(v-else) {{ item.currency }}
       .asset__contract.cancel {{ item.contract }}
   .amount(:class="{'acc': !useActions}")
-    .amount__base {{ item.amount | commaFloat(4) }}
+    .amount__base {{ item.amount }}
     .amount__usd.cancel ${{ item.usd_value | commaFloat }}
   .amount(:class="{'acc': !useActions}")
     .amount__base {{ item.amount | commaFloat(4) }}
