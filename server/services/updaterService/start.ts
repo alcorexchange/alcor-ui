@@ -9,10 +9,10 @@ import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats } from './swap'
 import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
 
-import { streamHyperion, streamByGreymass } from './streamers'
+import { streamByHyperion, streamByGreymass } from './streamers'
 
 const providers = {
-  hyperion: streamHyperion,
+  hyperion: streamByHyperion,
   node: streamByGreymass
 }
 
@@ -20,12 +20,14 @@ export function startUpdaters() {
   if (process.env.NETWORK) {
     console.log('NETWORK=', process.env.NETWORK)
     //updater(process.env.NETWORK, 'node', ['swap', 'prices', 'markets'])
-    updater(process.env.NETWORK, 'node', ['swap'])
+    //updater(process.env.NETWORK, 'node', ['swap'])
+    updater('ultra', 'hyperion', ['markets'])
   } else {
     updater('eos', 'node', ['markets', 'prices', 'swap'])
     updater('wax', 'node', ['markets', 'prices', 'swap'])
     updater('proton', 'node', ['markets', 'prices', 'swap'])
     updater('telos', 'node', ['markets', 'prices', 'swap'])
+    updater('ultra', 'hyperion', ['markets', 'prices', 'swap'])
   }
 }
 
