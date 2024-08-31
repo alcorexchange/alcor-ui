@@ -46,7 +46,7 @@ async function getActions(chain, account, params = {}) {
       params: {
         account,
         'act.name': 'emitxfer',
-        limit: 1000,
+        limit: 50,
         skip: xfers.length,
         sort: -1,
         ...params
