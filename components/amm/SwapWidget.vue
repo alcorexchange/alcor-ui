@@ -204,23 +204,23 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://nfthive.io/drop/9248+9249+9250',
-        image: require('@/assets/images/swap-banner-1.png'),
+        link: 'https://www.wuffi.io/',
+        image: require('@/assets/images/swap-banner-1.jpg'),
         colors: [
-          'rgba(39,1,82,0.2)',
-          'rgba(254,191,95, 1)',
-          'rgba(36,186,175,1)',
+          'rgba(78,24,168,0.2)',
+          'rgba(230,145,54, 1)',
+          'rgba(35,216,186,1)',
         ],
       },
-      {
-        link: 'https://machiavellic.io/season-0-1/',
-        image: require('@/assets/images/swap-banner-2.gif'),
-        colors: [
-          'rgba(177,14,20,0.2)',
-          'rgba(224,193,131,1)',
-          'rgba(225,103,51, 1)',
-        ],
-      },
+      // {
+      //   link: 'https://machiavellic.io/season-0-1/',
+      //   image: require('@/assets/images/swap-banner-2.gif'),
+      //   colors: [
+      //     'rgba(177,14,20,0.2)',
+      //     'rgba(224,193,131,1)',
+      //     'rgba(225,103,51, 1)',
+      //   ],
+      // },
     ]
   }),
 
