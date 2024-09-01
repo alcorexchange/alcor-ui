@@ -155,6 +155,7 @@ async function botClaim() {
       }
     }
   } catch (error) {
+    console.log(error)
     log.error('[botClaim] ' + error.message, ' at ', new Date().toJSON())
   }
 }
