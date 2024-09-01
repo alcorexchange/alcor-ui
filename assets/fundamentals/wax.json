@@ -1,4 +1,21 @@
 {
+  "WOA@worldventure": {
+		"name": "World of Adventures",
+		"website": {
+			"link": "https://animeworldsadventure.blogspot.com",
+			"name": "animeworldsadventure.blogspot.com"
+		},
+		"tags": [
+			"Gaming",
+      "F2P",
+			"P2E",
+			"NFT"
+		],
+		"socials": [
+			"https://t.me/AnimeWorldsAdventure"
+		],
+		"description": "Free to Play Telegram Adventure Game. Explore the Different Worlds of Anime."
+	},
 	"GLX@galacticsagatoken": {
 		"name": "Galactic Saga",
 		"website": {
