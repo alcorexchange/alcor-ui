@@ -64,7 +64,9 @@
               .d-flex.flex-column.gap-2.flex-grow-1
                 .contrast {{ item.currency || item.symbol }}
                 .fs-12.disable {{ item.contract }}
-              div {{ item.balance | commaFloat(4) }}
+              div.d-flex.flex-column.gap-2.align-items-end
+                span {{ item.balance | commaFloat(4) }}
+                span.muted.fs-10 ${{ item.balanceUsdValue | commaFloat(4) }}
 
         .fs-16.text-center(v-if="!filteredAssets.length") {{ $t('No tokens found') }}
 
@@ -95,8 +97,8 @@ export default {
   computed: {
     popularTokens() {
       const tokens = []
-      this.network.popularTokens.map(token => {
-        const tInstance = this.tokens?.find(t => token == t.id)
+      this.network.popularTokens.map((token) => {
+        const tInstance = this.tokens?.find((t) => token == t.id)
 
         if (tInstance) tokens.push(tInstance)
       })
@@ -115,8 +117,10 @@ export default {
       const user = this.$store.state.user
 
       // Добавляем баланс к каждому токену, возможно стоит кешировать результаты этой функции если они не изменяются часто
-      tokens.forEach(t => {
-        const balance = user?.balances?.filter(b => b.currency == (t.currency || t.symbol).toUpperCase() && b.contract == t.contract)[0]
+      tokens.forEach((t) => {
+        const balance = user?.balances?.filter(
+          (b) => b.currency == (t.currency || t.symbol).toUpperCase() && b.contract == t.contract
+        )[0]
         t.balance = balance?.amount || '0.0000'
         t.balanceUsdValue = balance?.usd_value || '0.0000'
       })
@@ -129,14 +133,14 @@ export default {
 
       // Нормализуем строку поиска и фильтруем токены
       const searchLower = this.search.toLowerCase()
-      const r = tokens.filter(asset =>
-        Object.values(asset).some(val => String(val).toLowerCase().includes(searchLower))
+      const r = tokens.filter((asset) =>
+        Object.values(asset).some((val) => String(val).toLowerCase().includes(searchLower))
       )
 
       return r
     },
 
-    ...mapState(['network'])
+    ...mapState(['network']),
   },
 
   methods: {
@@ -156,7 +160,7 @@ export default {
 </script>
 
 <style lang="scss">
-.separator{
+.separator {
   width: 100%;
   border-bottom: 1px solid var(--border-color);
 }
@@ -188,12 +192,16 @@ export default {
     transition: all 0.4s;
     color: var(--text-default);
     font-weight: 500;
-    img, svg {
+    img,
+    svg {
       width: 16px;
       height: 16px;
     }
     .select-token-text {
       color: var(--border-active-color);
+    }
+    .balance {
+      flex-direction: column;
     }
     &:hover {
       border-color: white;
@@ -203,7 +211,7 @@ export default {
     &.locked {
       cursor: not-allowed;
       pointer-events: none;
-      &.notSelected{
+      &.notSelected {
         opacity: 0.6;
       }
     }
@@ -216,7 +224,7 @@ export default {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    .popular-token-item{
+    .popular-token-item {
       align-items: center;
       padding: 4px 8px 4px 6px;
       border-radius: 14px;
@@ -233,12 +241,11 @@ export default {
   .virtual-scroller {
     max-height: 40vh;
   }
-  .token-item.is-selected{
+  .token-item.is-selected {
     opacity: 0.6;
   }
   .el-input__inner {
     border-radius: 8px;
   }
-
 }
 </style>
