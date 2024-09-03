@@ -111,13 +111,18 @@ export default {
       // Создаем копию tokens, как это важно для логики работы
       const tokens = [...this.tokens]
 
+      // try to get balance of user in USD
+      const user = this.$store.state.user
+
       // Добавляем баланс к каждому токену, возможно стоит кешировать результаты этой функции если они не изменяются часто
       tokens.forEach(t => {
-        t.balance = this.$tokenBalance(t.currency || t.symbol, t.contract)
+        const balance = user?.balances?.filter(b => b.currency == (t.currency || t.symbol).toUpperCase() && b.contract == t.contract)[0]
+        t.balance = balance?.amount || '0.0000'
+        t.balanceUsdValue = balance?.usd_value || '0.0000'
       })
 
       // Сортируем токены по балансу в убывающем порядке
-      tokens.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance))
+      tokens.sort((a, b) => parseFloat(b.balanceUsdValue) - parseFloat(a.balanceUsdValue))
 
       // Если строка поиска пуста, возвращаем отсортированные токены
       if (!this.search.trim()) return tokens
