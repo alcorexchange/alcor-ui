@@ -12,7 +12,7 @@
         .user-name(:class="{ viewOnly: user.viewOnly }")
           span {{ user.name }}
           i.el-icon-arrow-down.text-muted.ml-1
-          .view-only-indicator(v-if="user.viewOnly") View-Only Login
+          .view-only-indicator(v-if="user.viewOnly") View-Only
         template(#dropdown)
           ElDropdownMenu
             ElDropdownItem(command="logout") {{ $t('Logout') }}
