@@ -44,14 +44,18 @@ export default {
 
   methods: {
     async getAccounts(search) {
-      search = search?.toLowerCase()
+      search = search?.toLowerCase() || ''
+
+      // add z until length 12
+      const lower_bound = search.padEnd(12, 'z')
+
       this.loading = true
       try {
         const { rows } = await this.$rpc.get_table_by_scope({
           code: 'eosio',
           limit: 10,
           lower_bound: search,
-          upper_bound: search + 'zzzz',
+          upper_bound: lower_bound,
           table: 'userres',
         })
 
