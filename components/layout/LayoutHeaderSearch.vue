@@ -2,7 +2,7 @@
 .layout-header-search
   ElPopover(trigger="focus" v-model="visible" :visibleArrow="false" width="240" popperClass="layout-search-popper" @after-leave="handleHide")
     template(#reference)
-      ElInput(placeholder="Search tokens" v-model="search" size="small" prefix-icon="el-icon-search" @input="handleInput")
+      ElInput(placeholder="Tokens & Accounts" v-model="search" size="small" prefix-icon="el-icon-search" @input="handleInput")
     div.dropdown-content
       .tabs
         AlcorButton(@click="activeTab = 'tokens'" :class="{active: activeTab === 'tokens'}" compact).tab-item
