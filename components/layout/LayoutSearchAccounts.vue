@@ -3,9 +3,12 @@
     .empty(v-if="!search")
       span Search for accounts
     .accounts-list(v-else-if="accounts.length")
-      .item(v-for="account in accounts")
+      div.item(v-for="account in accounts" tabindex="0")
         span  {{ account.scope }}
-        span View
+        div.action.muted.fs-10
+          span View-only Login
+          i.el-icon-right
+
     .empty(v-else-if="!loading")
       span No accounts found!
     .empty-loading.empty(v-else)
@@ -59,6 +62,28 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.accounts-list {
+  .item {
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    .action {
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    &:hover,
+    &:focus-visible {
+      background: var(--hover);
+      .action {
+        opacity: 0.8;
+      }
+    }
+  }
+}
 .empty {
   padding: 40px 8px;
   text-align: center;
