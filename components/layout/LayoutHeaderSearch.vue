@@ -6,9 +6,11 @@
     div.dropdown-content
       .tabs
         AlcorButton(@click="activeTab = 'tokens'" :class="{active: activeTab === 'tokens'}" compact).tab-item
-          span.fs-12 Top Tokens
+          span.fs-12 Tokens
         AlcorButton(@click="activeTab = 'pools'" :class="{active: activeTab === 'pools'}" compact).tab-item
-          span.fs-12 Top Pools
+          span.fs-12 Pools
+        AlcorButton(@click="activeTab = 'accounts'" :class="{active: activeTab === 'accounts'}" compact).tab-item
+          span.fs-12 Accounts
         //- ElRadioGroup(v-model="activeTab" size="small")
         //-   ElRadioButton(label="tokens") Top Tokens
         //-   ElRadioButton(label="pools") Top Pools
@@ -33,7 +35,7 @@
                 .end.fs-12
                   .price ${{ item.usd_price.toFixed(4) }}
           .no-items(v-else) No Tokens Found.
-        div(v-else key="pools")
+        div(v-else-if="activeTab === 'pools'" key="pools")
           RecycleScroller(
             class="virtual-scroller"
             :items="filteredPools"
@@ -54,6 +56,8 @@
                     Tag {{ item.fee / 10000 }} %
                   span.muted.fs-10 {{ item.tokenA.contract }} / {{ item.tokenB.contract }}
           .no-items(v-else) No Pools Found.
+
+        LayoutSearchAccounts(v-else key="accounts")
 </template>
 
 <script>
@@ -61,6 +65,7 @@ import { mapState } from 'vuex'
 import AlcorButton from '~/components/AlcorButton'
 import TokenImage from '~/components/elements/TokenImage'
 import PairIcons from '~/components/PairIcons'
+import Accounts from '~/components/layout/LayoutSearchAccounts'
 import Tag from '~/components/elements/Tag'
 
 export default {
@@ -70,6 +75,7 @@ export default {
     TokenImage,
     PairIcons,
     Tag,
+    Accounts,
   },
   data: () => ({
     search: '',
@@ -137,6 +143,7 @@ export default {
     display: flex;
     gap: 4px;
     .tab-item {
+      flex: 1;
       background: transparent !important;
       &:hover {
         background: var(--hover) !important;
