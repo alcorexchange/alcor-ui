@@ -68,7 +68,7 @@ export default {
         // already loggin in, logout
         await this.$store.dispatch('chain/logout')
       }
-      this.$store.commit('setUser', { name: accountName })
+      this.$store.commit('setUser', { name: accountName, viewOnly: true })
       this.$store.dispatch('chain/afterLoginHook')
 
       // close the popover
