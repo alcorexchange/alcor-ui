@@ -4,11 +4,12 @@
       span Search for accounts
     .accounts-list(v-else-if="accounts.length")
       .item(v-for="account in accounts")
-        div {{ account.scope }}
+        span  {{ account.scope }}
+        span View
     .empty(v-else-if="!loading")
       span No accounts found!
     .empty-loading.empty(v-else)
-      span loading
+      i.el-icon-loading
 </template>
 
 <script>
@@ -17,8 +18,6 @@ export default {
   props: ['search'],
   data: () => ({
     accounts: [],
-
-    // To prevent showing "No Accounts found" when loading
     loading: false,
   }),
 
@@ -37,6 +36,7 @@ export default {
 
   methods: {
     async getAccounts(search) {
+      search = search?.toLowerCase()
       this.loading = true
       try {
         const { rows } = await this.$rpc.get_table_by_scope({
