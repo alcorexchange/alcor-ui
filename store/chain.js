@@ -133,6 +133,7 @@ export const actions = {
 
     commit('setUser', null, { root: true })
     commit('setUserOrders', [], { root: true })
+    commit('setUserBalances', [], { root: true })
   },
 
   async mainLogin({ commit, dispatch }) {
