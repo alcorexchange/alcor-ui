@@ -3,7 +3,7 @@
     .empty(v-if="!search")
       span Search for accounts
     .accounts-list(v-else-if="accounts.length")
-      div.item(v-for="account in accounts" tabindex="0")
+      div.item(v-for="account in accounts" tabindex="0" @click="handleAccountClick(account.scope)")
         span  {{ account.scope }}
         div.action.muted.fs-10
           span View-only Login
@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'LayoutSearchAccounts',
   props: ['search'],
@@ -23,6 +24,10 @@ export default {
     accounts: [],
     loading: false,
   }),
+
+  computed: {
+    ...mapState(['user']),
+  },
 
   watch: {
     search: {
@@ -56,6 +61,18 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+
+    async handleAccountClick(accountName) {
+      if (this.user) {
+        // already loggin in, logout
+        await this.$store.dispatch('chain/logout')
+      }
+      this.$store.commit('setUser', { name: accountName })
+      this.$store.dispatch('chain/afterLoginHook')
+
+      // close the popover
+      this.$emit('close')
     },
   },
 }

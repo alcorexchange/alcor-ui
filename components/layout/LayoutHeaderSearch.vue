@@ -57,7 +57,7 @@
                   span.muted.fs-10 {{ item.tokenA.contract }} / {{ item.tokenB.contract }}
           .no-items(v-else) No Pools Found.
 
-        Accounts(v-else key="accounts" :search="search")
+        Accounts(v-else key="accounts" :search="search" @close="visible = false")
 </template>
 
 <script>
