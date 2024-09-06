@@ -1,7 +1,7 @@
 <template lang="pug">
   ElDialog(:visible.sync="visible" :title="title" class="announcement-modal")
     template(#title)
-      .pr-4.fs-18 {{ title }}
+      .pr-4.fs-18.color-action {{ title }}
     .dialog-content
       .main-content
         p As the EOS network upgrade approaches, there’s a possibility that the IBC (Inter-Blockchain Communication) protocol may stop working temporarily.
@@ -34,7 +34,7 @@ export default {
   data: () => ({
     id: 'wax-on-usd-notice',
     visible: false,
-    title: '🚨 Important Announcement Regarding USDT on WAX 🚨',
+    title: 'Important Announcement Regarding USDT on WAX.',
   }),
 
   mounted() {
