@@ -12,7 +12,9 @@
           li Your funds are safe: If the IBC protocol is terminated, user funds can either be returned to the EOS network or converted 1:1 into a similar stablecoin like WAXUSDT or USDC on the WAX network.
           li No need to worry: We’re committed to making this transition as smooth as possible.
 
-        p.pt-3.fw-bold However, we do advice users bridging back bridged assets using the IBC to ensure a smooth transition. This includes $EOS and $WOMBAT bridged from the EOS blockchain.
+        p.pt-3.fw-bold However, we do advice users bridging back bridged assets using the IBC to ensure a smooth transition.
+
+        p.pt-3 For $WOMBAT and $EOS users are also adviced to bridge back by September 25.
 
         p.pt-3 We’ll keep you updated as more information becomes available. Thank you for your trust and patience!
 
