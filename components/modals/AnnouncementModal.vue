@@ -1,18 +1,18 @@
 <template lang="pug">
   ElDialog(:visible.sync="visible" :title="title" class="announcement-modal")
     template(#title)
-      .pr-4.fs-18.color-action {{ title }}
+      .pr-4.fs-18.color-wax {{ title }}
     .dialog-content
       .main-content
         p As the EOS network upgrade approaches, there’s a possibility that the IBC (Inter-Blockchain Communication) protocol may stop working temporarily.
 
-        p.pt-3 Here’s what you need to know:
+        p.pt-3.fw-bold We do advice users bridging back bridged assets using the IBC to ensure a smooth transition (EOS / WAX) Just in case IBC doesn't work for a while.
+
+        p.pt-3 Here’s what you need to know related to USDT provided by Alcor:
 
         ul.pt-3
-          li Your funds are safe: If the IBC protocol is terminated, user funds can either be returned to the EOS network or converted 1:1 into a similar stablecoin like WAXUSDT or USDC on the WAX network.
+          li Your funds are safe: If the IBC protocol is terminated, user funds can be converted 1:1 into a similar stablecoin like WAXUSDT or USDC on the WAX network.
           li No need to worry: We’re committed to making this transition as smooth as possible.
-
-        p.pt-3.fw-bold However, we do advice users bridging back bridged assets using the IBC to ensure a smooth transition.
 
         p.pt-3 For $WOMBAT and $EOS users are also adviced to bridge back by September 25.
 
@@ -34,7 +34,7 @@ export default {
   data: () => ({
     id: 'wax-on-usd-notice',
     visible: false,
-    title: 'Important Announcement Regarding USDT on WAX.',
+    title: 'Important Announcement Regarding IBC Bridge.',
   }),
 
   mounted() {
