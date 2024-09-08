@@ -24,7 +24,7 @@ div(v-loading="!position && !this.positionNotFound")
         .separator.mt-2
         UnclaimedFees(:position="position" :isMyPosition="isMyPosition")
         .separator.mt-2
-        RemoveLiquidityPercentage(:class="{ mutted: !isMyPosition }" :position="position")
+        RemoveLiquidityPercentage(:class="{ mutted: !isMyPosition && $store.state.user }" :position="position")
       .right
         // TODO Proper initial zooming for infinite range
         LiquidityChartRangeInput(

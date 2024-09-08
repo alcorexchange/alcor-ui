@@ -126,13 +126,14 @@ export const actions = {
 
 
     console.log('logout..')
-    state?.wallet?.logout()
+    state?.wallet?.logout?.()
     commit('setLastWallet', null)
 
     dispatch('unsubscribeToAccountPushes')
 
     commit('setUser', null, { root: true })
     commit('setUserOrders', [], { root: true })
+    commit('setUserBalances', [], { root: true })
   },
 
   async mainLogin({ commit, dispatch }) {
