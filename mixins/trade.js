@@ -5,6 +5,18 @@ import { popup } from '~/mixins/popup'
 export const trade = {
   mixins: [popup],
 
+  watch: {
+    price: {
+      handler(current, old) {
+        // first time getting price - We could use socket on init function --> markets/init ?
+        if (parseFloat(current) && !parseFloat(old)) {
+          this.priceBid = current
+        }
+      },
+      immediate: true
+    }
+  },
+
   computed: {
     ...mapState('market', [
       'price_bid',
@@ -21,7 +33,8 @@ export const trade = {
       'baseBalance',
       'tokenBalance',
       'sorted_asks',
-      'sorted_bids'
+      'sorted_bids',
+      'price'
     ]),
     priceBid: {
       get() { return this.price_bid },
