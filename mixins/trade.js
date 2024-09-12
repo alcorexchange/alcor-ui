@@ -8,7 +8,7 @@ export const trade = {
   watch: {
     price: {
       handler(current, old) {
-        // first time getting price - We could use socket on init function --> markets/init ?
+        // first time getting price - We could use socket on init function --> market/init ?
         if (parseFloat(current) && !parseFloat(old)) {
           this.priceBid = current
         }
