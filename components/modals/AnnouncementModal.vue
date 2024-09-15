@@ -4,9 +4,9 @@
       .pr-4.fs-18.color-wax {{ title }}
     .dialog-content
       .main-content
-        p As the EOS network upgrade approaches, there’s a possibility that the IBC (Inter-Blockchain Communication) protocol may stop working temporarily.
+        p As the EOS network upgrade approaches, there’s a possibility that the IBC (Inter-Blockchain Communication) protocol may stop working temporarily for bridging assets from EOS network.
 
-        p.pt-3.fw-bold We do advice users bridging back bridged assets using the IBC to ensure a smooth transition (EOS / WAX) Just in case IBC doesn't work for a while.
+        p.pt-3.fw-bold We do advice users bridging back assets from EOS network using the IBC to ensure a smooth transition (EOS / WAX) Just in case IBC doesn't work for a while. bridging assets to EOS will keep working.
 
         p.pt-3 Here’s what you need to know related to USDT provided by Alcor:
 
