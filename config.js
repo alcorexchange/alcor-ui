@@ -461,7 +461,8 @@ const networks = {
 
     popularTokens: [
       'wax-eosio.token',
-      'usdt-usdt.alcor',
+      'waxusdc-eth.token',
+      //'usdt-usdt.alcor',
       //'eos-ibc.wt.eos',
       //'wombat-wombattokens',
       //'cred-musictoken',
