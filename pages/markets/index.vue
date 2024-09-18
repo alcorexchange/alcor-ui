@@ -210,8 +210,15 @@ export default {
         case 'USD':
           // TODO All usdt tokens
           markets = this.markets.filter((i) => {
-            return this.network.USD_TOKEN.includes(i.base_token.contract) ||
-              this.network.USD_TOKEN.includes(i.quote_token.contract)
+            //console.log('z', [i.quote_token.symbol.name, i.base_token.symbol.name], [i.quote_token.symbol.name, i.base_token.symbol.name].some(s => s.includes('USD')))
+
+            return (
+              this.network.USD_TOKEN.includes(i.base_token.contract) || this.network.USD_TOKEN.includes(i.quote_token.contract) ||
+
+              // TODO add config for USD tokens!
+              ([i.quote_token.contract, i.base_token.contract].includes('eth.token') && [i.quote_token.symbol.name,
+                i.base_token.symbol.name].some(s => s.includes('USD')))
+            )
           })
           break
 

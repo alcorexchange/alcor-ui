@@ -293,6 +293,8 @@ export default {
         this.$store.commit('loading/OPEN', { title: 'Market Creation', text: 'Market will be available in 1-2 minutes.\n Waiting for market creation...' })
         // Wait one minute for market creation
         await new Promise(resolve => setTimeout(resolve, 1.5 * 60 * 1000))
+        await this.$store.dispatch('loadMarkets')
+
         this.$store.commit('loading/CLOSE')
 
         this.$notify({
@@ -301,7 +303,6 @@ export default {
           type: 'info'
         })
         this.$router.push('/trade/' + `${symbol}-${contract}_${this.base_token.symbol}-${this.base_token.contract}`)
-        await this.$store.dispatch('loadMarkets')
       } catch (e) {
         captureException(e, { extra: { contract, symbol, precision } })
         this.$notify({ title: 'Market creation', message: e, type: 'error' })
