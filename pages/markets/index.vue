@@ -197,7 +197,8 @@ export default {
         case this.network.baseToken.symbol:
           markets = this.markets.filter(
             i => i.base_token.symbol.name == this.network.baseToken.symbol ||
-            this.network.USD_TOKEN == i.base_token.str.replace('@', '-').toLowerCase()
+            //this.network.USD_TOKEN == i.base_token.str.replace('@', '-').toLowerCase() ||
+            i.base_token.id == 'waxusdc-eth.token'
           )
           break
 
