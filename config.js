@@ -228,7 +228,7 @@ const networks = {
 
     USD_TOKEN: 'xusdc-xtokens',
 
-    popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens'],
+    popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens', 'clan-clanx'],
     GLOBAL_TOKENS: [],
   },
 
