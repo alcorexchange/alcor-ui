@@ -46,6 +46,9 @@
       el-button(size="medium" type="text" @click.stop="$emit('openWithdraw', item)").hover-opacity Withdraw
       el-button(size="medium" type="text" @click.stop="$emit('openDeposit', item)").hover-opacity Deposit
 
+    template(v-if="network.name == 'wax' && item.contract == 'eth.token'")
+      el-button(size="medium" type="text" @click.stop="openInNewTab('https://bridge.mycloudwallet.com')").hover-opacity Bridge
+
     template(v-if="item.contract.includes('ibc.')")
       el-button(size="medium" type="text" @click.stop="$router.push('/bridge')").hover-opacity Bridge
 
