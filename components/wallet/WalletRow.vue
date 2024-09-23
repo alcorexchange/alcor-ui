@@ -49,7 +49,7 @@
     template(v-if="network.name == 'wax' && item.contract == 'eth.token'")
       el-button(size="medium" type="text" @click.stop="openInNewTab('https://bridge.mycloudwallet.com')").hover-opacity Bridge
 
-    template(v-if="item.contract.includes('ibc.')")
+    template(v-if="item.contract.includes('ibc.') || item.contract.includes('usdt.alcor')")
       el-button(size="medium" type="text" @click.stop="$router.push('/bridge')").hover-opacity Bridge
 
     el-button(size="medium" type="text" @click.stop="$emit('openTransfer', item)").hover-opacity {{ $t('Transfer') }}
