@@ -497,5 +497,18 @@
     "description": "WAXUSDC is the bridged 1:1 version of Solana and Ethereum USDC, made possible by the WAX blockchain team to provide seamless interoperability between WAX and Solana. Bridging is free both ways",
     "tags": ["DeFi"],
     "socials": ["https://x.com/WAX_io"]
+  },
+  "YEET@token.yeet": {
+    "name": "YEET",
+    "website": {
+      "link": "https://yeet.quest/",
+      "name": "YEET Website"
+    },
+    "description": "YEET is for the people, by the people. Built on WAX for speed, security, and unstoppable YEETness. No dilution, no funny business. Just pure meme power.",
+    "tags": ["DeFi", "MEME", "Social"],
+    "socials": [
+      "https://t.me/YEET_community",
+      "https://t.me/yeetwax"
+    ]
   }
 }
