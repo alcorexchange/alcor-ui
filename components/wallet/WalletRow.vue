@@ -44,7 +44,7 @@
     // USDT CEX DEPOSIT BUTTONS
     template(v-if="network.name == 'wax' && item.contract == 'usdt.alcor'")
       el-button(size="medium" type="text" @click.stop="$emit('openWithdraw', item)").hover-opacity Withdraw
-      el-button(size="medium" type="text" @click.stop="$emit('openDeposit', item)").hover-opacity Deposit
+      //el-button(size="medium" type="text" @click.stop="$emit('openDeposit', item)").hover-opacity Deposit
 
     template(v-if="network.name == 'wax' && item.contract == 'eth.token'")
       el-button(size="medium" type="text" @click.stop="openInNewTab('https://bridge.mycloudwallet.com')").hover-opacity Bridge
