@@ -154,7 +154,7 @@ async function main() {
 
   await Promise.all([
     WaxToEosWorker(ibcTokens),
-    eosToWaxWorker(ibcTokens),
+    //eosToWaxWorker(ibcTokens),
     eosCexDepsitsWorker()
   ])
 }
