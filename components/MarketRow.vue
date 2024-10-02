@@ -51,7 +51,8 @@ export default {
     ...mapState(['network']),
 
     isUSDTbase() {
-      return this.network.USD_TOKEN.includes(this.item.base_contract)
+      return true
+      //return this.network.USD_TOKEN.includes(this.item.base_contract)
     },
   },
   methods: {

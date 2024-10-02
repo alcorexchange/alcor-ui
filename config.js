@@ -228,7 +228,7 @@ const networks = {
 
     USD_TOKEN: 'xusdc-xtokens',
 
-    popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens'],
+    popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens', 'clan-clanx'],
     GLOBAL_TOKENS: [],
   },
 
@@ -349,8 +349,8 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
-    hyperion: 'https://wax-history.eosdac.io',
-    //hyperion: 'https://wax.eu.eosamsterdam.net',
+    //hyperion: 'https://wax-history.eosdac.io',
+    hyperion: 'https://wax.eu.eosamsterdam.net',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
@@ -417,6 +417,7 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [
+      910, // other
       /* USDT put others after */ 763,
       185,
       843
@@ -461,7 +462,8 @@ const networks = {
 
     popularTokens: [
       'wax-eosio.token',
-      'usdt-usdt.alcor',
+      'waxusdc-eth.token',
+      //'usdt-usdt.alcor',
       //'eos-ibc.wt.eos',
       //'wombat-wombattokens',
       //'cred-musictoken',

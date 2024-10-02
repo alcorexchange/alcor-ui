@@ -497,7 +497,6 @@ export const actions = {
 
         commit('setLihgHistoryBlock', data.chain.block_num)
         commit('setUserBalances', balances)
-        console.log({ balances })
       }
     } catch (error) {
       console.error('Error loading user balances:', error)
