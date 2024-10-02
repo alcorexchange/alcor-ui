@@ -204,12 +204,12 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://www.wuffi.io/',
+        link: 'https://nfthive.io/drop/9748+9749+9750+9751',
         image: require('@/assets/images/swap-banner-1.jpg'),
         colors: [
-          'rgba(78,24,168,0.2)',
-          'rgba(230,145,54, 1)',
-          'rgba(35,216,186,1)',
+          'rgba(9,43,78,,0.2)',
+          'rgba(95,17,119, 1)',
+          'rgba(252,187,99,1)',
         ],
       },
       // {
