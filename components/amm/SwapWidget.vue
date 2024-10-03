@@ -205,7 +205,7 @@ export default {
     banners: [
       {
         link: 'https://nfthive.io/drop/9748+9749+9750+9751',
-        image: require('@/assets/images/swap-banner-1.jpg'),
+        image: require('@/assets/images/swap-banner-1.gif'),
         colors: [
           'rgba(9,43,78,,0.2)',
           'rgba(95,17,119, 1)',
