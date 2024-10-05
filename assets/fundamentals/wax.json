@@ -2,12 +2,12 @@
   "WOA@worldventure": {
     "name": "World of Adventures",
     "website": {
-      "link": "https://animeworldsadventure.blogspot.com",
-      "name": "animeworldsadventure.blogspot.com"
+      "link": "https://world-of-adventures.gitbook.io/",
+      "name": "WOA DOCS"
     },
     "tags": ["Gaming", "F2P", "P2E", "NFT"],
     "socials": ["https://t.me/AnimeWorldsAdventure"],
-    "description": "Free to Play Telegram Adventure Game. Explore the Different Worlds of Anime."
+    "description": "World of Adventures is a Telegram Based Game. Enter the portal now to Explore the Different Worlds of Anime."
   },
   "GLX@galacticsagatoken": {
     "name": "Galactic Saga",
