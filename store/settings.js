@@ -12,11 +12,14 @@ export const state = () => ({
 
   current_node: null,
   auto_node_select: true,
-  rpc_nodes: {}
+  rpc_nodes: {},
+
+  appVersion: null
 })
 
 export const mutations = {
   setFavMarkets: (state, markets) => state.favMarkets = markets,
+  setLastVersion: (state, version) => state.appVersion = version,
   setSideMaretsTab: (state, tab) => state.sideMaretsTab = tab,
   setTwChart: (state, config) => state.twChart = config,
   setSwapTwChart: (state, config) => state.swapTwChart = config,
@@ -39,6 +42,27 @@ export const actions = {
 
     //dispatch('checkNodes')
     // TODO Current rpc check
+
+    dispatch('fetchLastCommit')
+  },
+
+  async fetchLastCommit({ state, commit }) {
+    const { data: { sha } } = await this.$axios.get(
+      'https://api.github.com/repos/avral/alcor-ui/commits/master'
+    )
+
+    console.log('LAST COMMIT', sha)
+
+    if (state.appVersion !== sha) {
+      if (state.appVersion === null) {
+        console.log('initial app loading')
+        commit('setLastVersion', sha)
+      } else {
+        commit('setLastVersion', sha)
+        console.log('reload for new version')
+        window.location.reload(true)
+      }
+    }
   },
 
   checkNodes({ state, commit }) {
