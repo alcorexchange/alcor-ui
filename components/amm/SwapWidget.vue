@@ -212,15 +212,15 @@ export default {
           'rgba(252,187,99,1)',
         ],
       },
-      // {
-      //   link: 'https://machiavellic.io/season-0-1/',
-      //   image: require('@/assets/images/swap-banner-2.gif'),
-      //   colors: [
-      //     'rgba(177,14,20,0.2)',
-      //     'rgba(224,193,131,1)',
-      //     'rgba(225,103,51, 1)',
-      //   ],
-      // },
+      {
+        link: 'https://medium.com/@nanotopiagame/2024-halloween-celebration-43ea6336f40b',
+        image: require('@/assets/images/swap-banner-2.png'),
+        colors: [
+          'rgba(212,151,61,0.2)',
+          'rgba(96,89,53,1)',
+          'rgba(14,15,82, 1)',
+        ],
+      },
     ]
   }),
 
