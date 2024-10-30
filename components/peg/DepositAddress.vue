@@ -65,11 +65,9 @@ export default {
       try {
         this.loadingAddresses = true
         const account = 'aw.aq.waa'
-        const { data } = await this.$axios.post(
-          `https://gate.alcor.exchange/api/dex-accounts/${account}/create-address/`,
-          { chain: this.blockchain.code }
-        )
-        console.log(data)
+        await this.$axios.post(`https://gate.alcor.exchange/api/dex-accounts/${account}/create-address/`, {
+          chain: this.blockchain.code,
+        })
         await this.getAddresses()
       } catch (error) {
         console.log('Generating address error', error)
