@@ -3,7 +3,7 @@
     .side
       .indicator
         i.el-icon-check
-      .line(v-if="!isLast")
+      .line(v-if="showLine")
     .content
       .title.fs-18.fw-medium {{ title }}
       .py-3
@@ -13,7 +13,7 @@
 <script>
 export default {
   name: 'DepositStep',
-  props: ['active', 'title', 'isLast'],
+  props: ['active', 'title', 'showLine'],
 }
 </script>
 
