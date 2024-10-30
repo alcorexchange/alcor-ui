@@ -2312,10 +2312,10 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.25.tgz#f077fdc0b5d0078d30893396ff4827a13f99e817"
   integrity sha512-j7P6Rgr3mmtdkeDGTe0E/aYyWEWVtc5yFXtHCRHs28/jptDEWfaVOc5T7cblqy1XKPPfCxJc/8DwQ5YgLOZOVQ==
 
-"@proton/browser-transport@^4.2.18":
-  version "4.2.18"
-  resolved "https://registry.yarnpkg.com/@proton/browser-transport/-/browser-transport-4.2.18.tgz#feee14c5c1f1d799b9a5a3f5ea2c2884a50038ce"
-  integrity sha512-tcVs+49BM8AU+zjH0iI2rnJOjhDOSc9bqErNvXgr5YSjVvwYSGqhT3HN2s0cdZLzBF7o6j37yJ0dGh0x86Bp5w==
+"@proton/browser-transport@^4.2.19":
+  version "4.2.19"
+  resolved "https://registry.yarnpkg.com/@proton/browser-transport/-/browser-transport-4.2.19.tgz#f65ec44481622d06bd54557b6cfbca9e7e43f446"
+  integrity sha512-Ws26SX93kasa95j/ns92odSfr0YXS/2HHC/k/WXnfA2fc8/UTIkRbGevMzordFJBqm4AgA0UqFuFxhudtXIbFA==
   dependencies:
     "@proton/link" "^4.2.18"
 
@@ -2361,13 +2361,13 @@
   dependencies:
     "@greymass/eosio" "^0.6.1"
 
-"@proton/web-sdk@^4.2.15":
-  version "4.2.18"
-  resolved "https://registry.yarnpkg.com/@proton/web-sdk/-/web-sdk-4.2.18.tgz#acfe9c326ad192c57c0f31a0a6841efb904777c8"
-  integrity sha512-Hfsg8JcmJsOgMNbwk5NENlKI19mIBPWHlc6xJNt6g3S0vQZV95Qk9JWC6PrZDOnROvuO2ZSymABJajEB6rU5NA==
+"@proton/web-sdk@^4.2.19":
+  version "4.2.19"
+  resolved "https://registry.yarnpkg.com/@proton/web-sdk/-/web-sdk-4.2.19.tgz#6bf408ef1f01993f8b4c06c104bc58ae6f18d966"
+  integrity sha512-lCn187aU/VI7cyxb7y+rQM5/jz4JX6qSgBAUIj7xB1zsxs/4NHJE0OoB8mwc29LKW8Nf4f1M+JsxtwhOnGa8jw==
   dependencies:
     "@greymass/eosio" "^0.6.1"
-    "@proton/browser-transport" "^4.2.18"
+    "@proton/browser-transport" "^4.2.19"
     "@proton/js" "^28.0.0"
     "@proton/link" "^4.2.18"
 

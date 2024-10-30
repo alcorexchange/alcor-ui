@@ -300,7 +300,7 @@ export class JsonRpc {
       packed_context_free_data: arrayToHex(
         serializedContextFreeData || new Uint8Array(0)
       ),
-      packed_trx: arrayToHex(serializedTransaction)
+      packed_trx: Array.isArray(serializedTransaction) ? arrayToHex(serializedTransaction) : serializedTransaction
     })
   }
 
@@ -325,7 +325,7 @@ export class JsonRpc {
         packed_context_free_data: arrayToHex(
           serializedContextFreeData || new Uint8Array(0)
         ),
-        packed_trx: arrayToHex(serializedTransaction)
+      packed_trx: Array.isArray(serializedTransaction) ? arrayToHex(serializedTransaction) : serializedTransaction
       }
     })
   }

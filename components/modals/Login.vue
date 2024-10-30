@@ -80,7 +80,7 @@ export default {
       if (this.network.name == 'proton' || this.context?.chain == 'proton') {
         wallets.push({
           id: 'proton',
-          name: 'Proton',
+          name: 'WebAuth',
           logo: require('@/assets/icons/proton.png'),
           create: 'https://www.protonchain.com/wallet/'
         })

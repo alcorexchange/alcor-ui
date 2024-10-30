@@ -665,7 +665,6 @@ export const actions = {
         { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
       )
 
-      // TODO Manage leap soon
       const packedTx = {
         signatures: signedTx.signatures,
         serializedTransaction: signedTx.resolved
