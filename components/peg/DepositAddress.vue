@@ -1,25 +1,30 @@
 <template lang="pug">
 .deposit-address
-  .loading.p-4(v-if="loadingAddresses")
-    i.el-icon-loading.fs-20
-  template(v-else)
-    .address.p-3
-      .generated
+  .address.p-3
+    .loading.p-4(v-if="loadingAddresses")
+      i.el-icon-loading.fs-20
+    template(v-else)
+      .generated(v-if="networkAddress")
         .muted {{ blockchain.name }} Address
         .address-container
           span {{ this.networkAddress }}
-          .pointer.hover-opacity.p-2(@click="copyAddress")
+          .pointer.hover-opacity(@click="copyAddress")
             i.el-icon-copy-document
-      .new-address
-    .info.p-3
-      .info-item.fs-14
-        div.muted Required Confirmations
-        span {{ blockchain.required_confirmations }}
+      .new-address(v-else)
+        AlcorButton(@click="generateAddress") Click to generate the address
+  .info.p-3
+    .info-item.fs-14
+      div.muted Required Confirmations
+      span {{ blockchain.required_confirmations }}
 </template>
 
 <script>
+import AlcorButton from '~/components/AlcorButton.vue'
 export default {
   name: 'DepositAddress',
+
+  components: { AlcorButton },
+
   props: ['blockchain'],
 
   data: () => ({
@@ -41,6 +46,7 @@ export default {
   methods: {
     async getAddresses() {
       try {
+        this.loadingAddresses = true
         const account = 'aw.aq.waa'
 
         const { data } = await this.$axios.get(
@@ -55,7 +61,20 @@ export default {
       }
     },
 
-    generateAddress() {},
+    async generateAddress() {
+      try {
+        this.loadingAddresses = true
+        const account = 'aw.aq.waa'
+        const { data } = await this.$axios.post(
+          `https://gate.alcor.exchange/api/dex-accounts/${account}/create-address/`,
+          { chain: this.blockchain.code }
+        )
+        console.log(data)
+        await this.getAddresses()
+      } catch (error) {
+        console.log('Generating address error', error)
+      }
+    },
 
     copyAddress() {
       try {
@@ -76,7 +95,6 @@ export default {
   border-radius: 8px;
   box-shadow: 0 0 0 1px var(--border-color);
   .loading {
-    padding: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -98,6 +116,13 @@ export default {
     justify-content: space-between;
     gap: 10px;
     align-items: center;
+  }
+
+  .new-address {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 32px;
   }
 }
 </style>
