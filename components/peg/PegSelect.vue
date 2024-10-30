@@ -2,14 +2,14 @@
 .peg-select-modal.d-flex.align-items-center.gap-8
   .peg-select-button.w100(
     @click='open',
-    :class='{ locked, notSelected: !token }'
+    :class='{ locked, notSelected: !value }'
   )
-    .d-flex.align-items-center(v-if='token')
+    .d-flex.align-items-center(v-if='value')
       TokenImage.mr-2(
-        :src='$tokenLogo(token.currency || token.symbol, token.contract)',
+        :src="$tokenLogo('usdt', 'usdt.alcor')",
         height='25'
       )
-      .ft-14 {{ token.currency || token.symbol }}
+      .ft-14 {{ selectedItem.symbol }}
     .d-flex.align-items-center.peg-select-text(v-else) {{ $t('Select Crypto') }}
     i.el-icon-arrow-down.ml-auto(v-if='!locked')
 
@@ -21,7 +21,7 @@
     @mousedown.native='dialogMousedown',
     @mouseup.native='dialogMouseup'
   )
-    template(#title) {{ $t('Select Token') }}
+    template(#title) {{ $t('Select Currency') }}
     #assets-modal-component
       .d-flex.flex-column.gap-16.px-3.pb-3
         el-input.default.br-6(
@@ -32,7 +32,7 @@
           ref="searchInput"
           clearable
         )
-        .popular-tokens
+        // .popular-tokens
           .popular-token-item.grey-border.border-hover.pointer.d-flex.gap-6(
             v-for="item in popularPegs"
             :key="item.id"
@@ -47,27 +47,27 @@
         //- .separator
         RecycleScroller(
           class="virtual-scroller"
-          :items="filteredAssets"
+          :items="filteredPegs"
           :item-size="48"
-          v-if="filteredAssets.length"
+          v-if="filteredPegs.length"
         )
           template(#default="{ item }")
             .token-item.d-flex.justify-content-between.align-items-center.gap-8.pointer.px-2.py-1.br-8.hover-bg-lighter(
               @click='selectAsset(item)'
-              :class="{ 'is-selected': token && item.symbol === token.symbol && item.contract === token.contract }"
+              :class="{ 'is-selected': selectedItem && item.symbol === selectedItem.symbol }"
             )
               TokenImage(
-                :src='$tokenLogo(item.currency || item.symbol, item.contract)',
+                :src="$tokenLogo('usdt', 'usdt.alcor')",
                 height='28'
               )
               .d-flex.flex-column.gap-2.flex-grow-1
-                .contrast {{ item.currency || item.symbol }}
+                .contrast {{ item.symbol }}
                 .fs-12.disable {{ item.contract }}
-              div.d-flex.flex-column.gap-2.align-items-end
+              // div.d-flex.flex-column.gap-2.align-items-end
                 span {{ item.balance | commaFloat(4) }}
                 span.muted.fs-10 ${{ item.balanceUsdValue | commaFloat(4) }}
 
-        .fs-16.text-center(v-if="!filteredAssets.length") {{ $t('No tokens found') }}
+        .fs-16.text-center(v-if="!filteredPegs.length") {{ $t('No tokens found') }}
 
 </template>
 
@@ -83,8 +83,8 @@ export default {
   },
 
   props: {
-    tokens: {},
-    token: {},
+    pegs: { default: () => [] },
+    value: { default: null },
     locked: { type: Boolean, default: false },
     w100: { type: Boolean, default: false },
   },
@@ -100,8 +100,12 @@ export default {
     popularPegs() {
       return []
     },
-    filteredAssets() {
-      return []
+    filteredPegs() {
+      return this.pegs?.map((p) => ({ ...p, id: p.symbol })) || []
+    },
+
+    selectedItem() {
+      return this.pegs.find(({ symbol }) => symbol === this.value)
     },
   },
 
@@ -114,7 +118,7 @@ export default {
       })
     },
     selectAsset(v) {
-      this.$emit('selected', v)
+      this.$emit('input', v.symbol)
       this.visible = false
     },
   },
@@ -148,11 +152,14 @@ export default {
     cursor: pointer;
     background: var(--btn-default);
     transition: all 0.4s;
-    color: var(--text-disable);
     img,
     svg {
       width: 16px;
       height: 16px;
+    }
+
+    &.notSelected {
+      color: var(--text-disable);
     }
     .peg-select-text {
       // color: var(--border-active-color);

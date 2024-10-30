@@ -4,7 +4,7 @@
     AlcorContainer.p-4
       .deposit-steps
         DepositStep(:active="true" title="Select Crypto")
-          PegSelect
+          PegSelect(:pegs="pegs" v-model="selectedPeg")
         DepositStep(:active="false" title="Select Network" :isLast="true")
           PegSelect
 </template>
@@ -22,16 +22,17 @@ export default {
   },
   data: () => ({
     pegs: [],
+    selectedPeg: null,
   }),
 
   mounted() {
-    this.getCurrencies()
+    this.getPegs()
   },
   methods: {
-    getCurrencies() {
+    async getPegs() {
       try {
-        const { data } = this.$axios.get('https://gate.alcor.exchange/api/currencys')
-        console.log(data)
+        const { data } = await this.$axios.get('https://gate.alcor.exchange/api/pegs/')
+        this.pegs = data
       } catch (error) {
         console.log('Getting tokens error', error)
       }
