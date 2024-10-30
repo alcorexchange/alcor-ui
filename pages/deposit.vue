@@ -3,13 +3,15 @@
     h1.fs-24.mb-2 Deposit Crypto
     AlcorContainer.p-4
       .deposit-steps
-        DepositStep(:active="currentStepIndex >= 0" title="Select Crypto" :showLine="true")
+        DepositStep(:active="!!selectedPeg" title="Select Crypto" :showLine="true")
           PegSelect(:pegs="pegs" v-model="selectedPeg" @input="handlePegChange")
-        DepositStep(:active="currentStepIndex >= 1" title="Select Network" :showLine="currentStepIndex >= 2")
+
+        DepositStep(:active="!!selectedNetwork" title="Select Network" :showLine="currentStepIndex >= 2")
           ElSelect(v-model="selectedNetwork" @change="handleNetworkChange").w-100.network-select
             ElOption(v-for="item in networks" :key="item.code" :label="item.name" :value="item.code")
-        DepositStep(v-if="currentStepIndex >= 2" :active="currentStepIndex >= 2" title="Deposit Address")
-          DepositAddress
+
+        DepositStep(v-if="currentStepIndex >= 2 && selectedBlockchain" :active="currentStepIndex >= 2" title="Deposit Address")
+          DepositAddress(:blockchain="selectedBlockchain")
 </template>
 
 <script>
@@ -27,6 +29,7 @@ export default {
   },
   data: () => ({
     pegs: [],
+    blockchains: [],
     selectedPeg: null,
     selectedNetwork: null,
     steps: ['PEG', 'NETWORK', 'ADDRESS'],
@@ -41,10 +44,15 @@ export default {
     currentStepIndex() {
       return this.steps.findIndex((s) => s === this.currentStep)
     },
+
+    selectedBlockchain() {
+      return this.blockchains.find(({ code }) => code === this.selectedNetwork)
+    },
   },
 
   mounted() {
     this.getPegs()
+    this.getBlockchains()
   },
   methods: {
     async getPegs() {
@@ -52,7 +60,17 @@ export default {
         const { data } = await this.$axios.get('https://gate.alcor.exchange/api/pegs/')
         this.pegs = data
       } catch (error) {
-        console.log('Getting tokens error', error)
+        console.log('Getting pegs error', error)
+      }
+    },
+    async getBlockchains() {
+      try {
+        const { data } = await this.$axios.get('https://gate.alcor.exchange/api/blockchains/')
+        console.log(data)
+
+        this.blockchains = data
+      } catch (error) {
+        console.log('Getting blockchains error', error)
       }
     },
     handlePegChange() {
