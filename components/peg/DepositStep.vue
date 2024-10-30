@@ -2,10 +2,10 @@
   .deposit-step(:class="{ active }")
     .side
       .indicator
-        i.el-icon-check
+        i.el-icon-check.fs-16
       .line(v-if="showLine")
     .content
-      .title.fs-18.fw-medium {{ title }}
+      .title.fs-16 {{ title }}
       .py-3
         slot
 </template>
@@ -20,7 +20,7 @@ export default {
 <style lang="scss">
 .deposit-step {
   display: flex;
-  --indicator-height: 28px;
+  --indicator-height: 24px;
   --main-color: var(--btn-default);
   .side {
     display: flex;

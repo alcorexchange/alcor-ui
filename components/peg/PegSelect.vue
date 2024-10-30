@@ -158,9 +158,6 @@ export default {
       height: 16px;
     }
 
-    &.notSelected {
-      color: var(--text-disable);
-    }
     .peg-select-text {
       // color: var(--border-active-color);
     }
