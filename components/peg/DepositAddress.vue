@@ -58,12 +58,14 @@ export default {
     generateAddress() {},
 
     copyAddress() {
-      navigator.clipboard.writeText(this.networkAddress)
-      this.$notify({
-        title: 'Clipboard',
-        message: 'Address copied.',
-        type: 'info',
-      })
+      try {
+        navigator.clipboard.writeText(this.networkAddress)
+        this.$notify({
+          title: 'Clipboard',
+          message: 'Address copied.',
+          type: 'info',
+        })
+      } catch (error) {}
     },
   },
 }
