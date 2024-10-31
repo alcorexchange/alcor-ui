@@ -26,6 +26,7 @@ export default {
 
   data: () => ({
     history: [],
+    historyInterval: null,
     statuses: {
       created: { value: 'created', label: 'Created' },
       waiting_for_accumulation: { value: 'waiting_for_accumulation', label: 'Waiting for accumulation' },
@@ -74,6 +75,11 @@ export default {
 
   mounted() {
     this.getHistory()
+    this.runHistoryUpdate()
+  },
+
+  beforeDestroy() {
+    this.stopHistoryUpdate()
   },
 
   methods: {
@@ -87,6 +93,14 @@ export default {
       } catch (error) {
         console.log('Loading history error', error)
       }
+    },
+
+    runHistoryUpdate() {
+      this.historyInterval = setInterval(() => this.getHistory(), 18 * 1000)
+    },
+
+    stopHistoryUpdate() {
+      clearInterval(this.historyInterval)
     },
 
     middleEllipsis(str, startChars = 5, endChars = 3) {
