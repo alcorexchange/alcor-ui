@@ -1,7 +1,9 @@
 <template lang="pug">
   .deposit-page
+    .d-flex.align-items-center.pb-3
+      ReturnLink.start.fs-20
+        span.title Deposit Crypto
     AlcorContainer.p-3
-      PageHeader(title="Deposit Crypto")
       .deposit-steps.pt-3
         DepositStep(:active="!!selectedPeg" title="Select Crypto" :showLine="true")
           PegSelect(:pegs="pegs" v-model="selectedPeg" @input="handlePegChange")
@@ -15,11 +17,11 @@
 </template>
 
 <script>
+import ReturnLink from '@/components/ReturnLink'
 import AlcorContainer from '~/components/AlcorContainer.vue'
 import PegSelect from '~/components/peg/PegSelect.vue'
 import DepositStep from '~/components/peg/DepositStep.vue'
 import DepositAddress from '~/components/peg/DepositAddress.vue'
-import PageHeader from '~/components/amm/PageHeader'
 export default {
   name: 'Deposit',
   components: {
@@ -27,7 +29,7 @@ export default {
     PegSelect,
     DepositStep,
     DepositAddress,
-    PageHeader,
+    ReturnLink,
   },
   data: () => ({
     pegs: [],
