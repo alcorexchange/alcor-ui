@@ -8,8 +8,8 @@
           .crypto
             span {{ item.currency.symbol }}
             span.muted.fs-12 {{ item.currency.chain.name }}
-          .time {{ item.created_at | moment('YYYY-MM-DD HH:mm') }}
-          .status {{ statuses[item.state]?.label || '??' }}
+          .time(v-if="!isMobile") {{ item.created_at | moment('YYYY-MM-DD HH:mm') }}
+          .status(v-if="!isMobile") {{ statuses[item.state]?.label || '??' }}
           .amount {{ item.amount }}
           .tx
             span {{ middleEllipsis(item.tx_hash) }}
@@ -52,10 +52,12 @@ export default {
         {
           label: 'Time',
           width: '180px',
+          desktopOnly: true,
         },
         {
           label: 'Status',
           width: '120px',
+          desktopOnly: true,
         },
         {
           label: 'Amount',
@@ -126,6 +128,9 @@ export default {
     width: 120px;
     display: flex;
     flex-direction: column;
+    @media only screen and (max-width: 1176px) {
+      width: 33.3%;
+    }
   }
   .time {
     width: 180px;
@@ -137,11 +142,17 @@ export default {
 
   .amount {
     width: 120px;
+    @media only screen and (max-width: 1176px) {
+      width: 33.3%;
+    }
   }
   .tx {
     display: flex;
     align-items: center;
     gap: 4px;
+    @media only screen and (max-width: 1176px) {
+      width: 33.3%;
+    }
   }
 }
 </style>
