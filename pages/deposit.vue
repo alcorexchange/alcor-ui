@@ -104,7 +104,9 @@ export default {
   }
   .network-select {
     .el-input__inner {
-      padding-left: 20px;
+      padding-left: 8px;
+      border-radius: 8px !important;
+      font-size: 16px !important;
     }
   }
 }
