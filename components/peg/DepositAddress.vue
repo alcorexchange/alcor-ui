@@ -113,6 +113,9 @@ export default {
     justify-content: space-between;
     gap: 10px;
     align-items: center;
+    span {
+      word-break: break-all;
+    }
   }
 
   .new-address {

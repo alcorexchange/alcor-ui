@@ -68,7 +68,7 @@ export default {
         },
       ]
 
-      return { pageMode: true, itemSize: 48, header, data: this.history.map((item) => ({ ...item, id: item.tx_hash })) }
+      return { pageMode: true, itemSize: 59, header, data: this.history.map((item) => ({ ...item, id: item.tx_hash })) }
     },
   },
 
