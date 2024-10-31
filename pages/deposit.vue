@@ -94,7 +94,7 @@ export default {
 
 <style lang="scss">
 .deposit-page {
-  max-width: 640px;
+  max-width: 800px;
   margin: auto;
   margin-top: 40px;
   .deposit-steps {

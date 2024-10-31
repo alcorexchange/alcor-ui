@@ -4,18 +4,42 @@
     VirtualTable(:table="virtualTableData").virtual-deposit-table
       template(#empty)
       template(#row="{ item }")
-        .deposit-history-item
-          .crypto {{ item.currency.symbol }}
+        .deposit-history-item.fs-14
+          .crypto
+            span {{ item.currency.symbol }}
+            span.muted.fs-12 {{ item.currency.chain.name }}
+          .time {{ item.created_at | moment('YYYY-MM-DD HH:mm') }}
+          .status {{ statuses[item.state]?.label || '??' }}
+          .amount {{ item.amount }}
+          .tx
+            span {{ middleEllipsis(item.tx_hash) }}
+            span.hover-opacity.pointer(@click="copyTx(item.tx_hash)")
+              i.el-icon-copy-document
 </template>
 
 <script>
 import VirtualTable from '~/components/VirtualTable'
+
 export default {
   name: 'DepositHistory',
   components: { VirtualTable },
 
   data: () => ({
     history: [],
+    statuses: {
+      created: { value: 'created', label: 'Created' },
+      waiting_for_accumulation: { value: 'waiting_for_accumulation', label: 'Waiting for accumulation' },
+      gas_required: { value: 'gas_required', label: 'Gas Required' },
+      gas_price_too_high: { value: 'gas_price_too_high', label: 'Expensive GAS' },
+      waiting_for_gas: { value: 'waiting_for_gas', label: 'Waiting for gas' },
+      ready_for_accumulation: { value: 'ready_for_accumulation', label: 'Ready for accumulation' },
+      accumulation_in_progress: { value: 'accumulation_in_progress', label: 'Accumulation in progress' },
+      accumulated: { value: 'accumulated', label: 'Accumulated' },
+      issue_in_progress: { value: 'issue_in_progress', label: 'Issue in progress' },
+      issued_on_eosio: { value: 'issued_on_eosio', label: 'Issued' },
+      failed: { value: 'failed', label: 'Issuance or transfer failed' },
+      unknown_token: { value: 'unknown_token', label: 'Unknown token' },
+    },
   }),
 
   computed: {
@@ -23,31 +47,26 @@ export default {
       const header = [
         {
           label: 'Crypto',
-          width: '80px',
-        },
-        {
-          label: 'Network',
-          width: '80px',
+          width: '120px',
         },
         {
           label: 'Time',
-          width: '80px',
+          width: '180px',
         },
         {
           label: 'Status',
-          width: '80px',
+          width: '120px',
         },
         {
           label: 'Amount',
-          width: '80px',
+          width: '120px',
         },
         {
           label: 'Tx',
-          width: '80px',
         },
       ]
 
-      return { pageMode: true, itemSize: 42, header, data: this.history.map((item) => ({ ...item, id: item.tx_hash })) }
+      return { pageMode: true, itemSize: 48, header, data: this.history.map((item) => ({ ...item, id: item.tx_hash })) }
     },
   },
 
@@ -66,6 +85,21 @@ export default {
       } catch (error) {
         console.log('Loading history error', error)
       }
+    },
+
+    middleEllipsis(str, startChars = 5, endChars = 3) {
+      return str.length > startChars + endChars ? `${str.slice(0, startChars)}...${str.slice(-endChars)}` : str
+    },
+
+    copyTx(tx) {
+      try {
+        navigator.clipboard.writeText(tx)
+        this.$notify({
+          title: 'Clipboard',
+          message: 'Address copied.',
+          type: 'info',
+        })
+      } catch (error) {}
     },
   },
 }
@@ -87,5 +121,27 @@ export default {
 .deposit-history-item {
   display: flex;
   padding: 10px;
+  align-items: center;
+  .crypto {
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+  }
+  .time {
+    width: 180px;
+  }
+
+  .status {
+    width: 120px;
+  }
+
+  .amount {
+    width: 120px;
+  }
+  .tx {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
 }
 </style>
