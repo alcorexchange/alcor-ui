@@ -10,7 +10,7 @@
         height='25'
       )
       .ft-14 {{ selectedItem.symbol }}
-    .d-flex.align-items-center.peg-select-text(v-else) {{ $t('Select Crypto') }}
+    .d-flex.align-items-center.peg-select-text(v-else) {{ $t('Select') }}
     i.el-icon-arrow-down.ml-auto(v-if='!locked')
 
   el-dialog(

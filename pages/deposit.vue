@@ -4,7 +4,7 @@
       ReturnLink.start.fs-20
         span.title Deposit Crypto
     AlcorContainer.p-3
-      .deposit-steps.pt-3
+      .deposit-steps
         DepositStep(:active="!!selectedPeg" title="Select Crypto" :showLine="true")
           PegSelect(:pegs="pegs" v-model="selectedPeg" @input="handlePegChange")
 
@@ -14,6 +14,8 @@
 
         DepositStep(v-if="currentStepIndex >= 2 && selectedBlockchain" :active="currentStepIndex >= 2" title="Deposit Address")
           DepositAddress(:blockchain="selectedBlockchain")
+    AlcorContainer.mt-3.p-3
+      DepositHistory
 </template>
 
 <script>
@@ -22,6 +24,7 @@ import AlcorContainer from '~/components/AlcorContainer.vue'
 import PegSelect from '~/components/peg/PegSelect.vue'
 import DepositStep from '~/components/peg/DepositStep.vue'
 import DepositAddress from '~/components/peg/DepositAddress.vue'
+import DepositHistory from '~/components/peg/DepositHistory.vue'
 export default {
   name: 'Deposit',
   components: {
@@ -30,6 +33,7 @@ export default {
     DepositStep,
     DepositAddress,
     ReturnLink,
+    DepositHistory,
   },
   data: () => ({
     pegs: [],
