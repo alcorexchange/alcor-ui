@@ -53,7 +53,6 @@ export default {
           `https://gate.alcor.exchange/api/dex-accounts/${account}/deposit-addresses/`
         )
 
-        console.log({ addresses: data })
         this.addresses = data
         this.loadingAddresses = false
       } catch (error) {
