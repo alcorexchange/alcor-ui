@@ -3,6 +3,9 @@
     h3.fs-16 Deposit History
     VirtualTable(:table="virtualTableData").virtual-deposit-table
       template(#empty)
+        .empty.muted.p-4.fs-14
+          i.el-icon-moon-night.fs-40
+          span Your deposit history will appear here.
       template(#row="{ item }")
         .deposit-history-item.fs-14
           .crypto
@@ -69,7 +72,12 @@ export default {
         },
       ]
 
-      return { pageMode: true, itemSize: 59, header, data: this.history.map((item) => ({ ...item, id: item.tx_hash })) }
+      return {
+        pageMode: true,
+        itemSize: 59,
+        header,
+        data: this.history.map((item) => ({ ...item, id: item.tx_hash })),
+      }
     },
   },
 
@@ -121,6 +129,14 @@ export default {
 </script>
 
 <style lang="scss">
+.deposit-history {
+  .empty {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
 .virtual-deposit-table {
   .header {
     padding: 15px 10px;
@@ -162,9 +178,10 @@ export default {
   .tx {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     a {
       color: var(--text-default);
+      text-decoration: underline;
     }
     @media only screen and (max-width: 1176px) {
       width: 33.3%;
