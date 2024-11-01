@@ -9,14 +9,14 @@ Vue.filter('monitorTx', function (tx) {
   return `${config.monitor}/transaction/${tx}?tab=traces&${config.monitor_params}`
 })
 
-Vue.filter('humanPrice', function(amount, PRICE_DIGITS = config.PRICE_DIGITS) {
+Vue.filter('humanPrice', function (amount, PRICE_DIGITS = config.PRICE_DIGITS) {
   const price = (amount / config.PRICE_SCALE)
 
   return parseFloat(price.toFixed(PRICE_DIGITS))
     .toLocaleString('en', { minimumFractionDigits: Math.min(PRICE_DIGITS, 2), maximumFractionDigits: PRICE_DIGITS })
 })
 
-Vue.filter('humanFloat', function(amount, precision = 4, MAX_DIGITS, MIN_DIGITS = 2) {
+Vue.filter('humanFloat', function (amount, precision = 4, MAX_DIGITS, MIN_DIGITS = 2) {
   const amt = amount / 10 ** precision
 
   if (MAX_DIGITS !== undefined) {
@@ -29,7 +29,7 @@ Vue.filter('humanFloat', function(amount, precision = 4, MAX_DIGITS, MIN_DIGITS 
     .toLocaleString('en', { minimumFractionDigits: Math.min(MIN_DIGITS, parseFloat(precision)), maximumFractionDigits: MAX_DIGITS })
 })
 
-Vue.filter('commaFloat', function(num, precision = 4) {
+Vue.filter('commaFloat', function (num, precision = 4) {
   const pow = Math.pow(10, precision)
 
   let sym = ''
@@ -46,7 +46,7 @@ Vue.filter('commaFloat', function(num, precision = 4) {
   return int.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + (dec ? '.' + dec : '') + sym
 })
 
-Vue.filter('nFormat', function(num, digits = 1) {
+Vue.filter('nFormat', function (num, digits = 1) {
   let sym = ''
 
   if (typeof num === 'string' && num.includes(' ')) {
@@ -75,13 +75,13 @@ Vue.filter('nFormat', function(num, digits = 1) {
   return (item ? (num / item.value).toFixed(digits).replace(rx, '$1') + item.symbol : '0') + sym
 })
 
-Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
+Vue.filter('systemToUSD', function (amount, MAX_DIGITS, MIN_DIGITS = 2) {
   let result = parseFloat(amount)
   result *= this.$store.state.wallet.systemPrice
   return result.toLocaleString('en', { minimumFractionDigits: 0, maximumFractionDigits: 5 })
 })
 
-Vue.prototype.$tokenToUSD = function(amount, symbol, contract) {
+Vue.prototype.$tokenToUSD = function (amount, symbol, contract) {
   const parsed = parseFloat(amount)
   amount = (!amount || isNaN(parsed)) ? 0 : parsed
   const id = symbol.toLowerCase() + '-' + contract
@@ -90,7 +90,7 @@ Vue.prototype.$tokenToUSD = function(amount, symbol, contract) {
   return (parseFloat(amount) * (price ? price.usd_price : 0)).toLocaleString('en', { maximumFractionDigits: 2 })
 }
 
-Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2, usdt = false) {
+Vue.prototype.$systemToUSD = function (amount, MAX_DIGITS = 2, MIN_DIGITS = 2, usdt = false) {
   let result = parseFloat(amount)
 
   if (usdt) {
@@ -106,7 +106,7 @@ Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2, us
   return result.toLocaleString('en', { minimumFractionDigits: MIN_DIGITS, maximumFractionDigits: parseFloat(MAX_DIGITS) })
 }
 
-Vue.prototype.$tokenBalance = function(symbol, contract, full = false) {
+Vue.prototype.$tokenBalance = function (symbol, contract, full = false) {
   const user = this.$store.state.user
 
   if (user && user.balances) {
@@ -120,11 +120,11 @@ Vue.prototype.$tokenBalance = function(symbol, contract, full = false) {
   return full ? '0.0000 ' + symbol : '0.0000'
 }
 
-Vue.prototype.$getToken = function(id) {
+Vue.prototype.$getToken = function (id) {
   return this.$store.state.tokens.find(t => t.id == id)
 }
 
-Vue.prototype.$tokenLogo = function(symbol, contract, chain = null) {
+Vue.prototype.$tokenLogo = function (symbol, contract, chain = null) {
   const network = chain || this.$store.state.network.name
 
   try {
@@ -142,7 +142,7 @@ Vue.prototype.$tokenLogo = function(symbol, contract, chain = null) {
   }
 }
 
-Vue.prototype.$percentColor = function(percent, zeroColor = 'var(--text-default)') {
+Vue.prototype.$percentColor = function (percent, zeroColor = 'var(--text-default)') {
   percent = parseFloat(percent).toFixed(2)
   percent = parseFloat(percent)
 
@@ -150,4 +150,10 @@ Vue.prototype.$percentColor = function(percent, zeroColor = 'var(--text-default)
   if (percent > 0) return 'var(--main-green)'
   if (percent < 0) return 'var(--main-red)'
   return zeroColor
+}
+
+Vue.prototype.$monitorBlockchainTx = function (tx, chain) {
+  if (chain === 'solana') return `https://solscan.io/tx/${tx}`
+  if (chain === 'ethereum') return `https://etherscan.io/tx/${tx}`
+  return ''
 }

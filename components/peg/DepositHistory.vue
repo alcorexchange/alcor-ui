@@ -12,7 +12,7 @@
           .status(v-if="!isMobile") {{ statuses[item.state]?.label || '??' }}
           .amount {{ item.amount }}
           .tx
-            span {{ middleEllipsis(item.tx_hash) }}
+            a(:href="$monitorBlockchainTx(item.tx_hash, item.currency.chain.code)" target="_blank").hover-opacity {{ middleEllipsis(item.tx_hash) }}
             span.hover-opacity.pointer(@click="copyTx(item.tx_hash)")
               i.el-icon-copy-document
 </template>
@@ -57,7 +57,7 @@ export default {
         },
         {
           label: 'Status',
-          width: '120px',
+          width: '140px',
           desktopOnly: true,
         },
         {
@@ -87,7 +87,6 @@ export default {
       const user = 'aw.aq.waa'
       try {
         const { data } = await this.$axios.get(`https://gate.alcor.exchange/api/dex-accounts/${user}/deposits-history/`)
-        console.log(data)
 
         this.history = data
       } catch (error) {
@@ -151,7 +150,7 @@ export default {
   }
 
   .status {
-    width: 120px;
+    width: 140px;
   }
 
   .amount {
@@ -164,6 +163,9 @@ export default {
     display: flex;
     align-items: center;
     gap: 4px;
+    a {
+      color: var(--text-default);
+    }
     @media only screen and (max-width: 1176px) {
       width: 33.3%;
     }
