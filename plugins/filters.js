@@ -154,6 +154,6 @@ Vue.prototype.$percentColor = function (percent, zeroColor = 'var(--text-default
 
 Vue.prototype.$monitorBlockchainTx = function (tx, chain) {
   if (chain === 'solana') return `https://solscan.io/tx/${tx}`
-  if (chain === 'ethereum') return `https://etherscan.io/tx/${tx}`
+  if (chain === 'ethereum') return `https://sepolia.etherscan.io/tx/${tx}`
   return ''
 }
