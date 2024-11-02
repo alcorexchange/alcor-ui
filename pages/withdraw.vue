@@ -1,5 +1,8 @@
 <template lang="pug">
   .withdraw-page
+    .d-flex.align-items-center.pb-3
+      ReturnLink.start.fs-20
+        span.title Withdraw
 </template>
 
 <script>
