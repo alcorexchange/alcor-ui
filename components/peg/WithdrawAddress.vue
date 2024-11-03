@@ -7,7 +7,7 @@
   .tab(v-if="activeTab === 'address'")
     div
       span.fs-14.muted Address
-      ElInput(v-model="address" placeholder="Enter withdrawal address")
+      ElInput(:value="address" @input="$emit('update:address', $event)" placeholder="Enter withdrawal address")
 
     div.mt-3
       span.fs-14.muted Network
@@ -19,11 +19,9 @@
 <script>
 export default {
   name: 'WithdrawAddress',
-  props: ['networks', 'selectedNetwork'],
+  props: ['networks', 'selectedNetwork', 'address', 'alcorUser'],
   data: () => ({
     activeTab: 'address', // user
-    address: null,
-    alcorUser: null,
   }),
 
   computed: {},
