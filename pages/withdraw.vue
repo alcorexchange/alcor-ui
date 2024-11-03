@@ -9,7 +9,9 @@
           PegSelect(:pegs="pegs" v-model="selectedPeg" @input="handlePegChange")
 
         DepositStep(title="Withdraw To" :showLine="true")
-          WithdrawAddress(:networks="networks")
+          WithdrawAddress(:networks="networks" :selectedNetwork.sync="selectedNetwork")
+
+        DepositStep(title="Amount")
     AlcorContainer.mt-3.p-3
       div Withdraw History
 </template>
@@ -62,8 +64,12 @@ export default {
     },
 
     handlePegChange() {
-      this.currentStep = 'NETWORK'
+      this.currentStep = 'PEG'
       this.selectedNetwork = null
+    },
+
+    handleNetworkChange() {
+      this.currentStep = 'ADDRESS'
     },
   },
 }
