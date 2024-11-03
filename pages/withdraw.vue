@@ -3,6 +3,12 @@
     .d-flex.align-items-center.pb-3
       ReturnLink.start.fs-20
         span.title Withdraw
+    AlcorContainer.p-3
+      .steps
+        DepositStep(title="Select Crypto" :showLine="true")
+          WithdrawAddress
+    AlcorContainer.mt-3.p-3
+      div Withdraw History
 </template>
 
 <script>
@@ -10,24 +16,41 @@ import ReturnLink from '@/components/ReturnLink'
 import AlcorContainer from '~/components/AlcorContainer.vue'
 import PegSelect from '~/components/peg/PegSelect.vue'
 import DepositStep from '~/components/peg/DepositStep.vue'
-import DepositAddress from '~/components/peg/DepositAddress.vue'
-import DepositHistory from '~/components/peg/DepositHistory.vue'
+import WithdrawAddress from '~/components/peg/WithdrawAddress.vue'
 export default {
   name: 'Deposit',
   components: {
     AlcorContainer,
     PegSelect,
     DepositStep,
-    DepositAddress,
     ReturnLink,
-    DepositHistory,
+    WithdrawAddress,
   },
-  data: () => ({}),
+  data: () => ({
+    pegs: [],
+    selectedPeg: null,
+    selectedNetwork: null,
+    steps: ['PEG', 'ADDRESS', 'AMOUNT'],
+    currentStep: 'PEG',
+  }),
 
-  computed: {},
+  computed: {
+    currentStepIndex() {
+      return this.steps.findIndex((s) => s === this.currentStep)
+    },
+  },
 
   mounted() {},
-  methods: {},
+  methods: {
+    async getPegs() {
+      try {
+        const { data } = await this.$axios.get('https://gate.alcor.exchange/api/pegs/')
+        this.pegs = data
+      } catch (error) {
+        console.log('Getting pegs error', error)
+      }
+    },
+  },
 }
 </script>
 
@@ -36,5 +59,11 @@ export default {
   max-width: 800px;
   margin: auto;
   margin-top: 40px;
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
 }
 </style>
