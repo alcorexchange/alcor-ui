@@ -32,7 +32,7 @@ export default {
 </script>
 
 <style lang="scss">
-.withraw-page {
+.withdraw-page {
   max-width: 800px;
   margin: auto;
   margin-top: 40px;
