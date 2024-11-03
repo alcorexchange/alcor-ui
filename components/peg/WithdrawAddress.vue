@@ -8,9 +8,12 @@
 <script>
 export default {
   name: 'WithdrawAddress',
+  props: ['networks'],
   data: () => ({
     activeTab: 'address', // user
   }),
+
+  computed: {},
 }
 </script>
 

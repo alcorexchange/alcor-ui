@@ -6,7 +6,10 @@
     AlcorContainer.p-3
       .steps
         DepositStep(title="Select Crypto" :showLine="true")
-          WithdrawAddress
+          PegSelect(:pegs="pegs" v-model="selectedPeg" @input="handlePegChange")
+
+        DepositStep(title="Withdraw To" :showLine="true")
+          WithdrawAddress(:networks="networks")
     AlcorContainer.mt-3.p-3
       div Withdraw History
 </template>
@@ -38,9 +41,16 @@ export default {
     currentStepIndex() {
       return this.steps.findIndex((s) => s === this.currentStep)
     },
+
+    networks() {
+      if (!this.selectedPeg) return []
+      return this.pegs.find(({ symbol }) => this.selectedPeg === symbol).currencies.map((c) => c.chain)
+    },
   },
 
-  mounted() {},
+  mounted() {
+    this.getPegs()
+  },
   methods: {
     async getPegs() {
       try {
@@ -49,6 +59,11 @@ export default {
       } catch (error) {
         console.log('Getting pegs error', error)
       }
+    },
+
+    handlePegChange() {
+      this.currentStep = 'NETWORK'
+      this.selectedNetwork = null
     },
   },
 }
