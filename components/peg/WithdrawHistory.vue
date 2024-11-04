@@ -21,14 +21,17 @@
             span.hover-opacity.pointer(@click="copyTx(item.address)")
               i.el-icon-copy-document
           .action
+            AlcorButton
+              span.fs-12 Details
 </template>
 
 <script>
+import AlcorButton from '~/components/AlcorButton.vue'
 import VirtualTable from '~/components/VirtualTable'
 
 export default {
   name: 'DepositHistory',
-  components: { VirtualTable },
+  components: { VirtualTable, AlcorButton },
 
   data: () => ({
     history: [],
@@ -45,6 +48,7 @@ export default {
       ready_to_payout: { value: 'ready_to_payout', label: 'Ready to payout' },
     },
     modalContext: null,
+    modalActive: false,
   }),
 
   computed: {
@@ -133,12 +137,17 @@ export default {
         })
       } catch (error) {}
     },
+
+    showDetails(item) {
+      this.modalContext = item
+      this.modalActive = true
+    },
   },
 }
 </script>
 
 <style lang="scss">
-.deposit-history {
+.withdraw-history {
   .empty {
     display: flex;
     align-items: center;
