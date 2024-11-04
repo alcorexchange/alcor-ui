@@ -84,10 +84,14 @@ export default {
     flex-direction: column;
     align-items: flex-end;
     text-align: end;
+    max-width: 60%;
   }
   .actions {
     display: flex;
     gap: 4px;
+    a {
+      color: var(--text-default);
+    }
   }
 }
 </style>
