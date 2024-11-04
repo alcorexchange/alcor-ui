@@ -1,6 +1,6 @@
 <template lang="pug">
 .withdraw-address
-  ElTabs(v-model="activeTab")
+  ElTabs(:value="activeTab" @input="$emit('update:activeTab', $event)")
     ElTabPane(label="Address" name="address")
     ElTabPane(label="Alcor User" name="user")
 
@@ -22,10 +22,8 @@
 <script>
 export default {
   name: 'WithdrawAddress',
-  props: ['networks', 'selectedNetwork', 'address', 'alcorUser'],
-  data: () => ({
-    activeTab: 'address', // user
-  }),
+  props: ['networks', 'selectedNetwork', 'address', 'alcorUser', 'activeTab'],
+  data: () => ({}),
 
   computed: {},
 }

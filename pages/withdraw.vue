@@ -9,7 +9,13 @@
           PegSelect(:pegs="pegs" v-model="selectedPeg" @input="handlePegChange")
 
         DepositStep(:active="addressStepActive" title="Withdraw To" :showLine="currentStepIndex >= 2")
-          WithdrawAddress(:networks="networks" :selectedNetwork.sync="selectedNetwork" :address.sync="address" :alcorUser.sync="alcorUser")
+          WithdrawAddress(
+            :networks="networks"
+            :activeTab.sync="activeAddressTab"
+            :selectedNetwork.sync="selectedNetwork"
+            :address.sync="address"
+            :alcorUser.sync="alcorUser"
+          )
 
         DepositStep(title="Amount" v-if="addressStepActive")
           div
@@ -45,6 +51,7 @@ export default {
     pegs: [],
     selectedPeg: null,
     selectedNetwork: null,
+    activeAddressTab: 'address',
     address: null,
     alcorUser: null,
     amount: null,
