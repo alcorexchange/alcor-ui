@@ -8,7 +8,7 @@
         DepositStep(:active="!!selectedPeg" title="Select Crypto" :showLine="true")
           PegSelect(:pegs="pegs" v-model="selectedPeg" @input="handlePegChange")
 
-        DepositStep(:active="addressStepActive" title="Withdraw To" :showLine="currentStepIndex >= 2")
+        DepositStep(:active="addressStepActive" title="Withdraw To" :showLine="addressStepActive")
           WithdrawAddress(
             :networks="networks"
             :activeTab.sync="activeAddressTab"
@@ -17,7 +17,7 @@
             :alcorUser.sync="alcorUser"
           )
 
-        DepositStep(title="Amount" v-if="addressStepActive")
+        DepositStep(v-if="addressStepActive" :active="amountStepActive" title="Amount")
           div
             span.fs-14.muted Amount
             ElInput(v-model="amount")
@@ -69,8 +69,17 @@ export default {
       return this.pegs.find(({ symbol }) => this.selectedPeg === symbol).currencies.map((c) => c.chain)
     },
 
-    addressStepActive() {
+    addressStepValid() {
       return this.activeAddressTab === 'address' ? !!this.selectedNetwork && !!this.address : this.alcorUser
+    },
+
+    addressStepActive() {
+      if (!this.selectedPeg) return false
+      return this.addressStepValid
+    },
+
+    amountStepActive() {
+      return !!this.amount
     },
   },
 
