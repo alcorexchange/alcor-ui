@@ -16,7 +16,7 @@
             span.fs-14.muted Amount
             ElInput(v-model="amount")
     AlcorContainer.mt-3.p-3
-      div Withdraw History
+      WithdrawHistory
 </template>
 
 <script>
@@ -25,6 +25,7 @@ import AlcorContainer from '~/components/AlcorContainer.vue'
 import PegSelect from '~/components/peg/PegSelect.vue'
 import DepositStep from '~/components/peg/DepositStep.vue'
 import WithdrawAddress from '~/components/peg/WithdrawAddress.vue'
+import WithdrawHistory from '~/components/peg/WithdrawHistory.vue'
 export default {
   name: 'Deposit',
   components: {
@@ -33,6 +34,7 @@ export default {
     DepositStep,
     ReturnLink,
     WithdrawAddress,
+    WithdrawHistory,
   },
   data: () => ({
     pegs: [],
