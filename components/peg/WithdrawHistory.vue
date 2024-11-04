@@ -21,9 +21,9 @@
             span.hover-opacity.pointer(@click="copyTx(item.address)")
               i.el-icon-copy-document
           .action
-            AlcorButton
+            AlcorButton(@click="showDetails(item)")
               span.fs-12 Details
-    WithdrawDetailModal(:active.sync="modalActive" :context="modalContext")
+    WithdrawDetailModal(:active.sync="modalActive" :context="modalContext" :statuses="statuses")
 </template>
 
 <script>
