@@ -23,15 +23,17 @@
           .action
             AlcorButton
               span.fs-12 Details
+    WithdrawDetailModal(:active.sync="modalActive" :context="modalContext")
 </template>
 
 <script>
 import AlcorButton from '~/components/AlcorButton.vue'
 import VirtualTable from '~/components/VirtualTable'
+import WithdrawDetailModal from '~/components/peg/WithdrawDetailModal.vue'
 
 export default {
   name: 'DepositHistory',
-  components: { VirtualTable, AlcorButton },
+  components: { VirtualTable, AlcorButton, WithdrawDetailModal },
 
   data: () => ({
     history: [],
