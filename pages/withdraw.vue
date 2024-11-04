@@ -5,13 +5,13 @@
         span.title Withdraw
     AlcorContainer.p-3
       .steps
-        DepositStep(title="Select Crypto" :showLine="true" :active="!!selectedPeg")
+        DepositStep(:active="!!selectedPeg" title="Select Crypto" :showLine="true")
           PegSelect(:pegs="pegs" v-model="selectedPeg" @input="handlePegChange")
 
-        DepositStep(title="Withdraw To" :showLine="true" :active="addressStepActive")
-          WithdrawAddress(:networks="networks" :selectedNetwork.sync="selectedNetwork" :address.sync="address")
+        DepositStep(:active="addressStepActive" title="Withdraw To" :showLine="currentStepIndex >= 2")
+          WithdrawAddress(:networks="networks" :selectedNetwork.sync="selectedNetwork" :address.sync="address" :alcorUser.sync="alcorUser")
 
-        DepositStep(title="Amount")
+        DepositStep(title="Amount" v-if="addressStepActive")
           div
             span.fs-14.muted Amount
             ElInput(v-model="amount")
@@ -46,7 +46,7 @@ export default {
     selectedPeg: null,
     selectedNetwork: null,
     address: null,
-    alcorUesr: null,
+    alcorUser: null,
     amount: null,
     steps: ['PEG', 'ADDRESS', 'AMOUNT'],
     currentStep: 'PEG',
