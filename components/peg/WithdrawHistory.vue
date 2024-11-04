@@ -7,21 +7,21 @@
           i.el-icon-moon-night.fs-40
           span Your withdraw history will appear here.
       template(#row="{ item }")
-        .deposit-history-item.fs-14
+        .deposit-history-item.pointer.fs-14(@click="showDetails(item)")
           .crypto
             span {{ item.currency.symbol }}
             span.muted.fs-12 {{ item.currency.chain.name }}
-          .time(v-if="!isMobile") {{ item.created_at | moment('YYYY-MM-DD HH:mm') }}
+          .time {{ item.created_at | moment('YYYY-MM-DD HH:mm') }}
           .status(v-if="!isMobile") {{ statuses[item.state]?.label || '??' }}
           .amount
             .amount-value {{ item.amount }}
             .amount-fee.fs-12.muted Fee {{ item.our_fee_amount }}
-          .address
-            span.hover-opacity {{ middleEllipsis(item.address) }}
-            span.hover-opacity.pointer(@click="copyTx(item.address)")
+          .address(v-if="!isMobile")
+            span {{ middleEllipsis(item.address) }}
+            span.hover-opacity.pointer(v-if="isMobile" @click.stop="copyTx(item.address)")
               i.el-icon-copy-document
-          .action
-            AlcorButton(@click="showDetails(item)")
+          .action(v-if="!isMobile")
+            AlcorButton()
               span.fs-12 Details
     WithdrawDetailModal(:active.sync="modalActive" :context="modalContext" :statuses="statuses")
 </template>
@@ -63,7 +63,6 @@ export default {
         {
           label: 'Time',
           width: '140px',
-          desktopOnly: true,
         },
         {
           label: 'Status',
@@ -77,9 +76,11 @@ export default {
         {
           label: 'Address',
           width: '120px',
+          desktopOnly: true,
         },
         {
           label: 'Action',
+          desktopOnly: true,
         },
       ]
 
@@ -183,6 +184,9 @@ export default {
   }
   .time {
     width: 140px;
+    @media only screen and (max-width: 1176px) {
+      width: 33.3%;
+    }
   }
 
   .status {
@@ -204,11 +208,6 @@ export default {
       color: var(--text-default);
       text-decoration: underline;
     }
-    @media only screen and (max-width: 1176px) {
-      width: 33.3%;
-    }
-  }
-  .action {
   }
 }
 </style>
