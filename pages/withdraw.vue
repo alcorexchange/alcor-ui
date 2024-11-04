@@ -70,8 +70,7 @@ export default {
     },
 
     addressStepActive() {
-      const v = true
-      return v ? !!this.selectedNetwork && !!this.address : this.alcorUesr
+      return this.activeAddressTab === 'address' ? !!this.selectedNetwork && !!this.address : this.alcorUser
     },
   },
 
