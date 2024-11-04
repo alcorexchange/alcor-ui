@@ -26,14 +26,14 @@
           .info-item-label Withdrawal Address
           .info-item-value
             span {{ context.address }}
-            span
+            .value-actions
               span.hover-opacity.pointer(@click="copyTx(context.address)")
                 i.el-icon-copy-document
         .info-item
           .info-item-label TX
           .info-item-value(v-if="context.tx_hash")
             span {{ context.tx_hash }}
-            div.actions
+            .value-actions
               a.hover-opacity.pointer(:href="$monitorBlockchainTx(context.tx_hash, context.currency.chain.code)" target="_blank")
                 i.el-icon-link
               span.hover-opacity.pointer(@click="copyTx(context.address)")
@@ -86,11 +86,13 @@ export default {
     text-align: end;
     max-width: 60%;
   }
-  .actions {
+  .value-actions {
     display: flex;
     gap: 4px;
+    padding-top: 4px;
+    color: var(--text-disable);
     a {
-      color: var(--text-default);
+      color: var(--text-disable);
     }
   }
 }
