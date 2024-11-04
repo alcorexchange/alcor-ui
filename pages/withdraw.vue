@@ -15,6 +15,9 @@
           div
             span.fs-14.muted Amount
             ElInput(v-model="amount")
+          .submit
+            AlcorButton(access).submit-button
+              span.fs-18 Send
     AlcorContainer.mt-3.p-3
       WithdrawHistory
 </template>
@@ -22,6 +25,7 @@
 <script>
 import ReturnLink from '@/components/ReturnLink'
 import AlcorContainer from '~/components/AlcorContainer.vue'
+import AlcorButton from '~/components/AlcorButton.vue'
 import PegSelect from '~/components/peg/PegSelect.vue'
 import DepositStep from '~/components/peg/DepositStep.vue'
 import WithdrawAddress from '~/components/peg/WithdrawAddress.vue'
@@ -35,6 +39,7 @@ export default {
     ReturnLink,
     WithdrawAddress,
     WithdrawHistory,
+    AlcorButton,
   },
   data: () => ({
     pegs: [],
@@ -98,6 +103,12 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 14px;
+  }
+  .submit {
+    margin-top: 20px;
+    .submit-button {
+      width: 100%;
+    }
   }
 }
 </style>
