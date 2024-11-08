@@ -249,7 +249,7 @@ const networks = {
 
     chainId: '8fc6dce7942189f842170de953932b1f66693ad3788f766e777b6f9d22335c02',
 
-    host: 'api.uxnetwork.io',
+    host: 'ux.eosusa.io',
     port: 443,
     protocol: 'https',
     monitor: 'https://explorer.uxnetwork.io',
@@ -262,7 +262,7 @@ const networks = {
     //backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      'https://explorer.uxnetwork.io': 'UX Explorer',
+      'https://ux.eosusa.io': 'UX Explorer',
     },
 
     otc: {
@@ -295,7 +295,7 @@ const networks = {
     ibc: {
       name: 'ux',
       returnValueEnabled: false,
-      proofSockets: ['wss://ibc-server.uxnetwork.io/ux'],
+      proofSockets: ['wss://ibc-server.uxnetwork.io/ux', 'wss://ux.eosusa.io/ibc'],
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos', 'ibc.wl.wax'],
