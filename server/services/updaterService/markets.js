@@ -155,7 +155,7 @@ export async function updateMarkets(network) {
       limit: 1000
     })
   } catch (e) {
-    console.log('failed update markets for ', network.name, ' retry..')
+    console.log('failed update markets for ', network.name, e, ' retry..')
     // Retry
     //await new Promise(resolve => setTimeout(resolve, 3000))
     //return await updateMarkets(network)

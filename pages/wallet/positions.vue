@@ -28,11 +28,16 @@ div.wallet
 
   virtual-table(v-if="isMobile" :table="virtualTableData")
     template(#row="{ item }")
-      wallet-position-row(:item="item")
+      wallet-position-row(:item="item" @cancel="cancelOrder(item)")
   .table.el-card(v-else)
     el-table.alcor-table(
       :data='filteredPositions',
       style='width: 100%',
+      row-class-name="pointer"
+      rowKey="id"
+      @expand-change="handleExpandChange"
+      :expandRowKeys="expanded"
+      @row-click="handleRowClick"
     )
       el-table-column(type="expand")
         template(#default="{ row }")
@@ -105,8 +110,8 @@ div.wallet
       )
         template(slot-scope='{row}')
           .actions
-            el-button(size="medium" type="text" @click="trade(row)").green.hover-opacity {{ $t('Trade') }}
-            el-button(size="medium" type="text" @click="cancelAll(row)").red.hover-opacity {{ $t('Cancel All Orders') }}
+            el-button(size="medium" type="text" @click.prevent="trade(row)").green.hover-opacity {{ $t('Trade') }}
+            el-button(size="medium" type="text" @click.prevent="cancelAll(row)").red.hover-opacity {{ $t('Cancel All Orders') }}
 
 </template>
 
@@ -129,6 +134,7 @@ export default {
     search: '',
     onlyBuy: false,
     onlySell: false,
+    expanded: [],
   }),
 
   computed: {
@@ -190,6 +196,22 @@ export default {
   },
 
   methods: {
+    handleExpandChange(row, expanded) {
+      this.expanded = expanded.map(({ id }) => id)
+    },
+
+    handleRowClick(row, _, event) {
+      // Don't trigger on clicking actions
+      if (event.defaultPrevented) return
+
+      if (this.expanded.includes(row.id)) {
+        this.expanded = this.expanded.filter((id) => id != row.id)
+        return
+      }
+
+      this.expanded.push(row.id)
+    },
+
     trade(position) {
       this.$router.push({
         name: `trade-index-id___${this.$i18n.locale}`,
@@ -204,14 +226,14 @@ export default {
         await this.$store.dispatch('chain/cancelorder', {
           account: this.user.name,
           market_id: order.market_id,
-          type: order.type == 'buy' ? 'bid' : 'ask',
+          type: ['buy', 'bid'].includes(order.type) ? 'buy' : 'sell',
           order_id: order.id,
         })
+
+        this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
       } catch (e) {
         this.$notify({ title: 'Order cancel error', message: e.message, type: 'warning' })
       }
-
-      this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
     },
 
     async cancelAll({ orders }) {

@@ -5,7 +5,7 @@
     .desc
       | {{ $t('HERO_DESCRIPTION') }}
     .actions
-      alcor-link.start(to='/markets')
+      alcor-link.start(to='/swap')
         | {{ $t('START_TRAIDING_BTN') }}
       alcor-button(@click="openInNewTab('https://docs.alcor.exchange/')")
         | {{ $t('READ_DOCS_BTN') }}

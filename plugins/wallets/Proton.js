@@ -46,8 +46,6 @@ export default class AnchoWallet extends WalletBase {
       },
     })
 
-    console.log(link, session)
-
     if (session) {
       this.link = link
       this.session = session
@@ -57,7 +55,8 @@ export default class AnchoWallet extends WalletBase {
 
       return {
         name: actor.toString(),
-        authorization: { actor: actor.toString(), permission: permission.toString() }
+        authorization: { actor: actor.toString(), permission: permission.toString() },
+        chainId: session.chainId
       }
     } else {
       return null

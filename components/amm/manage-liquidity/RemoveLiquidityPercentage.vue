@@ -25,7 +25,8 @@ div
         .fs-18 {{ amountB | commaFloat(position.pool.tokenB.decimals) }}
         .fs-14.color-action (${{ $tokenToUSD(amountB, position.pool.tokenB.symbol, position.pool.tokenB.contract) }})
 
-  AlcorButton.claim-fees-button.submit.w-100.mt-2(access @click="submit") {{ $t('Remove Liquidity and Claim Fees') }}
+  AuthOnly.mt-2
+    AlcorButton.claim-fees-button.submit.w-100(access @click="submit") {{ $t('Remove Liquidity and Claim Fees') }}
 </template>
 
 <script>
@@ -35,12 +36,14 @@ import { Percent } from '@alcorexchange/alcor-swap-sdk'
 import AlcorContainer from '~/components/AlcorContainer'
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
+import AuthOnly from '~/components/AuthOnly'
 
 export default {
   components: {
     AlcorContainer,
     TokenImage,
-    AlcorButton
+    AlcorButton,
+    AuthOnly,
   },
 
   props: ['position'],
@@ -56,8 +59,8 @@ export default {
 
     tabs: [
       { label: 'Owned', value: 'owned' },
-      { label: 'All', value: 'all' }
-    ]
+      { label: 'All', value: 'all' },
+    ],
   }),
 
   computed: {
@@ -65,12 +68,16 @@ export default {
     ...mapGetters('amm', ['slippage']),
 
     amountA() {
-      return (parseFloat(this.position.amountA.toFixed()) * (this.percent / 100)).toFixed(this.position.pool.tokenA.decimals)
+      return (parseFloat(this.position.amountA.toFixed()) * (this.percent / 100)).toFixed(
+        this.position.pool.tokenA.decimals
+      )
     },
 
     amountB() {
-      return (parseFloat(this.position.amountB.toFixed()) * (this.percent / 100)).toFixed(this.position.pool.tokenB.decimals)
-    }
+      return (parseFloat(this.position.amountB.toFixed()) * (this.percent / 100)).toFixed(
+        this.position.pool.tokenB.decimals
+      )
+    },
   },
 
   methods: {
@@ -104,21 +111,23 @@ export default {
       const tokenAZero = Number(0).toFixed(tokenA.decimals) + ' ' + tokenA.symbol
       const tokenBZero = Number(0).toFixed(tokenB.decimals) + ' ' + tokenB.symbol
 
-      const actions = [{
-        account: this.network.amm.contract,
-        name: 'subliquid',
-        authorization: [this.user.authorization],
-        data: {
-          poolId: this.position.pool.id,
-          owner,
-          liquidity,
-          tickLower,
-          tickUpper,
-          tokenAMin: tokenAZero,
-          tokenBMin: tokenBZero,
-          deadline: 0
-        }
-      }]
+      const actions = [
+        {
+          account: this.network.amm.contract,
+          name: 'subliquid',
+          authorization: [this.user.authorization],
+          data: {
+            poolId: this.position.pool.id,
+            owner,
+            liquidity,
+            tickLower,
+            tickUpper,
+            tokenAMin: tokenAZero,
+            tokenBMin: tokenBZero,
+            deadline: 0,
+          },
+        },
+      ]
 
       if (this.percent == 100) {
         actions.push({
@@ -133,7 +142,7 @@ export default {
             tickUpper,
             tokenAMax: tokenAZero,
             tokenBMax: tokenBZero,
-          }
+          },
         })
       }
 
@@ -142,10 +151,10 @@ export default {
     },
 
     setPercent(percent) {
-      if (percent == 'max') return this.percent = 100
+      if (percent == 'max') return (this.percent = 100)
       this.percent = parseInt(percent)
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -158,14 +167,13 @@ export default {
     border: 1px solid var(--border-2-color) !important;
   }
 }
-.percentage{
+.percentage {
   font-weight: bold;
 }
-.slider-buy{
+.slider-buy {
   padding: 0 18px;
   .el-slider__marks-text {
-    font-size: 12px
+    font-size: 12px;
   }
 }
 </style>
-

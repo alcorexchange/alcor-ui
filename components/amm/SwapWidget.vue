@@ -204,21 +204,21 @@ export default {
     rateInverted: false,
     banners: [
       {
-        link: 'https://nfthive.io/drop/9248+9249+9250',
-        image: require('@/assets/images/swap-banner-1.png'),
+        link: 'https://nfthive.io/drop/9748+9749+9750+9751',
+        image: require('@/assets/images/swap-banner-1.gif'),
         colors: [
-          'rgba(39,1,82,0.2)',
-          'rgba(254,191,95, 1)',
-          'rgba(36,186,175,1)',
+          'rgba(9,43,78,,0.2)',
+          'rgba(95,17,119, 1)',
+          'rgba(252,187,99,1)',
         ],
       },
       {
-        link: 'https://machiavellic.io/season-0-1/',
-        image: require('@/assets/images/swap-banner-2.gif'),
+        link: 'https://medium.com/@nanotopiagame/2024-halloween-celebration-43ea6336f40b',
+        image: require('@/assets/images/swap-banner-2.png'),
         colors: [
-          'rgba(177,14,20,0.2)',
-          'rgba(224,193,131,1)',
-          'rgba(225,103,51, 1)',
+          'rgba(212,151,61,0.2)',
+          'rgba(96,89,53,1)',
+          'rgba(14,15,82, 1)',
         ],
       },
     ]

@@ -22,7 +22,7 @@
       .asset__name(v-else) {{ item.currency }}
       .asset__contract.cancel {{ item.contract }}
   .amount(:class="{'acc': !useActions}")
-    .amount__base {{ item.amount | commaFloat(4) }}
+    .amount__base {{ item.amount }}
     .amount__usd.cancel ${{ item.usd_value | commaFloat }}
   .amount(:class="{'acc': !useActions}")
     .amount__base {{ item.amount | commaFloat(4) }}
@@ -44,9 +44,12 @@
     // USDT CEX DEPOSIT BUTTONS
     template(v-if="network.name == 'wax' && item.contract == 'usdt.alcor'")
       el-button(size="medium" type="text" @click.stop="$emit('openWithdraw', item)").hover-opacity Withdraw
-      el-button(size="medium" type="text" @click.stop="$emit('openDeposit', item)").hover-opacity Deposit
+      //el-button(size="medium" type="text" @click.stop="$emit('openDeposit', item)").hover-opacity Deposit
 
-    template(v-if="item.contract.includes('ibc.')")
+    template(v-if="network.name == 'wax' && item.contract == 'eth.token'")
+      el-button(size="medium" type="text" @click.stop="openInNewTab('https://bridge.mycloudwallet.com')").hover-opacity Bridge
+
+    template(v-if="item.contract.includes('ibc.') || item.contract.includes('usdt.alcor')")
       el-button(size="medium" type="text" @click.stop="$router.push('/bridge')").hover-opacity Bridge
 
     el-button(size="medium" type="text" @click.stop="$emit('openTransfer', item)").hover-opacity {{ $t('Transfer') }}

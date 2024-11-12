@@ -228,7 +228,7 @@ const networks = {
 
     USD_TOKEN: 'xusdc-xtokens',
 
-    popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens'],
+    popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens', 'clan-clanx'],
     GLOBAL_TOKENS: [],
   },
 
@@ -249,7 +249,7 @@ const networks = {
 
     chainId: '8fc6dce7942189f842170de953932b1f66693ad3788f766e777b6f9d22335c02',
 
-    host: 'api.uxnetwork.io',
+    host: 'ux.eosusa.io',
     port: 443,
     protocol: 'https',
     monitor: 'https://explorer.uxnetwork.io',
@@ -262,7 +262,7 @@ const networks = {
     //backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      'https://explorer.uxnetwork.io': 'UX Explorer',
+      'https://ux.eosusa.io': 'UX Explorer',
     },
 
     otc: {
@@ -295,7 +295,7 @@ const networks = {
     ibc: {
       name: 'ux',
       returnValueEnabled: false,
-      proofSockets: ['wss://ibc-server.uxnetwork.io/ux'],
+      proofSockets: ['wss://ibc-server.uxnetwork.io/ux', 'wss://ux.eosusa.io/ibc'],
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos', 'ibc.wl.wax'],
@@ -417,6 +417,7 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [
+      910, // other
       /* USDT put others after */ 763,
       185,
       843
@@ -461,7 +462,8 @@ const networks = {
 
     popularTokens: [
       'wax-eosio.token',
-      'usdt-usdt.alcor',
+      'waxusdc-eth.token',
+      //'usdt-usdt.alcor',
       //'eos-ibc.wt.eos',
       //'wombat-wombattokens',
       //'cred-musictoken',
@@ -568,6 +570,92 @@ const networks = {
     },
 
     USD_TOKEN: 'xusdc-xtokens',
+
+    popularTokens: [],
+    GLOBAL_TOKENS: [],
+  },
+
+  ultra: {
+    name: 'ultra',
+    desc: 'Ultra',
+    contract: 'book.alcor',
+
+    baseToken: {
+      contract: 'eosio.token',
+      symbol: 'UOS',
+      precision: 8,
+      id: 'uos-eosio.token'
+    },
+
+    marketCreationFee: '1.00000000 UOS',
+    feeAccount: 'admin.alcor',
+
+    chainId: 'a9c481dfbc7d9506dc7e87e9a137c931b0a9303f64fd7a1d08b8230133920097',
+
+    host: 'api.mainnet.ultra.io',
+    port: 443,
+    protocol: 'https',
+    monitor: 'https://explorer.mainnet.ultra.io',
+    monitor_params: '',
+    lightapi: 'https://mainnet.ultra.io',
+    hyperion: 'https://ultra.eosusa.io',
+
+    client_nodes: {
+      'https://api.mainnet.ultra.io': 'Ultra.io',
+    },
+
+    otc: {
+      contract: 'otc.alcor',
+      divs: 'admin.alcor',
+    },
+
+    pools: {
+      contract: 'swap.alcor',
+      fee: 'admin.alcor',
+    },
+
+    amm: {
+      contract: 'swap.alcor',
+    },
+
+    // staking: {
+    //   contract: 'liquid.alcor',
+    //   token: {
+    //     contract: 'lsw.alcor',
+    //     symbol: 'LSW',
+    //     precision: 8,
+    //     decimals: 8,
+    //     id: 'lsw-lsw.alcor'
+    //   }
+    // },
+
+    // ibc: {
+    //   name: 'ux',
+    //   returnValueEnabled: false,
+    //   proofSockets: ['wss://ibc-server.uxnetwork.io/ux'],
+
+    //   wrapLockContracts: {
+    //     'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos', 'ibc.wl.wax'],
+    //   },
+
+    //   wrapTokenContracts: {
+    //     'ibc.prove': ['ibc.wt.wax', 'ibc.wt.tlos', 'ibc.wt.eos'],
+    //   },
+    // },
+
+    RECOMMENDED_MARKETS: [],
+    PINNED_MARKETS: [],
+    BANNER_MARKETS: [],
+
+    SCAM_CONTRACTS: [],
+
+    CEX_CONTRACTS: [],
+
+    nftMarket: {
+      contract: '',
+    },
+
+    USD_TOKEN: '',
 
     popularTokens: [],
     GLOBAL_TOKENS: [],

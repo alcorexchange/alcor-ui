@@ -60,45 +60,72 @@ export async function streamByGreymass(network, account, callback, actions, dela
   }
 }
 
-export function streamHyperion(network, app, account, callback, actions) {
-  //throw new Error('Update by hyperion not implemented!')
+export async function streamByHyperion(
+  network: any,
+  account: string,
+  callback: Function,
+  actions: string[],
+  delay: number = 1000
+) {
+  console.info(`Start Hyperion updater for ${network.name} (${account})...`)
 
-  // const client = new HyperionSocketClient(network.hyperion, { async: true, fetch })
-  // client.onConnect = async () => {
-  //   const last_buy_match = await Match.findOne({ chain: network.name, type: 'buymatch' }, {}, { sort: { block_num: -1 } })
-  //   const last_sell_match = await Match.findOne({ chain: network.name, type: 'sellmatch' }, {}, { sort: { block_num: -1 } })
+  const settings = await getSettings(network)
 
-  //   client.streamActions({
-  //     contract: network.contract,
-  //     action: 'sellmatch',
-  //     account: network.contract,
-  //     start_from: last_sell_match ? last_sell_match.block_num + 1 : 1,
-  //     read_until: 0,
-  //     filters: []
-  //   })
+  let skip: number = settings.actions_stream_offset[getAccountAsKey(account)] || 0
 
-  //   client.streamActions({
-  //     contract: network.contract,
-  //     action: 'buymatch',
-  //     account: network.contract,
-  //     start_from: last_buy_match ? last_buy_match.block_num + 1 : 1,
-  //     read_until: 0,
-  //     filters: []
-  //   })
+  console.log('start fetching actions by Hyperion from', skip, 'for', network.name, `(${account})`)
 
-  //   // Other actions
-  //   client.streamActions({ contract: network.contract, action: 'sellreceipt', account: network.contract })
-  //   client.streamActions({ contract: network.contract, action: 'buyreceipt', account: network.contract })
-  //   client.streamActions({ contract: network.contract, action: 'cancelsell', account: network.contract })
-  //   client.streamActions({ contract: network.contract, action: 'cancelbuy', account: network.contract })
-  // }
+  while (true) {
+    let data: any
 
-  // client.onData = async ({ content }, ack) => {
-  //   await callback(content, network, app)
-  //   ack()
-  // }
+    try {
+      const startTime = performance.now()
 
-  // client.connect(() => {
-  //   console.log(`Start streaming for ${network.name}..`)
-  // })
+      // Build the Hyperion API URL
+      const url = `${network.hyperion}/v2/history/get_actions?limit=100&skip=${skip}&account=${account}&sort=-1`
+      console.log({ url })
+
+      // Fetch the data from Hyperion
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.statusText}`)
+      }
+
+      // Parse the response as JSON
+      data = await response.json()
+
+      const endTime = performance.now()
+
+      if (data.actions.length > 0) {
+        console.log(
+          `Received actions(${network.name}, ${account}): ${data.actions.length} -> ${Math.round(
+            endTime - startTime
+          )}ms`
+        )
+      }
+    } catch (e) {
+      console.log(`getActionsByHyperion(${network.name}) err: `, e.message)
+      await new Promise((resolve) => setTimeout(resolve, delay))
+      continue
+    }
+
+    for (const action of data.actions) {
+      skip += 1
+
+      // Hyperion stores the actual action data under `act`
+      if (actions.includes(action.act.name)) {
+        await callback(action, network)
+      }
+    }
+
+    const $set: { [key: string]: any } = {}
+    $set[`actions_stream_offset.${getAccountAsKey(account)}`] = skip
+
+    await Settings.updateOne({ chain: network.name }, { $set })
+
+    if (data.actions.length < 100) {
+      await new Promise((resolve) => setTimeout(resolve, delay))
+    }
+  }
 }

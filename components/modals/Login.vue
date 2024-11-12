@@ -80,7 +80,7 @@ export default {
       if (this.network.name == 'proton' || this.context?.chain == 'proton') {
         wallets.push({
           id: 'proton',
-          name: 'Proton',
+          name: 'WebAuth',
           logo: require('@/assets/icons/proton.png'),
           create: 'https://www.protonchain.com/wallet/'
         })
@@ -119,11 +119,6 @@ export default {
         logo: require('@/assets/logos/scatter.svg'),
         create:
           'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
-      }, {
-        name: 'SimplEOS',
-        logo: require('@/assets/logos/simpleos.svg')
-      }, {
-        name: 'Ledger', logo: require('@/assets/logos/ledger.svg')
       })
 
       if (chain == 'telos') {

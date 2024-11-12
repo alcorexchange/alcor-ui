@@ -422,7 +422,12 @@ export const actions = {
   async loadUserBalances({ dispatch }) {
     try {
       await dispatch('loadUserBalancesLightAPI')
+      //await dispatch('loadUserBalancesHyperion')
     } catch (e) {
+      // console.log('Getting balances from Hyperion failed:', e)
+      // console.log('Try with LightAPI', e)
+      // await dispatch('loadUserBalancesLightAPI')
+
       console.log('Getting balances from LightAPI failed:', e)
       console.log('Try with hyperion', e)
       await dispatch('loadUserBalancesHyperion')
@@ -502,56 +507,31 @@ export const actions = {
   async loadUserBalancesHyperion({ state, rootState, commit }) {
     console.log('loadUserBalances..')
     if (state.user) {
-      // TODO Вынести этот эндпоинт в конфиг
-      //this.$axios.get(`${state.network.lightapi}/api/balances/${state.network.name}/${rootState.user.name}`).then((r) => {
-      // FIXME Почему то нукстовский аксиос не работает для телефонов
-      const r = await axios.get(`${state.network.hyperion}/v2/state/get_tokens`, {
-        params: { account: rootState.user.name },
-      })
-      const balances = r.data.tokens.filter((b) => parseFloat(b.amount) > 0)
-
-      //balances.sort((a, b) => {
-      //  if (a.contract == 'eosio.token' || b.contract == 'eosio.token') { return -1 }
-      //  return 1
-      //})
-
-      // TODO Refactor this and make separate filter/computed for getting token in USD
-      // Calc USD value
-      balances.map((token) => {
-        if (!token.precision) token.precision = 0
-        token.currency = token.symbol
-        token.decimals = token.precision
-        token.id = token.currency + '@' + token.contract
-
-        const { systemPrice } = rootState.wallet
-        const market = state.markets.filter((m) => {
-          return (
-            m.base_token.contract == state.network.baseToken.contract &&
-            m.quote_token.contract == token.contract &&
-            m.quote_token.symbol.name == token.currency
-          )
-        })[0]
-
-        if (market) {
-          token.usd_value = parseFloat(token.amount) * market.last_price * systemPrice
-        } else {
-          token.usd_value = 0
-        }
-
-        if (token.contract == state.network.baseToken.contract) {
-          token.usd_value = parseFloat(token.amount) * systemPrice
-        }
+      const { data } = await axios.get(`${state.network.hyperion}/v2/state/get_tokens`, {
+        params: { account: rootState.user.name, limit: 10000 },
       })
 
-      balances.sort((a, b) => {
-        if (a.contract == 'eosio.token' || b.contract == 'eosio.token') {
-          return -1
-        }
+      if (Array.isArray(data?.tokens) && data.tokens.length) {
+        const tokenPrices = new Map(state.tokens.map((t) => [t.id, t.usd_price]))
 
-        return 0
-      })
+        const balances = data.tokens
+          .filter((b) => parseFloat(b.amount) > 0)
+          .map((token) => {
+            const id = `${token.symbol}@${token.contract}`
+            const tokenKey = id.replace('@', '-').toLowerCase()
+            const price = tokenPrices.get(tokenKey) || 0
 
-      balances.map((b) => commit('updateBalance', b))
+            return {
+              ...token,
+              id,
+              currency: token.symbol,
+              decimals: token.precision,
+              usd_value: parseFloat(token.amount) * price,
+            }
+          })
+
+        commit('setUserBalances', balances)
+      }
     }
   },
 

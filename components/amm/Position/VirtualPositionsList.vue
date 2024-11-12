@@ -1,5 +1,9 @@
 <template lang="pug">
 VirtualTable(:table="virtualTableData").virtual-positions-list
+  template(#empty)
+    .d-flex.flex-column.align-items-center.gap-30.py-5.muted
+      i.el-icon-moon-night.fs-40
+      .fs-14.lh-14 {{ $t('Your active liquidity positions will appear here.') }}
   template(#total-header)
     span.total-value-header
       span {{ $t("Total") }}
@@ -8,8 +12,8 @@ VirtualTable(:table="virtualTableData").virtual-positions-list
     .virtual-position-row.pointer(@click="$emit('positionClick', item)")
       .assets
         .assets-inner.d-flex.align-items-center.gap-12.px-2.py-2
-          PairIcons(:token1="item.pool.tokenA" :token2="item.pool.tokenB" size="20")
-          .fs-14 {{ item.pool.tokenA.symbol }} / {{ item.pool.tokenB.symbol }}
+          PairIcons(:token1="item.pool.tokenA" :token2="item.pool.tokenB" :size="isMobile ? '16': '20'")
+          .fs-14(:class="{ 'fs-12': isMobile }") {{ item.pool.tokenA.symbol }} / {{ item.pool.tokenB.symbol }}
           .tag {{ item.pool.fee / 10000 }}%
       .range.d-flex.flex-column(v-if="!isMobile")
         .d-flex.align-items-center.gap-4
@@ -180,10 +184,6 @@ export default {
 }
 .total-posiions-value {
   color: var(--text-default);
-}
-.total-value-header {
-  // display: inline-flex;
-  // flex-direction: column;
 }
 .indicator {
   width: 6px;

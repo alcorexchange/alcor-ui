@@ -20,8 +20,8 @@ const connectRedis = async (client) => {
 
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const POOLS = {}
-const ROUTES_CACHE_TIMEOUT = 60 * 20 // 20 минут
-const ROUTES_UPDATING_TIMEOUT = 60 * 10 // 5 минут
+const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 3
+const ROUTES_UPDATING_TIMEOUT = 60 * 60 * 1
 
 subscriber.connect().then(() => {
   subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
@@ -56,7 +56,7 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   const liquidPools = Array.from(allPools.values()).filter((p: any) => p.active && p.tickDataProvider.ticks.length > 0)
 
   let redisRoutes = await redisClient.get('routes_' + cacheKey)
-  let cacheExpiration = await redisClient.get('routes_expiration_' + cacheKey)
+  const cacheExpiration = await redisClient.get('routes_expiration_' + cacheKey)
 
   const currentTime = Date.now()
   const isCacheExpired = !cacheExpiration || currentTime > parseInt(cacheExpiration, 10)
@@ -92,6 +92,9 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
 }
 
 async function updateCache(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
+  console.log('start update cache', cacheKey)
+  const startTime = performance.now()
+
   const input = findToken(pools, inputToken.id)
   const output = findToken(pools, outputToken.id)
 
@@ -100,7 +103,7 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
   }
 
   try {
-    const routes = await computeRoutesInWorker(input, output, pools, maxHops)
+    const routes: any = await computeRoutesInWorker(input, output, pools, maxHops)
     const redisRoutes = routes.map(({ input, output, pools }) => ({
       input: Token.toJSON(input),
       output: Token.toJSON(output),
@@ -109,7 +112,10 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
 
     await redisClient.set('routes_' + cacheKey, JSON.stringify(redisRoutes))
     await redisClient.set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT * 1000).toString())
-    console.log('cacheUpdated:', cacheKey)
+
+    const endTime = performance.now()
+
+    console.log('cacheUpdated:', `${Math.round(endTime - startTime)}ms ${cacheKey}`)
 
     return routes
   } catch (error) {

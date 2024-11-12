@@ -33,7 +33,7 @@
     .receive-on.d-flex.flex-column
       .mb-3 Receive on
       alcor-select.network-select(
-        :options="fromNetworkOptions"
+        :options="toNetworkOptions"
         :value.sync="destinationName"
         :disabled="inProgress"
         placeholder="Choose Network"
@@ -188,6 +188,25 @@ export default {
     destinationWallet: null,
 
     fromNetworkOptions: [
+      {
+        value: 'wax',
+        label: 'WAX',
+      },
+      //{
+      //  value: 'proton',
+      //  label: 'Proton'
+      //},
+      {
+        value: 'telos',
+        label: 'Telos',
+      },
+      {
+        value: 'ux',
+        label: 'UX Network',
+      },
+    ],
+
+    toNetworkOptions: [
       {
         value: 'eos',
         label: 'EOS',

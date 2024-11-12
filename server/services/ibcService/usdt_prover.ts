@@ -46,7 +46,7 @@ async function getActions(chain, account, params = {}) {
       params: {
         account,
         'act.name': 'emitxfer',
-        limit: 1000,
+        limit: 100,
         skip: xfers.length,
         sort: -1,
         ...params
@@ -55,10 +55,16 @@ async function getActions(chain, account, params = {}) {
 
     xfers.push(...actions)
 
+    // GET ONLY LAST 100
+    break
+
     if (xfers.length == total.value) {
       break
     }
   }
+
+  // from oldest to nevest
+  xfers.sort((a, b) => a.block_num - b.block_num)
 
   return xfers
 }
@@ -122,7 +128,7 @@ async function proveTransfers(ibcToken, sourceChain, destinationChain, _native) 
       console.error('IBC WORKER ERROR', e)
     }
 
-    await sleep(6 * 1000)
+    await sleep(10 * 1000)
   }
 }
 
@@ -154,7 +160,7 @@ async function main() {
 
   await Promise.all([
     WaxToEosWorker(ibcTokens),
-    eosToWaxWorker(ibcTokens),
+    //eosToWaxWorker(ibcTokens),
     eosCexDepsitsWorker()
   ])
 }

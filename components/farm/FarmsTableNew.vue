@@ -13,19 +13,39 @@
       Sorter(sortBy="time" :activeSort="{ key: sortKey, route: sortDirection }" @change="handleSort")
     .header-item
     .header-item
-  .table-items
-    FarmItemNew(
-      v-for="farm in sortedItems"
-      :key="farm.id"
-      :farm="farm"
-      :finished="finished"
-      @claimAll="claimAll"
-      @stakeAll="stakeAll"
-      @unstakeAll="unstakeAll"
-      @claim="claim"
-      @stake="stake"
-      @unstake="unstake"
-    )
+  DynamicScroller(ref="scroller" :pageMode="true" class="recycle-scroller table-items" :minItemSize="isMobile ? 410 : 82" listTag="div" :items="sortedItems")
+    template(#default="{ item: farm, index, active }")
+      DynamicScrollerItem(
+        :item="farm"
+        :active="active"
+        :data-index="index"
+        :size-dependencies="[farm.incentives.length, farm.expanded]"
+      )
+        FarmItemNew(
+          :farm="farm"
+          :finished="finished"
+          @claimAll="claimAll"
+          @stakeAll="stakeAll"
+          @unstakeAll="unstakeAll"
+          @claim="claim"
+          @stake="stake"
+          @unstake="unstake"
+          @expandChange="handleExpandChange"
+          :expanded="farm.expanded"
+      )
+  //- .table-items
+  //-   FarmItemNew(
+  //-     v-for="farm in sortedItems"
+  //-     :key="farm.id"
+  //-     :farm="farm"
+  //-     :finished="finished"
+  //-     @claimAll="claimAll"
+  //-     @stakeAll="stakeAll"
+  //-     @unstakeAll="unstakeAll"
+  //-     @claim="claim"
+  //-     @stake="stake"
+  //-     @unstake="unstake"
+  //-   )
 </template>
 
 <script>
@@ -57,7 +77,7 @@ export default {
 
   data: () => {
     return {
-      extendedRow: null,
+      expandedItems: [],
       sortKey: 'apr',
       sortDirection: null,
     }
@@ -65,7 +85,12 @@ export default {
 
   computed: {
     sortedItems() {
-      const farms = [...(this.farmPools || [])]
+      const farms = [
+        ...(this.farmPools?.map((item) => ({
+          ...item,
+          expanded: this.expandedItems.includes(item.id),
+        })) || []),
+      ]
 
       const isTimeSort = this.sortKey === 'time'
       const isAprSort = this.sortKey === 'apr'
@@ -91,11 +116,24 @@ export default {
         if (this.sortDirection === 0) return timeSorted.reverse()
       }
 
-      return this.farmPools
+      return this.farmPools.map((item) => ({
+        ...item,
+        expanded: this.expandedItems.includes(item.id),
+      }))
     },
   },
 
   methods: {
+    handleExpandChange(id) {
+      if (this.expandedItems.includes(id)) {
+        this.expandedItems = this.expandedItems.filter((item) => item !== id)
+
+        // Fix for when item is closed sometimes keeps the gap.
+        this.$refs.scroller.forceUpdate()
+        return
+      }
+      this.expandedItems.push(id)
+    },
     handleSort(newSort) {
       console.log({ newSort })
 
@@ -293,10 +331,14 @@ export default {
   font-size: 14px;
 }
 
-.table-items {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+// .table-items {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 8px;
+// }
+
+.recycle-scroller {
+  height: 100%;
 }
 
 @media only screen and (max-width: 900px) {

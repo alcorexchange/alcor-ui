@@ -169,7 +169,9 @@ export const getters = {
 
     wrappedList = wrappedList.sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
 
-    return [...nativeList, ...wrappedList]
+    const all = [...nativeList, ...wrappedList].filter(i => i.pairedChain !== 'eos')
+
+    return all
   },
 
   source(state) {

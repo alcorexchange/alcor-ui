@@ -24,7 +24,7 @@ div(v-loading="!position && !this.positionNotFound")
         .separator.mt-2
         UnclaimedFees(:position="position" :isMyPosition="isMyPosition")
         .separator.mt-2
-        RemoveLiquidityPercentage(:class="{ mutted: !isMyPosition }" :position="position")
+        RemoveLiquidityPercentage(:class="{ mutted: !isMyPosition && $store.state.user }" :position="position")
       .right
         // TODO Proper initial zooming for infinite range
         LiquidityChartRangeInput(
@@ -94,13 +94,13 @@ export default {
     LiquidityChartRangeInput,
     AlcorSwitch,
     AlcorButton,
-    ManageLiquidityMinMaxPrices
+    ManageLiquidityMinMaxPrices,
   },
 
   data: () => ({
     loadedPosition: null,
     tokensInverted: false,
-    positionNotFound: false
+    positionNotFound: false,
   }),
 
   computed: {
@@ -110,16 +110,13 @@ export default {
 
     position() {
       const posId = this.$route.params.id
-      const position = this.$store.getters['amm/positions']?.find(p => p.id == posId)
+      const position = this.$store.getters['amm/positions']?.find((p) => p.id == posId)
 
       if (!position && this.loadedPosition) {
-        const pool = this.$store.state.amm.pools.find(p => p.id == this.loadedPosition.pool)
+        const pool = this.$store.state.amm.pools.find((p) => p.id == this.loadedPosition.pool)
         if (!pool) return
 
-        const positionInstance = constructPosition(
-          constructPoolInstance(pool),
-          this.loadedPosition
-        )
+        const positionInstance = constructPosition(constructPoolInstance(pool), this.loadedPosition)
 
         return positionInstance
       }
@@ -147,11 +144,18 @@ export default {
     },
 
     ticksAtLimit() {
-      const { tickSpaceLimits, position: { tickLower, tickUpper, pool: { fee } } } = this
+      const {
+        tickSpaceLimits,
+        position: {
+          tickLower,
+          tickUpper,
+          pool: { fee },
+        },
+      } = this
 
       return {
         LOWER: fee && tickLower === tickSpaceLimits.LOWER,
-        UPPER: fee && tickUpper === tickSpaceLimits.UPPER
+        UPPER: fee && tickUpper === tickSpaceLimits.UPPER,
       }
     },
   },
@@ -171,7 +175,7 @@ export default {
         } catch (e) {
           return this.$notify({
             type: 'warning',
-            message: 'Account does not exists'
+            message: 'Account does not exists',
           })
         }
 
@@ -189,9 +193,9 @@ export default {
               to,
               tickLower,
               tickUpper,
-              memo: ''
-            }
-          }
+              memo: '',
+            },
+          },
         ]
 
         try {
@@ -199,7 +203,7 @@ export default {
         } catch (e) {
           return this.$notify({
             type: 'error',
-            message: e.message
+            message: e.message,
           })
         }
 
@@ -223,13 +227,17 @@ export default {
 
     toggleTokens() {
       this.tokensInverted = !this.tokensInverted
-    }
+    },
   },
-
 }
 </script>
 
 <style lang="scss">
+@media only screen and (max-width: 600px) {
+  .el-message-box {
+    width: 95% !important;
+  }
+}
 .position-loading {
   min-height: 300px;
 }
@@ -239,50 +247,52 @@ export default {
   width: 100%;
   max-width: 920px;
   margin: 50px auto;
-  .main{
+  .main {
     display: flex;
-    .left, .right{
+    .left,
+    .right {
       flex: 1;
     }
   }
-  .claim-fees-button{
+  .claim-fees-button {
     padding: 4px 8px;
     font-weight: 500;
     border: none !important;
     color: var(--text-theme) !important;
-    &:hover{
+    &:hover {
       background: var(--main-green) !important;
     }
-    &.submit{
+    &.submit {
       padding: 14px;
       border-radius: 6px;
     }
   }
 
-  .increase-button{
+  .increase-button {
     color: var(--border-active-color);
     font-weight: 500;
     padding: 4px 8px;
   }
-  .token-image{
-    width: 16px; height: 16px;
+  .token-image {
+    width: 16px;
+    height: 16px;
   }
-  .separator{
+  .separator {
     width: 100%;
     border-bottom: 1px solid var(--border-1-color);
   }
-  .info{
+  .info {
     background-color: var(--selector-bg) !important;
   }
 }
 </style>
 <style scoped lang="scss">
-@media only screen and (max-width: 860px){
-  .main{
+@media only screen and (max-width: 860px) {
+  .main {
     flex-direction: column;
     gap: 40px;
   }
-  .manage-liquidity-component{
+  .manage-liquidity-component {
     margin-top: 20px;
   }
 }

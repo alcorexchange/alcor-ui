@@ -1,636 +1,447 @@
 {
-	"GLX@galacticsagatoken": {
-		"name": "Galactic Saga",
-		"website": {
-			"link": "https://www.galacticsaga.io/",
-			"name": "www.galacticsaga.io"
-		},
-		"tags": [
-			"Gaming",
-			"P2E",
-			"NFT"
-		],
-		"socials": [
-			"https://discord.gg/c2FvEjcv2b",
-			"https://twitter.com/GalacticSaga"
-		],
-		"github": "https://github.com/",
-		"description": "Space strategy NFT game on WAX blockchain"
-	},
-    "INDEX@stabletokens": {
-        "name": "INDEX token",
-        "website": {
-            "link": "https://waxtools.net/index-main",
-            "name": "waxtools.net"
-        },
-        "tags": [
-            "Stablecoin",
-            "Trade-Bots",
-            "P2E",
-            "WAXTOOLS"
-        ],
-        "socials": [
-            "https://t.me/waxtools",
-            "https://discord.gg/vScMnQKMxh"
-        ],
-        "description": "The INDEX token serves as an investment index on the WAX blockchain, aimed at long-term and minimally risky investments. You can read more in the White Paper"
+  "WOA@worldventure": {
+    "name": "World of Adventures",
+    "website": {
+      "link": "https://world-of-adventures.gitbook.io/",
+      "name": "WOA DOCS"
     },
-    "HERB@naturestoken": {
-        "name": "HERB",
-        "tags": [
-            "tipbot",
-            "gaming"
-        ],
-        "socials": [
-            "https://t.me/chat_herb"
-        ],
-        "description": "HERB tokens are the official currency for @HerbTipBot on Telegram, providing a 50% discount for token whitelisting and enhancing your Telegram chat experience with fun games and features. They're essential for maximizing your engagement within the bot's ecosystem."
+    "tags": ["Gaming", "F2P", "P2E", "NFT"],
+    "socials": ["https://t.me/AnimeWorldsAdventure"],
+    "description": "World of Adventures is a Telegram Based Game. Enter the portal now to Explore the Different Worlds of Anime."
+  },
+  "GLX@galacticsagatoken": {
+    "name": "Galactic Saga",
+    "website": {
+      "link": "https://www.galacticsaga.io/",
+      "name": "www.galacticsaga.io"
     },
-    "USDT@usdt.alcor": {
-        "name": "USDT",
-        "website": {
-            "link": "https://tether.to",
-            "name": "Tether USDT"
-        },
-        "tags": [
-            "Stablecoin",
-            "Tether",
-            "USD"
-        ],
-        "github": "https://github.com/CryptoMechanics/eosio-ibc-bridge-contract",
-        "socials": [
-            "https://ibc-docs.uxnetwork.io",
-            "https://wax.bloks.io/account/usdt.alcor",
-            "https://wax.bloks.io/account/ibc.alcor"
-        ],
-        "description": "Native USDT on EOS, Bridged to WAX Chain by Alcor team, using secure IBC technology. IBC are based on merkle root proof cryptography, it does not use any centralized point of management, or any back-end and third-party services. It's audited, secure solution for bridging tokens on Antelope chains. Bridge fee are 0% both ways, and process takes only ~2 minute."
+    "tags": ["Gaming", "P2E", "NFT"],
+    "socials": ["https://discord.gg/c2FvEjcv2b", "https://twitter.com/GalacticSaga"],
+    "github": "https://github.com/",
+    "description": "Space strategy NFT game on WAX blockchain"
+  },
+  "INDEX@stabletokens": {
+    "name": "INDEX token",
+    "website": {
+      "link": "https://waxtools.net/index-main",
+      "name": "waxtools.net"
     },
-    "BRWL@brawlertoken": {
-        "name": "Brawlers",
-        "website": {
-            "link": "https://www.bcbrawlers.com/",
-            "name": "bcbrawlers.com"
-        },
-        "tags": [
-            "Gaming",
-            "P2E",
-            "NFT"
-        ],
-        "socials": [
-            "https://twitter.com/bc_brawlers",
-            "https://discord.com/invite/W9XzVNDrMS"
-        ],
-        "description": "Blockchain Brawlers is the first play-to-earn (P2E) game experience built by WAX Game Studios on the WAX Blockchain. You can collect Brawlers, equip them with gear and send them to Brawl in the Ring for rewards."
+    "tags": ["Stablecoin", "Trade-Bots", "P2E", "WAXTOOLS"],
+    "socials": ["https://t.me/waxtools", "https://discord.gg/vScMnQKMxh"],
+    "description": "The INDEX token serves as an investment index on the WAX blockchain, aimed at long-term and minimally risky investments. You can read more in the White Paper"
+  },
+  "HERB@naturestoken": {
+    "name": "HERB",
+    "tags": ["tipbot", "gaming"],
+    "socials": ["https://t.me/chat_herb"],
+    "description": "HERB tokens are the official currency for @HerbTipBot on Telegram, providing a 50% discount for token whitelisting and enhancing your Telegram chat experience with fun games and features. They're essential for maximizing your engagement within the bot's ecosystem."
+  },
+  "USDT@usdt.alcor": {
+    "name": "USDT",
+    "website": {
+      "link": "https://tether.to",
+      "name": "Tether USDT"
     },
-    "FWW@farmerstoken": {
-        "name": "Farmers World",
-        "website": {
-            "link": "https://farmersworld.io/",
-            "name": "farmersworld.io"
-        },
-        "tags": [
-            "Gaming",
-            "P2E",
-            "NFT"
-        ],
-        "socials": [
-            "https://t.me/farmersworldofficial",
-            "https://twitter.com/FarmersWorldNFT",
-            "https://discord.com/invite/V2pdyGdB9V"
-        ],
-        "github": "https://github.com/shivsriv/FarmersWorld",
-        "description": "FarmersWorld is the first farming game to function on the NFTs platform. Pick for yourself suitable tools, exploit various resources, buy land to build enormous farms, and enjoy the fascinating experiences of a farmer working in Farmersworld’s Ecosystem."
+    "tags": ["Stablecoin", "Tether", "USD"],
+    "github": "https://github.com/CryptoMechanics/eosio-ibc-bridge-contract",
+    "socials": [
+      "https://ibc-docs.uxnetwork.io",
+      "https://wax.bloks.io/account/usdt.alcor",
+      "https://wax.bloks.io/account/ibc.alcor"
+    ],
+    "description": "Native USDT on EOS, Bridged to WAX Chain by Alcor team, using secure IBC technology. IBC are based on merkle root proof cryptography, it does not use any centralized point of management, or any back-end and third-party services. It's audited, secure solution for bridging tokens on Antelope chains. Bridge fee are 0% both ways, and process takes only ~2 minute."
+  },
+  "BRWL@brawlertoken": {
+    "name": "Brawlers",
+    "website": {
+      "link": "https://www.bcbrawlers.com/",
+      "name": "bcbrawlers.com"
     },
-    "FWG@farmerstoken": {
-        "name": "Farmers World",
-        "website": {
-            "link": "https://farmersworld.io/",
-            "name": "farmersworld.io"
-        },
-        "github": "https://github.com/shivsriv/FarmersWorld"
+    "tags": ["Gaming", "P2E", "NFT"],
+    "socials": ["https://twitter.com/bc_brawlers", "https://discord.com/invite/W9XzVNDrMS"],
+    "description": "Blockchain Brawlers is the first play-to-earn (P2E) game experience built by WAX Game Studios on the WAX Blockchain. You can collect Brawlers, equip them with gear and send them to Brawl in the Ring for rewards."
+  },
+  "FWW@farmerstoken": {
+    "name": "Farmers World",
+    "website": {
+      "link": "https://farmersworld.io/",
+      "name": "farmersworld.io"
     },
-    "FWF@farmerstoken": {
-        "name": "Farmers World",
-        "website": {
-            "link": "https://farmersworld.io/",
-            "name": "farmersworld.io"
-        },
-        "github": "https://github.com/shivsriv/FarmersWorld"
+    "tags": ["Gaming", "P2E", "NFT"],
+    "socials": [
+      "https://t.me/farmersworldofficial",
+      "https://twitter.com/FarmersWorldNFT",
+      "https://discord.com/invite/V2pdyGdB9V"
+    ],
+    "github": "https://github.com/shivsriv/FarmersWorld",
+    "description": "FarmersWorld is the first farming game to function on the NFTs platform. Pick for yourself suitable tools, exploit various resources, buy land to build enormous farms, and enjoy the fascinating experiences of a farmer working in Farmersworld’s Ecosystem."
+  },
+  "FWG@farmerstoken": {
+    "name": "Farmers World",
+    "website": {
+      "link": "https://farmersworld.io/",
+      "name": "farmersworld.io"
     },
-    "HEELS@pinup24heels": {
-        "name": "PinupWarlords",
-        "website": {
-            "link": "https://pinupwarlords.com/",
-            "name": "pinupwarlords.com"
-        },
-        "tags": [
-            "Gaming",
-            "P2E",
-            "NFT"
-        ],
-        "socials": [
-            "https://discord.com/pinupwarlords",
-            "https://twitter.com/pinupwarlords"
-        ],
-        "description": "PinupWarlords is a fun and fast-paced Play to Earn NFT trading card game, fully on-chain, with stunning ART and multi-PvP modes. It’s a game where players own the assets and can freely resell them and participate in its ecosystem."
+    "github": "https://github.com/shivsriv/FarmersWorld"
+  },
+  "FWF@farmerstoken": {
+    "name": "Farmers World",
+    "website": {
+      "link": "https://farmersworld.io/",
+      "name": "farmersworld.io"
     },
-    "MVT@miningvoxelt": {
-        "name": "MiningVoxels Token",
-        "website": {
-            "link": "https://miningvoxels.com/",
-            "name": "MiningVoxels Website"
-        },
-        "tags": [
-            "Gaming",
-            "P2E",
-            "NFT"
-        ],
-        "socials": [
-            "https://discord.gg/butkKKH8Nr",
-            "https://twitter.com/miningvoxels"
-        ],
-        "description": "MiningVoxels is a large play-to-earn game that simulates the real-world economy."
+    "github": "https://github.com/shivsriv/FarmersWorld"
+  },
+  "HEELS@pinup24heels": {
+    "name": "PinupWarlords",
+    "website": {
+      "link": "https://pinupwarlords.com/",
+      "name": "pinupwarlords.com"
     },
-    "DBLN@dbln1wallet1": {
-        "name": "Doubloon",
-        "website": {
-            "link": "https://discord.gg/psyberx",
-            "name": "Psyber-X / Serfdom & Sorcery Discord"
-        },
-        "tags": [
-            "Gaming",
-            "P2E",
-            "RPG"
-        ],
-        "socials": [
-            "https://twitter.com/SerfdomSorcery",
-            "https://discord.gg/psyberx",
-            "https://peakd.com/@masterrpgbot"
-        ],
-        "description": "Doubloon is the official currency of the play to earn Serfdom & Sorcery Discord RPG"
+    "tags": ["Gaming", "P2E", "NFT"],
+    "socials": ["https://discord.com/pinupwarlords", "https://twitter.com/pinupwarlords"],
+    "description": "PinupWarlords is a fun and fast-paced Play to Earn NFT trading card game, fully on-chain, with stunning ART and multi-PvP modes. It’s a game where players own the assets and can freely resell them and participate in its ecosystem."
+  },
+  "MVT@miningvoxelt": {
+    "name": "MiningVoxels Token",
+    "website": {
+      "link": "https://miningvoxels.com/",
+      "name": "MiningVoxels Website"
     },
-    "FRCT@token.parsec": {
-        "name": "Few Parsec Away",
-        "website": {
-            "link": "https://parsecgame.io/",
-            "name": "parsecgame.io"
-        },
-        "description": "Few Parsec Away is a captivating, massively multiplayer online game that combines both player-versus-player (PvP) and player-versus-environment (PvE) elements. It is a browser-based strategy game set in space, specifically within the solar system. Few Parsec Away is a free-to-play game based on blockchain technology, integrating elements related to NFTs and cryptocurrencies as premium features.",
-        "tags": [
-            "Play2Earn",
-            "Gaming"
-        ],
-        "socials": [
-            "https://twitter.com/Parsec_game"
-        ]
+    "tags": ["Gaming", "P2E", "NFT"],
+    "socials": ["https://discord.gg/butkKKH8Nr", "https://twitter.com/miningvoxels"],
+    "description": "MiningVoxels is a large play-to-earn game that simulates the real-world economy."
+  },
+  "DBLN@dbln1wallet1": {
+    "name": "Doubloon",
+    "website": {
+      "link": "https://discord.gg/psyberx",
+      "name": "Psyber-X / Serfdom & Sorcery Discord"
     },
-    "TLM@alien.worlds": {
-        "name": "Alien Worlds",
-        "website": {
-            "link": "https://alienworlds.io/",
-            "name": "alienworlds.io"
-        },
-        "description": "Alien Worlds is a Digital Item Metaverse in Faraway Space. Own land on distant planets, explore and find strange artefacts, mine for Trilium with hyper-advanced tools or fight using alien weapons.",
-        "tags": [
-            "Gaming",
-            "DeFi"
-        ],
-        "socials": [
-            "https://twitter.com/AlienWorlds"
-        ]
+    "tags": ["Gaming", "P2E", "RPG"],
+    "socials": ["https://twitter.com/SerfdomSorcery", "https://discord.gg/psyberx", "https://peakd.com/@masterrpgbot"],
+    "description": "Doubloon is the official currency of the play to earn Serfdom & Sorcery Discord RPG"
+  },
+  "FRCT@token.parsec": {
+    "name": "Few Parsec Away",
+    "website": {
+      "link": "https://parsecgame.io/",
+      "name": "parsecgame.io"
     },
-    "MARTIA@martia": {
-        "name": "Colonize Mars",
-        "website": {
-            "link": "https://colonizemars.com/",
-            "name": "colonizemars.com"
-        },
-        "description": "Own part of the first-ever mars colony on the blockchain! Purchase supply crates, unlock unique cards, and upgrade them for a chance at owning different parts of the colony forever.",
-        "tags": [
-            "Play2Own",
-            "Gaming",
-            "Simulation"
-        ],
-        "socials": [
-            "https://twitter.com/colonizemarsnft"
-        ]
+    "description": "Few Parsec Away is a captivating, massively multiplayer online game that combines both player-versus-player (PvP) and player-versus-environment (PvE) elements. It is a browser-based strategy game set in space, specifically within the solar system. Few Parsec Away is a free-to-play game based on blockchain technology, integrating elements related to NFTs and cryptocurrencies as premium features.",
+    "tags": ["Play2Earn", "Gaming"],
+    "socials": ["https://twitter.com/Parsec_game"]
+  },
+  "TLM@alien.worlds": {
+    "name": "Alien Worlds",
+    "website": {
+      "link": "https://alienworlds.io/",
+      "name": "alienworlds.io"
     },
-    "RLM@realmnftgame": {
-        "name": "Realm NFT Game",
-        "website": {
-            "link": "https://realmnft.io/",
-            "name": "realmnft.io"
-        },
-        "description": "Realm NFT's are playable, blockchain-based collectables for using in Realm, a play-to-earn resource management game. In Realm players strategically utilize their NFT Leaders, Helpers and Boosts to save the world from devastation.",
-        "tags": [
-            "Strategy",
-            "Gaming"
-        ],
-        "socials": [
-            "https://twitter.com/RealmNft"
-        ]
+    "description": "Alien Worlds is a Digital Item Metaverse in Faraway Space. Own land on distant planets, explore and find strange artefacts, mine for Trilium with hyper-advanced tools or fight using alien weapons.",
+    "tags": ["Gaming", "DeFi"],
+    "socials": ["https://twitter.com/AlienWorlds"]
+  },
+  "MARTIA@martia": {
+    "name": "Colonize Mars",
+    "website": {
+      "link": "https://colonizemars.com/",
+      "name": "colonizemars.com"
     },
-    "LOOT@warsaken": {
-        "name": "The Warsaken",
-        "website": {
-            "link": "https://www.warsaken.com/",
-            "name": "warsaken.com"
-        },
-        "description": "Not your father's war game",
-        "tags": [
-            "Card Game",
-            "Strategy"
-        ],
-        "socials": [
-            "https://twitter.com/thewarsaken"
-        ]
+    "description": "Own part of the first-ever mars colony on the blockchain! Purchase supply crates, unlock unique cards, and upgrade them for a chance at owning different parts of the colony forever.",
+    "tags": ["Play2Own", "Gaming", "Simulation"],
+    "socials": ["https://twitter.com/colonizemarsnft"]
+  },
+  "RLM@realmnftgame": {
+    "name": "Realm NFT Game",
+    "website": {
+      "link": "https://realmnft.io/",
+      "name": "realmnft.io"
     },
-    "HONEY@nfthivehoney": {
-        "name": "Honey",
-        "website": {
-            "link": "https://nfthive.io/",
-            "name": "nfthive.io"
-        },
-        "description": "Buy, Sell and Trade WAX NFTs - P2E Games - NFT Collectibles - NFT Tools: Set Builder, Bulk Operations, NFT Crafting, Drops",
-        "tags": [
-            "Marketplace"
-        ],
-        "socials": [
-            "https://twitter.com/nfthiveio"
-        ]
+    "description": "Realm NFT's are playable, blockchain-based collectables for using in Realm, a play-to-earn resource management game. In Realm players strategically utilize their NFT Leaders, Helpers and Boosts to save the world from devastation.",
+    "tags": ["Strategy", "Gaming"],
+    "socials": ["https://twitter.com/RealmNft"]
+  },
+  "LOOT@warsaken": {
+    "name": "The Warsaken",
+    "website": {
+      "link": "https://www.warsaken.com/",
+      "name": "warsaken.com"
     },
-    "AETHER@e.rplanet": {
-        "name": "RPlanet",
-        "website": {
-            "link": "https://rplanet.io/",
-            "name": "rplanet.io"
-        },
-        "description": "RPlanet assets are playable, blockchain-based collectibles for use in the game RPlanet Conquest.",
-        "tags": [
-            "Gaming"
-        ],
-        "socials": [
-            "https://twitter.com/RPLANETio"
-        ]
+    "description": "Not your father's war game",
+    "tags": ["Card Game", "Strategy"],
+    "socials": ["https://twitter.com/thewarsaken"]
+  },
+  "HONEY@nfthivehoney": {
+    "name": "Honey",
+    "website": {
+      "link": "https://nfthive.io/",
+      "name": "nfthive.io"
     },
-    "NBMFUS@battleminers": {
-        "name": "NFT Battle Miners",
-        "website": {
-            "link": "https://game.nftbattleminers.com/",
-            "name": "game.nftbattleminers.com"
-        },
-        "description": "NFT Battle Miners (NBM) is your portal to the Arcadian system, a massive multiplayer online universe where everyone can play for free and earn real money! In NBM, you can create your own character and play as a miner exploring Arcadia looking for its wealth. Trade, sell, upgrade, fight, the choice is yours!",
-        "tags": [
-            "Metaverse",
-            "Gaming"
-        ],
-        "socials": [
-            "https://twitter.com/NFTBattleMiners"
-        ]
+    "description": "Buy, Sell and Trade WAX NFTs - P2E Games - NFT Collectibles - NFT Tools: Set Builder, Bulk Operations, NFT Crafting, Drops",
+    "tags": ["Marketplace"],
+    "socials": ["https://twitter.com/nfthiveio"]
+  },
+  "AETHER@e.rplanet": {
+    "name": "RPlanet",
+    "website": {
+      "link": "https://rplanet.io/",
+      "name": "rplanet.io"
     },
-    "NBMACT@battleminers": {
-        "name": "NFT Battle Miners",
-        "website": {
-            "link": "https://game.nftbattleminers.com/",
-            "name": "game.nftbattleminers.com"
-        },
-        "description": "NFT Battle Miners (NBM) is your portal to the Arcadian system, a massive multiplayer online universe where everyone can play for free and earn real money! In NBM, you can create your own character and play as a miner exploring Arcadia looking for its wealth. Trade, sell, upgrade, fight, the choice is yours!",
-        "tags": [
-            "Metaverse",
-            "Gaming"
-        ],
-        "socials": [
-            "https://twitter.com/NFTBattleMiners"
-        ]
+    "description": "RPlanet assets are playable, blockchain-based collectibles for use in the game RPlanet Conquest.",
+    "tags": ["Gaming"],
+    "socials": ["https://twitter.com/RPLANETio"]
+  },
+  "NBMFUS@battleminers": {
+    "name": "NFT Battle Miners",
+    "website": {
+      "link": "https://game.nftbattleminers.com/",
+      "name": "game.nftbattleminers.com"
     },
-    "NBMMIN@battleminers": {
-        "name": "NFT Battle Miners",
-        "website": {
-            "link": "https://game.nftbattleminers.com/",
-            "name": "game.nftbattleminers.com"
-        },
-        "description": "NFT Battle Miners (NBM) is your portal to the Arcadian system, a massive multiplayer online universe where everyone can play for free and earn real money! In NBM, you can create your own character and play as a miner exploring Arcadia looking for its wealth. Trade, sell, upgrade, fight, the choice is yours!",
-        "tags": [
-            "Metaverse",
-            "Gaming"
-        ],
-        "socials": [
-            "https://twitter.com/NFTBattleMiners"
-        ]
+    "description": "NFT Battle Miners (NBM) is your portal to the Arcadian system, a massive multiplayer online universe where everyone can play for free and earn real money! In NBM, you can create your own character and play as a miner exploring Arcadia looking for its wealth. Trade, sell, upgrade, fight, the choice is yours!",
+    "tags": ["Metaverse", "Gaming"],
+    "socials": ["https://twitter.com/NFTBattleMiners"]
+  },
+  "NBMACT@battleminers": {
+    "name": "NFT Battle Miners",
+    "website": {
+      "link": "https://game.nftbattleminers.com/",
+      "name": "game.nftbattleminers.com"
     },
-    "WOMBAT@wombattokens": {
-        "name": "Wombat",
-        "website": {
-            "link": "https://www.wombat.app/",
-            "name": "wombat.app"
-        },
-        "description": "Wombat is your home for NFT-Gaming. Become part of the gaming revolution and play together with millions of gamers across the globe.",
-        "tags": [
-            "Ecosystem"
-        ],
-        "socials": [
-            "https://twitter.com/adoptwombat"
-        ]
+    "description": "NFT Battle Miners (NBM) is your portal to the Arcadian system, a massive multiplayer online universe where everyone can play for free and earn real money! In NBM, you can create your own character and play as a miner exploring Arcadia looking for its wealth. Trade, sell, upgrade, fight, the choice is yours!",
+    "tags": ["Metaverse", "Gaming"],
+    "socials": ["https://twitter.com/NFTBattleMiners"]
+  },
+  "NBMMIN@battleminers": {
+    "name": "NFT Battle Miners",
+    "website": {
+      "link": "https://game.nftbattleminers.com/",
+      "name": "game.nftbattleminers.com"
     },
-    "NOVO@tokens.novo": {
-        "name": "Novopangea",
-        "website": {
-            "link": "https://novopangea.io/welcome/",
-            "name": "novopangea.io"
-        },
-        "description": "Novopangea is a fun and immersive MPOG experience where you build your economic empire across the six realms of Novopangea. You can purchase land, and buildings and produce resources to earn Obsidian. Take your Obsidian and then level up your in-game assets. As our game expands to PVP you will be able to produce specific resources that can be crafted with weapons, armor, accessories, and items.",
-        "tags": [
-            "Gaming",
-            "Art",
-            "Storytelling"
-        ],
-        "socials": [
-            "https://twitter.com/novopangeaio"
-        ]
+    "description": "NFT Battle Miners (NBM) is your portal to the Arcadian system, a massive multiplayer online universe where everyone can play for free and earn real money! In NBM, you can create your own character and play as a miner exploring Arcadia looking for its wealth. Trade, sell, upgrade, fight, the choice is yours!",
+    "tags": ["Metaverse", "Gaming"],
+    "socials": ["https://twitter.com/NFTBattleMiners"]
+  },
+  "WOMBAT@wombattokens": {
+    "name": "Wombat",
+    "website": {
+      "link": "https://www.wombat.app/",
+      "name": "wombat.app"
     },
-    "ZBC@zombiecointk": {
-        "name": "Zombiecoin",
-        "website": {
-            "link": "https://www.zombiecoin.io/",
-            "name": "zombiecoin.io"
-        },
-        "description": "Zombiecoin is an NFT resource gathering and crafting game on the WAX blockchain. Players perform work tasks to gather various resources. The resources are used in crafting and upgrading to higher tier materials. For example, walls can be made from wood and combined with other parts to build a house. You can also trade the resources and assets on the secondary market.",
-        "tags": [
-            "Gaming",
-            "Art",
-            "Storytelling"
-        ],
-        "socials": [
-            "https://twitter.com/ZombiecoinNFT"
-        ]
+    "description": "Wombat is your home for NFT-Gaming. Become part of the gaming revolution and play together with millions of gamers across the globe.",
+    "tags": ["Ecosystem"],
+    "socials": ["https://twitter.com/adoptwombat"]
+  },
+  "NOVO@tokens.novo": {
+    "name": "Novopangea",
+    "website": {
+      "link": "https://novopangea.io/welcome/",
+      "name": "novopangea.io"
     },
-    "SEST@farmingtoken": {
-        "name": "Farming Tales",
-        "website": {
-            "link": "https://www.zombiecoin.io/",
-            "name": "zombiecoin.io"
-        },
-        "description": "A crypto farm where NFTs represent real products from real farms. The NFTs of this collection represent the tools that, every day, accompany the farmers in their hard work. By putting these tools together it is possible to generate new NFTs that are linked to real goods and products from our farms. Ownership of these NFTs therefore guarantees ownership of these products.",
-        "socials": [
-            "https://twitter.com/farming_tales"
-        ]
+    "description": "Novopangea is a fun and immersive MPOG experience where you build your economic empire across the six realms of Novopangea. You can purchase land, and buildings and produce resources to earn Obsidian. Take your Obsidian and then level up your in-game assets. As our game expands to PVP you will be able to produce specific resources that can be crafted with weapons, armor, accessories, and items.",
+    "tags": ["Gaming", "Art", "Storytelling"],
+    "socials": ["https://twitter.com/novopangeaio"]
+  },
+  "ZBC@zombiecointk": {
+    "name": "Zombiecoin",
+    "website": {
+      "link": "https://www.zombiecoin.io/",
+      "name": "zombiecoin.io"
     },
-    "FGL@fgltokenmgmt": {
-        "name": "FGL",
-        "website": {
-            "link": "https://www.fgltoken.com/fgltoken",
-            "name": "fgltoken.com"
-        },
-        "description": "Cosmic Clash, Mecha World and Nifty Fish are part of the FGL ecosystem. Lucrative Gaming, aka “FGL” was founded in 2007 and pioneered web games, helping web and Flash developers get their games published and distributed at a time when the web game market was considered the “wild west”.",
-        "socials": [
-            "https://twitter.com/FGL_NFT"
-        ]
+    "description": "Zombiecoin is an NFT resource gathering and crafting game on the WAX blockchain. Players perform work tasks to gather various resources. The resources are used in crafting and upgrading to higher tier materials. For example, walls can be made from wood and combined with other parts to build a house. You can also trade the resources and assets on the secondary market.",
+    "tags": ["Gaming", "Art", "Storytelling"],
+    "socials": ["https://twitter.com/ZombiecoinNFT"]
+  },
+  "SEST@farmingtoken": {
+    "name": "Farming Tales",
+    "website": {
+      "link": "https://www.zombiecoin.io/",
+      "name": "zombiecoin.io"
     },
-    "NEFTY@token.nefty": {
-        "name": "Nefty Blocks",
-        "website": {
-            "link": "https://neftyblocks.com/",
-            "name": "neftyblocks.com"
-        },
-        "description": "NeftyBlocks is the #1 trade to Earn marketplace for buying, selling and creating digital collectibles.",
-        "socials": [
-            "https://twitter.com/neftyblocks"
-        ]
+    "description": "A crypto farm where NFTs represent real products from real farms. The NFTs of this collection represent the tools that, every day, accompany the farmers in their hard work. By putting these tools together it is possible to generate new NFTs that are linked to real goods and products from our farms. Ownership of these NFTs therefore guarantees ownership of these products.",
+    "socials": ["https://twitter.com/farming_tales"]
+  },
+  "FGL@fgltokenmgmt": {
+    "name": "FGL",
+    "website": {
+      "link": "https://www.fgltoken.com/fgltoken",
+      "name": "fgltoken.com"
     },
-    "MILK@starcadiamlk": {
-        "name": "Starcadia",
-        "website": {
-            "link": "https://www.starcadia.io/",
-            "name": "starcadia.com"
-        },
-        "tags": [
-            "Gaming",
-            "P2E",
-            "NFT",
-            "FARMING",
-            "STAKING"
-        ],
-        "socials": [
-            "https://twitter.com/Starcadia_io",
-            "https://discord.com/invite/r4S76AtfzW"
-        ],
-        "description": "Join the https://starcadia.io/ community with the explorers."
+    "description": "Cosmic Clash, Mecha World and Nifty Fish are part of the FGL ecosystem. Lucrative Gaming, aka “FGL” was founded in 2007 and pioneered web games, helping web and Flash developers get their games published and distributed at a time when the web game market was considered the “wild west”.",
+    "socials": ["https://twitter.com/FGL_NFT"]
+  },
+  "NEFTY@token.nefty": {
+    "name": "Nefty Blocks",
+    "website": {
+      "link": "https://neftyblocks.com/",
+      "name": "neftyblocks.com"
     },
-    "BLUX@bluxbluxblux": {
-        "name": "BLUX",
-        "website": {
-            "link": "https://cxc.world/",
-            "name": "cXc.world"
-        },
-        "tags": [
-            "Map",
-            "web4",
-            "NFT",
-            "Social",
-            "Curation"
-        ],
-        "description": "cXc.world is a global map of Media NFTs. On-chain Ups curate local Top Charts and reward BLUX for votes and PURPLE for artists who make the daily Top 64 Charts. 1 BLUX makes 1 Up starting in cXc.world Beta. See the demo: youtu.be/coNc4iJB7OM",
-        "github": "https://github.com/currentxchange/purple-explainer",
-        "socials": [
-            "https://linktr.ee/cXc.world",
-            "https://twitter.com/currentxchange",
-            "https://www.instagram.com/cxc.world",
-            "https://www.youtube.com/@currentxchange",
-            "https://discord.gg/u3kpj7xEWZ",
-            "https://t.me/cXc_world",
-            "https://peakd.com/@currentxchange",
-            "https://www.reddit.com/r/cXcMusic"
-        ]
+    "description": "NeftyBlocks is the #1 trade to Earn marketplace for buying, selling and creating digital collectibles.",
+    "socials": ["https://twitter.com/neftyblocks"]
+  },
+  "MILK@starcadiamlk": {
+    "name": "Starcadia",
+    "website": {
+      "link": "https://www.starcadia.io/",
+      "name": "starcadia.com"
     },
-    "PURPLE@purplepurple": {
-        "name": "Purple",
-        "website": {
-            "link": "https://cxc.world/",
-            "name": "cXc.world"
-        },
-        "tags": [
-            "Map",
-            "web4",
-            "NFT",
-            "Social",
-            "Curation"
-        ],
-        "description": "cXc.world is a global map of Media NFTs. On-chain Ups curate local Top Charts and reward BLUX for votes and PURPLE for artists who make the daily Top 64 Charts. PURPLE is stakable for daily return of Ups or BLUX. See the demo youtu.be/coNc4iJB7OM",
-        "github": "https://github.com/currentxchange/purple-explainer",
-        "socials": [
-            "https://linktr.ee/cXc.world",
-            "https://twitter.com/currentxchange",
-            "https://www.instagram.com/cxc.world",
-            "https://www.youtube.com/@currentxchange",
-            "https://discord.gg/u3kpj7xEWZ",
-            "https://t.me/cXc_world",
-            "https://peakd.com/@currentxchange",
-            "https://www.reddit.com/r/cXcMusic"
-        ]
+    "tags": ["Gaming", "P2E", "NFT", "FARMING", "STAKING"],
+    "socials": ["https://twitter.com/Starcadia_io", "https://discord.com/invite/r4S76AtfzW"],
+    "description": "Join the https://starcadia.io/ community with the explorers."
+  },
+  "BLUX@bluxbluxblux": {
+    "name": "BLUX",
+    "website": {
+      "link": "https://cxc.world/",
+      "name": "cXc.world"
     },
-    "SCRAP@token.gene": {
-        "name": "Scrap",
-        "website": {
-            "link": "https://playforge.gg/",
-            "name": "playforge.gg"
-        },
-        "tags": [
-            "Gaming",
-            "Skins",
-            "Esport",
-            "FPS"
-        ],
-        "description": "The Forge Arenas main utility token.",
-        "socials": [
-            "https://twitter.com/TheForgeArena"
-        ]
+    "tags": ["Map", "web4", "NFT", "Social", "Curation"],
+    "description": "cXc.world is a global map of Media NFTs. On-chain Ups curate local Top Charts and reward BLUX for votes and PURPLE for artists who make the daily Top 64 Charts. 1 BLUX makes 1 Up starting in cXc.world Beta. See the demo: youtu.be/coNc4iJB7OM",
+    "github": "https://github.com/currentxchange/purple-explainer",
+    "socials": [
+      "https://linktr.ee/cXc.world",
+      "https://twitter.com/currentxchange",
+      "https://www.instagram.com/cxc.world",
+      "https://www.youtube.com/@currentxchange",
+      "https://discord.gg/u3kpj7xEWZ",
+      "https://t.me/cXc_world",
+      "https://peakd.com/@currentxchange",
+      "https://www.reddit.com/r/cXcMusic"
+    ]
+  },
+  "PURPLE@purplepurple": {
+    "name": "Purple",
+    "website": {
+      "link": "https://cxc.world/",
+      "name": "cXc.world"
     },
-    "PXJ@pixeljourney": {
-        "name": "Pixel Journey",
-        "website": {
-            "link": "https://pixeljourney.xyz/",
-            "name": "PixelJourney.xyz"
-        },
-        "tags": [
-            "Education",
-            "Community",
-            "DeFi",
-            "Social",
-            "Metaverse"
-        ],
-        "description": "PXJ is the token of the Pixel Journey; an educational project with the topic of exploring everything Wax, Web3, and each of our widely connected ecosystems have to offer. PXJ is already paired up across +100 different LP pairs across Wax, offering a vast number of possibilities to pair up. PXJ will be required for Pixel Journey collectibles crafting, upgrades and may in the future get a role in our PixelDAO.",
-        "socials": [
-            "https://docs.pixeljourney.xyz",
-            "https://discord.gg/7nvdUwtxF4",
-						"https://t.me/pixel_journey",
-            "https://twitter.com/PxJourney",
-            "https://uncut.network/user/4295809399",
-						"https://medium.com/@HenrikPiga"
-        ]
+    "tags": ["Map", "web4", "NFT", "Social", "Curation"],
+    "description": "cXc.world is a global map of Media NFTs. On-chain Ups curate local Top Charts and reward BLUX for votes and PURPLE for artists who make the daily Top 64 Charts. PURPLE is stakable for daily return of Ups or BLUX. See the demo youtu.be/coNc4iJB7OM",
+    "github": "https://github.com/currentxchange/purple-explainer",
+    "socials": [
+      "https://linktr.ee/cXc.world",
+      "https://twitter.com/currentxchange",
+      "https://www.instagram.com/cxc.world",
+      "https://www.youtube.com/@currentxchange",
+      "https://discord.gg/u3kpj7xEWZ",
+      "https://t.me/cXc_world",
+      "https://peakd.com/@currentxchange",
+      "https://www.reddit.com/r/cXcMusic"
+    ]
+  },
+  "SCRAP@token.gene": {
+    "name": "Scrap",
+    "website": {
+      "link": "https://playforge.gg/",
+      "name": "playforge.gg"
     },
-    "PAGE@pixeltbanker": {
-        "name": "Pixel Anima Genesis",
-        "website": {
-            "link": "https://pixeltycoonswax.gitbook.io/pt/",
-            "name": "pixeltycoons.com"
-        },
-        "tags": [
-            "Gaming",
-            "DeFi",
-            "NFT"
-        ],
-        "socials": [
-            "https://t.me/pixeltycoons",
-            "https://twitter.com/pixeltycoons",
-            "https://discord.com/invite/NzJJB2tU",
-            "https://medium.com/@pixeltycoons"
-        ],
-        "description": "PAGE is a Fair-Launch token with a unique distribution model. The maximum supply is determined by whitelisted accounts through a secret event. We've airdropped 50% of the supply equally among all participants. The remaining 50% will be vested over 3 years, with DeFi incentives enhancing the long-term value for holders. Join us on this journey as we redefine tokenomics and create a sustainable ecosystem."
+    "tags": ["Gaming", "Skins", "Esport", "FPS"],
+    "description": "The Forge Arenas main utility token.",
+    "socials": ["https://twitter.com/TheForgeArena"]
+  },
+  "PXJ@pixeljourney": {
+    "name": "Pixel Journey",
+    "website": {
+      "link": "https://pixeljourney.xyz/",
+      "name": "PixelJourney.xyz"
     },
+    "tags": ["Education", "Community", "DeFi", "Social", "Metaverse"],
+    "description": "PXJ is the token of the Pixel Journey; an educational project with the topic of exploring everything Wax, Web3, and each of our widely connected ecosystems have to offer. PXJ is already paired up across +100 different LP pairs across Wax, offering a vast number of possibilities to pair up. PXJ will be required for Pixel Journey collectibles crafting, upgrades and may in the future get a role in our PixelDAO.",
+    "socials": [
+      "https://docs.pixeljourney.xyz",
+      "https://discord.gg/7nvdUwtxF4",
+      "https://t.me/pixel_journey",
+      "https://twitter.com/PxJourney",
+      "https://uncut.network/user/4295809399",
+      "https://medium.com/@HenrikPiga"
+    ]
+  },
+  "PAGE@pixeltbanker": {
+    "name": "Pixel Anima Genesis",
+    "website": {
+      "link": "https://pixeltycoonswax.gitbook.io/pt/",
+      "name": "pixeltycoons.com"
+    },
+    "tags": ["Gaming", "DeFi", "NFT"],
+    "socials": [
+      "https://t.me/pixeltycoons",
+      "https://twitter.com/pixeltycoons",
+      "https://discord.com/invite/NzJJB2tU",
+      "https://medium.com/@pixeltycoons"
+    ],
+    "description": "PAGE is a Fair-Launch token with a unique distribution model. The maximum supply is determined by whitelisted accounts through a secret event. We've airdropped 50% of the supply equally among all participants. The remaining 50% will be vested over 3 years, with DeFi incentives enhancing the long-term value for holders. Join us on this journey as we redefine tokenomics and create a sustainable ecosystem."
+  },
   "SOUL@soulcontract": {
-        "name": "Magic Beast",
-        "website": {
-            "link": "https://magicbeast.io/",
-            "name": "magicbeast.io"
-        },
-        "tags": [
-            "Gaming",
-            "P2E",
-            "NFTS",
-            "Staking"
-        ],
-        "github": "https://github.com/magicbeastio",
-        "description": "🧬Evolve, 💪Upgrade,⚔️ Battle and explore the Magical Gaming Ecosystem with Magic beast an exciting play-to-earn game in Wax gaming ecosystem.",
-        "socials": [
-            "https://t.me/+o_XnQM8ngqllMmM1",
-            "https://twitter.com/magicbeastio",
-            "https://discord.gg/vHxxqUNFBe",
-            "https://medium.com/@magicbeast"
-        ]
-   },
-    "KEK@waxpepetoken": {
-      "name": "Wax Pepe",
-      "website": {
-        "link": "https://wax-pepe.vip/",
-        "name": "wax-pepe.vip"
-      },
-      "tags": [
-        "Meme Coin",
-        "P2E",
-        "NFT"
-      ],
-      "socials": [
-        "https://t.me/wax_pepe_official",
-        "https://twitter.com/WAX_PEPE",
-        "marketing@wax-pepe.vip"
-      ],
-      "description": "in a world saturated with transient meme tokens, $KEK distinguishes itself as a deflationary powerhouse. Each transaction fortifies the ecosystem, burning 3% to ensure perpetual scarcity and redistributing 2% to holders, fostering a thriving community of growth and prosperity"
+    "name": "Magic Beast",
+    "website": {
+      "link": "https://magicbeast.io/",
+      "name": "magicbeast.io"
+    },
+    "tags": ["Gaming", "P2E", "NFTS", "Staking"],
+    "github": "https://github.com/magicbeastio",
+    "description": "🧬Evolve, 💪Upgrade,⚔️ Battle and explore the Magical Gaming Ecosystem with Magic beast an exciting play-to-earn game in Wax gaming ecosystem.",
+    "socials": [
+      "https://t.me/+o_XnQM8ngqllMmM1",
+      "https://twitter.com/magicbeastio",
+      "https://discord.gg/vHxxqUNFBe",
+      "https://medium.com/@magicbeast"
+    ]
+  },
+  "KEK@waxpepetoken": {
+    "name": "Wax Pepe",
+    "website": {
+      "link": "https://wax-pepe.vip/",
+      "name": "wax-pepe.vip"
+    },
+    "tags": ["Meme Coin", "P2E", "NFT"],
+    "socials": ["https://t.me/wax_pepe_official", "https://twitter.com/WAX_PEPE", "marketing@wax-pepe.vip"],
+    "description": "in a world saturated with transient meme tokens, $KEK distinguishes itself as a deflationary powerhouse. Each transaction fortifies the ecosystem, burning 3% to ensure perpetual scarcity and redistributing 2% to holders, fostering a thriving community of growth and prosperity"
   },
   "WUF@wuffi": {
-      "name": "WUFFI",
-      "website": {
-          "link": "https://www.wuffi.io/",
-          "name": "WUFFI"
-      },
-      "tags": [
-          "Meme Coin",
-          "Gaming",
-          "NFT"
-      ],
-      "socials": [
-          "https://t.me/wuffi_token",
-          "https://twitter.com/WUFFI_Inu",
-          "https://discord.com/invite/Xtsde6p9m7"
-      ],
-      "description": "Next-gen meme & cross-chain coin on Solana & wax_io. Bark Loud, Bark Proud! 🦴"
+    "name": "WUFFI",
+    "website": {
+      "link": "https://www.wuffi.io/",
+      "name": "WUFFI"
+    },
+    "tags": ["Meme Coin", "Gaming", "NFT"],
+    "socials": ["https://t.me/wuffi_token", "https://twitter.com/WUFFI_Inu", "https://discord.com/invite/Xtsde6p9m7"],
+    "description": "Next-gen meme & cross-chain coin on Solana & wax_io. Bark Loud, Bark Proud! 🦴"
   },
   "TETRA@tetra": {
     "name": "TETRA",
     "website": {
-        "link": "https://know.tetra.earth/",
-        "name": "Tetra Knowbase"
+      "link": "https://know.tetra.earth/",
+      "name": "Tetra Knowbase"
     },
-    "tags": [
-        "dgov",
-        "web4",
-        "NFT",
-        "Social",
-        "fundraising"
-    ],
+    "tags": ["dgov", "web4", "NFT", "Social", "fundraising"],
     "description": "Tetra makes ideas real by Raising Awareness (RA, the voting token). Tetra helps citizens raises awareness for projects, and earn. Your ups (upvotes) get the word out about what creators are doing, spuring organic engagement. Upvotes work similar to reddit with r/ being your community. RA is one tokenized upvote. Earn RA while Raising Awareness for the people + projects you're passionate about. Tetra is an extension of the core tech and algorith developed by cXc.world, an app also by Gudasol.",
     "github": "https://github.com/TetraGrids",
     "socials": [
-        "https://know.tetra.earth/",
-        "https://linktr.ee/tetra.earth",
-        "https://twitter.com/tetragrids",
-        "https://www.youtube.com/@tetragrids",
-        "https://discord.gg/ZSU5BgGTAY",
-        "https://t.me/tetragrids",
-        "https://www.facebook.com/tetra.earth",
-        "https://www.reddit.com/r/cXcMusic"
+      "https://know.tetra.earth/",
+      "https://linktr.ee/tetra.earth",
+      "https://twitter.com/tetragrids",
+      "https://www.youtube.com/@tetragrids",
+      "https://discord.gg/ZSU5BgGTAY",
+      "https://t.me/tetragrids",
+      "https://www.facebook.com/tetra.earth",
+      "https://www.reddit.com/r/cXcMusic"
     ]
   },
-    "GUDA@guda.guda": {
-        "name": "GUDA",
-        "website": {
-            "link": "https://guda.guda.love/",
-            "name": "GUDA"
-        },
-        "tags": [
-            "Social",
-            "Challenge",
-            "celebrity",
-            "meme",
-            "NFT"
-        ],
-        "description": "GUDA is more than a symbol; it is a badge of honor, a testament to your journey through the shadows and your emergence into the light. 🜛 Earn Gudabits for IRL challenges that transmute your shadows, found in Discord. Every Gudabit (0.00000001 GUDA) is redeemable for an NFT, via the drops.guda contract. Full info: https://guda.guda.love",
-        "github": "https://github.com/dougbutner/guda-token",
-        "socials": [
-            "https://discord.com/invite/MrRXZYhHfp",
-            "https://linktr.ee/gudasol",
-            "https://twitter.com/GUDA_coin",
-            "https://youtube.com/@gudasol"
-        ]
+  "GUDA@guda.guda": {
+    "name": "GUDA",
+    "website": {
+      "link": "https://guda.guda.love/",
+      "name": "GUDA"
+    },
+    "tags": ["Social", "Challenge", "celebrity", "meme", "NFT"],
+    "description": "GUDA is more than a symbol; it is a badge of honor, a testament to your journey through the shadows and your emergence into the light. 🜛 Earn Gudabits for IRL challenges that transmute your shadows, found in Discord. Every Gudabit (0.00000001 GUDA) is redeemable for an NFT, via the drops.guda contract. Full info: https://guda.guda.love",
+    "github": "https://github.com/dougbutner/guda-token",
+    "socials": [
+      "https://discord.com/invite/MrRXZYhHfp",
+      "https://linktr.ee/gudasol",
+      "https://twitter.com/GUDA_coin",
+      "https://youtube.com/@gudasol"
+    ]
   },
   "XPX@xparty": {
     "name": "XPX",
@@ -638,12 +449,7 @@
       "link": "https://xparty.win/",
       "name": "XParty.win"
     },
-    "tags": [
-      "politifi",
-      "Meme",
-      "vote",
-      "dgov"
-    ],
+    "tags": ["politifi", "Meme", "vote", "dgov"],
     "description": "XPX is a novel RAP token (Ratcheting Asset Peg) 🔧, similar to a stablecoin pegged to WAX. It operates with a market maker where buy orders are placed for the same amount of XPX sold. There are no team-allocated XPX tokens, no marketing budget, just 100% of the supply listed on the market 📊. XPX will consistently have reward pools 💎 but will never serve as the reward token itself. To maintain its value, XPX employs a strategy where every XPX token sold is used to buy back the token. When the sell order is gone, XPX starts ratcheting, moving up the starting price 2% while maintaining market stabilization mechanisms that rise as well 📈. You can run this market maker by executing the 'partytime' action on maker.xpx with freecover = 0 ⚙️. The market maker targets a support level of 0.98 WAX with 62% of liquidity and an additional 10% at 0.96 WAX, and descending orders until 0.62. The weighted gap in all buy orders is calculated to be 6.6%, which is taken as fees to run the project 🔍. If you've never searched XPX under Alcor farms, you will 🌾.",
     "socials": [
       "https://x.com/XPartyUSA/",
@@ -655,43 +461,54 @@
   "HARRISX@harris.xpx": {
     "name": "HARRISX",
     "website": {
-        "link": "https://xparty.win/",
-        "name": "XParty.win"
+      "link": "https://xparty.win/",
+      "name": "XParty.win"
     },
-    "tags": [
-        "politifi",
-        "vote",
-        "dgov",
-        "Harris",
-        "Meme"
-    ],
+    "tags": ["politifi", "vote", "dgov", "Harris", "Meme"],
     "description": "You awake in 2042 🇺🇸, the world is on the brink, and the 2024 elections seem like a distant memory—one that desperately needs a second chance 🔵. You are given an ancient technology to rewrite history, but the time machine seems… off.. Arriving in 2024 you find an alternate USA, USAX. Still, there's hope. The ancient technology of Memecoins seems to be working. But will anyone use it to vote, or just keep speculating on the price? If you've never read our lore, you will. 🗳 vote.xparty.win",
     "socials": [
-        "https://x.com/XPartyUSA/",
-        "https://discord.com/invite/t6GKwSHcQz",
-        "https://vote.xparty.win",
-        "https://t.me/XPX_Bulls"
+      "https://x.com/XPartyUSA/",
+      "https://discord.com/invite/t6GKwSHcQz",
+      "https://vote.xparty.win",
+      "https://t.me/XPX_Bulls"
     ]
   },
   "TRUMPX@trump.xpx": {
     "name": "TRUMPX",
     "website": {
-        "link": "https://xparty.win/",
-        "name": "XParty.win"
+      "link": "https://xparty.win/",
+      "name": "XParty.win"
     },
-    "tags": [
-        "politifi",
-        "vote",
-        "dgov",
-        "Trump",
-        "Meme"
-    ],
+    "tags": ["politifi", "vote", "dgov", "Trump", "Meme"],
     "description": "You awake in 2042 🇺🇸, the world is on the brink, and the 2024 elections seem like a distant memory—one that desperately needs a second chance 🔴. You are given an ancient technology to rewrite history, but the time machine seems… off.. Arriving in 2024 you find an alternate USA, USAX. Still, there's hope. The ancient technology of Memecoins seems to be working. But will anyone use it to vote, or just keep speculating on the price? If you've never read our lore, you will. 🗳 vote.xparty.win",
     "socials": [
-        "https://x.com/XPartyUSA/",
-        "https://discord.com/invite/t6GKwSHcQz",
-        "https://vote.xparty.win",
-        "https://t.me/XPX_Bulls"
+      "https://x.com/XPartyUSA/",
+      "https://discord.com/invite/t6GKwSHcQz",
+      "https://vote.xparty.win",
+      "https://t.me/XPX_Bulls"
+    ]
+  },
+  "WAXUSDC@eth.token": {
+    "name": "WAXUSDC",
+    "website": {
+      "link": "https://bridge.mycloudwallet.com",
+      "name": "MyCloudWallet bridge"
+    },
+    "description": "WAXUSDC is the bridged 1:1 version of Solana and Ethereum USDC, made possible by the WAX blockchain team to provide seamless interoperability between WAX and Solana. Bridging is free both ways",
+    "tags": ["DeFi"],
+    "socials": ["https://x.com/WAX_io"]
+  },
+  "YEET@token.yeet": {
+    "name": "YEET",
+    "website": {
+      "link": "https://yeet.quest/",
+      "name": "YEET Website"
+    },
+    "description": "YEET is for the people, by the people. Built on WAX for speed, security, and unstoppable YEETness. No dilution, no funny business. Just pure meme power.",
+    "tags": ["DeFi", "MEME", "Social"],
+    "socials": [
+      "https://t.me/YEET_community",
+      "https://t.me/yeetwax"
     ]
   }
 }

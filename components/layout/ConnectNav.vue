@@ -1,6 +1,7 @@
 <template lang="pug">
 .connect-nav
-  .left(v-if="!isMobile").mr-2
+  .left.d-flex.gap-8(v-if="!isMobile")
+    LayoutHeaderSearch(v-if="!isMobile")
     ChainSelect
   .right
     .user-detail(v-if='user')
@@ -8,8 +9,10 @@
         span {{ systemBalance.split(' ')[0] | commaFloat }}
         span.balance-symbol {{ systemBalance.split(' ')[1] }}
       ElDropdown(@command="logout")
-        .user-name {{ user.name }}
+        .user-name(:class="{ viewOnly: user.viewOnly }")
+          span {{ user.name }}
           i.el-icon-arrow-down.text-muted.ml-1
+          .view-only-indicator(v-if="user.viewOnly") View-Only
         template(#dropdown)
           ElDropdownMenu
             ElDropdownItem(command="logout") {{ $t('Logout') }}
@@ -20,7 +23,6 @@
     )
       | {{ $t('Connect Wallet') }}
 
-    LayoutHeaderSearch(v-if="!isMobile")
     AlcorButton.theme-toggle-button.desktop(
       v-if='$route.name != "index"',
       :icon-only-alt='true',
@@ -211,6 +213,23 @@ export default {
   color: var(--text-default);
   border-radius: var(--radius);
   white-space: nowrap;
+  position: relative;
+  &.viewOnly {
+    border-radius: 4px 4px 0 0;
+  }
+}
+.view-only-indicator {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  font-size: 10px;
+  background: var(--main-action-green);
+  color: black;
+  min-width: 100%;
+  text-align: center;
+  border-radius: 0 0 4px 4px;
+  font-weight: 500;
+  padding: 0 2px;
 }
 
 .settings {

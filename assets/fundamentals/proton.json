@@ -1,4 +1,22 @@
 {
+"PUGO@tokencreate": {
+    "name": "Battle of PUG",
+    "website": {
+      "link": "",
+      "name": ""
+    },
+    "tags": [
+      "meme",
+      "nft",
+      "Gamefi",
+      "XPR"
+    ],
+    "socials": [
+      "https://t.me/pugoxrp",
+      "https://x.com/pugoxpr"
+    ],
+    "description": "Enter the crazy battle of PUG ans save them from the terrific IA, only on proton network for XPR community with love"
+  },
 "CTRAVL@tokencreate": {
     "name": "Travel Deals",
     "website": {
@@ -16,5 +34,41 @@
       "https://twitter.com/XPRtravel"
     ],
     "description": "Crypto Travel Deals is a global, crypto-only, travel portal built on the XPR Network blockchain. No gas fees, discounts for stakers, and affiliate income!"
+  },
+  "ARK@arcana": {
+    "name": "Noah's Ark",
+    "website": {
+      "link": "https://proton.alcor.exchange/trade/ark-arcana_xusdc-xtokens",
+      "name": "ARK / USDC"
+    },
+    "tags": [
+      "private",
+      "bot",
+      "liquidity",
+      "biblical"
+    ],
+    "socials": [
+      "https://godsark.org/ark-project/#this-is-a-church-not-a-ARK-project-link"
+    ],
+    "description": "Arcana is a private market maker service designed not for individual use but to serve bots that capitalize on arbitrage opportunities by utilizing liquidity from our extensive pools across all major coins on the XPR network. Our services help traders navigate the vast inflows and outflows of liquidity, creating minor disturbances within our private pools to stabilize the broader market and potentially the entire financial system, thanks to the significant collection of tokens and ARK pools on XPR. The ARK token enables market makers to build liquidity and is not intended to increase in price. NOAH provides rewards to ARK pools, enhancing our ability to monitor liquidity. Like ARK, NOAH is not designed to appreciate in value. DOVE, awarded to reward NOAH pools, also carries no expectation of price increase. In addition to supplying essential liquidity to underserved markets, a spot market offers targeted liquidity for bots to engage in trading. IMPORTANT: As a private service not intended for human users or investors, we advise against holding any of our tokens. The strategic nature of our service to bots requires us to open and maintain precise liquidity levels in open markets, but we do not offer these tokens to the general public. We have no website and are not a publicly disclosed project, the link is one charity we hope to support qith any profits. All profits are hereby perpetually given as a religious offering to the Lyran civilization and/or donated to reconstruct the Ark."
+    },
+  "HALF@halfhalf": {
+    "name": "HALF",
+    "website": {
+      "link": "https://proton.alcor.exchange/trade/half-halfhalf_xusdc-xtokens",
+      "name": "HALF / USDC"
+    },
+    "tags": [
+      "usdc",
+      "farm",
+      "liquidity",
+      "pool",
+      "usdt"
+    ],
+    "socials": [
+      "https://proton.alcor.exchange/trade/half-halfhalf_xusdc-xtokens",
+      "https://proton.alcor.exchange/swap?input=XUSDC-xtokens&output=HALF-halfhalf"
+    ],
+    "description": "☕️ HALF in an awakening revolution on XPR. HALF brings stability to stables and dollars to the staked, splitting the creme 50-50. 🥛 More than 99% of HALF has already been burned. 🔥 By holding HALF, you are signaling that you care that a community gets rewarded in rich, creamy dollars and you are a believer in a bright future with XPR Network growing to be the top blockchain for finance worldwide. That's because half (50%) of all USDC from HALF spot market sales goes to the community. The rest goes towards stabilizing stable coins, a secret key to making XPR Network more appealing to the wider crypto community. Here's how it works. 🛠 The token contract receives all the sales from the HALF / USDC spot market on Alcor. Calling the 'halftime' action on the 'halfhalf' contract automatically adds rewards to the HALF / USDC farm on Alcor, sending half (50%) of the sales proceeds in USDC. This HALF / HALF mechanic is a part of the token contract, putting HALF holders in control. Anyone holding HALF can call the 'halftime' action at anytime, giving you the keys to stocking the reward pools with juicy USDC tokens. The remaining 50% goes towards stabilizing the USDT / USDC spot market on Alcor. This USDC is sent to an account called 2apes that puts a +/- 3% spread on the USDT / USDC spot market, and also uses liquidity pools to stabilize this pair at +/- 2%. Over 99% of supply has been burned. Remaining HALF tokens are listed on the Alcor market from $100 to $10,000 in price, putting 100X in the crossahairs. ℹ️ Important Information: All USDC moved to the stabilization account is considered a donation, and any proceeds from the stabilization, including the initial donation, maybe removed from the USDC / USDT market maker and used for any purpose the creators see fit, including supporting other projects, non- and not-for-profits. HALF presents risk of loss up to purchase amount. Half is a novel and noble experiment in tokenomics. Our intention is to create and maintain real value on the XPR network, half through people, and half through stable stables. We are not soliciting you to buy this token, in this or any communication. We aren't telling you HALF will make you money, or suggesting any outcome will happen. HALF is a private project, and does not represent alcor.exchange or XPR Network. Make your own decisions, and always DYOR. Enjoy ☕️"
   }
 }

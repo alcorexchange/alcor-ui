@@ -9,7 +9,7 @@ el-table.my-trade-history(
       span {{ scope.row.time | moment("YYYY-MM-DD HH:mm") }}
   el-table-column(:label='$t("Pair")')
     template(slot-scope='{ row }')
-      span.hover.pointer.unerline {{ row.market_symbol }}
+      NuxtLink(:to="localeRoute(`/trade/${row.market_slug}`)" target="_blank" @click.prevent).hover-opacity.link {{ row.market_symbol }}
   el-table-column(:label='$t("Side")', width='80')
     template.text-success(slot-scope='scope')
       span.text-primary(v-if='scope.row.side == "buy"') {{ $t('BUY') }}
@@ -24,7 +24,7 @@ el-table.my-trade-history(
 
   el-table-column(:label='$t("Price")' width=100)
     template(slot-scope='scope')
-      span {{ scope.row.unit_price | commaFloat(6) }}
+      span {{ scope.row.unit_price | commaFloat(8) }}
 
   template(slot='append')
     infinite-loading(
@@ -44,13 +44,13 @@ export default {
     return {
       orders: [],
       deals: [],
-      skip: 0
+      skip: 0,
     }
   },
 
   computed: {
     ...mapState(['user', 'markets_obj']),
-    ...mapState('market', ['base_token', 'quote_token', 'id'])
+    ...mapState('market', ['base_token', 'quote_token', 'id']),
   },
 
   watch: {
@@ -68,7 +68,7 @@ export default {
 
     onlyCurrentPair() {
       this.reload()
-    }
+    },
   },
 
   mounted() {
@@ -83,11 +83,13 @@ export default {
       // Initial fill
       this.infiniteHandler({
         loaded: () => {},
-        complete: () => {}
+        complete: () => {},
       })
     },
 
-    rowClick(row) {
+    rowClick(row, _, event) {
+      // for some reason event.defaultPrevented does not work, checking if <a /> is clicked
+      if (event.target.closest('a')) return
       this.openInNewTab(this.monitorTx(row.trx_id))
     },
 
@@ -96,14 +98,12 @@ export default {
 
       const params = {
         limit: 100,
-        skip: this.skip
+        skip: this.skip,
       }
 
       if (this.onlyCurrentPair) params.market = this.id
 
-      const {
-        data: deals
-      } = await this.$axios.get(`/account/${this.user.name}/deals`, { params })
+      const { data: deals } = await this.$axios.get(`/account/${this.user.name}/deals`, { params })
 
       this.skip += deals.length
 
@@ -111,15 +111,10 @@ export default {
         deals.map((d) => {
           d.side = this.user.name == d.bidder ? 'buy' : 'sell'
           d.market_symbol = this.markets_obj[d.market].symbol
+          d.market_slug = this.markets_obj[d.market]?.slug
 
-          d.amount =
-            (d.type == 'sellmatch' ? d.bid : d.ask) +
-            ' ' +
-            this.markets_obj[d.market].quote_token.symbol.name
-          d.total =
-            (d.type == 'sellmatch' ? d.ask : d.bid) +
-            ' ' +
-            this.markets_obj[d.market].base_token.symbol.name
+          d.amount = (d.type == 'sellmatch' ? d.bid : d.ask) + ' ' + this.markets_obj[d.market].quote_token.symbol.name
+          d.total = (d.type == 'sellmatch' ? d.ask : d.bid) + ' ' + this.markets_obj[d.market].base_token.symbol.name
         })
 
         this.deals.push(...deals)
@@ -129,8 +124,8 @@ export default {
         $state.complete()
         console.log('complete')
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -142,6 +137,13 @@ export default {
 .my-order-history {
   table {
     width: 100% !important;
+  }
+}
+
+.my-trade-history {
+  .link {
+    color: var(--text-default);
+    text-decoration: underline !important;
   }
 }
 
