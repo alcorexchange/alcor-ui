@@ -214,7 +214,17 @@ export default {
           ],
         },
       ],
-      xrp: []
+      xrp: [
+        {
+          link: 'https://www.atom3studio.com/',
+          image: require('@/assets/images/swap-banner-xrp-1.gif'),
+          colors: [
+            'rgba(169,131,191,0.2)',
+            'rgba(78,54,128, 1)',
+            'rgba(249,212,232,1)',
+          ],
+        },
+      ]
     }
   }),
 
