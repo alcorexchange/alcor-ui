@@ -129,8 +129,8 @@
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit || loading" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
   RandomBanner(
-    v-if="!hideBanner"
-    :banners="banners"
+    v-if="!hideBanner && networkBanners?.length"
+    :banners="networkBanners"
   )
 </template>
 
@@ -202,26 +202,30 @@ export default {
     swapListener: null,
 
     rateInverted: false,
-    banners: [
-      {
-        link: 'https://nfthive.io/drop/9748+9749+9750+9751',
-        image: require('@/assets/images/swap-banner-1.gif'),
-        colors: [
-          'rgba(9,43,78,,0.2)',
-          'rgba(95,17,119, 1)',
-          'rgba(252,187,99,1)',
-        ],
-      },
-      {
-        link: 'https://medium.com/@nanotopiagame/2024-halloween-celebration-43ea6336f40b',
-        image: require('@/assets/images/swap-banner-2.png'),
-        colors: [
-          'rgba(212,151,61,0.2)',
-          'rgba(96,89,53,1)',
-          'rgba(14,15,82, 1)',
-        ],
-      },
-    ]
+    banners: {
+      wax: [
+        {
+          link: 'https://tinyurl.com/wuftopia-alcor-ad',
+          image: require('@/assets/images/swap-banner-1.jpg'),
+          colors: [
+            'rgba(12,166,234,0.2)',
+            'rgba(209,251,159, 1)',
+            'rgba(250,173,29,1)',
+          ],
+        },
+      ],
+      proton: [
+        {
+          link: 'https://www.atom3studio.com/',
+          image: require('@/assets/images/swap-banner-xpr-1.gif'),
+          colors: [
+            'rgba(169,131,191,0.2)',
+            'rgba(78,54,128, 1)',
+            'rgba(249,212,232,1)',
+          ],
+        },
+      ]
+    }
   }),
 
   fetch() {
@@ -271,6 +275,9 @@ export default {
   },
 
   computed: {
+    networkBanners() {
+      return this.banners[this.network.name]
+    },
     rate() {
       const { rateInverted, price, priceInverted } = this
 
