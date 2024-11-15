@@ -213,6 +213,15 @@ export default {
             'rgba(250,173,29,1)',
           ],
         },
+        {
+          link: 'https://bblk.io/GfyH',
+          image: require('@/assets/images/swap-banner-2.png'),
+          colors: [
+            'rgba(218,167,80,0.2)',
+            'rgba(32,71,90, 1)',
+            'rgba(4,101,127,1)',
+          ],
+        },
       ],
       proton: [
         {
