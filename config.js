@@ -214,7 +214,7 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
-    PINNED_MARKETS: [493],
+    PINNED_MARKETS: [493, 715],
     BANNER_MARKETS: [],
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
@@ -228,7 +228,7 @@ const networks = {
 
     USD_TOKEN: 'xusdc-xtokens',
 
-    popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens', 'clan-clanx'],
+    popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens', 'clan-clanx', 'atom-tokencreate'],
     GLOBAL_TOKENS: [],
   },
 
