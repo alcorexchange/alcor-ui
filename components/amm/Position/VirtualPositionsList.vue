@@ -103,9 +103,25 @@ export default {
 
       return { pageMode: true, itemSize: 58, header, data: this.positions }
     },
+
     positions() {
+      // TODO finish show positions is staked
+      // console.log('ZZZ', this.$store.state.farms.incentives)
+      // console.log('plainUserStakes', this.$store.state.farms.plainUserStakes)
+
+      const { plainUserStakes } = this.$store.state.farms
+
       return this.$store.state.amm.positions
         .map((p) => {
+          const stake = plainUserStakes.filter(s => s.posId == p.id)
+
+          const finishedStaking = stake.reduce((a, b) => a + b.isFinished ? 0 : 1, 0)
+          const currentStaking = stake.reduce((a, b) => a + b.isFinished ? 1 : 0, 0)
+
+          if (stake.length > 0) {
+            console.log({ finishedStaking, currentStaking })
+          }
+
           const _pool = this.$store.state.amm.pools.find((pool) => pool.id == p.pool)
 
           if (!_pool) return {}
