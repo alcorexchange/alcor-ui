@@ -282,7 +282,7 @@ const SwapChartPointSchema = new mongoose.Schema({
   // We not user default here actually
   time: { type: Date, default: () => Date.now(), index: true }
 })
-PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
+SwapChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
 
 const SwapSchema = new mongoose.Schema({
   chain: { type: String, index: true },
@@ -349,10 +349,10 @@ const PositionHistorySchema = new mongoose.Schema({
   trx_id: { type: String },
   time: { type: Date, index: true },
 })
-PoolChartPointSchema.index({ chain: 1, id: 1, owner: 1 }, { background: true })
-PoolChartPointSchema.index({ chain: 1, id: 1, owner: 1, time: 1, type: 1 }, { background: true })
-PoolChartPointSchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: 1, type: 1 }, { background: true })
-PoolChartPointSchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: -1, type: 1 }, { background: true })
+PositionHistorySchema.index({ chain: 1, id: 1, owner: 1 }, { background: true })
+PositionHistorySchema.index({ chain: 1, id: 1, owner: 1, time: 1, type: 1 }, { background: true })
+PositionHistorySchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: 1, type: 1 }, { background: true })
+PositionHistorySchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: -1, type: 1 }, { background: true })
 
 export const Market = mongoose.model('Market', MarketSchema)
 export const PoolPair = mongoose.model('PoolPair', PoolPairSchema)
