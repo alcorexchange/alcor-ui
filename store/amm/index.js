@@ -33,18 +33,19 @@ export const state = () => ({
 })
 
 export const mutations = {
-  setPools: (state, pools) => state.pools = pools,
+  setPools: (state, pools) => (state.pools = pools),
 
-  setAllTokens: (state, tokens) => state.allTokens = tokens,
-  setPositions: (state, positions) => state.positions = positions,
-  setPlainPositions: (state, positions) => state.plainPositions = positions,
-  setSlippage: (state, slippage) => state.slippage = slippage,
-  setMaxHops: (state, maxHops) => state.maxHops = maxHops,
-  setRecalculateOnPriceChange: (state, recalculateOnPriceChange) => state.recalculateOnPriceChange = recalculateOnPriceChange,
-  setLastPoolSubscribed: (state, poolId) => state.last_pool_subscribed = poolId,
+  setAllTokens: (state, tokens) => (state.allTokens = tokens),
+  setPositions: (state, positions) => (state.positions = positions),
+  setPlainPositions: (state, positions) => (state.plainPositions = positions),
+  setSlippage: (state, slippage) => (state.slippage = slippage),
+  setMaxHops: (state, maxHops) => (state.maxHops = maxHops),
+  setRecalculateOnPriceChange: (state, recalculateOnPriceChange) =>
+    (state.recalculateOnPriceChange = recalculateOnPriceChange),
+  setLastPoolSubscribed: (state, poolId) => (state.last_pool_subscribed = poolId),
 
-  setPoolsStats: (state, stats) => state.poolsStats = stats,
-  setHistory: (state, data) => state.history = data,
+  setPoolsStats: (state, stats) => (state.poolsStats = stats),
+  setHistory: (state, data) => (state.history = data),
 
   updatePool: (state, pool) => {
     const index = state.pools.findIndex((c) => c.id === pool.id)
@@ -56,10 +57,21 @@ export const mutations = {
     }
   },
 
+  updatePools: (state, pools) => {
+    const poolMap = new Map(state.pools.map((pool) => [pool.id, pool]))
+
+    pools.forEach((pool) => {
+      poolMap.set(pool.id, pool)
+    })
+
+    // Перезаписываем весь массив пулов
+    state.pools = Array.from(poolMap.values())
+  },
+
   setTicks: (state, { poolId, ticks }) => {
     ticks.sort((a, b) => a.id - b.id)
     Vue.set(state.ticks, poolId, ticks)
-  }
+  },
 }
 
 export const actions = {
@@ -80,18 +92,31 @@ export const actions = {
       dispatch('fetchPositionsHistory')
     })
 
-    // We do not need ticks on UI anymore
-    // this.$socket.on('swap:ticks:update', ({ poolId, ticks }) => {
-    //   ticks.forEach(tick => {
-    //     dispatch('updateTickOfPool', { poolId, tick })
+    let poolUpdateQueue = []
+    let updateTimeout = null
+    this.$socket.on('swap:pool:update', (data) => {
+      // Накопление данных
+      poolUpdateQueue.push(...data)
+
+      // Устанавливаем таймер для выполнения батчевого обновления
+      if (!updateTimeout) {
+        updateTimeout = setTimeout(() => {
+          // Выполняем обновление всех накопленных пулов разом
+          commit('updatePools', poolUpdateQueue)
+
+          // Сбрасываем очередь и таймер
+          poolUpdateQueue = []
+          updateTimeout = null
+        }, 2500) // Обновляем раз в 2 секунды
+      }
+    })
+
+    // this.$socket.on('swap:pool:update', (data) => {
+    //   data.forEach((pool) => {
+    //     console.log('update pool notification')
+    //     commit('updatePool', pool)
     //   })
     // })
-
-    this.$socket.on('swap:pool:update', (data) => {
-      data.forEach((pool) => {
-        commit('updatePool', pool)
-      })
-    })
 
     dispatch('subscribeForAllSwapEvents')
     this.$socket.io.on('reconnect', () => {

@@ -43,12 +43,20 @@ VirtualTable(:table="virtualTableData").virtual-positions-list
       .unclaimed.fs-14(v-if="!isMobile")
         span(:style="{color: $percentColor(1)}") $ {{ item.totalFeesUSD | commaFloat(3) }}
       .action(v-if="!isMobile")
-        AlcorButton(compact) {{ $t('Manage') }}
+        template(v-if="item.currentStaking > 0")
+          el-tooltip(placement="top")
+            template(slot="content")
+              span Staked in {{ item.currentStaking }} incentives
+            .fs-14
+              StakingStatus(status="staked" :finished="false")
+
+        // AlcorButton(compact) {{ $t('Manage') }}
 </template>
 
 <script>
 import { tickToPrice } from '@alcorexchange/alcor-swap-sdk'
 import { isTicksAtLimit, constructPoolInstance } from '~/utils/amm'
+import StakingStatus from '~/components/farm/StakingStatus'
 
 import PairIcons from '~/components/PairIcons'
 import TokenImage from '~/components/elements/TokenImage'
@@ -58,7 +66,7 @@ import AlcorButton from '~/components/AlcorButton'
 import VirtualTable from '~/components/VirtualTable'
 
 export default {
-  components: { PairIcons, TokenImage, PositionFees, AlcorButton, VirtualTable },
+  components: { PairIcons, TokenImage, PositionFees, AlcorButton, VirtualTable, StakingStatus },
 
   props: ['search'],
 
@@ -109,18 +117,15 @@ export default {
       // console.log('ZZZ', this.$store.state.farms.incentives)
       // console.log('plainUserStakes', this.$store.state.farms.plainUserStakes)
 
+      console.time('positions')
       const { plainUserStakes } = this.$store.state.farms
 
-      return this.$store.state.amm.positions
+      const result = this.$store.state.amm.positions
         .map((p) => {
           const stake = plainUserStakes.filter(s => s.posId == p.id)
 
-          const finishedStaking = stake.reduce((a, b) => a + b.isFinished ? 0 : 1, 0)
-          const currentStaking = stake.reduce((a, b) => a + b.isFinished ? 1 : 0, 0)
-
-          if (stake.length > 0) {
-            console.log({ finishedStaking, currentStaking })
-          }
+          const finishedStaking = stake.reduce((a, b) => a + (b.incentive.isFinished ? 0 : 1), 0)
+          const currentStaking = stake.reduce((a, b) => a + (b.incentive.isFinished ? 1 : 0), 0)
 
           const _pool = this.$store.state.amm.pools.find((pool) => pool.id == p.pool)
 
@@ -142,6 +147,8 @@ export default {
             priceUpper,
             priceLower,
             link,
+            finishedStaking,
+            currentStaking
           }
         })
         .filter((p) => p.pool)
@@ -150,6 +157,9 @@ export default {
           return `${p.feesA.split(' ')[1]}${p.feesB.split(' ')[1]}`.toLowerCase().includes(this.search?.toLowerCase() || '')
         })
         .toSorted((a, b) => b.totalValue - a.totalValue)
+
+      console.timeEnd('positions')
+      return result
     },
     totalPositionsValue() {
       return this.positions.reduce((value, position) => value + position.totalValue, 0)

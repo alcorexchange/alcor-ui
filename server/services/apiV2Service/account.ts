@@ -22,14 +22,12 @@ export async function getAccountPoolPositions(chain: string, account: string) {
   if (!redis.isOpen) await redis.connect()
   const positions = JSON.parse(await redis.get(`positions_${chain}`))
 
-  console.time('process_getAccountPoolPositions')
   const result = []
   for (const position of positions.filter(p => p.owner == account)) {
     const stats = await getPositionStats(chain, position)
 
     result.push({ ...position, ...stats })
   }
-  console.timeEnd('process_getAccountPoolPositions')
 
   return result
 }
@@ -318,9 +316,7 @@ account.get('/:account/poolsPositionsIn', async (req, res) => {
 account.get('/:account/positions', async (req, res) => {
   const network: Network = req.app.get('network')
 
-  console.time('get_account_positions')
   const result = await getAccountPoolPositions(network.name, req.params.account)
-  console.timeEnd('get_account_positions')
 
   res.json(result)
 })

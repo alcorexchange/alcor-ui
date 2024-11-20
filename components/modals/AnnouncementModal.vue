@@ -38,7 +38,7 @@ export default {
   }),
 
   mounted() {
-    this.tryShowModal()
+    //this.tryShowModal()
   },
 
   methods: {
