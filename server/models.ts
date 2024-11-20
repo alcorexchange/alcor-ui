@@ -314,6 +314,7 @@ SwapSchema.index({ chain: 1, pool: 1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, time: 1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, time: -1, tokenA: 1 }, { background: true })
+SwapSchema.index({ chain: 1, sender: 1, recipient: 1, time: -1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, time: -1, totalUSDVolume: 1 }, { background: true })
 
 const PositionSchema = new mongoose.Schema({
