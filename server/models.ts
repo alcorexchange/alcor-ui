@@ -349,6 +349,7 @@ const PositionHistorySchema = new mongoose.Schema({
   trx_id: { type: String },
   time: { type: Date, index: true },
 })
+PoolChartPointSchema.index({ chain: 1, id: 1, owner: 1 }, { background: true })
 PoolChartPointSchema.index({ chain: 1, id: 1, owner: 1, time: 1, type: 1 }, { background: true })
 PoolChartPointSchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: 1, type: 1 }, { background: true })
 PoolChartPointSchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: -1, type: 1 }, { background: true })
