@@ -84,7 +84,11 @@ async function getCurrentPositionState(chain, plainPosition) {
 export async function getPositionStats(chain, redisPosition) {
   if (!redis.isOpen) await redis.connect()
   // Will sort "closed" to the end
+  const startTime = performance.now()
   const history = await PositionHistory.find({ chain, id: redisPosition.id, owner: redisPosition.owner }).sort({ time: 1, type: 1 }).lean()
+  const endTime = performance.now()
+
+  console.log(`getAccountPoolPositions(${chain}: ${account}) mongo query time:`, `${Math.round(endTime - startTime)}ms`)
 
   let total = 0
   let sub = 0
