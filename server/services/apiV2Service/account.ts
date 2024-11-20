@@ -19,6 +19,8 @@ const redis = createClient()
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
 export async function getAccountPoolPositions(chain: string, account: string) {
+  const startTime = performance.now()
+
   if (!redis.isOpen) await redis.connect()
   const positions = JSON.parse(await redis.get(`positions_${chain}`))
 
@@ -28,6 +30,10 @@ export async function getAccountPoolPositions(chain: string, account: string) {
 
     result.push({ ...position, ...stats })
   }
+
+  const endTime = performance.now()
+
+  console.log('getAccountPoolPositions:', `${Math.round(endTime - startTime)}ms`)
 
   return result
 }
