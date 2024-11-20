@@ -33,7 +33,7 @@ export async function getAccountPoolPositions(chain: string, account: string) {
 
   const endTime = performance.now()
 
-  console.log('getAccountPoolPositions:', `${Math.round(endTime - startTime)}ms`)
+  console.log(`getAccountPoolPositions(${chain}: ${account}):`, `${Math.round(endTime - startTime)}ms`)
 
   return result
 }
