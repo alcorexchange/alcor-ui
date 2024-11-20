@@ -139,10 +139,11 @@ const MatchSchema = new mongoose.Schema({
   time: { type: Date, index: true },
   block_num: { type: Number }
 })
-MatchSchema.index({ chain: 1, market: 1 })
-MatchSchema.index({ chain: 1, market: 1, time: -1 })
-MatchSchema.index({ chain: 1, market: 1, asker: 1, bidder: 1 })
-MatchSchema.index({ chain: 1, market: 1, time: 1, unit_price: -1 })
+MatchSchema.index({ chain: 1, market: 1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, time: -1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, asker: 1, bidder: 1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, time: 1, unit_price: -1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, time: 1, type: 1, bid: 1, ask: 1 }, { background: true })
 
 const BarSchema = new mongoose.Schema({
   timeframe: { type: String, index: true },
@@ -172,6 +173,7 @@ const SwapBarSchema = new mongoose.Schema({
   volumeUSD: { type: Number, default: 0 },
   time: { type: Date, index: true }
 })
+SwapBarSchema.index({ pool: 1, timeframe: 1, time: 1 }, { background: true })
 SwapBarSchema.index({ chain: 1, timeframe: 1, market: 1, time: -1 }, { background: true })
 
 const PoolChartPointSchema = new mongoose.Schema({
@@ -309,6 +311,7 @@ SwapSchema.index({ chain: 1, pool: 1, sender: 1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, time: 1 }, { background: true })
+SwapSchema.index({ chain: 1, pool: 1, time: -1, tokenA: 1 }, { background: true })
 
 const PositionSchema = new mongoose.Schema({
   id: { type: Number },
