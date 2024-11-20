@@ -88,7 +88,7 @@ export async function getPositionStats(chain, redisPosition) {
   const history = await PositionHistory.find({ chain, id: redisPosition.id, owner: redisPosition.owner }).sort({ time: 1, type: 1 }).lean()
   const endTime = performance.now()
 
-  console.log(`getAccountPoolPositions(${chain}: ${account}) mongo query time:`, `${Math.round(endTime - startTime)}ms`)
+  console.log(`getAccountPoolPositions(${chain}: ${redisPosition.owner}) mongo query time:`, `${Math.round(endTime - startTime)}ms`)
 
   let total = 0
   let sub = 0
