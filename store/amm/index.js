@@ -29,6 +29,7 @@ export const state = () => ({
   maxHops: 2,
   recalculateOnPriceChange: true,
 
+  positions_loading_status: 'loading',
   last_pool_subscribed: null
 })
 
@@ -43,6 +44,7 @@ export const mutations = {
   setRecalculateOnPriceChange: (state, recalculateOnPriceChange) =>
     (state.recalculateOnPriceChange = recalculateOnPriceChange),
   setLastPoolSubscribed: (state, poolId) => (state.last_pool_subscribed = poolId),
+  setLastPositionsLoadingStatus: (state, status) => (state.positions_loading_status = status),
 
   setPoolsStats: (state, stats) => (state.poolsStats = stats),
   setHistory: (state, data) => (state.history = data),
@@ -150,11 +152,18 @@ export const actions = {
   async fetchPositions({ state, commit, rootState, dispatch }) {
     const owner = rootState.user?.name
 
-    const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
-    commit('setPositions', positions)
-    dispatch('farms/loadUserStakes', {}, { root: true })
+    commit('setLastPositionsLoadingStatus', 'loading')
+    try {
+      const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
 
-    setTimeout(() => dispatch('farms/setFarmPoolsWithAPR', {}, { root: true }), 1)
+      commit('setLastPositionsLoadingStatus', 'loaded')
+      commit('setPositions', positions)
+      dispatch('farms/loadUserStakes', {}, { root: true })
+      setTimeout(() => dispatch('farms/setFarmPoolsWithAPR', {}, { root: true }), 1)
+    } catch (e) {
+      this._vm.$notify({ type: 'error', title: 'Positions loading ERROR', message: e })
+      commit('setLastPositionsLoadingStatus', 'failed')
+    }
   },
 
   async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {

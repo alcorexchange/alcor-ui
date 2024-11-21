@@ -1,7 +1,7 @@
 <template lang="pug">
 VirtualTable(:table="virtualTableData").virtual-positions-list
   template(#empty)
-    .d-flex.flex-column.align-items-center.gap-30.py-5.muted
+    .d-flex.flex-column.align-items-center.gap-30.py-5.muted(v-loading="positions_loading_status == 'loading'")
       i.el-icon-moon-night.fs-40
       .fs-14.lh-14 {{ $t('Your active liquidity positions will appear here.') }}
   template(#total-header)
@@ -71,6 +71,10 @@ export default {
   props: ['search'],
 
   computed: {
+    positions_loading_status() {
+      return this.$store.state.amm.positions_loading_status
+    },
+
     virtualTableData() {
       const header = [
         {
