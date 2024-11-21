@@ -124,8 +124,8 @@ export default {
         .map((p) => {
           const stake = plainUserStakes.filter(s => s.posId == p.id)
 
-          const finishedStaking = stake.reduce((a, b) => a + (b.incentive.isFinished ? 0 : 1), 0)
-          const currentStaking = stake.reduce((a, b) => a + (b.incentive.isFinished ? 1 : 0), 0)
+          const finishedStaking = stake.reduce((a, b) => a + (b.incentive.isFinished ? 1 : 0), 0)
+          const currentStaking = stake.reduce((a, b) => a + (b.incentive.isFinished ? 0 : 1), 0)
 
           const _pool = this.$store.state.amm.pools.find((pool) => pool.id == p.pool)
 
