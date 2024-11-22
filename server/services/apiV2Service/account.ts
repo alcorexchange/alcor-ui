@@ -119,6 +119,8 @@ export async function getPositionStats(chain, redisPosition) {
   }
 
   const depositedUSDTotal = +(total - sub).toFixed(4)
+  const closed = liquidity == BigInt(0)
+
   const stats = { depositedUSDTotal, closed, collectedFees }
 
   let current: { feesA: string, feesB: string, totalValue: number, pNl?: number } = { feesA: '0.0000', feesB: '0.0000', totalValue: 0 }
