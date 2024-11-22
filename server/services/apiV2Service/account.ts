@@ -1,4 +1,3 @@
-import JSBI from 'jsbi'
 import bigInt from 'big-integer'
 import { asset } from 'eos-common'
 import { cacheSeconds } from 'route-cache'
@@ -94,17 +93,17 @@ export async function getPositionStats(chain, redisPosition) {
 
   let total = 0
   let sub = 0
-  let liquidity = JSBI.BigInt(0)
+  let liquidity = BigInt(0)
   let collectedFees = { tokenA: 0, tokenB: 0, inUSD: 0 }
 
   for (const h of history) {
     if (h.type === 'burn') {
-      liquidity = JSBI.subtract(liquidity, JSBI.BigInt(h.liquidity))
+      liquidity = liquidity - BigInt(h.liquidity)
       sub += h.totalUSDValue
     }
 
     if (h.type === 'mint') {
-      liquidity = JSBI.add(liquidity, JSBI.BigInt(h.liquidity))
+      liquidity = liquidity + BigInt(h.liquidity)
       total += h.totalUSDValue
     }
 
@@ -120,8 +119,6 @@ export async function getPositionStats(chain, redisPosition) {
   }
 
   const depositedUSDTotal = +(total - sub).toFixed(4)
-  let closed = JSBI.equal(liquidity, JSBI.BigInt(0))
-
   const stats = { depositedUSDTotal, closed, collectedFees }
 
   let current: { feesA: string, feesB: string, totalValue: number, pNl?: number } = { feesA: '0.0000', feesB: '0.0000', totalValue: 0 }
