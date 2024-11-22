@@ -511,7 +511,7 @@
       "https://t.me/yeetwax"
     ]
   },
-  "BANKER@banker": {
+  "BANKER@bmpm.gm": {
         "name": "BANKER",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -524,7 +524,7 @@
             "Collectable"
         ]
     },
-    "ALL@all": {
+    "ALL@bmpm.gm": {
         "name": "ALL",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -537,7 +537,7 @@
             "Collectable"
         ]
     },
-    "COFREE@cofree": {
+    "COFREE@bmpm.gm": {
         "name": "COFREE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -550,7 +550,20 @@
             "Collectable"
         ]
     },
-    "GOLD@gold": {
+    "GOLD@bobocoin.gm": {
+        "name": "GOLD",
+        "website": {
+            "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
+        },
+        "socials": "https://www.youtube.com/@peoplelikesbymonowproducti9813, https://t.me/bobopixel0x0/, https://discord.gg/WNZ59XZeKu",
+        "description": "A first-tier gold-backed token designed for hedge investments.",
+        "tags": [
+            "Not a Guarantee",
+            "Market Trends",
+            "Collectable"
+        ]
+    },
+    "GOLD@bmpm.gm": {
         "name": "GOLD",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -563,7 +576,7 @@
             "Collectable"
         ]
     },
-    "SAFE@safe": {
+    "SAFE@bmpm.gm": {
         "name": "SAFE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -576,7 +589,7 @@
             "Collectable"
         ]
     },
-    "GLOBOBS@globobs": {
+    "GLOBOBS@bmpm.gm": {
         "name": "GLOBOBS",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -589,7 +602,7 @@
             "Collectable"
         ]
     },
-    "OXO@oxo": {
+    "OXO@bmpm.gm": {
         "name": "OXO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -602,7 +615,7 @@
             "Collectable"
         ]
     },
-    "BING@bing": {
+    "BING@bmpm.gm": {
         "name": "BING",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -615,7 +628,7 @@
             "Collectable"
         ]
     },
-    "O@o": {
+    "O@bmpm.gm": {
         "name": "O",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -628,7 +641,7 @@
             "Collectable"
         ]
     },
-    "AF@af": {
+    "AF@bmpm.gm": {
         "name": "AF",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -641,7 +654,7 @@
             "Collectable"
         ]
     },
-    "AS@as": {
+    "AS@bmpm.gm": {
         "name": "AS",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -654,7 +667,7 @@
             "Collectable"
         ]
     },
-    "EU@eu": {
+    "EU@bmpm.gm": {
         "name": "EU",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -667,7 +680,7 @@
             "Collectable"
         ]
     },
-    "OC@oc": {
+    "OC@bmpm.gm": {
         "name": "OC",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -680,7 +693,7 @@
             "Collectable"
         ]
     },
-    "SA@sa": {
+    "SA@bmpm.gm": {
         "name": "SA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -693,7 +706,7 @@
             "Collectable"
         ]
     },
-    "BANK@bank": {
+    "BANK@bobocoin.gm": {
         "name": "BANK",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -706,7 +719,20 @@
             "Collectable"
         ]
     },
-    "LOANS@loans": {
+    "BANK@bmpm.gm": {
+        "name": "BANK",
+        "website": {
+            "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
+        },
+        "socials": "https://www.youtube.com/@peoplelikesbymonowproducti9813, https://t.me/bobopixel0x0/, https://discord.gg/JzhVP3WT9V",
+        "description": "A recurring coin used for banking-related functions within the system.",
+        "tags": [
+            "Not a Guarantee",
+            "Market Trends",
+            "Collectable"
+        ]
+    },
+    "LOANS@bobocoin.gm": {
         "name": "LOANS",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -719,7 +745,7 @@
             "Collectable"
         ]
     },
-    "ASSETS@assets": {
+    "ASSETS@bobocoin.gm": {
         "name": "ASSETS",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -732,7 +758,7 @@
             "Collectable"
         ]
     },
-    "COFFEE@coffee": {
+    "COFFEE@bobocoin.gm": {
         "name": "COFFEE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -745,7 +771,7 @@
             "Collectable"
         ]
     },
-    "BOPIXBO@bopixbo": {
+    "BOPIXBO@bobocoin.gm": {
         "name": "BOPIXBO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -758,7 +784,7 @@
             "Collectable"
         ]
     },
-    "BPVALUE@bpvalue": {
+    "BPVALUE@bobocoin.gm": {
         "name": "BPVALUE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -771,7 +797,7 @@
             "Collectable"
         ]
     },
-    "BOCO@boco": {
+    "BOCO@bobocoin.gm": {
         "name": "BOCO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -784,7 +810,7 @@
             "Collectable"
         ]
     },
-    "NONE@none": {
+    "NONE@bobocoin.gm": {
         "name": "NONE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -797,7 +823,7 @@
             "Collectable"
         ]
     },
-    "ROCK@rock": {
+    "ROCK@bobocoin.gm": {
         "name": "ROCK",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -810,7 +836,7 @@
             "Collectable"
         ]
     },
-    "SCISSOR@scissor": {
+    "SCISSOR@bobocoin.gm": {
         "name": "SCISSOR",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -823,7 +849,7 @@
             "Collectable"
         ]
     },
-    "PAPER@paper": {
+    "PAPER@bobocoin.gm": {
         "name": "PAPER",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -836,7 +862,7 @@
             "Collectable"
         ]
     },
-    "STONE@stone": {
+    "STONE@bobocoin.gm": {
         "name": "STONE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -849,7 +875,7 @@
             "Collectable"
         ]
     },
-    "METAL@metal": {
+    "METAL@bobocoin.gm": {
         "name": "METAL",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -862,7 +888,7 @@
             "Collectable"
         ]
     },
-    "ME@me": {
+    "ME@bmpm.gm": {
         "name": "ME",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -875,7 +901,7 @@
             "Collectable"
         ]
     },
-    "WOOD@wood": {
+    "WOOD@bobocoin.gm": {
         "name": "WOOD",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -888,7 +914,7 @@
             "Collectable"
         ]
     },
-    "ROARMY@roarmy": {
+    "ROARMY@bobocoin.gm": {
         "name": "ROARMY",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -901,7 +927,7 @@
             "Collectable"
         ]
     },
-    "SCARMY@scarmy": {
+    "SCARMY@bobocoin.gm": {
         "name": "SCARMY",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -914,7 +940,7 @@
             "Collectable"
         ]
     },
-    "PAARMY@paarmy": {
+    "PAARMY@bobocoin.gm": {
         "name": "PAARMY",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -927,7 +953,7 @@
             "Collectable"
         ]
     },
-    "DOOR@door": {
+    "DOOR@bobocoin.gm": {
         "name": "DOOR",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -940,7 +966,7 @@
             "Collectable"
         ]
     },
-    "KEY@key": {
+    "KEY@bobocoin.gm": {
         "name": "KEY",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -953,7 +979,7 @@
             "Collectable"
         ]
     },
-    "ENERGY@energy": {
+    "ENERGY@bobocoin.gm": {
         "name": "ENERGY",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -966,7 +992,7 @@
             "Collectable"
         ]
     },
-    "BIPOT@bipot": {
+    "BIPOT@bobocoin.gm": {
         "name": "BIPOT",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -979,7 +1005,7 @@
             "Collectable"
         ]
     },
-    "MEPOT@mepot": {
+    "MEPOT@bobocoin.gm": {
         "name": "MEPOT",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -992,7 +1018,7 @@
             "Collectable"
         ]
     },
-    "SMPOT@smpot": {
+    "SMPOT@bobocoin.gm": {
         "name": "SMPOT",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1005,7 +1031,7 @@
             "Collectable"
         ]
     },
-    "FOOD@food": {
+    "FOOD@bobocoin.gm": {
         "name": "FOOD",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1018,7 +1044,7 @@
             "Collectable"
         ]
     },
-    "PEOPLE@people": {
+    "PEOPLE@bobocoin.gm": {
         "name": "PEOPLE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1031,7 +1057,7 @@
             "Collectable"
         ]
     },
-    "TRUST@trust": {
+    "TRUST@bmpm.gm": {
         "name": "TRUST",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1044,7 +1070,7 @@
             "Collectable"
         ]
     },
-    "COLLECT@collect": {
+    "COLLECT@bobocoin.gm": {
         "name": "COLLECT",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1057,7 +1083,7 @@
             "Collectable"
         ]
     },
-    "DEBTS@debts": {
+    "DEBTS@bobocoin.gm": {
         "name": "DEBTS",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1070,7 +1096,7 @@
             "Collectable"
         ]
     },
-    "BOBABU@bobabu": {
+    "BOBABU@bobocoin.gm": {
         "name": "BOBABU",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1083,7 +1109,7 @@
             "Collectable"
         ]
     },
-    "BOBAC@bobac": {
+    "BOBAC@bobocoin.gm": {
         "name": "BOBAC",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1096,7 +1122,7 @@
             "Collectable"
         ]
     },
-    "BOBAE@bobae": {
+    "BOBAE@bobocoin.gm": {
         "name": "BOBAE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1109,7 +1135,7 @@
             "Collectable"
         ]
     },
-    "BOBAG@bobag": {
+    "BOBAG@bobocoin.gm": {
         "name": "BOBAG",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1122,7 +1148,7 @@
             "Collectable"
         ]
     },
-    "BOBAGE@bobage": {
+    "BOBAGE@bobocoin.gm": {
         "name": "BOBAGE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1135,7 +1161,7 @@
             "Collectable"
         ]
     },
-    "BOBAH@bobah": {
+    "BOBAH@bobocoin.gm": {
         "name": "BOBAH",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1148,7 +1174,7 @@
             "Collectable"
         ]
     },
-    "BOBAIA@bobaia": {
+    "BOBAIA@bobocoin.gm": {
         "name": "BOBAIA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1161,7 +1187,7 @@
             "Collectable"
         ]
     },
-    "BOBAJI@bobaji": {
+    "BOBAJI@bobocoin.gm": {
         "name": "BOBAJI",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1174,7 +1200,7 @@
             "Collectable"
         ]
     },
-    "BOBAS@bobas": {
+    "BOBAS@bobocoin.gm": {
         "name": "BOBAS",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1187,7 +1213,7 @@
             "Collectable"
         ]
     },
-    "BOBAU@bobau": {
+    "BOBAU@bobocoin.gm": {
         "name": "BOBAU",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1200,7 +1226,7 @@
             "Collectable"
         ]
     },
-    "BOBAV@bobav": {
+    "BOBAV@bobocoin.gm": {
         "name": "BOBAV",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1213,7 +1239,7 @@
             "Collectable"
         ]
     },
-    "BOBAXA@bobaxa": {
+    "BOBAXA@bobocoin.gm": {
         "name": "BOBAXA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1226,7 +1252,7 @@
             "Collectable"
         ]
     },
-    "BOBAYO@bobayo": {
+    "BOBAYO@bobocoin.gm": {
         "name": "BOBAYO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1239,7 +1265,7 @@
             "Collectable"
         ]
     },
-    "BOBEB@bobeb": {
+    "BOBEB@bobocoin.gm": {
         "name": "BOBEB",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1252,7 +1278,7 @@
             "Collectable"
         ]
     },
-    "BOBED@bobed": {
+    "BOBED@bobocoin.gm": {
         "name": "BOBED",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1265,7 +1291,7 @@
             "Collectable"
         ]
     },
-    "BOBEDU@bobedu": {
+    "BOBEDU@bobocoin.gm": {
         "name": "BOBEDU",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1278,7 +1304,7 @@
             "Collectable"
         ]
     },
-    "BOBEH@bobeh": {
+    "BOBEH@bobocoin.gm": {
         "name": "BOBEH",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1291,7 +1317,7 @@
             "Collectable"
         ]
     },
-    "BOBEI@bobei": {
+    "BOBEI@bobocoin.gm": {
         "name": "BOBEI",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1304,7 +1330,7 @@
             "Collectable"
         ]
     },
-    "BOBEIO@bobeio": {
+    "BOBEIO@bobocoin.gm": {
         "name": "BOBEIO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1317,7 +1343,7 @@
             "Collectable"
         ]
     },
-    "BOBEJ@bobej": {
+    "BOBEJ@bobocoin.gm": {
         "name": "BOBEJ",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1330,7 +1356,7 @@
             "Collectable"
         ]
     },
-    "BOBEKA@bobeka": {
+    "BOBEKA@bobocoin.gm": {
         "name": "BOBEKA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1343,7 +1369,7 @@
             "Collectable"
         ]
     },
-    "BOBEN@boben": {
+    "BOBEN@bobocoin.gm": {
         "name": "BOBEN",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1356,7 +1382,7 @@
             "Collectable"
         ]
     },
-    "BOBEO@bobeo": {
+    "BOBEO@bobocoin.gm": {
         "name": "BOBEO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1369,7 +1395,7 @@
             "Collectable"
         ]
     },
-    "BOBEOI@bobeoi": {
+    "BOBEOI@bobocoin.gm": {
         "name": "BOBEOI",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1382,7 +1408,7 @@
             "Collectable"
         ]
     },
-    "BOBESU@bobesu": {
+    "BOBESU@bobocoin.gm": {
         "name": "BOBESU",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1395,7 +1421,7 @@
             "Collectable"
         ]
     },
-    "BOBEU@bobeu": {
+    "BOBEU@bobocoin.gm": {
         "name": "BOBEU",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1408,7 +1434,7 @@
             "Collectable"
         ]
     },
-    "BOBEVO@bobevo": {
+    "BOBEVO@bobocoin.gm": {
         "name": "BOBEVO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1421,7 +1447,7 @@
             "Collectable"
         ]
     },
-    "BOBEX@bobex": {
+    "BOBEX@bobocoin.gm": {
         "name": "BOBEX",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1434,7 +1460,7 @@
             "Collectable"
         ]
     },
-    "BOBEXO@bobexo": {
+    "BOBEXO@bobocoin.gm": {
         "name": "BOBEXO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1447,7 +1473,7 @@
             "Collectable"
         ]
     },
-    "BOBEZ@bobez": {
+    "BOBEZ@bobocoin.gm": {
         "name": "BOBEZ",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1460,7 +1486,7 @@
             "Collectable"
         ]
     },
-    "BOBIA@bobia": {
+    "BOBIA@bobocoin.gm": {
         "name": "BOBIA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1473,7 +1499,7 @@
             "Collectable"
         ]
     },
-    "BOBIB@bobib": {
+    "BOBIB@bobocoin.gm": {
         "name": "BOBIB",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1486,7 +1512,7 @@
             "Collectable"
         ]
     },
-    "BOBICA@bobica": {
+    "BOBICA@bobocoin.gm": {
         "name": "BOBICA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1499,7 +1525,7 @@
             "Collectable"
         ]
     },
-    "BOBIDA@bobida": {
+    "BOBIDA@bobocoin.gm": {
         "name": "BOBIDA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1512,7 +1538,7 @@
             "Collectable"
         ]
     },
-    "BOBIDE@bobide": {
+    "BOBIDE@bobocoin.gm": {
         "name": "BOBIDE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1525,7 +1551,7 @@
             "Collectable"
         ]
     },
-    "BOBIDO@bobido": {
+    "BOBIDO@bobocoin.gm": {
         "name": "BOBIDO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1538,7 +1564,7 @@
             "Collectable"
         ]
     },
-    "BOBIDU@bobidu": {
+    "BOBIDU@bobocoin.gm": {
         "name": "BOBIDU",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1551,7 +1577,7 @@
             "Collectable"
         ]
     },
-    "BOBIE@bobie": {
+    "BOBIE@bobocoin.gm": {
         "name": "BOBIE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1564,7 +1590,7 @@
             "Collectable"
         ]
     },
-    "BOBIHO@bobiho": {
+    "BOBIHO@bobocoin.gm": {
         "name": "BOBIHO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1577,7 +1603,7 @@
             "Collectable"
         ]
     },
-    "BOBIJ@bobij": {
+    "BOBIJ@bobocoin.gm": {
         "name": "BOBIJ",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1590,7 +1616,7 @@
             "Collectable"
         ]
     },
-    "BOBIJA@bobija": {
+    "BOBIJA@bobocoin.gm": {
         "name": "BOBIJA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1603,7 +1629,7 @@
             "Collectable"
         ]
     },
-    "BOBIJO@bobijo": {
+    "BOBIJO@bobocoin.gm": {
         "name": "BOBIJO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1616,7 +1642,7 @@
             "Collectable"
         ]
     },
-    "BOBIN@bobin": {
+    "BOBIN@bobocoin.gm": {
         "name": "BOBIN",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1629,7 +1655,7 @@
             "Collectable"
         ]
     },
-    "BOBIOI@bobioi": {
+    "BOBIOI@bobocoin.gm": {
         "name": "BOBIOI",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1642,7 +1668,7 @@
             "Collectable"
         ]
     },
-    "BOBIQA@bobiqa": {
+    "BOBIQA@bobocoin.gm": {
         "name": "BOBIQA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1655,7 +1681,7 @@
             "Collectable"
         ]
     },
-    "BOBIQI@bobiqi": {
+    "BOBIQI@bobocoin.gm": {
         "name": "BOBIQI",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1668,7 +1694,7 @@
             "Collectable"
         ]
     },
-    "BOBIQU@bobiqu": {
+    "BOBIQU@bobocoin.gm": {
         "name": "BOBIQU",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1681,7 +1707,7 @@
             "Collectable"
         ]
     },
-    "BOBIR@bobir": {
+    "BOBIR@bobocoin.gm": {
         "name": "BOBIR",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1694,7 +1720,7 @@
             "Collectable"
         ]
     },
-    "BOBIS@bobis": {
+    "BOBIS@bobocoin.gm": {
         "name": "BOBIS",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1707,7 +1733,7 @@
             "Collectable"
         ]
     },
-    "BOBIW@bobiw": {
+    "BOBIW@bobocoin.gm": {
         "name": "BOBIW",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1720,7 +1746,7 @@
             "Collectable"
         ]
     },
-    "BOBIWE@bobiwe": {
+    "BOBIWE@bobocoin.gm": {
         "name": "BOBIWE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1733,7 +1759,7 @@
             "Collectable"
         ]
     },
-    "BOBIX@bobix": {
+    "BOBIX@bobocoin.gm": {
         "name": "BOBIX",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1746,7 +1772,7 @@
             "Collectable"
         ]
     },
-    "BOBIY@bobiy": {
+    "BOBIY@bobocoin.gm": {
         "name": "BOBIY",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1759,7 +1785,7 @@
             "Collectable"
         ]
     },
-    "BOBIZ@bobiz": {
+    "BOBIZ@bobocoin.gm": {
         "name": "BOBIZ",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1772,7 +1798,7 @@
             "Collectable"
         ]
     },
-    "BOBIZO@bobizo": {
+    "BOBIZO@bobocoin.gm": {
         "name": "BOBIZO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1785,7 +1811,7 @@
             "Collectable"
         ]
     },
-    "BOBOBO@bobobo": {
+    "BOBOBO@bobocoin.gm": {
         "name": "BOBOBO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1798,7 +1824,7 @@
             "Collectable"
         ]
     },
-    "BOBODO@bobodo": {
+    "BOBODO@bobocoin.gm": {
         "name": "BOBODO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1811,7 +1837,7 @@
             "Collectable"
         ]
     },
-    "BOBOE@boboe": {
+    "BOBOE@bobocoin.gm": {
         "name": "BOBOE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1824,7 +1850,7 @@
             "Collectable"
         ]
     },
-    "BOBOG@bobog": {
+    "BOBOG@bobocoin.gm": {
         "name": "BOBOG",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1837,7 +1863,7 @@
             "Collectable"
         ]
     },
-    "BOBOH@boboh": {
+    "BOBOH@bobocoin.gm": {
         "name": "BOBOH",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1850,7 +1876,7 @@
             "Collectable"
         ]
     },
-    "BOBOK@bobok": {
+    "BOBOK@bobocoin.gm": {
         "name": "BOBOK",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1863,7 +1889,7 @@
             "Collectable"
         ]
     },
-    "BOBON@bobon": {
+    "BOBON@bobocoin.gm": {
         "name": "BOBON",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1876,7 +1902,7 @@
             "Collectable"
         ]
     },
-    "BOBONE@bobone": {
+    "BOBONE@bobocoin.gm": {
         "name": "BOBONE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1889,7 +1915,7 @@
             "Collectable"
         ]
     },
-    "BOBOPI@bobopi": {
+    "BOBOPI@bobocoin.gm": {
         "name": "BOBOPI",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1902,7 +1928,7 @@
             "Collectable"
         ]
     },
-    "BOBOPU@bobopu": {
+    "BOBOPU@bobocoin.gm": {
         "name": "BOBOPU",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1915,7 +1941,7 @@
             "Collectable"
         ]
     },
-    "BOBOQ@boboq": {
+    "BOBOQ@bobocoin.gm": {
         "name": "BOBOQ",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1928,7 +1954,7 @@
             "Collectable"
         ]
     },
-    "BOBORO@boboro": {
+    "BOBORO@bobocoin.gm": {
         "name": "BOBORO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1941,7 +1967,7 @@
             "Collectable"
         ]
     },
-    "BOBOS@bobos": {
+    "BOBOS@bobocoin.gm": {
         "name": "BOBOS",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1954,7 +1980,7 @@
             "Collectable"
         ]
     },
-    "BOBOSE@bobose": {
+    "BOBOSE@bobocoin.gm": {
         "name": "BOBOSE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1967,7 +1993,7 @@
             "Collectable"
         ]
     },
-    "BOBOSI@bobosi": {
+    "BOBOSI@bobocoin.gm": {
         "name": "BOBOSI",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1980,7 +2006,7 @@
             "Collectable"
         ]
     },
-    "BOBOT@bobot": {
+    "BOBOT@bobocoin.gm": {
         "name": "BOBOT",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -1993,7 +2019,7 @@
             "Collectable"
         ]
     },
-    "BOBOTO@boboto": {
+    "BOBOTO@bobocoin.gm": {
         "name": "BOBOTO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2006,7 +2032,7 @@
             "Collectable"
         ]
     },
-    "BOBOUI@boboui": {
+    "BOBOUI@bobocoin.gm": {
         "name": "BOBOUI",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2019,7 +2045,7 @@
             "Collectable"
         ]
     },
-    "BOBOVE@bobove": {
+    "BOBOVE@bobocoin.gm": {
         "name": "BOBOVE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2032,7 +2058,7 @@
             "Collectable"
         ]
     },
-    "BOBOWE@bobowe": {
+    "BOBOWE@bobocoin.gm": {
         "name": "BOBOWE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2045,7 +2071,7 @@
             "Collectable"
         ]
     },
-    "BOBOY@boboy": {
+    "BOBOY@bobocoin.gm": {
         "name": "BOBOY",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2058,7 +2084,7 @@
             "Collectable"
         ]
     },
-    "BOBOYI@boboyi": {
+    "BOBOYI@bobocoin.gm": {
         "name": "BOBOYI",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2071,7 +2097,7 @@
             "Collectable"
         ]
     },
-    "BOBOZ@boboz": {
+    "BOBOZ@bobocoin.gm": {
         "name": "BOBOZ",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2084,7 +2110,7 @@
             "Collectable"
         ]
     },
-    "BOBOZO@bobozo": {
+    "BOBOZO@bobocoin.gm": {
         "name": "BOBOZO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2097,7 +2123,7 @@
             "Collectable"
         ]
     },
-    "BOBUL@bobul": {
+    "BOBUL@bobocoin.gm": {
         "name": "BOBUL",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2110,7 +2136,7 @@
             "Collectable"
         ]
     },
-    "BOBUM@bobum": {
+    "BOBUM@bobocoin.gm": {
         "name": "BOBUM",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2123,7 +2149,7 @@
             "Collectable"
         ]
     },
-    "BOBUN@bobun": {
+    "BOBUN@bobocoin.gm": {
         "name": "BOBUN",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2136,7 +2162,7 @@
             "Collectable"
         ]
     },
-    "BOBUV@bobuv": {
+    "BOBUV@bobocoin.gm": {
         "name": "BOBUV",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2149,7 +2175,7 @@
             "Collectable"
         ]
     },
-    "BOBUY@bobuy": {
+    "BOBUY@bobocoin.gm": {
         "name": "BOBUY",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2162,7 +2188,7 @@
             "Collectable"
         ]
     },
-    "BOBUZ@bobuz": {
+    "BOBUZ@bobocoin.gm": {
         "name": "BOBUZ",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2175,7 +2201,7 @@
             "Collectable"
         ]
     },
-    "BOBVA@bobva": {
+    "BOBVA@bobocoin.gm": {
         "name": "BOBVA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2188,7 +2214,7 @@
             "Collectable"
         ]
     },
-    "BOBVE@bobve": {
+    "BOBVE@bobocoin.gm": {
         "name": "BOBVE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2201,7 +2227,7 @@
             "Collectable"
         ]
     },
-    "BOBVI@bobvi": {
+    "BOBVI@bobocoin.gm": {
         "name": "BOBVI",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2214,7 +2240,7 @@
             "Collectable"
         ]
     },
-    "BOBVY@bobvy": {
+    "BOBVY@bobocoin.gm": {
         "name": "BOBVY",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2227,7 +2253,7 @@
             "Collectable"
         ]
     },
-    "BOBWA@bobwa": {
+    "BOBWA@bobocoin.gm": {
         "name": "BOBWA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2240,7 +2266,7 @@
             "Collectable"
         ]
     },
-    "BOBWE@bobwe": {
+    "BOBWE@bobocoin.gm": {
         "name": "BOBWE",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2253,7 +2279,7 @@
             "Collectable"
         ]
     },
-    "BOBWO@bobwo": {
+    "BOBWO@bobocoin.gm": {
         "name": "BOBWO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2266,7 +2292,7 @@
             "Collectable"
         ]
     },
-    "BOBWY@bobwy": {
+    "BOBWY@bobocoin.gm": {
         "name": "BOBWY",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2279,7 +2305,7 @@
             "Collectable"
         ]
     },
-    "BOBWYI@bobwyi": {
+    "BOBWYI@bobocoin.gm": {
         "name": "BOBWYI",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2292,7 +2318,7 @@
             "Collectable"
         ]
     },
-    "BOBWYO@bobwyo": {
+    "BOBWYO@bobocoin.gm": {
         "name": "BOBWYO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2305,7 +2331,7 @@
             "Collectable"
         ]
     },
-    "BOBXA@bobxa": {
+    "BOBXA@bobocoin.gm": {
         "name": "BOBXA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2318,7 +2344,7 @@
             "Collectable"
         ]
     },
-    "BOBXU@bobxu": {
+    "BOBXU@bobocoin.gm": {
         "name": "BOBXU",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2331,7 +2357,7 @@
             "Collectable"
         ]
     },
-    "BOBYO@bobyo": {
+    "BOBYO@bobocoin.gm": {
         "name": "BOBYO",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2344,7 +2370,7 @@
             "Collectable"
         ]
     },
-    "BOBZA@bobza": {
+    "BOBZA@bobocoin.gm": {
         "name": "BOBZA",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
@@ -2357,7 +2383,7 @@
             "Collectable"
         ]
     },
-    "BOBZU@bobzu": {
+    "BOBZU@bobocoin.gm": {
         "name": "BOBZU",
         "website": {
             "link": "https://thelasthuman.data.blog/, https://bp0x0abc.home.blog/"
