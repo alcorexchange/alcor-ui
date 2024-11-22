@@ -3,7 +3,6 @@ require('dotenv').config()
 import { isEqual, throttle } from 'lodash'
 import { createClient } from 'redis'
 
-import JSBI from "jsbi"
 import { Price, Q128, Pool } from '@alcorexchange/alcor-swap-sdk'
 import { parseAssetPlain, littleEndianToDesimalString } from '../../../utils'
 import { SwapPool, Position, PositionHistory, Swap, SwapChartPoint } from '../../models'
@@ -214,7 +213,7 @@ export async function updatePool(chain: string, poolId: number) {
     parseToken(pool.tokenA),
     parseToken(pool.tokenB),
     Q128,
-    JSBI.multiply(JSBI.BigInt(parsedPool.sqrtPriceX64), JSBI.BigInt(parsedPool.sqrtPriceX64))
+    BigInt(parsedPool.sqrtPriceX64) * BigInt(parsedPool.sqrtPriceX64)
   )
 
   const priceA = price.toSignificant()
@@ -329,7 +328,7 @@ export async function updatePools(chain) {
         parseToken(pool.tokenA),
         parseToken(pool.tokenB),
         Q128,
-        JSBI.multiply(JSBI.BigInt(parsed_pool.sqrtPriceX64), JSBI.BigInt(parsed_pool.sqrtPriceX64))
+        BigInt(parsed_pool.sqrtPriceX64) * BigInt(parsed_pool.sqrtPriceX64)
       )
 
       const priceA = price.toSignificant()

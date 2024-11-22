@@ -31,7 +31,6 @@
 import { mapState } from 'vuex'
 
 import axios from 'axios'
-import JSBI from 'jsbi'
 import { Token, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import AnalyticsTokenHeader from '@/components/analytics/AnalyticsTokenHeader'
 import AnalyticsStats from '@/components/analytics/AnalyticsStats'
@@ -188,7 +187,7 @@ export default {
           tokenA.sortsBefore(tokenB) ? tokenA : tokenB,
           tokenB.sortsBefore(tokenA) ? tokenA : tokenB,
           Q128,
-          JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price))
+          BigInt(c.price) * BigInt(c.price)
         )
 
         return {

@@ -29,7 +29,6 @@ div(v-if="pool && stats").analytics-pool-detail-page
 </template>
 
 <script>
-import JSBI from 'jsbi'
 import { mapActions } from 'vuex'
 import { tickToPrice, Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
 import { isTicksAtLimit, constructPoolInstance } from '~/utils/amm'
@@ -169,7 +168,7 @@ export default {
             tokenA.sortsBefore(tokenB) ? tokenA : tokenB,
             tokenB.sortsBefore(tokenA) ? tokenA : tokenB,
             Q128,
-            JSBI.multiply(JSBI.BigInt(item.price), JSBI.BigInt(item.price))
+            BigInt(item.price) * BigInt(item.price)
           )
 
           return parseFloat(price.toSignificant())

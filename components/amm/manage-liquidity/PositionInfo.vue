@@ -73,7 +73,6 @@
 </template>
 
 <script>
-import JSBI from 'jsbi'
 import { Fraction } from '@alcorexchange/alcor-swap-sdk'
 
 import RangeIndicator from '~/components/amm/RangeIndicator'
@@ -106,7 +105,7 @@ export default {
     poolShare() {
       if (!this.position.inRange) return '0.00'
 
-      if (JSBI.equal(this.position.pool.liquidity, JSBI.BigInt(0))) return '0.00'
+      if (this.position.pool.liquidity == BigInt(0)) return '0.00'
       return (parseFloat(new Fraction(this.position.liquidity, this.position.pool.liquidity).toFixed(6)) * 100).toFixed(2)
     },
 
