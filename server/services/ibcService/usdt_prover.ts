@@ -159,7 +159,7 @@ async function main() {
   const ibcTokens = await getWrapLockContracts(chains)
 
   await Promise.all([
-    WaxToEosWorker(ibcTokens),
+    //WaxToEosWorker(ibcTokens),
     //eosToWaxWorker(ibcTokens),
     eosCexDepsitsWorker()
   ])
