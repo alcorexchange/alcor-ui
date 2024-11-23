@@ -25,12 +25,22 @@ export async function newSwapAction(action, network: Network) {
 }
 
 export async function getFieldSumFrom(field, date, pool, chain) {
-  const volume: { total_volume: number }[] = await Swap.aggregate([
-    { $match: { chain, pool, time: { $gte: new Date(date) } } },
-    { $group: { _id: '$pool', total_volume: { $sum: { $abs: `$${field}` } } } }
-  ])
+  // Извлекаем документы из базы данных
+  const swaps = await Swap.find({
+    chain,
+    pool,
+    time: { $gte: new Date(date) },
+  })
+    .select(field)
+    .lean()
 
-  return volume.length == 1 ? volume[0].total_volume : 0
+  // Агрегируем данные на уровне JavaScript
+  const totalVolume = swaps.reduce((sum, swap) => {
+    const value = Math.abs(swap[field] || 0) // Берём абсолютное значение
+    return sum + value
+  }, 0)
+
+  return totalVolume
 }
 
 // Date.now() - ONEDAY

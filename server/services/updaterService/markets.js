@@ -80,12 +80,23 @@ export async function getVolumeFrom(date, market, chain) {
         _id: '$market',
         target_volume: {
           $sum: {
-            $cond: [{ $eq: ['$type', 'buymatch'] }, '$bid', '$ask'],
+            $switch: {
+              branches: [
+                { case: { $eq: ['$type', 'buymatch'] }, then: '$bid' },
+                { case: { $eq: ['$type', 'sellmatch'] }, then: '$ask' },
+              ],
+            },
           },
         },
         base_volume: {
           $sum: {
-            $cond: [{ $eq: ['$type', 'sellmatch'] }, '$bid', '$ask'],
+            $switch: {
+              branches: [
+                { case: { $eq: ['$type', 'sellmatch'] }, then: '$bid' },
+                { case: { $eq: ['$type', 'buymatch'] }, then: '$ask' },
+              ],
+              default: 0,
+            },
           },
         },
       },

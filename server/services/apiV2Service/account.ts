@@ -264,52 +264,77 @@ account.get('/:account', async (req, res) => {
 })
 
 account.get('/:account/deals', async (req, res) => {
-  try {
-    const network = req.app.get('network')
-    const { account } = req.params
-    const { from, to, limit, skip, market } = req.query as any
+  const network = req.app.get('network')
+  const { account } = req.params
+  const { from, to, limit = 500, skip = 0, market } = req.query
 
-    const $match: any = {
-      chain: network.name,
-      $or: [{ asker: account }, { bidder: account }],
+  const baseMatch: any = { chain: network.name }
+
+  if (typeof market == 'string') {
+    baseMatch.market = parseInt(market, 10)
+  }
+
+  if (typeof from == 'string' && typeof to == 'string') {
+    baseMatch.time = {
+      $gte: new Date(parseFloat(from) * 1000),
+      $lte: new Date(parseFloat(to) * 1000),
     }
+  }
 
-    if (market) {
-      $match.market = parseInt(market, 10)
-    }
-
-    if (from && to) {
-      $match.time = {
-        $gte: new Date(parseFloat(from) * 1000),
-        $lte: new Date(parseFloat(to) * 1000),
-      }
-    }
-
-    const pipeline: any[] = [
-      { $match },
-      { $sort: { time: -1 } },
-      {
-        $project: {
-          time: 1,
-          bid: 1,
-          ask: 1,
-          unit_price: 1,
-          trx_id: 1,
-          market: 1,
-          type: 1,
-          bidder: 1,
-          asker: 1,
-        },
+  // Запрос для asker
+  const askerQuery = [
+    { $match: { ...baseMatch, asker: account } },
+    { $sort: { time: -1 } },
+    {
+      $project: {
+        time: 1,
+        bid: 1,
+        ask: 1,
+        unit_price: 1,
+        trx_id: 1,
+        market: 1,
+        type: 1,
+        bidder: 1,
+        asker: 1,
       },
-    ]
+    },
+    { $skip: parseInt(String(skip)) },
+    { $limit: parseInt(String(limit)) },
+  ]
 
-    if (skip) pipeline.push({ $skip: parseInt(skip, 10) })
-    if (limit) pipeline.push({ $limit: parseInt(limit, 10) })
+  // Запрос для bidder
+  const bidderQuery = [
+    { $match: { ...baseMatch, bidder: account } },
+    { $sort: { time: -1 } },
+    {
+      $project: {
+        time: 1,
+        bid: 1,
+        ask: 1,
+        unit_price: 1,
+        trx_id: 1,
+        market: 1,
+        type: 1,
+        bidder: 1,
+        asker: 1,
+      },
+    },
+    { $skip: parseInt(String(skip), 10) },
+    { $limit: parseInt(String(limit), 10) },
+  ]
 
-    const history = await Match.aggregate(pipeline)
+  try {
+    // Параллельное выполнение обоих запросов
+    const [askerResults, bidderResults] = await Promise.all([Match.aggregate(askerQuery), Match.aggregate(bidderQuery)])
 
-    res.json(history)
+    // Объединяем результаты и сортируем по времени
+    const combinedResults = [...askerResults, ...bidderResults]
+      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+      .slice(0, parseInt(String(limit)))
+
+    res.json(combinedResults)
   } catch (error) {
+    console.error('Error fetching deals:', error)
     res.status(500).json({ error: 'An error occurred while fetching deals.' })
   }
 })
