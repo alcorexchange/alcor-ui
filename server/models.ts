@@ -141,6 +141,7 @@ const MatchSchema = new mongoose.Schema({
 })
 MatchSchema.index({ chain: 1, market: 1, time: 1 }, { background: true })
 MatchSchema.index({ chain: 1, market: 1, time: -1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, time: -1, type: 1 }, { background: true })
 MatchSchema.index({ chain: 1, market: 1, asker: 1, bidder: 1, time: -1 }, { background: true })
 MatchSchema.index({ chain: 1, market: 1, time: -1, unit_price: -1 }, { background: true })
 MatchSchema.index({ chain: 1, market: 1, type: 1, time: -1 }, { background: true })
