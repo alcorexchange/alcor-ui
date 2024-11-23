@@ -14,9 +14,9 @@ find /data/nginx/cache/alcor -type f -delete
 
 # Перезапускать контейнер
 echo "Restarting Docker container..."
+docker build -f Dockerfile.apiV2 -t alcor-api:v2 .
 docker stop alcor-api-v2 || true
 docker rm alcor-api-v2 || true
-docker build -t alcor-api:v2 .
 docker run -d --name alcor-api-v2 --network=host --restart always alcor-api:v2
 
 # Перезапускать другие службы PM2
