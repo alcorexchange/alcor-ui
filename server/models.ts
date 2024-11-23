@@ -147,6 +147,7 @@ MatchSchema.index({ chain: 1, market: 1, time: -1, unit_price: -1 }, { backgroun
 MatchSchema.index({ chain: 1, market: 1, type: 1, time: -1 }, { background: true })
 MatchSchema.index({ chain: 1, market: 1, time: -1, bid: 1, ask: 1 }, { background: true })
 MatchSchema.index({ chain: 1, time: -1, asker: 1, bidder: 1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, time: 1, type: 1, bid: 1, ask: 1 }, { background: true })
 
 const BarSchema = new mongoose.Schema({
   timeframe: { type: String, index: true },

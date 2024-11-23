@@ -39,7 +39,8 @@ account.get('/:account/deals', async (req, res) => {
   ]
 
   if (skip) q.push({ $skip: parseInt(skip) })
-  if (limit) q.push({ $limit: parseInt(limit) })
+
+  q.push({ $limit: parseInt(limit || 500) })
 
   const history = await Match.aggregate(q)
 
