@@ -388,9 +388,24 @@ account.get('/:account/swap-history', async (req, res) => {
   const limit = parseInt(String(req.query?.limit) || '200')
   const skip = parseInt(String(req.query?.skip) || '0')
 
-  const positions = await Swap.find({ chain: network.name, $or: [{ sender: account }, { recipient: account }] })
+  const senderPositions = await Swap.find({ chain: network.name, sender: account })
     .sort({ time: -1 })
-    .skip(skip).limit(limit).select('sender receiver pool time tokenA tokenB totalUSDVolume sqrtPriceX64 trx_id type').lean()
+    .skip(skip)
+    .limit(limit)
+    .select('sender receiver pool time tokenA tokenB totalUSDVolume sqrtPriceX64 trx_id type')
+    .lean()
 
-  res.json(positions)
+  const recipientPositions = await Swap.find({ chain: network.name, recipient: account })
+    .sort({ time: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select('sender receiver pool time tokenA tokenB totalUSDVolume sqrtPriceX64 trx_id type')
+    .lean()
+
+  // Объедините результаты и отсортируйте их по времени
+  const combinedPositions = [...senderPositions, ...recipientPositions]
+    .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+    .slice(0, limit)
+
+  res.json(combinedPositions)
 })
