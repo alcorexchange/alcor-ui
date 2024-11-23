@@ -13,8 +13,10 @@ echo "Clearing NGINX cache..."
 find /data/nginx/cache/alcor -type f -delete
 
 # Перезапускать контейнер
-echo "Restarting Docker container..."
+echo "Building Docker container..."
 docker build -f Dockerfile.apiV2 -t alcor-api:v2 .
+
+echo "Restarting Docker container..."
 docker stop alcor-api-v2 || true
 docker rm alcor-api-v2 || true
 docker run -d --name alcor-api-v2 --network=host --restart always alcor-api:v2
