@@ -125,9 +125,29 @@ export async function makeSwapBar(timeframe, swap) {
 
 export async function getVolumeFrom(date, market, chain) {
   const day_volume = await Match.aggregate([
-    { $match: { chain, market, time: { $gte: new Date(date) } } },
-    { $project: { market: 1, value: { $cond: { if: { $eq: ['$type', 'buymatch'] }, then: '$bid', else: '$ask' } } } },
-    { $group: { _id: '$market', volume: { $sum: '$value' } } }
+    {
+      $match: {
+        chain,
+        market,
+        time: { $gte: new Date(date) },
+      },
+    },
+    {
+      $group: {
+        _id: '$market',
+        volume: {
+          $sum: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$type', 'buymatch'] }, then: '$bid' },
+                { case: { $eq: ['$type', 'sellmatch'] }, then: '$ask' },
+              ],
+              default: 0,
+            },
+          },
+        },
+      },
+    },
   ])
 
   return day_volume.length == 1 ? day_volume[0].volume : 0

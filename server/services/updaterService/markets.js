@@ -68,15 +68,39 @@ export async function newMatch(match, network) {
 export async function getVolumeFrom(date, market, chain) {
   // TODO Объем должен считаться входной + выходной
   const volume = await Match.aggregate([
-    { $match: { chain, market, time: { $gte: new Date(date) } } },
     {
-      $project: {
-        market: 1,
-        target_volume: { $cond: { if: { $eq: ['$type', 'buymatch'] }, then: '$bid', else: '$ask' } },
-        base_volume: { $cond: { if: { $eq: ['$type', 'sellmatch'] }, then: '$bid', else: '$ask' } }
-      }
+      $match: {
+        chain,
+        market,
+        time: { $gte: new Date(date) },
+      },
     },
-    { $group: { _id: '$market', target_volume: { $sum: '$target_volume' }, base_volume: { $sum: '$base_volume' } } }
+    {
+      $group: {
+        _id: '$market',
+        target_volume: {
+          $sum: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$type', 'buymatch'] }, then: '$bid' },
+                { case: { $eq: ['$type', 'sellmatch'] }, then: '$ask' },
+              ],
+            },
+          },
+        },
+        base_volume: {
+          $sum: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$type', 'sellmatch'] }, then: '$bid' },
+                { case: { $eq: ['$type', 'buymatch'] }, then: '$ask' },
+              ],
+              default: 0,
+            },
+          },
+        },
+      },
+    },
   ])
 
   return volume.length == 1 ? [volume[0].base_volume, volume[0].target_volume] : [0, 0]

@@ -48,20 +48,24 @@ async function main() {
     unsubscribe(io, socket)
   })
 
-  Match.watch().on('change', (op) => {
-    if (op.operationType != 'insert') return
-
+  Match.watch([{ $match: { operationType: 'insert' } }]).on('change', (op: any) => {
     pushDeal(io, op.fullDocument)
     pushAccountNewMatch(io, op.fullDocument)
   })
 
-  Bar.watch().on('change', async (op) => {
+  Bar.watch([], { batchSize: 200 }).on('change', async (op) => {
     let bar
 
-    if (op.operationType == 'update') {
-      const { documentKey: { _id } } = op
-      bar = await Bar.findById(_id)
-    } else if (op.operationType == 'insert') {
+    if (op.operationType === 'update') {
+      const {
+        updateDescription,
+        documentKey: { _id },
+      } = op
+      bar = {
+        ...updateDescription.updatedFields,
+        _id,
+      }
+    } else if (op.operationType === 'insert') {
       bar = op.fullDocument
     }
 
