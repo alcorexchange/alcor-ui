@@ -50,8 +50,7 @@ html, body, #__nuxt, #__layout, #alcor-container {
 
 #swap_tv_chart_container {
   min-height: 100px;
-  height: 100%;
-  /* height: 100% !important; */
+  height: 100% !important;
   width: 100%;
 }
 </style>
