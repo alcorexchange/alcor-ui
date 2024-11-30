@@ -35,6 +35,24 @@
     ],
     "description": "Crypto Travel Deals is a global, crypto-only, travel portal built on the XPR Network blockchain. No gas fees, discounts for stakers, and affiliate income!"
   },
+  "AMARI@amarifdn": {
+    "name": "Amari Network",
+    "website": {
+      "link": "https://amari.fm/",
+      "name": "Amari FM"
+    },
+    "tags": [
+      "media",
+      "community",
+      "staking",
+      "learning"
+    ],
+    "socials": [
+      "https://x.com/amarifmx",
+      "https://t.me/amarifm"
+    ],
+    "description": "Amari Network is a decentralized initiative by Amari Labs focused on empowering businesses, communities, and individuals."
+  },
   "ARK@arcana": {
     "name": "Noah's Ark",
     "website": {
