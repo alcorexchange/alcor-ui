@@ -37,6 +37,10 @@ export const actions = {
       wombat: WombatWallet
     }
 
+    if (rootState.user?.name) {
+      dispatch('afterLoginHook')
+    }
+
     commit('setWallets', wallets)
 
     const { viewAccount } = rootState.route.query

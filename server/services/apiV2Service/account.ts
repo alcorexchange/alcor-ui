@@ -1,4 +1,3 @@
-import JSBI from 'jsbi'
 import bigInt from 'big-integer'
 import { asset } from 'eos-common'
 import { cacheSeconds } from 'route-cache'
@@ -19,6 +18,8 @@ const redis = createClient()
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
 export async function getAccountPoolPositions(chain: string, account: string) {
+  const startTime = performance.now()
+
   if (!redis.isOpen) await redis.connect()
   const positions = JSON.parse(await redis.get(`positions_${chain}`))
 
@@ -28,6 +29,10 @@ export async function getAccountPoolPositions(chain: string, account: string) {
 
     result.push({ ...position, ...stats })
   }
+
+  const endTime = performance.now()
+
+  console.log(`getAccountPoolPositions(${chain}: ${account}):`, `${Math.round(endTime - startTime)}ms`)
 
   return result
 }
@@ -78,21 +83,27 @@ async function getCurrentPositionState(chain, plainPosition) {
 export async function getPositionStats(chain, redisPosition) {
   if (!redis.isOpen) await redis.connect()
   // Will sort "closed" to the end
+  const startTime = performance.now()
   const history = await PositionHistory.find({ chain, id: redisPosition.id, owner: redisPosition.owner }).sort({ time: 1, type: 1 }).lean()
+  const endTime = performance.now()
+
+  console.log('getAccountPoolPositions mongo query time:', `${Math.round(endTime - startTime)}ms`,
+    { chain, id: redisPosition.id, owner: redisPosition.owner }
+  )
 
   let total = 0
   let sub = 0
-  let liquidity = JSBI.BigInt(0)
+  let liquidity = BigInt(0)
   let collectedFees = { tokenA: 0, tokenB: 0, inUSD: 0 }
 
   for (const h of history) {
     if (h.type === 'burn') {
-      liquidity = JSBI.subtract(liquidity, JSBI.BigInt(h.liquidity))
+      liquidity = liquidity - BigInt(h.liquidity)
       sub += h.totalUSDValue
     }
 
     if (h.type === 'mint') {
-      liquidity = JSBI.add(liquidity, JSBI.BigInt(h.liquidity))
+      liquidity = liquidity + BigInt(h.liquidity)
       total += h.totalUSDValue
     }
 
@@ -108,7 +119,7 @@ export async function getPositionStats(chain, redisPosition) {
   }
 
   const depositedUSDTotal = +(total - sub).toFixed(4)
-  let closed = JSBI.equal(liquidity, JSBI.BigInt(0))
+  const closed = liquidity == BigInt(0)
 
   const stats = { depositedUSDTotal, closed, collectedFees }
 
@@ -253,52 +264,77 @@ account.get('/:account', async (req, res) => {
 })
 
 account.get('/:account/deals', async (req, res) => {
-  try {
-    const network = req.app.get('network')
-    const { account } = req.params
-    const { from, to, limit, skip, market } = req.query as any
+  const network = req.app.get('network')
+  const { account } = req.params
+  const { from, to, limit = 500, skip = 0, market } = req.query
 
-    const $match: any = {
-      chain: network.name,
-      $or: [{ asker: account }, { bidder: account }],
+  const baseMatch: any = { chain: network.name }
+
+  if (typeof market == 'string') {
+    baseMatch.market = parseInt(market, 10)
+  }
+
+  if (typeof from == 'string' && typeof to == 'string') {
+    baseMatch.time = {
+      $gte: new Date(parseFloat(from) * 1000),
+      $lte: new Date(parseFloat(to) * 1000),
     }
+  }
 
-    if (market) {
-      $match.market = parseInt(market, 10)
-    }
-
-    if (from && to) {
-      $match.time = {
-        $gte: new Date(parseFloat(from) * 1000),
-        $lte: new Date(parseFloat(to) * 1000),
-      }
-    }
-
-    const pipeline: any[] = [
-      { $match },
-      { $sort: { time: -1 } },
-      {
-        $project: {
-          time: 1,
-          bid: 1,
-          ask: 1,
-          unit_price: 1,
-          trx_id: 1,
-          market: 1,
-          type: 1,
-          bidder: 1,
-          asker: 1,
-        },
+  // Запрос для asker
+  const askerQuery = [
+    { $match: { ...baseMatch, asker: account } },
+    { $sort: { time: -1 } },
+    {
+      $project: {
+        time: 1,
+        bid: 1,
+        ask: 1,
+        unit_price: 1,
+        trx_id: 1,
+        market: 1,
+        type: 1,
+        bidder: 1,
+        asker: 1,
       },
-    ]
+    },
+    { $skip: parseInt(String(skip)) },
+    { $limit: parseInt(String(limit)) },
+  ]
 
-    if (skip) pipeline.push({ $skip: parseInt(skip, 10) })
-    if (limit) pipeline.push({ $limit: parseInt(limit, 10) })
+  // Запрос для bidder
+  const bidderQuery = [
+    { $match: { ...baseMatch, bidder: account } },
+    { $sort: { time: -1 } },
+    {
+      $project: {
+        time: 1,
+        bid: 1,
+        ask: 1,
+        unit_price: 1,
+        trx_id: 1,
+        market: 1,
+        type: 1,
+        bidder: 1,
+        asker: 1,
+      },
+    },
+    { $skip: parseInt(String(skip), 10) },
+    { $limit: parseInt(String(limit), 10) },
+  ]
 
-    const history = await Match.aggregate(pipeline)
+  try {
+    // Параллельное выполнение обоих запросов
+    const [askerResults, bidderResults] = await Promise.all([Match.aggregate(askerQuery), Match.aggregate(bidderQuery)])
 
-    res.json(history)
+    // Объединяем результаты и сортируем по времени
+    const combinedResults = [...askerResults, ...bidderResults]
+      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+      .slice(0, parseInt(String(limit)))
+
+    res.json(combinedResults)
   } catch (error) {
+    console.error('Error fetching deals:', error)
     res.status(500).json({ error: 'An error occurred while fetching deals.' })
   }
 })
@@ -377,9 +413,24 @@ account.get('/:account/swap-history', async (req, res) => {
   const limit = parseInt(String(req.query?.limit) || '200')
   const skip = parseInt(String(req.query?.skip) || '0')
 
-  const positions = await Swap.find({ chain: network.name, $or: [{ sender: account }, { recipient: account }] })
+  const senderPositions = await Swap.find({ chain: network.name, sender: account })
     .sort({ time: -1 })
-    .skip(skip).limit(limit).select('sender receiver pool time tokenA tokenB totalUSDVolume sqrtPriceX64 trx_id type').lean()
+    .skip(skip)
+    .limit(limit)
+    .select('sender receiver pool time tokenA tokenB totalUSDVolume sqrtPriceX64 trx_id type')
+    .lean()
 
-  res.json(positions)
+  const recipientPositions = await Swap.find({ chain: network.name, recipient: account })
+    .sort({ time: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select('sender receiver pool time tokenA tokenB totalUSDVolume sqrtPriceX64 trx_id type')
+    .lean()
+
+  // Объедините результаты и отсортируйте их по времени
+  const combinedPositions = [...senderPositions, ...recipientPositions]
+    .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+    .slice(0, limit)
+
+  res.json(combinedPositions)
 })
