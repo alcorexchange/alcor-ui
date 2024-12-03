@@ -91,6 +91,7 @@ async function main() {
     }
 
     const { chain, pool, timeframe, time, close, open, high, low, volumeUSD } = bar
+    console.log('swap bar upd', { chain, pool, timeframe, time, close, open, high, low, volumeUSD })
     const tick = { close, open, high, low, volumeUSD, time: new Date(time).getTime() }
     io.to(`swap-ticker:${chain}.${pool}.${timeframe}`).emit('swap-tick', tick)
   })
