@@ -92,7 +92,7 @@ async function main() {
 
     const { chain, pool, timeframe, time, close, open, high, low, volumeUSD } = bar
     const tick = { close, open, high, low, volumeUSD, time: new Date(time).getTime() }
-    io.to(`swap-ticker:${chain}.${pool}.${timeframe}`).emit('tick', tick)
+    io.to(`swap-ticker:${chain}.${pool}.${timeframe}`).emit('swap-tick', tick)
   })
 
   subscriber.subscribe('orderbook_update', msg => {
