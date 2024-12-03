@@ -205,24 +205,6 @@ export default {
     banners: {
       wax: [
         {
-          link: 'https://tinyurl.com/wuftopia-alcor-ad',
-          image: require('@/assets/images/swap-banner-1.jpg'),
-          colors: [
-            'rgba(12,166,234,0.2)',
-            'rgba(209,251,159, 1)',
-            'rgba(250,173,29,1)',
-          ],
-        },
-        {
-          link: 'https://bblk.io/GfyH',
-          image: require('@/assets/images/swap-banner-2.png'),
-          colors: [
-            'rgba(218,167,80,0.2)',
-            'rgba(32,71,90, 1)',
-            'rgba(4,101,127,1)',
-          ],
-        },
-        {
           link: 'https://maxylab.com/wax-holidays/',
           image: require('@/assets/images/swap-banner-3.gif'),
           colors: [
