@@ -56,16 +56,10 @@ async function main() {
   Bar.watch([], { batchSize: 200 }).on('change', async (op) => {
     let bar
 
-    if (op.operationType === 'update') {
-      const {
-        updateDescription,
-        documentKey: { _id },
-      } = op
-      bar = {
-        ...updateDescription.updatedFields,
-        _id,
-      }
-    } else if (op.operationType === 'insert') {
+    if (op.operationType == 'update') {
+      const { documentKey: { _id } } = op
+      bar = await Bar.findById(_id)
+    } else if (op.operationType == 'insert') {
       bar = op.fullDocument
     }
 
@@ -77,16 +71,10 @@ async function main() {
   SwapBar.watch([], { batchSize: 200 }).on('change', async (op) => {
     let bar
 
-    if (op.operationType === 'update') {
-      const {
-        updateDescription,
-        documentKey: { _id },
-      } = op
-      bar = {
-        ...updateDescription.updatedFields,
-        _id,
-      }
-    } else if (op.operationType === 'insert') {
+    if (op.operationType == 'update') {
+      const { documentKey: { _id } } = op
+      bar = await Bar.findById(_id)
+    } else if (op.operationType == 'insert') {
       bar = op.fullDocument
     }
 
