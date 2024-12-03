@@ -73,7 +73,7 @@ async function main() {
 
     if (op.operationType == 'update') {
       const { documentKey: { _id } } = op
-      bar = await Bar.findById(_id)
+      bar = await SwapBar.findById(_id)
     } else if (op.operationType == 'insert') {
       bar = op.fullDocument
     }
