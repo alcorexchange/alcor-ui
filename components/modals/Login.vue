@@ -36,6 +36,12 @@
             span {{ $t('Get') }} {{ $t(wallets[1].name) }}
             span.description From Wax Team
       .item
+        AlcorButton.button(alternative, @click='openInNewTab(wallets[wallets.length - 1].create)')
+          img.mr-2(:src='require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)', height='30')
+          .details
+            span Wombat Wallet
+            span.description From Wombat Team
+      .item
         AlcorButton.button(alternative, @click='openInNewTab("https://create.anchor.link/create?return_url=https%3A%2F%2Funicove.com%2F&scope=unicove")')
           img.mr-2(:src='wallets[0].logo', height='30')
           .details
@@ -94,40 +100,15 @@ export default {
           index: 'wax',
           create: 'https://www.mycloudwallet.com/signin#create-account'
         })
-        wallets.push({
-          id: 'wombat',
-          name: '',
-          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
-        })
-      }
-
-      if (chain == 'eos') {
-        wallets.push({
-          id: 'wombat',
-          name: '',
-          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
-        })
-        wallets.push({
-          name: 'Keycat',
-          logo: require('@/assets/logos/keycat.svg')
-        })
       }
 
       wallets.push({
-        id: 'scatter',
-        name: 'Scatter / TP / Starteos',
-        logo: require('@/assets/logos/scatter.svg'),
+        id: 'wombat',
+        name: 'Wombat Wallet',
+        logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`),
         create:
-          'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
+          'https://help.wombat.app/'
       })
-
-      if (chain == 'telos') {
-        wallets.push({
-          id: 'wombat',
-          name: '',
-          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
-        })
-      }
 
       return wallets
     }
