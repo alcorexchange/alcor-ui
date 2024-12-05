@@ -172,7 +172,7 @@ export default {
             items: [
               { title: 'Api', href: 'http://api.alcor.exchange' },
               { title: 'Docs', to: '/docs' },
-              { title: 'Affilate Program', href: 'https://docs.alcor.exchange/alcor-swap/referral-custom-market-fee' },
+              { title: 'Affiliate Program', href: 'https://docs.alcor.exchange/alcor-swap/referral-custom-market-fee' },
               { title: 'Contract Audits', href: 'https://www.sentnl.io/audits/alcor-1' },
             ],
           },
@@ -189,8 +189,8 @@ export default {
             title: 'Request',
             items: [
               { title: 'Feature Request', href: 'https://alcor.featurebase.app/' },
-              { title: 'Banner/Ad Request', href: 'https://t.me/Zzullerr' },
-              { title: 'Business offer', href: 'https://t.me/Zzullerr' },
+              { title: 'Banner/Ad Request', href: 'https://t.me/Lucascrc' },
+              { title: 'Business Offer', href: 'https://t.me/Lucascrc' },
             ],
           },
         ],
