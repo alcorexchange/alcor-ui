@@ -5,7 +5,7 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import mongoose from 'mongoose'
 
-import { Match, Bar } from '../../models'
+import { Match, Bar, SwapBar } from '../../models'
 
 import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
@@ -56,22 +56,32 @@ async function main() {
   Bar.watch([], { batchSize: 200 }).on('change', async (op) => {
     let bar
 
-    if (op.operationType === 'update') {
-      const {
-        updateDescription,
-        documentKey: { _id },
-      } = op
-      bar = {
-        ...updateDescription.updatedFields,
-        _id,
-      }
-    } else if (op.operationType === 'insert') {
+    if (op.operationType == 'update') {
+      const { documentKey: { _id } } = op
+      bar = await Bar.findById(_id)
+    } else if (op.operationType == 'insert') {
       bar = op.fullDocument
     }
 
     const { chain, market, timeframe, time, close, open, high, low, volume } = bar
     const tick = { close, open, high, low, volume, time: new Date(time).getTime() }
     io.to(`ticker:${chain}.${market}.${timeframe}`).emit('tick', tick)
+  })
+
+  SwapBar.watch([], { batchSize: 200 }).on('change', async (op) => {
+    let bar
+
+    if (op.operationType == 'update') {
+      const { documentKey: { _id } } = op
+      bar = await SwapBar.findById(_id)
+    } else if (op.operationType == 'insert') {
+      bar = op.fullDocument
+    }
+
+    const { chain, pool, timeframe, time, close, open, high, low, volumeUSD } = bar
+    console.log('swap bar upd', { chain, pool, timeframe, time, close, open, high, low, volumeUSD })
+    const tick = { close, open, high, low, volumeUSD, time: new Date(time).getTime() }
+    io.to(`swap-ticker:${chain}.${pool}.${timeframe}`).emit('swap-tick', tick)
   })
 
   subscriber.subscribe('orderbook_update', msg => {

@@ -29,6 +29,10 @@ export function subscribe(io, socket, client) {
       socket.join(`ticker:${params.chain}.${params.market}.${params.resolution}`)
     }
 
+    if (room == 'swap-ticker') {
+      socket.join(`swap-ticker:${params.chain}.${params.pool}.${params.resolution}`)
+    }
+
     if (room == 'orders') {
       socket.join(`orders:${params.chain}.${params.market}`)
     }
@@ -91,6 +95,12 @@ export function unsubscribe(io, socket) {
     if (room == 'ticker') {
       Object.keys(resolutions).map(resolution => {
         socket.leave(`ticker:${params.chain}.${params.market}.${resolution}`)
+      })
+    }
+
+    if (room == 'swap-ticker') {
+      Object.keys(resolutions).map(resolution => {
+        socket.leave(`swap-ticker:${params.chain}.${params.pool}.${resolution}`)
       })
     }
 

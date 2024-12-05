@@ -104,13 +104,13 @@ export default {
   mounted() {
     this.mountChart()
 
-    // this.$socket.on('tick', (candle) => {
-    //   this.onRealtimeCallback(candle)
-    // })
+    this.$socket.on('swap-tick', (candle) => {
+      this.onRealtimeCallback(candle)
+    })
 
-    // this.$socket.io.on('reconnect', () => {
-    //   this.reset()
-    // })
+    this.$socket.io.on('reconnect', () => {
+      this.reset()
+    })
   },
 
   methods: {
@@ -250,28 +250,28 @@ export default {
             console.log('subscribeBars called...')
             this.onResetCacheNeededCallback = onResetCacheNeededCallback
 
-            // this.$socket.emit('subscribe', {
-            //   room: 'ticker',
-            //   params: {
-            //     chain: this.network.name,
-            //     market: this.id,
-            //     resolution: this.resolution
-            //   }
-            // })
+            this.$socket.emit('subscribe', {
+              room: 'swap-ticker',
+              params: {
+                chain: this.network.name,
+                pool: this?.pool?.id,
+                resolution: this.resolution
+              }
+            })
 
             this.onRealtimeCallback = onRealtimeCallback
             this.resolution = resolution
           },
 
           unsubscribeBars: (subscriberUID) => {
-            // this.$socket.emit('unsubscribe', {
-            //   room: 'ticker',
-            //   params: {
-            //     chain: this.network.name,
-            //     market: this.id,
-            //     resolution: this.resolution
-            //   }
-            // })
+            this.$socket.emit('unsubscribe', {
+              room: 'swap-ticker',
+              params: {
+                chain: this.network.name,
+                pool: this?.pool?.id,
+                resolution: this.resolution
+              }
+            })
           },
 
           getMarks: (symbolInfo, from, to, onDataCallback, resolution) => {
