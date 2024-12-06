@@ -239,6 +239,9 @@ export const actions = {
       const tokenB = parseExtendedAssetPlain(p.tokenB)
 
       if (!scamContractsSet.has(tokenA.contract) && !tokenIds.has(tokenA.id)) {
+        if (rootState.network.SCAM_TOKENS.includes(tokenA.id)) return
+        if (rootState.network.SCAM_TOKENS.includes(tokenB.id)) return
+
         tokenIds.add(tokenA.id)
         tokens.push(tokenA)
       }
@@ -266,7 +269,16 @@ export const getters = {
 
   poolStatsWithoutScam(state, getters, rootState) {
     const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
-    return state.poolsStats.filter((pool) => !scamContractsSet.has(pool.tokenA.contract) && !scamContractsSet.has(pool.tokenB.contract))
+    const scam_tokens = rootState.network.SCAM_TOKENS
+
+    return state.poolsStats.filter((pool) => {
+      return (
+        !scamContractsSet.has(pool.tokenA.contract) &&
+        !scamContractsSet.has(pool.tokenB.contract) &&
+        !scam_tokens.includes(pool.tokenA.id) &&
+        !scam_tokens.includes(pool.tokenB.id)
+      )
+    })
   },
 
   positions(state) {
@@ -300,7 +312,14 @@ export const getters = {
     const poolsMap = new Map()
 
     state.pools
-      .filter((pool) => !scamContractsSet.has(pool.tokenA.contract) && !scamContractsSet.has(pool.tokenB.contract))
+      .filter((pool) => {
+        return (
+          !scamContractsSet.has(pool.tokenA.contract) &&
+          !scamContractsSet.has(pool.tokenB.contract) &&
+          !rootState.network.SCAM_TOKENS.includes(pool.tokenA.id) &&
+          !rootState.network.SCAM_TOKENS.includes(pool.tokenB.id)
+        )
+      })
       .forEach((pool) => {
         poolsMap.set(pool.id, {
           ...pool,

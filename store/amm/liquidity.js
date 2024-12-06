@@ -74,7 +74,11 @@ export const getters = {
     if (rootState.user?.balances) {
       rootState.user.balances.forEach((b) => {
         const token = new Token(b.contract, parseInt(b.decimals), b.currency)
-        if (!rootState.network.SCAM_CONTRACTS.includes(token.contract) && !tokens.has(token.id)) {
+        if (
+          !rootState.network.SCAM_CONTRACTS.includes(token.contract) &&
+          !rootState.network.SCAM_TOKENS.includes(token.id) &&
+          !tokens.has(token.id)
+        ) {
           tokens.set(token.id, token)
         }
       })

@@ -107,6 +107,7 @@ const networks = {
 
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: [
       'usdcoinchain',
       'effectaiswap',
@@ -216,6 +217,7 @@ const networks = {
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
     PINNED_MARKETS: [493, 715],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: ['xusdt-tokencreate'],
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
       'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet'
@@ -310,6 +312,7 @@ const networks = {
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
 
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: [],
 
     CEX_CONTRACTS: [],
@@ -426,6 +429,7 @@ const networks = {
     ],
     BANNER_MARKETS: [],
 
+    SCAM_TOKENS: [''],
     SCAM_CONTRACTS: [
       'okbtothemoon',
       'huobideposit',
@@ -550,6 +554,7 @@ const networks = {
 
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain', 'bosibc.io'],
     CEX_CONTRACTS: [],
 
@@ -649,6 +654,7 @@ const networks = {
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
 
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: [],
 
     CEX_CONTRACTS: [],
@@ -718,6 +724,7 @@ const networks = {
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -768,6 +775,7 @@ const networks = {
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -832,6 +840,7 @@ const networks = {
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
