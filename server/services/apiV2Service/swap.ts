@@ -2,15 +2,9 @@ import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 import { SwapBar, Swap, SwapPool, SwapChartPoint } from '../../models'
 import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
-import { sqrtRatioToPrice, getLiquidityRangeChart } from '../../../utils/amm.js'
+import { getSwapBarPriceAsString, getLiquidityRangeChart } from '../../../utils/amm.js'
 import { resolutions } from '../updaterService/charts'
 import { getPositionStats } from './account'
-
-function getSwapBarPriceAsString(price, tokenA, tokenB, reverse) {
-  price = sqrtRatioToPrice(price, tokenA, tokenB)
-  if (reverse) price = price.invert()
-  return price.toSignificant()
-}
 
 function formatCandle(candle, volumeField, tokenA, tokenB, reverse) {
   candle.volume = candle[volumeField]

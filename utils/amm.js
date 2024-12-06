@@ -9,6 +9,13 @@ export function sqrtRatioToPrice(sqrtRatio, tokenA, tokenB) {
   return new Price(tokenA, tokenB, Q128, sqrtRatio * sqrtRatio)
 }
 
+export function getSwapBarPriceAsString(price, tokenA, tokenB, reverse) {
+  price = sqrtRatioToPrice(price, tokenA, tokenB)
+  if (reverse) price = price.invert()
+  return price.toSignificant()
+}
+
+
 export function parseToken(token) {
   const [amount, symbol] = token.quantity.split(' ')
 

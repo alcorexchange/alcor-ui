@@ -7,7 +7,14 @@
 <script>
 import { debounce } from 'lodash'
 import { mapState } from 'vuex'
-import { constructPoolInstance, parseToken } from '~/utils/amm'
+import { getSwapBarPriceAsString } from '~/utils/amm'
+
+function formatCandle(candle, tokenA, tokenB, reverse) {
+  candle.open = getSwapBarPriceAsString(candle.open, tokenA, tokenB, reverse)
+  candle.high = getSwapBarPriceAsString(candle.high, tokenA, tokenB, reverse)
+  candle.low = getSwapBarPriceAsString(candle.low, tokenA, tokenB, reverse)
+  candle.close = getSwapBarPriceAsString(candle.close, tokenA, tokenB, reverse)
+}
 
 export default {
   props: ['pool', 'isSorted'],
@@ -105,6 +112,12 @@ export default {
     this.mountChart()
 
     this.$socket.on('swap-tick', (candle) => {
+      const tokenA = this.pool?.tokenA
+      const tokenB = this.pool?.tokenB
+
+      formatCandle(candle, tokenA, tokenB, this.isSorted)
+
+      // todo
       this.onRealtimeCallback(candle)
     })
 
