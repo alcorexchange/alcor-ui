@@ -162,7 +162,7 @@ export default {
       if (!this.user)
         return this.$notify({
           title: 'Authorization',
-          message: 'Pleace login first',
+          message: 'Please login first',
           type: 'info',
         })
 
