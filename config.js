@@ -220,7 +220,7 @@ const networks = {
     SCAM_TOKENS: ['xusdt-tokencreate'],
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
-      'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet'
+      'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet', 'liquidtokens', 'metaltoken'
     ],
     CEX_CONTRACTS: [],
 
@@ -690,7 +690,7 @@ const networks = {
     monitor: 'https://wax-test.bloks.io',
     monitor_params: '',
     lightapi: 'https://testnet-lightapi.eosams.xeos.me',
-    hyperion: 'https://jungle3.cryptolions.io',
+    hyperion: 'https://waxtest-hyperion.alcor.exchange',
     backEnd: 'http://localhost:8000/api/',
 
     client_nodes: {
