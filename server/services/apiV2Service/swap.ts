@@ -205,7 +205,7 @@ swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
   const yMin = yValues.reduce((min, val) => (val < min ? val : min), yValues[0])
   const yMax = yValues.reduce((max, val) => (val > max ? val : max), yValues[0])
 
-  const scaleFactor = 1000
+  const scaleFactor = 10000
 
   const result = series
     .map((s) => {
