@@ -94,7 +94,7 @@ export async function getPositionStats(chain, redisPosition) {
   let total = 0
   let sub = 0
   let liquidity = BigInt(0)
-  let collectedFees = { tokenA: 0, tokenB: 0, inUSD: 0 }
+  const collectedFees = { tokenA: 0, tokenB: 0, inUSD: 0, lastCollectTime: null }
 
   for (const h of history) {
     if (h.type === 'burn') {
@@ -111,7 +111,7 @@ export async function getPositionStats(chain, redisPosition) {
       collectedFees.tokenA += h.tokenA
       collectedFees.tokenB += h.tokenB
       collectedFees.inUSD += h.totalUSDValue
-      //sub += h.totalUSDValue
+      collectedFees.lastCollectTime = h.time
     }
 
     // Might be after close

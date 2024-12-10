@@ -2,6 +2,17 @@
 .unclaimed-fees
   .d-flex.justify-content-between.mt-2
     .fs-18.disable {{ $t('Unclaimed Fees') }}
+      el-tooltip(class="item" effect="dark" placement="top" content="")
+        .el-icon-info.ml-2.pointer
+
+        template(slot="content" effect="dark")
+          .fs-16.mb-2 Total Claimed Fees
+          .fs-14 {{ position.collectedFees.tokenA | commaFloat }} {{ position.amountA.currency.symbol }}
+          .fs-14 {{ position.collectedFees.tokenB | commaFloat }} {{ position.amountB.currency.symbol }}
+
+          .fs-16.my-2 Last Claim
+          .fi-14 {{ position.collectedFees.lastCollectTime }}
+
     AlcorButton.claim-fees-button.f-14(v-if="isMyPosition" access @click="submit") {{ $t('Claim Fees') }}
 
     // TODO Think about design

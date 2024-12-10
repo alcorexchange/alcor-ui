@@ -272,7 +272,8 @@ export function constructPosition(pool, position) {
     feesA: position.feesA ?? '0.0000',
     feesB: position.feesB ?? '0.0000',
     pNl: position.pNl ?? 0,
-    totalValue: position.totalValue ?? 0
+    totalValue: position.totalValue ?? 0,
+    collectedFees: position.collectedFees
   })
 
   return tempPosition
