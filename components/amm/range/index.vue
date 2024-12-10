@@ -124,6 +124,7 @@ export default {
         (parseToken(p.tokenA).equals(tokenB) && parseToken(p.tokenB).equals(tokenA) && p.fee == feeAmount)
       })
 
+      // TODO with big numbers
       const { data: series } = await this.$axios.get('/v2/swap/pools/' + pool.id + '/liquidityChartSeries', { params: { inverted: !this.isSorted } })
 
       this.series = series.filter(s => Math.max(s.x, s.y) <= 1247497401346422) // TEMP FIX

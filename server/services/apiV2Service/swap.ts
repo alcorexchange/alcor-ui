@@ -200,14 +200,25 @@ swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
 
   const series = getLiquidityRangeChart(pool, tokenA, tokenB) || []
 
-  const result = series.map(s => {
-    const y = s.liquidityActive
+  // Normalizing y for using as js Number (liquidity value might exceed max Number in JS)
+  const yValues = series.map((s) => BigInt(s.liquidityActive)) // Преобразуем в BigInt массив
+  const yMin = yValues.reduce((min, val) => (val < min ? val : min), yValues[0])
+  const yMax = yValues.reduce((max, val) => (val > max ? val : max), yValues[0])
 
-    return {
-      x: parseFloat(s.price0),
-      y: parseFloat(y.toString())
-    }
-  }).filter(r => r.y > 0)
+  const scaleFactor = 1000
+
+  const result = series
+    .map((s) => {
+      const y = BigInt(s.liquidityActive)
+
+      const normalizedY = Number(((y - yMin) * BigInt(scaleFactor)) / (yMax - yMin))
+
+      return {
+        x: parseFloat(s.price0),
+        y: normalizedY,
+      }
+    })
+    .filter((r) => r.y > 0)
 
   res.json(result)
 })
