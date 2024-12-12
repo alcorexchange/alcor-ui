@@ -33,13 +33,16 @@ export const getters = {
     const result = userBalances.map((token) => {
       const id = `${token.currency}-${token.contract}`.toLowerCase()
       const tokenData = tokens.find((t) => t.id === id)
-      const price = tokenData ? tokenData.usd_price : 0
-      const usd_value = parseFloat(token.amount) * price
+      const usd_price = tokenData ? tokenData.usd_price : 0
+      const system_price = tokenData ? tokenData.system_price : 0
+      const usd_value = parseFloat(token.amount) * usd_price
 
       return {
         ...token,
         id,
         symbol: token.currency,
+        usd_price,
+        system_price,
         usd_value,
       }
     })

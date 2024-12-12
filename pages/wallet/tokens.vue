@@ -53,13 +53,15 @@ export default {
         },
         {
           label: 'Total',
-          width: '235px',
+          width: '90px',
           value: 'amount',
           sortable: true
         },
         {
-          label: 'Available',
-          width: '215px'
+          label: 'Price',
+          width: '300px',
+          value: 'usd_price',
+          sortable: true
         },
         {
           label: 'Actions',
