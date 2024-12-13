@@ -88,5 +88,24 @@
       "https://proton.alcor.exchange/swap?input=XUSDC-xtokens&output=HALF-halfhalf"
     ],
     "description": "🥛 HALF is a refreshingly simple project. HALF brings strong bones to stables, and creme to stakers, splitting the bag 50-50. 🥛 Half (50%) of spot market sales goes to Alcor LP farming rewards as cold refreshing XUSDC. The rest goes towards stabilizing stable coins, the forgotten key to making XPR Network attractive to the wider crypto community. Here's how it works. 🛠 The token contract receives all the sales from the HALF / XUSDC spot market on Alcor. Anyone can call the 'halftime' action on the 'halfhalf' token contract to automatically add 30 days of rewards to the HALF / XUSDC farm on Alcor, sending half (50%) of the spot market proceeds in USDC. The remaining 50% goes towards stabilizing XMD, XUSDT and XUSDC. An account called 2apes puts a +/- 3% spread on the XUSDT / XUSDC spot market and uses liquidity pools to stabilize the XMD / XUSDC, XMD / XUSDT, and XUSDT / XUSDC pairs at +/- 2%. But will team dump?? There are no Team tokens, you can verify that, and we don't need them to get paid because we drink our milkshake via fees for stabilizing the stable coins. Over 99.9% of supply of HALF has been burned. That's a tactic we use to remain visible as one of the highest value projects by market cap. Remaining HALF tokens are listed on the Alcor spot market from $100 to $10,000, 100X the initial price. By staking HALF, you are signaling that you care that your community gets richly rewarded, and you believe in a bright future for XPR Network. ℹ️ Important Information: Half is a novel and noble experiment in tokenomics. All XUSDC moved to the stabilization account is considered a donation, and any proceeds from the stabilization, including the initial donation, may be used for any purpose the creators see fit, including supporting other projects. Shit happens, so HALF presents risk of loss up to purchase amount. We are not soliciting you to buy this token, in this or any communication. We aren't telling you HALF will make you money, or promising any outcome. HALF is a private project, and does not represent alcor.exchange or XPR Network. Make your own decisions, and always DYOR. Enjoy ☕️"
-  }
+  },
+  "ANCHOR@arcana": {
+    "name": "ANCHOR",
+    "website": {
+      "link": "https://proton.alcor.exchange/swap?input=XUSDC-xtokens&output=ANCHOR-arcana",
+      "name": "ANCHOR Swap"
+    },
+    "tags": [
+      "private",
+      "bot",
+      "liquidity"
+    ],
+    "socials": [
+      "https://proton.alcor.exchange/trade/anchor-arcana_xmd-xmd.token",
+      "https://proton.alcor.exchange/trade/anchor-arcana_xusdt-xtokens",
+      "https://proton.alcor.exchange/trade/anchor-arcana_xusdc-xtokens"
+      
+    ],
+    "description": "ANCHOR provides targeted liquidity focused on the +- 1% and +-6% range for select stable coins on XPR. Low liquidity in these pools is a pain point of XPR Network, eased through our pools. ANCHOR provides information and opportunities presented by value differences of the three main stable coins to arbitrage bots. ANCHOR liquidity results in a cheap source of liquidity for arbitrage bots to swap pools. ANCHOR uses .05% fee pools for ANCHOR with XUSDC, XUSDT, and XMD. ANCHOR is not advertised or offered in public or private. Do not buy ANCHOR, there is no expectation of profit, and any value placed in exchange for ANCHOR is considered a donation. The project is private, with 100% of token ownership to the contract. This stabilization method is untested, and we do not know if it will be stable. Even if it appears to be stable, ANCHOR may be changed or canceled at any time, resulting in up to 100% loss of value for ANCHOR token. ANCHOR was named such in relation to a part of an Ark (boat). ANCHOR is not related to Anchor Wallet, nor to Alcor exchange, XPR Network, or any providers of pooled stable coins. All proceeds are hereby perpetually donated to the Lyran civilization, and / or to rebuild Noah's Ark"
+    }
 }
