@@ -232,6 +232,16 @@
     "tags": ["Ecosystem"],
     "socials": ["https://twitter.com/adoptwombat"]
   },
+  "ALFA@token.alfa": {
+    "name": "Alpha World",
+    "website": {
+      "link": "https://thealpha.world/",
+      "name": "thealpha.world"
+    },
+    "description": "The first multi-chain prediction marketplace on Telegram",
+    "tags": ["Ecosystem"],
+    "socials": ["https://t.me/alphaworldofficial"]
+  },
   "NOVO@tokens.novo": {
     "name": "Novopangea",
     "website": {
