@@ -9,7 +9,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const publisher = createClient()
 
-const ACCOUNTS = ['swap.alcor', 'alcordexmain', 'alcor']
+const ACCOUNTS = ['swap.alcor', 'alcordexmain', 'alcor', 'book.alcor']
 const ACTIONS = ['*']
 
 async function handleAction(chain: string, action) {
@@ -31,7 +31,7 @@ export function start() {
     eventStreamer('wax', handleAction)
     eventStreamer('proton', handleAction)
     eventStreamer('telos', handleAction)
-    //eventStreamer('ultra', handleAction)
+    eventStreamer('ultra', handleAction)
   }
 }
 
@@ -67,7 +67,7 @@ async function eventStreamer(chain: string, callback?) {
   while (true) {
     try {
       const block = await rpc.get_trace_block(currentBlock)
-      if (currentBlock % 10 == 0) console.log('ok:', currentBlock)
+      if (currentBlock % 10 == 0) console.log(chain, ' ok:', currentBlock)
 
       if (block && block.transactions) {
         for (const transaction of block.transactions) {
@@ -122,7 +122,6 @@ async function eventStreamer(chain: string, callback?) {
       const delay = Math.max(0, expectedNextBlockTime - now)
 
       if (delay > 0) {
-        console.log('delay for: ', delay)
         await new Promise((resolve) => setTimeout(resolve, delay))
       }
     } catch (error) {
