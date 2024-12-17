@@ -510,5 +510,31 @@
       "https://t.me/YEET_community",
       "https://t.me/yeetwax"
     ]
+  },
+  "SHIT@meta33matrix": {
+    "name": "Shit Coin",
+    "website": {
+      "link": "https://metamatrix.cloud/",
+      "name": "MetaMatrix Website"
+    },
+    "description": "ShitCoin on wax isn't just a mf meme, it's a promise; That if i'm not assasinated? This shit'll be made a mf masterpiece.",
+    "tags": ["DeFi", "MEME", "Social"],
+    "socials": [
+      "https://discord.gg/chillnet",
+      "https://linktr.ee/MetaversalMatrix"
+    ]
+  },
+  "CTHULHU@meta33matrix": {
+    "name": "Cthulhu Coin",
+    "website": {
+      "link": "https://metamatrix.cloud/",
+      "name": "MetaMatrix Website"
+    },
+    "description": "Cthulhu mgah'n'ghft Iiahe ymg' mgepnah uh'eog, Cthulhu ist dein anfuhrer, all hail unto the abyssal ones",
+    "tags": ["DeFi", "MEME", "Social"],
+    "socials": [
+      "https://discord.gg/chillnet",
+      "https://linktr.ee/MetaversalMatrix"
+    ]
   }
 }
