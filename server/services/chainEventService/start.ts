@@ -31,6 +31,7 @@ export function start() {
     eventStreamer('wax', handleAction)
     eventStreamer('proton', handleAction)
     eventStreamer('telos', handleAction)
+    //eventStreamer('ultra', handleAction)
   }
 }
 
@@ -57,8 +58,6 @@ async function eventStreamer(chain: string, callback?) {
   }
 
   let currentBlock = await getCurrentBlockNumber()
-  //let currentBlock = 308286482
-  //let currentBlock = 256069154
 
   while (true) {
     try {

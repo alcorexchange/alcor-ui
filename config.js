@@ -610,6 +610,10 @@ const networks = {
 
     client_nodes: {
       'https://api.mainnet.ultra.io': 'Ultra.io',
+      'http://ultra.api.eosnation.io': 'Nazion',
+      'https://ultra.eosrio.io': 'Rio',
+      'https://api.ultra.cryptolions.io': 'Lions',
+      'https://ultra.eosusa.io': 'USA',
     },
 
     otc: {

@@ -20,9 +20,15 @@ export async function getToken(chain: string, id: string) {
 
 export function getFailOverAlcorOnlyRpc(network) {
   // Try alcore's node first for updating orderbook
-  const nodes = [network.protocol + '://' + network.host + ':' + network.port]
+  let nodes = [network.protocol + '://' + network.host + ':' + network.port]
     .concat(Object.keys(network.client_nodes))
     .filter(n => n.includes('alcor'))
+
+  if (nodes.length == 0) {
+    console.warn('NOT FOUND ALCOR NODE FOR:', network.name)
+    nodes = [network.protocol + '://' + network.host + ':' + network.port]
+      .concat(Object.keys(network.client_nodes))
+  }
 
   const direct = process.env[network.name.toUpperCase() + '_DIRECT_NODE']
 
