@@ -546,5 +546,23 @@
       "https://discord.gg/chillnet",
       "https://linktr.ee/MetaversalMatrix"
     ]
+  },
+  "GOLD@token.brpg": {
+    "name": "BlockchainRPG GOLD",
+    "website": {
+      "link": "https://blockchainrpg.io/",
+      "name": "blockchainrpg.io"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "NFT"
+    ],
+    "socials": [
+      "https://discord.blockchainrpg.io",
+      "https://x.com/blockchainrpg",
+    ],
+    "github": "https://github.com/BlockchainRPG",
+    "description": "FarmersWorld is the first farming game to function on the NFTs platform. Pick for yourself suitable tools, exploit various resources, buy land to build enormous farms, and enjoy the fascinating experiences of a farmer working in Farmersworld’s Ecosystem."
   }
 }
