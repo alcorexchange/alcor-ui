@@ -325,7 +325,12 @@ function parsePool(pool: { [key: string]: any }) {
 
 export async function updatePools(chain) {
   const network = networks[chain]
-  const rpc = getFailOverAlcorOnlyRpc(network)
+  let rpc = getFailOverAlcorOnlyRpc(network)
+
+  if (rpc.endpoints.length == 0) {
+    console.warn('not find alcor node for:', chain)
+    rpc = getSingleEndpointRpc(network)
+  }
 
   const pools = await fetchAllRows(rpc, {
     code: network.amm.contract,

@@ -21,7 +21,7 @@ export async function getAccountPoolPositions(chain: string, account: string) {
   const startTime = performance.now()
 
   if (!redis.isOpen) await redis.connect()
-  const positions = JSON.parse(await redis.get(`positions_${chain}`))
+  const positions = JSON.parse(await redis.get(`positions_${chain}`)) || []
 
   const result = []
   for (const position of positions.filter(p => p.owner == account)) {
