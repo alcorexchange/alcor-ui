@@ -59,6 +59,11 @@ async function eventStreamer(chain: string, callback?) {
 
   let currentBlock = await getCurrentBlockNumber()
 
+  // Переменные для расчёта динамической задержки
+  let lastBlockTime = null
+  let averageBlockTime = 500 // Начальное предположение: 500 мс на блок
+  const smoothingFactor = 0.03 // Фактор сглаживания для скользящего среднего
+
   while (true) {
     try {
       const block = await rpc.get_trace_block(currentBlock)
@@ -69,7 +74,11 @@ async function eventStreamer(chain: string, callback?) {
           if (transaction.status === 'executed') {
             for (const action of transaction.actions) {
               if (ACCOUNTS.includes(action.account) && (ACTIONS.includes(action.name) || ACTIONS.includes('*'))) {
-                const data = await decodeActionData(action.data, await getCachedAbi(chain, rpc, action.account), action.action)
+                const data = await decodeActionData(
+                  action.data,
+                  await getCachedAbi(chain, rpc, action.account),
+                  action.action
+                )
 
                 action.name = action.action
                 //action.hex_data = action.data
@@ -86,20 +95,46 @@ async function eventStreamer(chain: string, callback?) {
           }
         }
       }
+
+      // Обновляем текущее время блока
+
+      if (!block.timestamp.includes('Z')) {
+        block.timestamp += 'Z'
+      }
+
+      const blockTime = new Date(block.timestamp).getTime()
+
+      if (lastBlockTime) {
+        // Вычисляем время между блоками
+        const timeBetweenBlocks = blockTime - lastBlockTime
+
+        // Обновляем скользящее среднее времени блока
+        averageBlockTime = averageBlockTime * (1 - smoothingFactor) + timeBetweenBlocks * smoothingFactor
+      }
+
+      lastBlockTime = blockTime
+
       currentBlock++
 
-      const block_time = new Date(block.timestamp).getTime()
-      const next_block_time = block_time + 500
+      // Рассчитываем задержку
       const now = Date.now()
-
-      const delay = next_block_time - now
+      const expectedNextBlockTime = blockTime + averageBlockTime
+      const delay = Math.max(0, expectedNextBlockTime - now)
 
       if (delay > 0) {
+        console.log('delay for: ', delay)
         await new Promise((resolve) => setTimeout(resolve, delay))
       }
     } catch (error) {
-      if (error.message.includes('Could not find block') || error.message.includes('block trace missing')) {
-        console.log('too fast', currentBlock)
+      const passErrors = ['Could not find block', 'block trace missing', 'block not found']
+      const errorMessage = error.message
+
+      // Проверка на наличие одной из ошибок
+      if (passErrors.some((err) => errorMessage.includes(err))) {
+        console.log(chain, ': too fast', currentBlock, `(${averageBlockTime})`)
+
+        averageBlockTime = averageBlockTime * 1.1 // Увеличиваем время на 10%
+
         await new Promise((resolve) => setTimeout(resolve, 100))
         continue
       }

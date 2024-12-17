@@ -609,11 +609,11 @@ const networks = {
     hyperion: 'https://api.ultra.eossweden.org',
 
     client_nodes: {
+      'https://ultra.eosusa.io': 'USA',
       'https://api.mainnet.ultra.io': 'Ultra.io',
       'http://ultra.api.eosnation.io': 'Nazion',
       'https://ultra.eosrio.io': 'Rio',
       'https://api.ultra.cryptolions.io': 'Lions',
-      'https://ultra.eosusa.io': 'USA',
     },
 
     otc: {
