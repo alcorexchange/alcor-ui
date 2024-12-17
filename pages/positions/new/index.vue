@@ -385,7 +385,7 @@ export default {
     price() {
       const { sortedA, sortedB, startPriceTypedValue, invertPrice, pool } = this
 
-      if (!this.pool) {
+      if (!this.pool && parseFloat(startPriceTypedValue) != 0) {
         // if no liquidity use typed value
         const parsedQuoteAmount = tryParseCurrencyAmount(startPriceTypedValue, invertPrice ? sortedA : sortedB)
         if (parsedQuoteAmount && sortedA && sortedB) {

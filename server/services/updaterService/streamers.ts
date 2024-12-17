@@ -65,7 +65,7 @@ export async function streamByHyperion(
   account: string,
   callback: Function,
   actions: string[],
-  delay: number = 1000
+  delay: number = 10000
 ) {
   console.info(`Start Hyperion updater for ${network.name} (${account})...`)
 
@@ -114,6 +114,9 @@ export async function streamByHyperion(
 
       // Hyperion stores the actual action data under `act`
       if (actions.includes(action.act.name)) {
+        // Formatting for greymass standart
+        action.block_time = action.timestamp
+
         await callback(action, network)
       }
     }

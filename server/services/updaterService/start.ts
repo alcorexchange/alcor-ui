@@ -20,8 +20,7 @@ export function startUpdaters() {
   if (process.env.NETWORK) {
     console.log('NETWORK=', process.env.NETWORK)
     //updater(process.env.NETWORK, 'node', ['swap', 'prices', 'markets'])
-    updater(process.env.NETWORK, 'node', ['markets'])
-    //updater('ultra', 'hyperion', ['markets'])
+    updater(process.env.NETWORK, 'hyperion', ['swap'])
   } else {
     updater('eos', 'node', ['markets', 'prices', 'swap'])
     updater('wax', 'node', ['markets', 'prices', 'swap'])
@@ -46,7 +45,7 @@ export async function updater(chain, provider, services) {
 
   // TODO Remove after test
   try {
-    await updateGlobalStats(network)
+    await updateGlobalStats(network, null, provider)
   } catch (e) {
     console.log('GlobalStats err', e)
   }

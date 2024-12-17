@@ -12,7 +12,7 @@ import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { makeSwapBars } from '../updaterService/charts'
 import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
-import { getFailOverAlcorOnlyRpc, getToken } from './../../utils'
+import { getFailOverAlcorOnlyRpc, getSingleEndpointRpc, getToken } from './../../utils'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -114,6 +114,7 @@ async function getPool(filter) {
   if (pool === null) {
     console.warn(`WARNING: Updating(and creating) non existing pool ${filter.id} action`)
     pool = await throttledPoolUpdate(filter.chain, filter.id)
+    console.log({ pool })
 
     // It might be first position of just created pool
     // Update token prices in that case
@@ -150,7 +151,12 @@ export async function throttledPoolUpdate(chain: string, poolId: number) {
 
 async function updatePositions(chain: string, poolId: number) {
   const network = networks[chain]
-  const rpc = getFailOverAlcorOnlyRpc(network)
+  let rpc = getFailOverAlcorOnlyRpc(network)
+
+  if (rpc.endpoints.length == 0) {
+    console.warn('not find alcor node for:', chain)
+    rpc = getSingleEndpointRpc(network)
+  }
 
   const positions = await fetchAllRows(rpc, {
     code: network.amm.contract,
@@ -173,7 +179,12 @@ export async function updatePool(chain: string, poolId: number) {
   await connectAll()
 
   const network = networks[chain]
-  const rpc = getFailOverAlcorOnlyRpc(network)
+  let rpc = getFailOverAlcorOnlyRpc(network)
+
+  if (rpc.endpoints.length == 0) {
+    console.warn('not find alcor node for:', chain)
+    rpc = getSingleEndpointRpc(network)
+  }
 
   const [pool] = await fetchAllRows(rpc, {
     code: network.amm.contract,
@@ -281,7 +292,12 @@ async function getChianTicks(chain: string, poolId: number): Promise<TicksList> 
   const network = networks[chain]
 
   // ONLY ALCOR NODES
-  const rpc = getFailOverAlcorOnlyRpc(network)
+  let rpc = getFailOverAlcorOnlyRpc(network)
+
+  if (rpc.endpoints.length == 0) {
+    console.warn('not find alcor node for:', chain)
+    rpc = getSingleEndpointRpc(network)
+  }
 
   const rows = await fetchAllRows(rpc, {
     code: network.amm.contract,

@@ -653,7 +653,7 @@ export const actions = {
     { state, rootState, dispatch, getters, commit },
     actions
   ) {
-    if (actions && actions[0].name != 'delegatebw' && state.lastWallet != 'wcw') {
+    if (actions && actions[0].name != 'delegatebw' && state.lastWallet != 'wcw' && !['ultra'].includes(rootState.network.name)) {
       await dispatch('resources/showIfNeeded', undefined, { root: true })
     }
 

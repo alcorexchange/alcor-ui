@@ -604,8 +604,9 @@ const networks = {
     protocol: 'https',
     monitor: 'https://explorer.mainnet.ultra.io',
     monitor_params: '',
-    lightapi: 'https://mainnet.ultra.io',
-    hyperion: 'https://ultra.eosusa.io',
+    lightapi: null,
+    //hyperion: 'https://ultra.eosusa.io',
+    hyperion: 'https://api.ultra.eossweden.org',
 
     client_nodes: {
       'https://api.mainnet.ultra.io': 'Ultra.io',
