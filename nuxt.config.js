@@ -284,12 +284,12 @@ module.exports = {
   },
 
   // Just https for testing ultra plugin wallet
-  server: {
-    https: {
-      key: fs.readFileSync(path.resolve(__dirname, 'localhost+2-key.pem')),
-      cert: fs.readFileSync(path.resolve(__dirname, 'localhost+2.pem')),
-    },
-    host: 'localhost', // Хост
-    port: 443, // Порт для HTTPS
-  },
+  // server: {
+  //   https: {
+  //     key: fs.readFileSync(path.resolve(__dirname, 'localhost+2-key.pem')),
+  //     cert: fs.readFileSync(path.resolve(__dirname, 'localhost+2.pem')),
+  //   },
+  //   host: 'localhost', // Хост
+  //   port: 443, // Порт для HTTPS
+  // },
 }
