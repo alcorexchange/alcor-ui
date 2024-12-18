@@ -58,6 +58,7 @@ async function eventStreamer(chain: string, callback?) {
   }
 
   let currentBlock = await getCurrentBlockNumber()
+  // currentBlock = 220772794
 
   // Переменные для расчёта динамической задержки
   let lastBlockTime = null

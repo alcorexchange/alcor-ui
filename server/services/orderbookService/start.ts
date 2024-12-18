@@ -165,6 +165,7 @@ export async function initialUpdate(chain, market_id) {
 
 function onChainEvent(message) {
   const { chain, name, data } = JSON.parse(message)
+  console.log('onChainEvent', message)
 
   const market = data?.record?.market?.id || data?.market_id
 
@@ -197,7 +198,9 @@ export async function main() {
     }
   })
 
+  // TODO update to use config
   subscriber.pSubscribe('chainAction:*:alcor:*', m => onChainEvent(m))
+  subscriber.pSubscribe('chainAction:*:book.alcor:*', m => onChainEvent(m))
   subscriber.pSubscribe('chainAction:*:alcordexmain:*', m => onChainEvent(m))
   subscriber.pSubscribe('chainAction:*:eostokensdex:*', m => onChainEvent(m))
 }
