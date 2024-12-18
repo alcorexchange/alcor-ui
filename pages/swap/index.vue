@@ -27,6 +27,7 @@ export default {
       { name: 'telos', color: '96, 64, 159' },
       { name: 'proton', color: '117, 67, 227' },
       { name: 'bos', color: '34, 139, 233' },
+      { name: 'ultra', color: '122, 82, 209' }
     ]
   }),
 
