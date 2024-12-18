@@ -74,14 +74,23 @@ export default {
     wallets() {
       const chain = this.context?.chain ? this.context.chain : this.network.name
 
-      const wallets = [
-        {
-          id: 'anchor',
-          name: 'Anchor',
-          logo: require('@/assets/logos/anchor.svg'),
-          create: 'https://greymass.com/en/anchor/'
-        }
-      ]
+      const wallets = []
+
+      if (this.network.name == 'ultra' || this.context?.chain == 'ultra') {
+        wallets.push({
+          id: 'ultra',
+          name: 'Ultra Wallet',
+          logo: require('@/assets/icons/ultra.png'),
+          create: 'https://developers.ultra.io/products/ultra-wallet/'
+        })
+      }
+
+      wallets.push({
+        id: 'anchor',
+        name: 'Anchor',
+        logo: require('@/assets/logos/anchor.svg'),
+        create: 'https://greymass.com/en/anchor'
+      })
 
       if (this.network.name == 'proton' || this.context?.chain == 'proton') {
         wallets.push({
@@ -102,13 +111,15 @@ export default {
         })
       }
 
-      wallets.push({
-        id: 'wombat',
-        name: 'Wombat Wallet',
-        logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`),
-        create:
-          'https://help.wombat.app/'
-      })
+      if (['wax', 'eos', 'tlos', 'proton'].includes(chain)) {
+        wallets.push({
+          id: 'wombat',
+          name: 'Wombat Wallet',
+          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`),
+          create:
+            'https://help.wombat.app/'
+        })
+      }
 
       return wallets
     }

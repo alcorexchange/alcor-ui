@@ -1,5 +1,6 @@
 require('dotenv').config()
 const path = require('path')
+const fs = require('fs')
 
 const config = require('./config')
 const pkg = require('./package')
@@ -280,5 +281,15 @@ module.exports = {
       max: 100,
       ttl: 60
     }
-  }
+  },
+
+  // Just https for testing ultra plugin wallet
+  server: {
+    https: {
+      key: fs.readFileSync(path.resolve(__dirname, 'localhost+2-key.pem')),
+      cert: fs.readFileSync(path.resolve(__dirname, 'localhost+2.pem')),
+    },
+    host: 'localhost', // Хост
+    port: 443, // Порт для HTTPS
+  },
 }

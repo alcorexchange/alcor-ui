@@ -425,8 +425,13 @@ export const actions = {
     })
   },
 
-  async loadUserBalances({ dispatch }) {
+  async loadUserBalances({ dispatch, state }) {
     console.log('loadUserBalances')
+    if (!state.network.lightapi) {
+      console.log('requests balances using hyperion')
+      return dispatch('loadUserBalancesHyperion')
+    }
+
     try {
       console.log('loadUserBalancesLightAPI1')
       await dispatch('loadUserBalancesLightAPI')

@@ -9,6 +9,7 @@ import AnchoWallet from '~/plugins/wallets/Anchor'
 import ProtonWallet from '~/plugins/wallets/Proton'
 import ScatterWallet from '~/plugins/wallets/Scatter'
 import WombatWallet from '~/plugins/wallets/Wombat'
+import Ultra from '~/plugins/wallets/Ultra'
 
 export const state = () => ({
   loginPromise: null,
@@ -34,7 +35,8 @@ export const actions = {
       scatter: ScatterWallet,
       wcw: WCW,
       proton: ProtonWallet,
-      wombat: WombatWallet
+      wombat: WombatWallet,
+      ultra: Ultra,
     }
 
     if (rootState.user?.name) {
@@ -668,6 +670,12 @@ export const actions = {
         { actions },
         { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
       )
+
+      // TODO Make one standart for success tx response
+      if (rootState.network.name == 'ultra') {
+        console.log('signedTx', signedTx)
+        return signedTx
+      }
 
       const packedTx = {
         signatures: signedTx.signatures,
