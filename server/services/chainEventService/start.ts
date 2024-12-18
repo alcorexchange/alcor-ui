@@ -71,7 +71,7 @@ async function eventStreamer(chain: string, callback?) {
 
       if (block && block.transactions) {
         for (const transaction of block.transactions) {
-          if (transaction.status === 'executed') {
+          if (transaction.status === 'executed' || chain === 'ultra') {
             for (const action of transaction.actions) {
               if (ACCOUNTS.includes(action.account) && (ACTIONS.includes(action.name) || ACTIONS.includes('*'))) {
                 const data = await decodeActionData(
