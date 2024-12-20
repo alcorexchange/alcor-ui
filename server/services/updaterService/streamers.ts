@@ -82,7 +82,7 @@ export async function streamByHyperion(
       const startTime = performance.now()
 
       // Build the Hyperion API URL
-      const url = `${network.hyperion}/v2/history/get_actions?limit=100&skip=${skip}&account=${account}&sort=-1`
+      const url = `${network.hyperion}/v2/history/get_actions?limit=100&skip=${skip}&account=${account}&sort=1`
 
       // Fetch the data from Hyperion
       const response = await fetch(url)
