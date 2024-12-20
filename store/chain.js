@@ -672,7 +672,7 @@ export const actions = {
       )
 
       // TODO Make one standart for success tx response
-      if (rootState.network.name == 'ultra') {
+      if (state.wallet.name == 'ultra') {
         console.log('signedTx', signedTx)
         return signedTx
       }

@@ -35,7 +35,7 @@
           .details
             span {{ $t('Get') }} {{ $t(wallets[1].name) }}
             span.description From Wax Team
-      .item
+      .item(v-if="network.name != 'ultra'")
         AlcorButton.button(alternative, @click='openInNewTab(wallets[wallets.length - 1].create)')
           img.mr-2(:src='require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)', height='30')
           .details

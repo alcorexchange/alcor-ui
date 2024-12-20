@@ -1,8 +1,6 @@
 import axios from 'axios'
 
 export async function loadAccountBalancesHyperion(account, endpoint, tokens = []) {
-  console.log('loadAccountBalancesHyperion..', account, tokens)
-
   const { data } = await axios.get(`${endpoint}/v2/state/get_tokens`, {
     params: { account, limit: 10000 },
   })
