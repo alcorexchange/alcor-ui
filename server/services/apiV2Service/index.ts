@@ -11,6 +11,7 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
+import { mongoConnect } from '../../utils'
 import { networkResolver } from '../apiService/middleware'
 import { spot } from './spot'
 import { swap } from './swap'
@@ -20,7 +21,6 @@ import { account } from './account'
 import { swapRouter } from './swapRouter'
 import { analytics } from './analytics'
 import { farms } from './farms'
-import { mongoConnect } from '~/server/utils'
 
 const app = express()
 

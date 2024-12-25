@@ -3,8 +3,8 @@ require('dotenv').config()
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
+import { mongoConnect } from '../../utils'
 import { start } from './start'
-import { mongoConnect } from '~/server/utils'
 
 const redisClient = createClient()
 

@@ -5,11 +5,11 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import mongoose from 'mongoose'
 
+import { mongoConnect } from '../../utils'
 import { Match, Bar, SwapBar } from '../../models'
 
 import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
-import { mongoConnect } from '~/server/utils'
 
 const client = createClient()
 const subscriber = client.duplicate()

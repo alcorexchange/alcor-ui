@@ -10,6 +10,7 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
+import { mongoConnect } from '../../utils'
 import upload from './upload.js'
 
 import { networkResolver } from './middleware.js'
@@ -17,7 +18,6 @@ import { networkResolver } from './middleware.js'
 import { markets } from './markets.js'
 import { pools } from './pools.js'
 import { account } from './account.js'
-import { mongoConnect } from '~/server/utils.js'
 
 const app = express()
 

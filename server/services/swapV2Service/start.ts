@@ -2,8 +2,8 @@ require('dotenv').config()
 
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
+import { mongoConnect } from '../../utils'
 import { throttledPoolUpdate } from '.'
-import { mongoConnect } from '~/server/utils'
 
 const redis = createClient()
 const subscriber = redis.duplicate()
