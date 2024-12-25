@@ -64,8 +64,10 @@ async function handlePoolChart(
   const poolInstance = await getPool({ chain, id: poolId })
   const { tokenA: { id: tokenA_id }, tokenB: { id: tokenB_id } } = poolInstance
 
-  const tokenAprice = await getToken(chain, tokenA_id)
-  const tokenBprice = await getToken(chain, tokenB_id)
+  const [tokenAprice, tokenBprice] = await Promise.all([
+    getToken(chain, tokenA_id),
+    getToken(chain, tokenB_id)
+  ])
 
   const usdReserveA = reserveA * tokenAprice?.usd_price
   const usdReserveB = reserveB * tokenBprice?.usd_price
@@ -441,7 +443,7 @@ export async function onSwapAction(message: string) {
   const { chain, name, trx_id, block_time, data } = JSON.parse(message)
 
   if (name == 'logpool') {
-    throttledPoolUpdate(chain, data.poolId)
+    await throttledPoolUpdate(chain, data.poolId)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
 
     // poolCreationLock = new Promise(async (resolve, reject) => {
