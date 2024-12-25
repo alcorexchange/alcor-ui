@@ -10,7 +10,7 @@ const publisher = redis.duplicate()
 
 export async function connectAll() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+  await mongoose.connect(uri)
 
   // Redis
   if (!redis.isOpen) {

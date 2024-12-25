@@ -26,7 +26,7 @@ const command = process.argv[2]
 if (!command) { console.log('No command provided'); process.exit() }
 
 async function main() {
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+  await mongoose.connect(uri)
 
   if (command == 'clean_markets') {
     const network = config.networks[process.argv[3]]

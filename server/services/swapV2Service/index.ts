@@ -80,8 +80,8 @@ async function handlePoolChart(
   // Sptit by one minute
   //const minResolution = 60 * 60 // One hour
   const minResolution = 60 // FIXME
-  if (last_point && Math.floor(last_point.time / 1000 / minResolution) == Math.floor(new Date(block_time).getTime() / 1000 / minResolution)) {
-    last_point.sqrtPriceX64 = littleEndianToDesimalString(sqrtPriceX64)
+  if (last_point && Math.floor(Number(last_point.time) / 1000 / minResolution) == Math.floor(new Date(block_time).getTime() / 1000 / minResolution)) {
+    last_point.price = littleEndianToDesimalString(sqrtPriceX64)
 
     last_point.reserveA = reserveA
     last_point.reserveB = reserveB
@@ -109,20 +109,15 @@ async function handlePoolChart(
 
 // Get pool and wait for pool lock while pool might be creating
 async function getPool(filter) {
-  let pool = await SwapPool.findOne(filter).lean()
+  const pool = await SwapPool.findOne(filter).lean()
 
   if (pool === null) {
     console.warn(`WARNING: Updating(and creating) non existing pool ${filter.id} action`)
-    pool = await throttledPoolUpdate(filter.chain, filter.id)
+    await throttledPoolUpdate(filter.chain, filter.id)
 
     // It might be first position of just created pool
     // Update token prices in that case
     await updateTokensPrices(networks[filter.chain])
-  }
-
-  if (pool === null) {
-    console.error('pool still null')
-    process.exit(1)
   }
 
   return pool
@@ -269,7 +264,7 @@ async function updateTicks(chain: string, poolId: number) {
 
 export async function connectAll() {
   // const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  // await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+  // await mongoose.connect(uri)
 
   // Redis
   if (!redis.isOpen) await redis.connect()

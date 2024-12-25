@@ -25,7 +25,7 @@ httpServer.listen(process.env.PORT || 7002, function () {
 
 async function main() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+  await mongoose.connect(uri)
   await client.connect()
   await subscriber.connect()
 
