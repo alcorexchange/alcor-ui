@@ -486,9 +486,10 @@ export async function onSwapAction(message: string) {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
   }
 
-  if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
-    await throttledPoolUpdate(chain, Number(data.poolId))
-  }
+  // TODO Check if chainEvent is enough
+  // if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
+  //   await throttledPoolUpdate(chain, Number(data.poolId))
+  // }
 
   // Send push to update user position
   if (['logmint', 'logburn', 'logcollect'].includes(name)) {
