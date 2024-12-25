@@ -13,9 +13,7 @@ import { initialUpdate as initialOrderbookUpdate } from './services/orderbookSer
 import { updateGlobalStats } from './services/updaterService/analytics'
 import { initialUpdate as swapInitialUpdate, updatePool } from './services/swapV2Service'
 import { makeSwapBars, makeSpotBars } from './services/updaterService/charts'
-
-
-const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
+import { mongoConnect } from './utils'
 
 let redisClient
 const ONEDAY = 60 * 60 * 24 * 1000
@@ -26,7 +24,7 @@ const command = process.argv[2]
 if (!command) { console.log('No command provided'); process.exit() }
 
 async function main() {
-  await mongoose.connect(uri)
+  await mongoConnect()
 
   if (command == 'clean_markets') {
     const network = config.networks[process.argv[3]]

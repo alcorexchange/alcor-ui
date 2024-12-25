@@ -12,7 +12,7 @@ import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { makeSwapBars } from '../updaterService/charts'
 import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
-import { getFailOverAlcorOnlyRpc, getToken } from './../../utils'
+import { getFailOverAlcorOnlyRpc, getToken, mongoConnect } from './../../utils'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -263,8 +263,7 @@ async function updateTicks(chain: string, poolId: number) {
 }
 
 export async function connectAll() {
-  // const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  // await mongoose.connect(uri)
+  // await mongoConnect()
 
   // Redis
   if (!redis.isOpen) await redis.connect()

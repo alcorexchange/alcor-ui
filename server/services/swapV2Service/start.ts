@@ -3,14 +3,14 @@ require('dotenv').config()
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 import { throttledPoolUpdate } from '.'
+import { mongoConnect } from '~/server/utils'
 
 const redis = createClient()
 const subscriber = redis.duplicate()
 const publisher = redis.duplicate()
 
 export async function connectAll() {
-  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  await mongoose.connect(uri)
+  await mongoConnect()
 
   // Redis
   if (!redis.isOpen) {

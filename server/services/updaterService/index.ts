@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
 import { startUpdaters } from './start'
+import { mongoConnect } from '~/server/utils'
 
 const redisClient = createClient()
 
@@ -11,8 +12,7 @@ async function makeConnections() {
   if (!redisClient.isOpen) await redisClient.connect()
   console.log('Redis connected..')
 
-  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  await mongoose.connect(uri)
+  await mongoConnect()
   console.log('MongoDB connected!')
 }
 

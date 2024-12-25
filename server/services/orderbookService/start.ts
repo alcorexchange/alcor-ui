@@ -8,7 +8,7 @@ import { Market } from '../../models'
 import { networks } from '../../../config'
 import { littleEndianToDesimal, parseAsset } from '../../../utils'
 import { fetchAllRows } from '../../../utils/eosjs'
-import { getFailOverAlcorOnlyRpc } from './../../utils'
+import { getFailOverAlcorOnlyRpc, mongoConnect } from './../../utils'
 
 const client = createClient()
 const publisher = client.duplicate()
@@ -115,8 +115,7 @@ async function updateOrders(side, chain, market_id) {
 }
 
 async function connectAll() {
-  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  await mongoose.connect(uri)
+  await mongoConnect()
 
   // Redis
   await client.connect()

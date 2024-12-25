@@ -17,6 +17,7 @@ import { networkResolver } from './middleware.js'
 import { markets } from './markets.js'
 import { pools } from './pools.js'
 import { account } from './account.js'
+import { mongoConnect } from '~/server/utils.js'
 
 const app = express()
 
@@ -25,8 +26,7 @@ async function start () {
   //db sync
   if (!process.env.DISABLE_DB) {
     try {
-      const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-      await mongoose.connect(uri)
+      await mongoConnect()
       console.log('MongoDB connected!')
     } catch (e) {
       console.log('MongoDB connect err: ', e)

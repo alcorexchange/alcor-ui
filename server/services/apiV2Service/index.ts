@@ -20,6 +20,7 @@ import { account } from './account'
 import { swapRouter } from './swapRouter'
 import { analytics } from './analytics'
 import { farms } from './farms'
+import { mongoConnect } from '~/server/utils'
 
 const app = express()
 
@@ -28,8 +29,7 @@ async function start () {
   //db sync
   if (!process.env.DISABLE_DB) {
     try {
-      const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-      await mongoose.connect(uri)
+      await mongoConnect()
       console.log('MongoDB connected!')
     } catch (e) {
       console.log(e)

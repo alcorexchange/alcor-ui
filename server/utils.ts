@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import fetch from 'cross-fetch'
 import { createClient } from 'redis'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
@@ -5,6 +6,11 @@ import { getMultyEndRpc } from '../utils/eosjs'
 import { Settings } from './models'
 
 const redis = createClient()
+
+export async function mongoConnect() {
+  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}?directConnection=true`
+  await mongoose.connect(uri)
+}
 
 export async function getTokens(chain: string) {
   if (!redis.isOpen) await redis.connect()
