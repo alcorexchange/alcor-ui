@@ -12,7 +12,7 @@ const redisClient = createClient()
 export async function newSwapAction(action, network: Network) {
   if (!redisClient.isOpen) redisClient.connect()
 
-  console.log('newSwapAction', action.act.name)
+  //console.log('newSwapAction', action.act.name)
 
   const { trx_id, block_time, block_num, act: { name, data } } = action
 
