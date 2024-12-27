@@ -223,7 +223,8 @@ const networks = {
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
       'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet', 'liquidtokens', 'metaltoken',
-      'quantnetwork', 'xtokeneosio',
+      'quantnetwork', 'xtokeneosio', 'xflare', 'sui.xpr', 'thorchain', 'xrpl2', 'sologenicxpr', 'eosioavax', 'xahaunetwork',
+      'celestia', 'moneroxmr', 'arbitrum', 'toncoinxpr', 'polkadotx'
     ],
     CEX_CONTRACTS: [],
 
