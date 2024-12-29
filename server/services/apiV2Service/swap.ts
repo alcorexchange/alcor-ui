@@ -36,13 +36,14 @@ function positionIdHandler(req, res, next) {
   next()
 }
 
-swap.get('/pools', async (req, res) => {
+swap.get('/pools', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
   const network: Network = req.app.get('network')
 
   const pools = await SwapPool.find({ chain: network.name }).select('-_id -__v').lean()
   res.json(pools)
 })
-
 
 //swap.get('/:id/charts', defCache, async (req, res) => {
 swap.get('/charts', async (req, res) => {
