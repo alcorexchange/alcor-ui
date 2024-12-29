@@ -224,7 +224,7 @@ const networks = {
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
       'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet', 'liquidtokens', 'metaltoken',
       'quantnetwork', 'xtokeneosio', 'xflare', 'sui.xpr', 'thorchain', 'xrpl2', 'sologenicxpr', 'eosioavax', 'xahaunetwork',
-      'celestia', 'moneroxmr', 'arbitrum', 'toncoinxpr', 'polkadotx'
+      'celestia', 'moneroxmr', 'arbitrum', 'toncoinxpr', 'polkadotx', 'hederax'
     ],
     CEX_CONTRACTS: [],
 
