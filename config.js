@@ -159,7 +159,7 @@ const networks = {
       id: 'xpr-eosio.token'
     },
 
-    marketCreationFee: '25000.0000 XPR',
+    marketCreationFee: '50000.0000 XPR',
     feeAccount: 'avral',
 
     chainId: '384da888112027f0321850a169f737c33e53b388aad48b5adace4bab97f437e0',
@@ -224,7 +224,9 @@ const networks = {
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
       'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet', 'liquidtokens', 'metaltoken',
       'quantnetwork', 'xtokeneosio', 'xflare', 'sui.xpr', 'thorchain', 'xrpl2', 'sologenicxpr', 'eosioavax', 'xahaunetwork',
-      'celestia', 'moneroxmr', 'arbitrum', 'toncoinxpr', 'polkadotx', 'hederax'
+      'celestia', 'moneroxmr', 'arbitrum', 'toncoinxpr', 'polkadotx', 'hederax', 'icpx', 'protoninj', 'protonfile', 'xlinkchain',
+      'nearx', 'celestia.xpr', 'optimism.xpr', 'ecash.xpr', 'fantomx', 'algorandx', 'casinoxpr', 'galagamesx', 'xcore.xpr', 'xports',
+      'xopencoinx', 'protonsara', 'audius', 'bep2', 'sonicx', 'zcashxpr', 'aptos.xpr', 'braveprivacy', 'xprn', 'waxblock'
     ],
     CEX_CONTRACTS: [],
 
