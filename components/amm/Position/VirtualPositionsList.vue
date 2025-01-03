@@ -107,10 +107,10 @@ export default {
           width: '150px',
           desktopOnly: true,
         },
-        {
-          label: this.$t('Action'),
-          desktopOnly: true,
-        },
+        // {
+        //   label: this.$t('Action'),
+        //   desktopOnly: true,
+        // },
       ]
 
       return { pageMode: true, itemSize: 58, header, data: this.positions }
