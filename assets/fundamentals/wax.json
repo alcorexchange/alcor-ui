@@ -356,7 +356,7 @@
       "name": "PixelJourney.xyz"
     },
     "tags": ["Education", "Community", "DeFi", "Social", "Metaverse"],
-    "description": "PXJ is the token of the Pixel Journey; an educational project with the topic of exploring everything Wax, Web3, and each of our widely connected ecosystems have to offer. PXJ is already paired up across +100 different LP pairs across Wax, offering a vast number of possibilities to pair up. PXJ will be required for Pixel Journey collectibles crafting, upgrades and may in the future get a role in our PixelDAO.",
+    "description": "PXJ is the token of the Pixel Journey; an educational project on the quest of exploring everything Wax, Web3 and each of our connected ecosystems have to offer. PXJ is already paired up across +250 different LP pairs across Wax DeFi, offering a vast number of possibilities to pair up with everything with sweet additional farm rewards. PXJ is the core journey coin, and required for Pixel Journey collectibles crafting, their upgrades and may in the future get a role in our PixelDAO.",
     "socials": [
       "https://docs.pixeljourney.xyz",
       "https://discord.gg/7nvdUwtxF4",
@@ -545,6 +545,20 @@
     "socials": [
       "https://discord.gg/chillnet",
       "https://linktr.ee/MetaversalMatrix"
+    ]
+  },
+  "KING@alpha.waxfun": {
+    "name": "KING of Pixals",
+    "website": {
+      "link": "https://king.pixeljourney.xyz",
+      "name": "KING @ Pixeljourney.xyz"
+    },
+    "description": "KING is a Pixel Journey Community themed meme that was launched via the wax.fun platform. A now Historic Wax.Fun meme, first to reach the King of Wax title after 6 days, and first at completing its bonding curve 26 days post launch, with nearly 200 early legends having joined the KINGs Journey already then. Aside from the 20% KING supply burned into LPs at bonding, the pixeljourney has paired up+renounced an additional +10% paired with PXJ on burn.pxj, to burn volume fees from both forever.",
+    "tags": ["DeFi", "MEME", "Social", "Community"],
+    "socials": [
+      "https://discord.gg/5wNjYD2zDY",
+      "https://x.com/pxjourney",
+      "https://t.me/pixel_journey"
     ]
   },
   "GOLD@token.brpg": {
