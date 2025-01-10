@@ -546,5 +546,23 @@
       "https://discord.gg/chillnet",
       "https://linktr.ee/MetaversalMatrix"
     ]
+  },
+  "GOLD@token.brpg": {
+    "name": "BlockchainRPG GOLD",
+    "website": {
+      "link": "https://blockchainrpg.io/",
+      "name": "blockchainrpg.io"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "NFT"
+    ],
+    "socials": [
+      "https://discord.blockchainrpg.io",
+      "https://x.com/blockchainrpg",
+    ],
+    "github": "https://github.com/BlockchainRPG",
+    "description": "BlockchainRPG is a Digital Item Metaverse in the faraway lands of Aurum. Hunt monsters, gain resources, craft better tools, and compete against others. BlockchainRPG offers a fun play and earn style gameplay. Earn GOLD and rare NFTs while playing. Trade/Buy/Sell your in-game items with other players to assist each other in your adventures! Let your blockchain adventure begin!"
   }
 }
