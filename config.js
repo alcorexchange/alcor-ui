@@ -227,7 +227,7 @@ const networks = {
       'celestia', 'moneroxmr', 'arbitrum', 'toncoinxpr', 'polkadotx', 'hederax', 'icpx', 'protoninj', 'protonfile', 'xlinkchain',
       'nearx', 'celestia.xpr', 'optimism.xpr', 'ecash.xpr', 'fantomx', 'algorandx', 'casinoxpr', 'galagamesx', 'xcore.xpr', 'xports',
       'xopencoinx', 'protonsara', 'audius', 'bep2', 'sonicx', 'zcashxpr', 'aptos.xpr', 'braveprivacy', 'waxblock',
-      'tronx', 'polkadotx', 'seinetwork'
+      'tronx', 'polkadotx', 'seinetwork', 'deroq'
     ],
     CEX_CONTRACTS: [],
 
