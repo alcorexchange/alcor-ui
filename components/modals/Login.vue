@@ -111,7 +111,7 @@ export default {
         })
       }
 
-      if (['wax', 'eos', 'tlos', 'proton'].includes(chain)) {
+      if (['wax', 'eos', 'telos', 'proton'].includes(chain)) {
         wallets.push({
           id: 'wombat',
           name: 'Wombat Wallet',

@@ -69,8 +69,8 @@ async function handlePoolChart(
     getToken(chain, tokenB_id)
   ])
 
-  const usdReserveA = reserveA * tokenAprice?.usd_price
-  const usdReserveB = reserveB * tokenBprice?.usd_price
+  const usdReserveA = reserveA * (tokenAprice?.usd_price || 0)
+  const usdReserveB = reserveB * (tokenBprice?.usd_price || 0)
 
   const last_point = await SwapChartPoint.findOne({ chain: network.name, pool: poolId }, {}, { sort: { time: -1 } })
 
@@ -486,10 +486,13 @@ export async function onSwapAction(message: string) {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
   }
 
-  // TODO Check if chainEvent is enough
-  // if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
-  //   await throttledPoolUpdate(chain, Number(data.poolId))
-  // }
+  if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
+    const account = networks[chain].amm.contract
+    publisher.publish(`chainAction:${chain}:${account}:${name}`, message)
+
+    // Might not enough because we stop propoting events when
+    // await throttledPoolUpdate(chain, Number(data.poolId))
+  }
 
   // Send push to update user position
   if (['logmint', 'logburn', 'logcollect'].includes(name)) {
