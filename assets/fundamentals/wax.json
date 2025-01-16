@@ -578,5 +578,40 @@
     ],
     "github": "https://github.com/BlockchainRPG",
     "description": "BlockchainRPG is a Digital Item Metaverse in the faraway lands of Aurum. Hunt monsters, gain resources, craft better tools, and compete against others. BlockchainRPG offers a fun play and earn style gameplay. Earn GOLD and rare NFTs while playing. Trade/Buy/Sell your in-game items with other players to assist each other in your adventures! Let your blockchain adventure begin!"
-  }
+  },
+  "WCACHE@antelopcache": {
+  "name": "waxcache",
+  "website": {
+    "link": "https://antelopecache.com/",
+    "name": "antelopecache.com"
+  },
+  "tags": [
+    "governance",
+    "sovereign",
+    "trustless",
+    "DAO",
+    "immutable",
+    "crosschain",
+    "arbitrage",
+    "bancor",
+    "burn",
+    "staking",
+    "mining",
+    "RAM",
+    "storage",
+    "POS",
+    "POW",
+    "EOS",
+    "WAX",
+    "TELOS"
+  ],
+  "socials": [
+    "https://wax.antelopecache.com/analytics",
+    "https://x.com/antelopecache",
+    "https://t.me/+PkA3E2ixE69mYTBh",
+    "https://medium.com/@antelopecache/antelope-cache-a-sovereign-ram-mining-protocol-for-eos-wax-telos-chains-5e33dd654657"
+  ],
+  "github": "https://github.com/antelopebuilder/waxcache",
+  "description": "A branch of the antelope{cache} protocol, wax{cache} is a sovereign RAM mining protocol that fosters an open market where participants compete for market share of WCACHE, by virtue of RAM held in reserve. The contract is governed exclusively by mining weight of its participants, who can vote to modify the contract’s ABI/WASM and transaction fees. wax{cache} operates with one-hour block intervals, featuring an initial block reward of 26.2144 WCACHE, which halves every 20,000 blocks, and incorporates token burns dynamically pegged to RAM prices. Deployed on three leading Antelope Networks—WAX, TELOS, and EOS—each with its own token (WCACHE, TCACHE, and ECACHE respectively), it not only creates cross-chain RAM arbitrage opportunities but also redefines the concept of commodity-backed cash, specifically RAM-backed cash."
+}
 }
