@@ -18,5 +18,40 @@
   ],
   "github": "https://github.com/ma-da/rstory",
   "description": "The Rstory website connects to Anchor wallet and the EOS blockchain to determine if the user has an Rstory token. It the user has a token, links to digital products stored on IPFS are constructed and made available to the user."
+},
+  "ECACHE@antelopcache": {
+  "name": "eoscache",
+  "website": {
+    "link": "https://antelopecache.com/",
+    "name": "antelopecache.com"
+  },
+  "tags": [
+    "governance",
+    "sovereign",
+    "trustless",
+    "DAO",
+    "immutable",
+    "crosschain",
+    "arbitrage",
+    "bancor",
+    "burn",
+    "staking",
+    "mining",
+    "RAM",
+    "storage",
+    "POS",
+    "POW",
+    "EOS",
+    "WAX",
+    "TELOS"
+  ],
+  "socials": [
+    "https://eos.antelopecache.com/analytics",
+    "https://x.com/antelopecache",
+    "https://t.me/+PkA3E2ixE69mYTBh",
+    "https://medium.com/@antelopecache/antelope-cache-a-sovereign-ram-mining-protocol-for-eos-wax-telos-chains-5e33dd654657"
+  ],
+  "github": "https://github.com/antelopebuilder/eoscache",
+  "description": "A branch of the antelope{cache} suite, eos{cache} is a sovereign RAM mining protocol that fosters an open market where participants compete for market share of ECACHE, by virtue of RAM held in reserve. The contract is governed exclusively by mining weight of its participants, who can vote to modify the contract’s ABI/WASM and transaction fees. eos{cache} operates with one-hour block intervals, featuring an initial block reward of 26.2144 ECACHE, which halves every 20,000 blocks, and incorporates token burns dynamically pegged to RAM prices. Deployed on three leading Antelope Networks—WAX, TELOS, and EOS—each with its own token (WCACHE, TCACHE, and ECACHE respectively), it not only creates cross-chain RAM arbitrage opportunities but also redefines the concept of commodity-backed cash, specifically RAM-backed cash."
 }
 }
