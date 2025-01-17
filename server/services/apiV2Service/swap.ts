@@ -41,7 +41,14 @@ swap.get('/pools', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network: Network = req.app.get('network')
 
-  const pools = await SwapPool.find({ chain: network.name }).select('-_id -__v').lean()
+  const query = { chain: network.name }
+
+  const { tokenA, tokenB } = req.query
+
+  if (tokenA) query['tokenA.id'] = tokenA
+  if (tokenB) query['tokenB.id'] = tokenB
+
+  const pools = await SwapPool.find(query).select('-_id -__v').lean()
   res.json(pools)
 })
 
