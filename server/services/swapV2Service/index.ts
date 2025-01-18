@@ -486,7 +486,7 @@ export async function onSwapAction(message: string) {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
   }
 
-  if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
+  if (['logpool', 'logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
     const account = networks[chain].amm.contract
     publisher.publish(`chainAction:${chain}:${account}:${name}`, message)
 

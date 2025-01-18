@@ -8,12 +8,14 @@ import { createClient } from 'redis'
 import { Match, Swap, PositionHistory, Position } from '../../models'
 import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
 import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
+import { updatePool } from '../swapV2Service'
 import { getIncentives } from './farms'
 
 // TODO Account validation
 export const account = Router()
 
 const redis = createClient()
+const publisher = redis.duplicate()
 
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
@@ -54,6 +56,7 @@ async function getCurrentPositionState(chain, plainPosition) {
     fees = await position.getFees()
   } catch (e) {
     console.log(`Error get fees for position(${chain}): `, plainPosition)
+    await updatePool(chain, plainPosition.id)
     throw e
   }
 
