@@ -215,7 +215,7 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
-    PINNED_MARKETS: [493, 715],
+    PINNED_MARKETS: [493, 715, 836],
     BANNER_MARKETS: [],
     SCAM_TOKENS: [
       'xusdt-tokencreate', 'xusdt-tokencreate'
