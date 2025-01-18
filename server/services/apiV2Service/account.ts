@@ -49,7 +49,13 @@ async function getCurrentPositionState(chain, plainPosition) {
   const amountA = position.amountA.toAsset()
   const amountB = position.amountB.toAsset()
 
-  const fees = await position.getFees()
+  let fees
+  try {
+    fees = await position.getFees()
+  } catch (e) {
+    console.log(`Error get fees for position(${chain}): `, plainPosition)
+    throw e
+  }
 
   const feesA = fees.feesA.toAsset()
   const feesB = fees.feesB.toAsset()
