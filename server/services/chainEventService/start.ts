@@ -139,7 +139,7 @@ async function eventStreamer(chain: string, callback?) {
         continue
       }
 
-      console.error('Error fetching block:', currentBlock, error)
+      console.error(`Error fetching block(${chain}):`, currentBlock, error)
       // Optionally implement a retry mechanism or a delay
       await new Promise((resolve) => setTimeout(resolve, 1000))
     }
