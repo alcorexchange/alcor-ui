@@ -53,7 +53,7 @@ export default class WCWWallet extends WalletBase {
       throw new Error('Wallet connect error: ' + status)
     }
 
-    const name = data.blockchainid.replace('@active', '')
+    const name = data.blockchainid.split('@')[0]
 
     return {
       name,
