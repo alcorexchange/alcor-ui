@@ -86,3 +86,28 @@ export async function getSettings(network: { name: string }) {
     return await getSettings(network)
   }
 }
+
+export async function deleteKeysByPattern(client, pattern) {
+  if (!client.isOpen) await client.connect()
+
+  let totalDeleted = 0
+
+  try {
+    // Получаем все ключи по заданному паттерну
+    const keys = await client.keys(pattern)
+
+    if (keys.length > 0) {
+      // Удаляем найденные ключи
+      const deletedCount = await client.del(keys)
+      totalDeleted += deletedCount
+      console.log(`Deleted ${deletedCount} keys matching the pattern "${pattern}".`)
+    } else {
+      console.log(`No keys found matching the pattern "${pattern}".`)
+    }
+
+    return totalDeleted
+  } catch (error) {
+    console.error('Error while deleting keys:', error)
+    throw error
+  }
+}

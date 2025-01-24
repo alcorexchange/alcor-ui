@@ -12,7 +12,7 @@ import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { makeSwapBars } from '../updaterService/charts'
 import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
-import { getFailOverAlcorOnlyRpc, getToken, mongoConnect } from './../../utils'
+import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, mongoConnect } from './../../utils'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -446,13 +446,12 @@ export async function onSwapAction(message: string) {
     await throttledPoolUpdate(chain, data.poolId)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
 
-    // poolCreationLock = new Promise(async (resolve, reject) => {
-    //   await updatePool(chain, data.poolId)
-    //   await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
+    const tokenA_id = data.tokenA.quantity.split(' ')[1].toLowerCase() + '-' + data.tokenA.contract
+    const tokenB_id = data.tokenB.quantity.split(' ')[1].toLowerCase() + '-' + data.tokenB.contract
 
-    //   resolve(true)
-    //   poolCreationLock = null
-    // })
+    // Removing cache to re-generate swap routes
+    deleteKeysByPattern(redis, `*routes_*${tokenA_id}*`)
+    deleteKeysByPattern(redis, `*routes_*${tokenB_id}*`)
   }
 
   if (name == 'logswap') {
