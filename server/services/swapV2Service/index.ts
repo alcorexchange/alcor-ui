@@ -446,12 +446,16 @@ export async function onSwapAction(message: string) {
     await throttledPoolUpdate(chain, data.poolId)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
 
-    const tokenA_id = data.tokenA.quantity.split(' ')[1].toLowerCase() + '-' + data.tokenA.contract
-    const tokenB_id = data.tokenB.quantity.split(' ')[1].toLowerCase() + '-' + data.tokenB.contract
+    try {
+      const tokenA_id = data.tokenA.quantity.split(' ')[1].toLowerCase() + '-' + data.tokenA.contract
+      const tokenB_id = data.tokenB.quantity.split(' ')[1].toLowerCase() + '-' + data.tokenB.contract
 
-    // Removing cache to re-generate swap routes
-    deleteKeysByPattern(redis, `*routes_*${tokenA_id}*`)
-    deleteKeysByPattern(redis, `*routes_*${tokenB_id}*`)
+      // Removing cache to re-generate swap routes
+      deleteKeysByPattern(redis, `*routes_*${tokenA_id}*`)
+      deleteKeysByPattern(redis, `*routes_*${tokenB_id}*`)
+    } catch (e) {
+      console.error('REMOVE CACHE ROUTES ERR', e, data)
+    }
   }
 
   if (name == 'logswap') {
