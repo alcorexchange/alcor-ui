@@ -274,7 +274,7 @@ export default {
       ]
 
       // No need buy ram for Proton
-      if (this.network.name != 'proton') {
+      if (!['proton', 'ultra'].includes(this.network.name)) {
         actions.push({
           account: 'eosio',
           name: 'buyrambytes',
