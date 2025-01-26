@@ -447,8 +447,14 @@ export async function onSwapAction(message: string) {
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
 
     try {
-      const tokenA_id = data.tokenA.quantity.split(' ')[1].toLowerCase() + '-' + data.tokenA.contract
-      const tokenB_id = data.tokenB.quantity.split(' ')[1].toLowerCase() + '-' + data.tokenB.contract
+      const quantityA = data.tokenA.quantity || data.tokenA.asset
+      const quantityB = data.tokenB.quantity || data.tokenB.asset
+
+      const contractA = data.tokenA.contract || data.tokenA.Contract
+      const contractB = data.tokenB.contract || data.tokenB.Contract
+
+      const tokenA_id = quantityA.split(' ')[1].toLowerCase() + '-' + contractA
+      const tokenB_id = quantityB.split(' ')[1].toLowerCase() + '-' + contractB
 
       // Removing cache to re-generate swap routes
       deleteKeysByPattern(redis, `*routes_*${tokenA_id}*`)
