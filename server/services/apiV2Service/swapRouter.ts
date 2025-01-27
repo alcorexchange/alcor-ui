@@ -52,6 +52,8 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   await connectRedis(redisClient)
 
   const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
+  const updatingKey = 'updating_' + cacheKey
+  const isUpdating = await redisClient.get(updatingKey)
   const allPools = await getAllPools(chain)
   const liquidPools = Array.from(allPools.values()).filter((p: any) => p.active && p.tickDataProvider.ticks.length > 0)
 
@@ -62,12 +64,13 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   const isCacheExpired = !cacheExpiration || currentTime > parseInt(cacheExpiration, 10)
 
   if (!redisRoutes && isCacheExpired) {
+    if (isUpdating) {
+      throw new Error('Initial cache updating')
+    }
+
     await updateCache(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey)
     redisRoutes = await redisClient.get('routes_' + cacheKey)
   } else if (isCacheExpired) {
-    const updatingKey = 'updating_' + cacheKey
-    const isUpdating = await redisClient.get(updatingKey)
-
     if (!isUpdating) {
       await redisClient.set(updatingKey, 'true', {
         EX: ROUTES_UPDATING_TIMEOUT,
@@ -211,7 +214,7 @@ swapRouter.get('/getRoute', async (req, res) => {
       maxHops
     )
   } catch (e) {
-    return res.status(403).send('No route found')
+    return res.status(403).send('No route found: ' + e.message)
   }
 
   if (cachedRoutes.length == 0) {
