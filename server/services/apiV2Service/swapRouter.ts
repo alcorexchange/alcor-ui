@@ -21,7 +21,7 @@ const connectRedis = async (client) => {
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const POOLS = {}
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 3
-const ROUTES_UPDATING_TIMEOUT = 60 * 60 * 20
+const ROUTES_UPDATING_TIMEOUT = 60 * 60 * 1
 
 subscriber.connect().then(() => {
   subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
@@ -104,7 +104,6 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
 
   try {
     await redisClient.set(updatingKey, 'true', { EX: ROUTES_UPDATING_TIMEOUT, NX: true })
-
     const routes: any = await computeRoutesInWorker(input, output, pools, maxHops)
     const redisRoutes = routes.map(({ input, output, pools }) => ({
       input: Token.toJSON(input),
