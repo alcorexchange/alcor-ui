@@ -21,7 +21,7 @@ const connectRedis = async (client) => {
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const POOLS = {}
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 3
-const ROUTES_UPDATING_TIMEOUT = 60 * 60 * 1
+const ROUTES_UPDATING_TIMEOUT = 60 * 15
 
 subscriber.connect().then(() => {
   subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
@@ -74,7 +74,9 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   } else if (isCacheExpired) {
     if (!isUpdating) {
       console.log('expired, run background update', cacheKey)
-      updateCacheInBackground(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey)
+      updateCache(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey).catch((error) =>
+        console.error('Error updating cache in background:', error)
+      )
     }
   }
 
@@ -132,9 +134,6 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
 }
 
 function updateCacheInBackground(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
-  updateCache(chain, pools, inputToken, outputToken, maxHops, cacheKey).catch((error) =>
-    console.error('Error updating cache in background:', error)
-  )
 }
 
 function findToken(pools, tokenID) {
