@@ -21,7 +21,7 @@ const connectRedis = async (client) => {
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const POOLS = {}
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 3
-const ROUTES_UPDATING_TIMEOUT = 60 * 60 * 1
+const ROUTES_UPDATING_TIMEOUT = 60 * 60 * 20
 
 subscriber.connect().then(() => {
   subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
@@ -72,10 +72,6 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
     redisRoutes = await redisClient.get('routes_' + cacheKey)
   } else if (isCacheExpired) {
     if (!isUpdating) {
-      await redisClient.set(updatingKey, 'true', {
-        EX: ROUTES_UPDATING_TIMEOUT,
-        NX: true // Only set the key if it does not already exist
-      })
       updateCacheInBackground(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey)
     }
   }
@@ -97,6 +93,7 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
 async function updateCache(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
   console.log('start update cache', cacheKey)
   const startTime = performance.now()
+  const updatingKey = 'updating_' + cacheKey
 
   const input = findToken(pools, inputToken.id)
   const output = findToken(pools, outputToken.id)
@@ -106,6 +103,8 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
   }
 
   try {
+    await redisClient.set(updatingKey, 'true', { EX: ROUTES_UPDATING_TIMEOUT, NX: true })
+
     const routes: any = await computeRoutesInWorker(input, output, pools, maxHops)
     const redisRoutes = routes.map(({ input, output, pools }) => ({
       input: Token.toJSON(input),
@@ -125,7 +124,7 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
     console.error('Error computing routes in worker:', error)
     return []
   } finally {
-    await redisClient.del('updating_' + cacheKey)
+    await redisClient.del(updatingKey)
   }
 }
 
