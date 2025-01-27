@@ -16,6 +16,8 @@ COPY . .
 # Устанавливаем PM2
 RUN yarn global add @socket.io/pm2
 
+# TODO Build server for api
+
 # Указываем порт, который будет слушать приложение
 EXPOSE 7003
 

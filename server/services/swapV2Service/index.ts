@@ -12,7 +12,7 @@ import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { makeSwapBars } from '../updaterService/charts'
 import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
-import { getFailOverAlcorOnlyRpc, getToken } from './../../utils'
+import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, mongoConnect } from './../../utils'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -64,11 +64,13 @@ async function handlePoolChart(
   const poolInstance = await getPool({ chain, id: poolId })
   const { tokenA: { id: tokenA_id }, tokenB: { id: tokenB_id } } = poolInstance
 
-  const tokenAprice = await getToken(chain, tokenA_id)
-  const tokenBprice = await getToken(chain, tokenB_id)
+  const [tokenAprice, tokenBprice] = await Promise.all([
+    getToken(chain, tokenA_id),
+    getToken(chain, tokenB_id)
+  ])
 
-  const usdReserveA = reserveA * tokenAprice?.usd_price
-  const usdReserveB = reserveB * tokenBprice?.usd_price
+  const usdReserveA = reserveA * (tokenAprice?.usd_price || 0)
+  const usdReserveB = reserveB * (tokenBprice?.usd_price || 0)
 
   const last_point = await SwapChartPoint.findOne({ chain: network.name, pool: poolId }, {}, { sort: { time: -1 } })
 
@@ -80,8 +82,8 @@ async function handlePoolChart(
   // Sptit by one minute
   //const minResolution = 60 * 60 // One hour
   const minResolution = 60 // FIXME
-  if (last_point && Math.floor(last_point.time / 1000 / minResolution) == Math.floor(new Date(block_time).getTime() / 1000 / minResolution)) {
-    last_point.sqrtPriceX64 = littleEndianToDesimalString(sqrtPriceX64)
+  if (last_point && Math.floor(Number(last_point.time) / 1000 / minResolution) == Math.floor(new Date(block_time).getTime() / 1000 / minResolution)) {
+    last_point.price = littleEndianToDesimalString(sqrtPriceX64)
 
     last_point.reserveA = reserveA
     last_point.reserveB = reserveB
@@ -109,20 +111,15 @@ async function handlePoolChart(
 
 // Get pool and wait for pool lock while pool might be creating
 async function getPool(filter) {
-  let pool = await SwapPool.findOne(filter).lean()
+  const pool = await SwapPool.findOne(filter).lean()
 
   if (pool === null) {
     console.warn(`WARNING: Updating(and creating) non existing pool ${filter.id} action`)
-    pool = await throttledPoolUpdate(filter.chain, filter.id)
+    await throttledPoolUpdate(filter.chain, filter.id)
 
     // It might be first position of just created pool
     // Update token prices in that case
     await updateTokensPrices(networks[filter.chain])
-  }
-
-  if (pool === null) {
-    console.error('pool still null')
-    process.exit(1)
   }
 
   return pool
@@ -268,8 +265,7 @@ async function updateTicks(chain: string, poolId: number) {
 }
 
 export async function connectAll() {
-  // const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  // await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+  // await mongoConnect()
 
   // Redis
   if (!redis.isOpen) await redis.connect()
@@ -447,16 +443,26 @@ export async function onSwapAction(message: string) {
   const { chain, name, trx_id, block_time, data } = JSON.parse(message)
 
   if (name == 'logpool') {
-    throttledPoolUpdate(chain, data.poolId)
+    await throttledPoolUpdate(chain, data.poolId)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
 
-    // poolCreationLock = new Promise(async (resolve, reject) => {
-    //   await updatePool(chain, data.poolId)
-    //   await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
+    // Lead to high load
+    // try {
+    //   const quantityA = data.tokenA.quantity || data.tokenA.asset
+    //   const quantityB = data.tokenB.quantity || data.tokenB.asset
 
-    //   resolve(true)
-    //   poolCreationLock = null
-    // })
+    //   const contractA = data.tokenA.contract || data.tokenA.Contract
+    //   const contractB = data.tokenB.contract || data.tokenB.Contract
+
+    //   const tokenA_id = quantityA.split(' ')[1].toLowerCase() + '-' + contractA
+    //   const tokenB_id = quantityB.split(' ')[1].toLowerCase() + '-' + contractB
+
+    //   // Removing cache to re-generate swap routes
+    //   deleteKeysByPattern(redis, `*routes_*${tokenA_id}*`)
+    //   deleteKeysByPattern(redis, `*routes_*${tokenB_id}*`)
+    // } catch (e) {
+    //   console.error('REMOVE CACHE ROUTES ERR', e, data)
+    // }
   }
 
   if (name == 'logswap') {
@@ -490,8 +496,12 @@ export async function onSwapAction(message: string) {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
   }
 
-  if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
-    await throttledPoolUpdate(chain, Number(data.poolId))
+  if (['logpool', 'logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
+    const account = networks[chain].amm.contract
+    publisher.publish(`chainAction:${chain}:${account}:${name}`, message)
+
+    // Might not enough because we stop propoting events when
+    // await throttledPoolUpdate(chain, Number(data.poolId))
   }
 
   // Send push to update user position

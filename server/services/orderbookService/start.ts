@@ -8,7 +8,7 @@ import { Market } from '../../models'
 import { networks } from '../../../config'
 import { littleEndianToDesimal, parseAsset } from '../../../utils'
 import { fetchAllRows } from '../../../utils/eosjs'
-import { getFailOverAlcorOnlyRpc } from './../../utils'
+import { getFailOverAlcorOnlyRpc, mongoConnect } from './../../utils'
 
 const client = createClient()
 const publisher = client.duplicate()
@@ -115,8 +115,7 @@ async function updateOrders(side, chain, market_id) {
 }
 
 async function connectAll() {
-  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+  await mongoConnect()
 
   // Redis
   await client.connect()
@@ -165,6 +164,7 @@ export async function initialUpdate(chain, market_id) {
 
 function onChainEvent(message) {
   const { chain, name, data } = JSON.parse(message)
+  console.log('onChainEvent', message)
 
   const market = data?.record?.market?.id || data?.market_id
 
@@ -197,7 +197,9 @@ export async function main() {
     }
   })
 
+  // TODO update to use config
   subscriber.pSubscribe('chainAction:*:alcor:*', m => onChainEvent(m))
+  subscriber.pSubscribe('chainAction:*:book.alcor:*', m => onChainEvent(m))
   subscriber.pSubscribe('chainAction:*:alcordexmain:*', m => onChainEvent(m))
   subscriber.pSubscribe('chainAction:*:eostokensdex:*', m => onChainEvent(m))
 }

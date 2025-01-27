@@ -7,7 +7,14 @@
 <script>
 import { debounce } from 'lodash'
 import { mapState } from 'vuex'
-import { constructPoolInstance, parseToken } from '~/utils/amm'
+import { getSwapBarPriceAsString } from '~/utils/amm'
+
+function formatCandle(candle, tokenA, tokenB, reverse) {
+  candle.open = getSwapBarPriceAsString(candle.open, tokenA, tokenB, reverse)
+  candle.high = getSwapBarPriceAsString(candle.high, tokenA, tokenB, reverse)
+  candle.low = getSwapBarPriceAsString(candle.low, tokenA, tokenB, reverse)
+  candle.close = getSwapBarPriceAsString(candle.close, tokenA, tokenB, reverse)
+}
 
 export default {
   props: ['pool', 'isSorted'],
@@ -104,13 +111,19 @@ export default {
   mounted() {
     this.mountChart()
 
-    // this.$socket.on('tick', (candle) => {
-    //   this.onRealtimeCallback(candle)
-    // })
+    this.$socket.on('swap-tick', (candle) => {
+      const tokenA = this.pool?.tokenA
+      const tokenB = this.pool?.tokenB
 
-    // this.$socket.io.on('reconnect', () => {
-    //   this.reset()
-    // })
+      formatCandle(candle, tokenA, tokenB, this.isSorted)
+
+      // todo
+      this.onRealtimeCallback(candle)
+    })
+
+    this.$socket.io.on('reconnect', () => {
+      this.reset()
+    })
   },
 
   methods: {
@@ -250,28 +263,28 @@ export default {
             console.log('subscribeBars called...')
             this.onResetCacheNeededCallback = onResetCacheNeededCallback
 
-            // this.$socket.emit('subscribe', {
-            //   room: 'ticker',
-            //   params: {
-            //     chain: this.network.name,
-            //     market: this.id,
-            //     resolution: this.resolution
-            //   }
-            // })
+            this.$socket.emit('subscribe', {
+              room: 'swap-ticker',
+              params: {
+                chain: this.network.name,
+                pool: this?.pool?.id,
+                resolution: this.resolution
+              }
+            })
 
             this.onRealtimeCallback = onRealtimeCallback
             this.resolution = resolution
           },
 
           unsubscribeBars: (subscriberUID) => {
-            // this.$socket.emit('unsubscribe', {
-            //   room: 'ticker',
-            //   params: {
-            //     chain: this.network.name,
-            //     market: this.id,
-            //     resolution: this.resolution
-            //   }
-            // })
+            this.$socket.emit('unsubscribe', {
+              room: 'swap-ticker',
+              params: {
+                chain: this.network.name,
+                pool: this?.pool?.id,
+                resolution: this.resolution
+              }
+            })
           },
 
           getMarks: (symbolInfo, from, to, onDataCallback, resolution) => {

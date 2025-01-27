@@ -8,12 +8,14 @@ import { createClient } from 'redis'
 import { Match, Swap, PositionHistory, Position } from '../../models'
 import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
 import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
+import { updatePool } from '../swapV2Service'
 import { getIncentives } from './farms'
 
 // TODO Account validation
 export const account = Router()
 
 const redis = createClient()
+const publisher = redis.duplicate()
 
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
@@ -21,7 +23,7 @@ export async function getAccountPoolPositions(chain: string, account: string) {
   const startTime = performance.now()
 
   if (!redis.isOpen) await redis.connect()
-  const positions = JSON.parse(await redis.get(`positions_${chain}`))
+  const positions = JSON.parse(await redis.get(`positions_${chain}`)) || []
 
   const result = []
   for (const position of positions.filter(p => p.owner == account)) {
@@ -49,7 +51,14 @@ async function getCurrentPositionState(chain, plainPosition) {
   const amountA = position.amountA.toAsset()
   const amountB = position.amountB.toAsset()
 
-  const fees = await position.getFees()
+  let fees
+  try {
+    fees = await position.getFees()
+  } catch (e) {
+    console.log(`Error get fees for position(${chain}): `, plainPosition)
+    await updatePool(chain, plainPosition.id)
+    throw e
+  }
 
   const feesA = fees.feesA.toAsset()
   const feesB = fees.feesB.toAsset()
@@ -94,7 +103,7 @@ export async function getPositionStats(chain, redisPosition) {
   let total = 0
   let sub = 0
   let liquidity = BigInt(0)
-  let collectedFees = { tokenA: 0, tokenB: 0, inUSD: 0 }
+  const collectedFees = { tokenA: 0, tokenB: 0, inUSD: 0, lastCollectTime: null }
 
   for (const h of history) {
     if (h.type === 'burn') {
@@ -111,7 +120,7 @@ export async function getPositionStats(chain, redisPosition) {
       collectedFees.tokenA += h.tokenA
       collectedFees.tokenB += h.tokenB
       collectedFees.inUSD += h.totalUSDValue
-      //sub += h.totalUSDValue
+      collectedFees.lastCollectTime = h.time
     }
 
     // Might be after close
@@ -244,7 +253,6 @@ function calculateUserFarms(incentives, plainUserStakes) {
     //r.userSharePercent = stakingWeight.multiply(100).divide(bigInt.max(totalStakingWeight, 1)).toJSNumber()
     r.userSharePercent = Math.round(parseFloat(stakingWeight.toString()) * 100 / bigInt.max(totalStakingWeight, 1).toJSNumber() * 10000) / 10000
     r.dailyRewards = r.incentive.isFinished ? 0 : r.incentive.rewardPerDay * r.userSharePercent / 100
-    r.dailyRewards = r.dailyRewards
     r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
 
     r.incentive = r.incentive.id
@@ -282,7 +290,7 @@ account.get('/:account/deals', async (req, res) => {
   }
 
   // Запрос для asker
-  const askerQuery = [
+  const askerQuery: any = [
     { $match: { ...baseMatch, asker: account } },
     { $sort: { time: -1 } },
     {
@@ -303,7 +311,7 @@ account.get('/:account/deals', async (req, res) => {
   ]
 
   // Запрос для bidder
-  const bidderQuery = [
+  const bidderQuery: any = [
     { $match: { ...baseMatch, bidder: account } },
     { $sort: { time: -1 } },
     {

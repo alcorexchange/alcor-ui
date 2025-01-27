@@ -9,7 +9,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const publisher = createClient()
 
-const ACCOUNTS = ['swap.alcor', 'alcordexmain', 'alcor']
+const ACCOUNTS = ['swap.alcor', 'alcordexmain', 'alcor', 'book.alcor']
 const ACTIONS = ['*']
 
 async function handleAction(chain: string, action) {
@@ -31,6 +31,7 @@ export function start() {
     eventStreamer('wax', handleAction)
     eventStreamer('proton', handleAction)
     eventStreamer('telos', handleAction)
+    eventStreamer('ultra', handleAction)
   }
 }
 
@@ -57,20 +58,28 @@ async function eventStreamer(chain: string, callback?) {
   }
 
   let currentBlock = await getCurrentBlockNumber()
-  //let currentBlock = 308286482
-  //let currentBlock = 256069154
+  // currentBlock = 220772794
+
+  // Переменные для расчёта динамической задержки
+  let lastBlockTime = null
+  let averageBlockTime = 500 // Начальное предположение: 500 мс на блок
+  const smoothingFactor = 0.03 // Фактор сглаживания для скользящего среднего
 
   while (true) {
     try {
       const block = await rpc.get_trace_block(currentBlock)
-      if (currentBlock % 10 == 0) console.log('ok:', currentBlock)
+      if (currentBlock % 10 == 0) console.log(chain, ' ok:', currentBlock)
 
       if (block && block.transactions) {
         for (const transaction of block.transactions) {
-          if (transaction.status === 'executed') {
+          if (transaction.status === 'executed' || chain === 'ultra') {
             for (const action of transaction.actions) {
               if (ACCOUNTS.includes(action.account) && (ACTIONS.includes(action.name) || ACTIONS.includes('*'))) {
-                const data = await decodeActionData(action.data, await getCachedAbi(chain, rpc, action.account), action.action)
+                const data = await decodeActionData(
+                  action.data,
+                  await getCachedAbi(chain, rpc, action.account),
+                  action.action
+                )
 
                 action.name = action.action
                 //action.hex_data = action.data
@@ -87,25 +96,50 @@ async function eventStreamer(chain: string, callback?) {
           }
         }
       }
+
+      // Обновляем текущее время блока
+
+      if (!block.timestamp.includes('Z')) {
+        block.timestamp += 'Z'
+      }
+
+      const blockTime = new Date(block.timestamp).getTime()
+
+      if (lastBlockTime) {
+        // Вычисляем время между блоками
+        const timeBetweenBlocks = blockTime - lastBlockTime
+
+        // Обновляем скользящее среднее времени блока
+        averageBlockTime = averageBlockTime * (1 - smoothingFactor) + timeBetweenBlocks * smoothingFactor
+      }
+
+      lastBlockTime = blockTime
+
       currentBlock++
 
-      const block_time = new Date(block.timestamp).getTime()
-      const next_block_time = block_time + 500
+      // Рассчитываем задержку
       const now = Date.now()
-
-      const delay = next_block_time - now
+      const expectedNextBlockTime = blockTime + averageBlockTime
+      const delay = Math.max(0, expectedNextBlockTime - now)
 
       if (delay > 0) {
         await new Promise((resolve) => setTimeout(resolve, delay))
       }
     } catch (error) {
-      if (error.message.includes('Could not find block') || error.message.includes('block trace missing')) {
-        console.log('too fast', currentBlock)
+      const passErrors = ['Could not find block', 'block trace missing', 'block not found']
+      const errorMessage = error.message
+
+      // Проверка на наличие одной из ошибок
+      if (passErrors.some((err) => errorMessage.includes(err))) {
+        console.log(chain, ': too fast', currentBlock, `(${averageBlockTime})`)
+
+        averageBlockTime = averageBlockTime * 1.1 // Увеличиваем время на 10%
+
         await new Promise((resolve) => setTimeout(resolve, 100))
         continue
       }
 
-      console.error('Error fetching block:', currentBlock, error)
+      console.error(`Error fetching block(${chain}):`, currentBlock, error)
       // Optionally implement a retry mechanism or a delay
       await new Promise((resolve) => setTimeout(resolve, 1000))
     }

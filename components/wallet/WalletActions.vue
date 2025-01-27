@@ -30,7 +30,7 @@ export default {
       navigator.clipboard.writeText(this.$store.state.user.name)
       this.$notify({
         title: 'Clipboard',
-        message: 'Account name copyed to Clipboard',
+        message: 'Account name copied to Clipboard',
         type: 'info'
       })
     }

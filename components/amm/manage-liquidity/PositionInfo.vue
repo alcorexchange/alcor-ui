@@ -49,7 +49,7 @@
             .text
               p Cumulative sum of historical liquidity deposits and withdrawals in USD by the time of action, along with accrued fees.
           .el-icon-info(slot="reference").ml-2.pointer
-      .fs-16 ${{ pNl }}
+      .fs-16 ${{ pNl | commaFloat }}
     .d-flex.justify-content-between.mt-1
       .fs-16 Pool Share
       .fs-16 {{ poolShare }}%

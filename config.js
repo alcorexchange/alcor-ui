@@ -107,6 +107,7 @@ const networks = {
 
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: [
       'usdcoinchain',
       'effectaiswap',
@@ -158,7 +159,7 @@ const networks = {
       id: 'xpr-eosio.token'
     },
 
-    marketCreationFee: '1000.0000 XPR',
+    marketCreationFee: '10000.0000 XPR',
     feeAccount: 'avral',
 
     chainId: '384da888112027f0321850a169f737c33e53b388aad48b5adace4bab97f437e0',
@@ -214,11 +215,19 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
-    PINNED_MARKETS: [493, 715],
+    PINNED_MARKETS: [493, 715, 836, 1089],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [
+      'xusdt-tokencreate', 'xusdt-tokencreate'
+    ],
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
-      'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet'
+      'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet', 'liquidtokens', 'metaltoken',
+      'quantnetwork', 'xtokeneosio', 'xflare', 'sui.xpr', 'thorchain', 'xrpl2', 'sologenicxpr', 'eosioavax', 'xahaunetwork',
+      'celestia', 'moneroxmr', 'arbitrum', 'toncoinxpr', 'polkadotx', 'hederax', 'icpx', 'protoninj', 'protonfile', 'xlinkchain',
+      'nearx', 'celestia.xpr', 'optimism.xpr', 'ecash.xpr', 'fantomx', 'algorandx', 'casinoxpr', 'galagamesx', 'xcore.xpr', 'xports',
+      'xopencoinx', 'protonsara', 'audius', 'bep2', 'sonicx', 'zcashxpr', 'aptos.xpr', 'braveprivacy', 'waxblock',
+      'tronx', 'polkadotx', 'seinetwork', 'deroq', 'loantokens'
     ],
     CEX_CONTRACTS: [],
 
@@ -310,6 +319,7 @@ const networks = {
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
 
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: [],
 
     CEX_CONTRACTS: [],
@@ -417,13 +427,16 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [
-      910, // other
+      843,
+      910,
+
+      // other
       /* USDT put others after */ 763,
-      185,
-      843
+      // 185,
     ],
     BANNER_MARKETS: [],
 
+    SCAM_TOKENS: [''],
     SCAM_CONTRACTS: [
       'okbtothemoon',
       'huobideposit',
@@ -548,6 +561,7 @@ const networks = {
 
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain', 'bosibc.io'],
     CEX_CONTRACTS: [],
 
@@ -597,11 +611,16 @@ const networks = {
     protocol: 'https',
     monitor: 'https://explorer.mainnet.ultra.io',
     monitor_params: '',
-    lightapi: 'https://mainnet.ultra.io',
-    hyperion: 'https://ultra.eosusa.io',
+    lightapi: null,
+    //hyperion: 'https://ultra.eosusa.io',
+    hyperion: 'https://api.ultra.eossweden.org',
 
     client_nodes: {
+      'https://ultra.eosusa.io': 'USA',
       'https://api.mainnet.ultra.io': 'Ultra.io',
+      'http://ultra.api.eosnation.io': 'Nazion',
+      'https://ultra.eosrio.io': 'Rio',
+      'https://api.ultra.cryptolions.io': 'Lions',
     },
 
     otc: {
@@ -647,6 +666,7 @@ const networks = {
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
 
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: [],
 
     CEX_CONTRACTS: [],
@@ -682,7 +702,7 @@ const networks = {
     monitor: 'https://wax-test.bloks.io',
     monitor_params: '',
     lightapi: 'https://testnet-lightapi.eosams.xeos.me',
-    hyperion: 'https://jungle3.cryptolions.io',
+    hyperion: 'https://waxtest-hyperion.alcor.exchange',
     backEnd: 'http://localhost:8000/api/',
 
     client_nodes: {
@@ -716,6 +736,7 @@ const networks = {
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -766,6 +787,7 @@ const networks = {
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -830,6 +852,7 @@ const networks = {
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 

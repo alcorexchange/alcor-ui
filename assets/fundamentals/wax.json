@@ -232,6 +232,16 @@
     "tags": ["Ecosystem"],
     "socials": ["https://twitter.com/adoptwombat"]
   },
+  "ALFA@token.alfa": {
+    "name": "Alpha World",
+    "website": {
+      "link": "https://thealpha.world/",
+      "name": "thealpha.world"
+    },
+    "description": "The first multi-chain prediction marketplace on Telegram",
+    "tags": ["Ecosystem"],
+    "socials": ["https://t.me/alphaworldofficial"]
+  },
   "NOVO@tokens.novo": {
     "name": "Novopangea",
     "website": {
@@ -346,7 +356,7 @@
       "name": "PixelJourney.xyz"
     },
     "tags": ["Education", "Community", "DeFi", "Social", "Metaverse"],
-    "description": "PXJ is the token of the Pixel Journey; an educational project with the topic of exploring everything Wax, Web3, and each of our widely connected ecosystems have to offer. PXJ is already paired up across +100 different LP pairs across Wax, offering a vast number of possibilities to pair up. PXJ will be required for Pixel Journey collectibles crafting, upgrades and may in the future get a role in our PixelDAO.",
+    "description": "PXJ is the token of the Pixel Journey; an educational project on the quest of exploring everything Wax, Web3 and each of our connected ecosystems have to offer. PXJ is already paired up across +250 different LP pairs across Wax DeFi, offering a vast number of possibilities to pair up with everything with sweet additional farm rewards. PXJ is the core journey coin, and required for Pixel Journey collectibles crafting, their upgrades and may in the future get a role in our PixelDAO.",
     "socials": [
       "https://docs.pixeljourney.xyz",
       "https://discord.gg/7nvdUwtxF4",
@@ -510,5 +520,98 @@
       "https://t.me/YEET_community",
       "https://t.me/yeetwax"
     ]
-  }
+  },
+  "SHIT@meta33matrix": {
+    "name": "Shit Coin",
+    "website": {
+      "link": "https://metamatrix.cloud/",
+      "name": "MetaMatrix Website"
+    },
+    "description": "ShitCoin isn't just a mf meme. It's a lifestyle.",
+    "tags": ["DeFi", "MEME", "Social"],
+    "socials": [
+      "https://discord.gg/chillnet",
+      "https://linktr.ee/MetaversalMatrix"
+    ]
+  },
+  "CTHULHU@meta33matrix": {
+    "name": "Cthulhu Coin",
+    "website": {
+      "link": "https://metamatrix.cloud/",
+      "name": "MetaMatrix Website"
+    },
+    "description": "Cthulhu mgah'n'ghft Iiahe ymg' mgepnah uh'eog, Cthulhu ist dein anfuhrer, all hail unto the abyssal ones",
+    "tags": ["DeFi", "MEME", "Social"],
+    "socials": [
+      "https://discord.gg/chillnet",
+      "https://linktr.ee/MetaversalMatrix"
+    ]
+  },
+  "KING@alpha.waxfun": {
+    "name": "KING of Pixals",
+    "website": {
+      "link": "https://king.pixeljourney.xyz",
+      "name": "KING @ Pixeljourney.xyz"
+    },
+    "description": "KING is a Pixel Journey Community themed meme that was launched via the wax.fun platform. A now Historic Wax.Fun meme, first to reach the King of Wax title after 6 days, and first at completing its bonding curve 26 days post launch, with nearly 200 early legends having joined the KINGs Journey already then. Aside from the 20% KING supply burned into LPs at bonding, the pixeljourney has paired up+renounced an additional +10% paired with PXJ on burn.pxj, to burn volume fees from both forever.",
+    "tags": ["DeFi", "MEME", "Social", "Community"],
+    "socials": [
+      "https://discord.gg/5wNjYD2zDY",
+      "https://x.com/pxjourney",
+      "https://t.me/pixel_journey"
+    ]
+  },
+  "GOLD@token.brpg": {
+    "name": "BlockchainRPG GOLD",
+    "website": {
+      "link": "https://blockchainrpg.io/",
+      "name": "blockchainrpg.io"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "NFT"
+    ],
+    "socials": [
+      "https://discord.blockchainrpg.io",
+      "https://x.com/blockchainrpg"
+    ],
+    "github": "https://github.com/BlockchainRPG",
+    "description": "BlockchainRPG is a Digital Item Metaverse in the faraway lands of Aurum. Hunt monsters, gain resources, craft better tools, and compete against others. BlockchainRPG offers a fun play and earn style gameplay. Earn GOLD and rare NFTs while playing. Trade/Buy/Sell your in-game items with other players to assist each other in your adventures! Let your blockchain adventure begin!"
+  },
+  "WCACHE@antelopcache": {
+  "name": "waxcache",
+  "website": {
+    "link": "https://antelopecache.com/",
+    "name": "antelopecache.com"
+  },
+  "tags": [
+    "governance",
+    "sovereign",
+    "trustless",
+    "DAO",
+    "immutable",
+    "crosschain",
+    "arbitrage",
+    "bancor",
+    "burn",
+    "staking",
+    "mining",
+    "RAM",
+    "storage",
+    "POS",
+    "POW",
+    "EOS",
+    "WAX",
+    "TELOS"
+  ],
+  "socials": [
+    "https://wax.antelopecache.com/analytics",
+    "https://x.com/antelopecache",
+    "https://t.me/+PkA3E2ixE69mYTBh",
+    "https://medium.com/@antelopecache/antelope-cache-a-sovereign-ram-mining-protocol-for-eos-wax-telos-chains-5e33dd654657"
+  ],
+  "github": "https://github.com/antelopebuilder/waxcache",
+  "description": "A branch of the antelope{cache} protocol, wax{cache} is a sovereign RAM mining protocol that fosters an open market where participants compete for market share of WCACHE, by virtue of RAM held in reserve. The contract is governed exclusively by the mining weight of its participants, who can vote to modify the contract’s ABI/WASM and transaction fees. wax{cache} operates with one-hour block intervals, featuring an initial block reward of 26.2144 WCACHE, which halves every 20,000 blocks, and incorporates token burns dynamically pegged to RAM prices. Deployed on three leading Antelope Networks, including WAX, TELOS, and EOS, each with its own token (WCACHE, TCACHE, and ECACHE respectively), it not only creates cross-chain RAM arbitrage opportunities but also redefines the concept of commodity-backed cash, specifically RAM-backed cash."
+}
 }

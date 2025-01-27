@@ -196,7 +196,7 @@ export default {
     },
 
     async buy({ id, buy }) {
-      if (!this.user) return this.$notify({ title: 'Authorization', message: 'Pleace login first', type: 'info' })
+      if (!this.user) return this.$notify({ title: 'Authorization', message: 'Please login first', type: 'info' })
 
       const loading = this.$loading({
         lock: true,

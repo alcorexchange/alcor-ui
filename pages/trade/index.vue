@@ -5,9 +5,7 @@ div
     //.col(v-if="id == 26 && network.name == 'wax'").mb-2
       el-alert(title='TLM Market are closed from 6.04.2021 till 13.04.2021!' type='info' effect='dark')
         .lead Due to the opening of TLM teleport functionality trading is suspended until technical implementation is complete.
-    .col(
-      v-if='network.SCAM_CONTRACTS.includes($store.state.market.base_token.contract) || network.SCAM_CONTRACTS.includes($store.state.market.quote_token.contract)'
-    )
+    .col(v-if='scam')
       .row.mb-2
         .col
           el-alert(type='error', show-icon)
@@ -47,8 +45,8 @@ export default {
 
   computed: {
     ...mapState(['network', 'markets']),
-    ...mapState('market', ['symbol', 'id', 'stats', 'streaming']),
-    ...mapGetters(['user'])
+    ...mapState('market', ['symbol', 'id', 'stats', 'streaming', 'base_token', 'quote_token', 'scam']),
+    ...mapGetters(['user']),
   },
 
   watch: {

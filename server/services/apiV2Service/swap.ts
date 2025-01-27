@@ -2,15 +2,9 @@ import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 import { SwapBar, Swap, SwapPool, SwapChartPoint } from '../../models'
 import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
-import { sqrtRatioToPrice, getLiquidityRangeChart } from '../../../utils/amm.js'
+import { getSwapBarPriceAsString, getLiquidityRangeChart } from '../../../utils/amm.js'
 import { resolutions } from '../updaterService/charts'
 import { getPositionStats } from './account'
-
-function getSwapBarPriceAsString(price, tokenA, tokenB, reverse) {
-  price = sqrtRatioToPrice(price, tokenA, tokenB)
-  if (reverse) price = price.invert()
-  return price.toSignificant()
-}
 
 function formatCandle(candle, volumeField, tokenA, tokenB, reverse) {
   candle.volume = candle[volumeField]
@@ -42,13 +36,21 @@ function positionIdHandler(req, res, next) {
   next()
 }
 
-swap.get('/pools', async (req, res) => {
+swap.get('/pools', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
   const network: Network = req.app.get('network')
 
-  const pools = await SwapPool.find({ chain: network.name }).select('-_id -__v').lean()
+  const query = { chain: network.name }
+
+  const { tokenA, tokenB } = req.query
+
+  if (tokenA) query['tokenA.id'] = tokenA
+  if (tokenB) query['tokenB.id'] = tokenB
+
+  const pools = await SwapPool.find(query).select('-_id -__v').lean()
   res.json(pools)
 })
-
 
 //swap.get('/:id/charts', defCache, async (req, res) => {
 swap.get('/charts', async (req, res) => {
@@ -206,14 +208,25 @@ swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
 
   const series = getLiquidityRangeChart(pool, tokenA, tokenB) || []
 
-  const result = series.map(s => {
-    const y = s.liquidityActive
+  // Normalizing y for using as js Number (liquidity value might exceed max Number in JS)
+  const yValues = series.map((s) => BigInt(s.liquidityActive)) // Преобразуем в BigInt массив
+  const yMin = yValues.reduce((min, val) => (val < min ? val : min), yValues[0])
+  const yMax = yValues.reduce((max, val) => (val > max ? val : max), yValues[0])
 
-    return {
-      x: parseFloat(s.price0),
-      y: parseFloat(y.toString())
-    }
-  }).filter(r => r.y > 0)
+  const scaleFactor = 100000000
+
+  const result = series
+    .map((s) => {
+      const y = BigInt(s.liquidityActive)
+
+      const normalizedY = Number(((y - yMin) * BigInt(scaleFactor)) / (yMax - yMin))
+
+      return {
+        x: parseFloat(s.price0),
+        y: normalizedY,
+      }
+    })
+    .filter((r) => r.y > 0)
 
   res.json(result)
 })
