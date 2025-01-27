@@ -446,22 +446,23 @@ export async function onSwapAction(message: string) {
     await throttledPoolUpdate(chain, data.poolId)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
 
-    try {
-      const quantityA = data.tokenA.quantity || data.tokenA.asset
-      const quantityB = data.tokenB.quantity || data.tokenB.asset
+    // Lead to high load
+    // try {
+    //   const quantityA = data.tokenA.quantity || data.tokenA.asset
+    //   const quantityB = data.tokenB.quantity || data.tokenB.asset
 
-      const contractA = data.tokenA.contract || data.tokenA.Contract
-      const contractB = data.tokenB.contract || data.tokenB.Contract
+    //   const contractA = data.tokenA.contract || data.tokenA.Contract
+    //   const contractB = data.tokenB.contract || data.tokenB.Contract
 
-      const tokenA_id = quantityA.split(' ')[1].toLowerCase() + '-' + contractA
-      const tokenB_id = quantityB.split(' ')[1].toLowerCase() + '-' + contractB
+    //   const tokenA_id = quantityA.split(' ')[1].toLowerCase() + '-' + contractA
+    //   const tokenB_id = quantityB.split(' ')[1].toLowerCase() + '-' + contractB
 
-      // Removing cache to re-generate swap routes
-      deleteKeysByPattern(redis, `*routes_*${tokenA_id}*`)
-      deleteKeysByPattern(redis, `*routes_*${tokenB_id}*`)
-    } catch (e) {
-      console.error('REMOVE CACHE ROUTES ERR', e, data)
-    }
+    //   // Removing cache to re-generate swap routes
+    //   deleteKeysByPattern(redis, `*routes_*${tokenA_id}*`)
+    //   deleteKeysByPattern(redis, `*routes_*${tokenB_id}*`)
+    // } catch (e) {
+    //   console.error('REMOVE CACHE ROUTES ERR', e, data)
+    // }
   }
 
   if (name == 'logswap') {
