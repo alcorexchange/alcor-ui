@@ -1,4 +1,13 @@
-{
+{ "SCK@alexflycreat": {
+    "name": "ShinChanKid",
+    "website": {
+      "link": "https://shinchankidcto.wixsite.com/premint",
+      "name": "shinchankidcto.wixsite.com/premint"
+      },
+    "tags": ["MEME", "ALGO", "DEX"],
+    "socials": ["https://t.me/Shinchankidverify", "https://bsky.app/profile/shinchankid.bsky.social"],
+    "description": "This is a meme token of a decentralized platform fund based on the Proof of Deflation Coin Burning consensus mechanism and the Buy Back concept using the LSTM algorithm."
+  },
   "WOA@worldventure": {
     "name": "World of Adventures",
     "website": {
