@@ -68,12 +68,10 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
       throw new Error('Initial cache updating')
     }
 
-    console.log('not updating, before updateCache', cacheKey, isUpdating, updatingKey)
     await updateCache(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey)
     redisRoutes = await redisClient.get('routes_' + cacheKey)
   } else if (isCacheExpired) {
     if (!isUpdating) {
-      console.log('expired, run background update', cacheKey)
       updateCache(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey).catch((error) =>
         console.error('Error updating cache in background:', error)
       )
@@ -95,7 +93,6 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
 }
 
 async function updateCache(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
-  console.log('start update cache', cacheKey)
   const startTime = performance.now()
   const updatingKey = 'updating_' + cacheKey
 

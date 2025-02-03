@@ -433,9 +433,7 @@ export const actions = {
     }
 
     try {
-      console.log('loadUserBalancesLightAPI1')
       await dispatch('loadUserBalancesLightAPI')
-      console.log('loadUserBalancesLightAPI2')
       //await dispatch('loadUserBalancesHyperion')
     } catch (e) {
       // console.log('Getting balances from Hyperion failed:', e)
