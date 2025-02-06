@@ -216,7 +216,7 @@ export default {
       ],
       proton: [
         {
-          link: 'https://www.atom3studio.com/',
+          link: 'https://metalseaxpr.com/',
           image: require('@/assets/images/swap-banner-xpr-1.gif'),
           colors: [
             'rgba(169,131,191,0.2)',
