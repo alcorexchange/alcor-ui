@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import fetch from 'cross-fetch'
 import { createClient } from 'redis'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
@@ -5,6 +6,11 @@ import { getMultyEndRpc } from '../utils/eosjs'
 import { Settings } from './models'
 
 const redis = createClient()
+
+export async function mongoConnect() {
+  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}?directConnection=true`
+  await mongoose.connect(uri)
+}
 
 export async function getTokens(chain: string) {
   if (!redis.isOpen) await redis.connect()
@@ -20,9 +26,15 @@ export async function getToken(chain: string, id: string) {
 
 export function getFailOverAlcorOnlyRpc(network) {
   // Try alcore's node first for updating orderbook
-  const nodes = [network.protocol + '://' + network.host + ':' + network.port]
+  let nodes = [network.protocol + '://' + network.host + ':' + network.port]
     .concat(Object.keys(network.client_nodes))
     .filter(n => n.includes('alcor'))
+
+  if (nodes.length == 0) {
+    console.warn('NOT FOUND ALCOR NODE FOR:', network.name)
+    nodes = [network.protocol + '://' + network.host + ':' + network.port]
+      .concat(Object.keys(network.client_nodes))
+  }
 
   const direct = process.env[network.name.toUpperCase() + '_DIRECT_NODE']
 
@@ -72,5 +84,30 @@ export async function getSettings(network: { name: string }) {
     console.log('db fail on get settinga, retry..', e)
     await new Promise(resolve => setTimeout(resolve, 1000))
     return await getSettings(network)
+  }
+}
+
+export async function deleteKeysByPattern(client, pattern) {
+  if (!client.isOpen) await client.connect()
+
+  let totalDeleted = 0
+
+  try {
+    // Получаем все ключи по заданному паттерну
+    const keys = await client.keys(pattern)
+
+    if (keys.length > 0) {
+      // Удаляем найденные ключи
+      const deletedCount = await client.del(keys)
+      totalDeleted += deletedCount
+      console.log(`Deleted ${deletedCount} keys matching the pattern "${pattern}".`)
+    } else {
+      console.log(`No keys found matching the pattern "${pattern}".`)
+    }
+
+    return totalDeleted
+  } catch (error) {
+    console.error('Error while deleting keys:', error)
+    throw error
   }
 }

@@ -65,7 +65,7 @@ export async function streamByHyperion(
   account: string,
   callback: Function,
   actions: string[],
-  delay: number = 1000
+  delay: number = 10000
 ) {
   console.info(`Start Hyperion updater for ${network.name} (${account})...`)
 
@@ -82,8 +82,7 @@ export async function streamByHyperion(
       const startTime = performance.now()
 
       // Build the Hyperion API URL
-      const url = `${network.hyperion}/v2/history/get_actions?limit=100&skip=${skip}&account=${account}&sort=-1`
-      console.log({ url })
+      const url = `${network.hyperion}/v2/history/get_actions?limit=100&skip=${skip}&account=${account}&sort=1`
 
       // Fetch the data from Hyperion
       const response = await fetch(url)
@@ -115,6 +114,9 @@ export async function streamByHyperion(
 
       // Hyperion stores the actual action data under `act`
       if (actions.includes(action.act.name)) {
+        // Formatting for greymass standart
+        action.block_time = action.timestamp
+
         await callback(action, network)
       }
     }

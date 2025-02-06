@@ -65,7 +65,6 @@ alcor-container.p-3.w-100.chart-container-inner
 </template>
 
 <script>
-import JSBI from 'jsbi'
 import { mapGetters, mapState } from 'vuex'
 
 import { Price, Q128 } from '@alcorexchange/alcor-swap-sdk'
@@ -160,7 +159,7 @@ export default {
 
       if (sortedA && sortedB) {
         data = this.charts.map((c) => {
-          const price = new Price(sortedA, sortedB, Q128, JSBI.multiply(JSBI.BigInt(c.price), JSBI.BigInt(c.price)))
+          const price = new Price(sortedA, sortedB, Q128, BigInt(c.price) * BigInt(c.price))
 
           return {
             x: c._id,

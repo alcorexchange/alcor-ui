@@ -17,8 +17,8 @@ no-ssr
         el-radio-button(:label='network.baseToken.symbol')
           span {{ network.baseToken.symbol }}
 
-        el-radio-button(:label="network.USD_TOKEN.split('-')[0].toUpperCase()")
-          span {{ network.USD_TOKEN.split('-')[0].toUpperCase() }}
+        el-radio-button(label="USD")
+          span USD
 
         el-radio-button(value='cross-chain', label='Cross-Chain')
           span {{ $t('Cross-Chain') }}
@@ -197,7 +197,8 @@ export default {
         case this.network.baseToken.symbol:
           markets = this.markets.filter(
             i => i.base_token.symbol.name == this.network.baseToken.symbol ||
-            this.network.USD_TOKEN == i.base_token.str.replace('@', '-').toLowerCase()
+            //this.network.USD_TOKEN == i.base_token.str.replace('@', '-').toLowerCase() ||
+            i.base_token.id == 'waxusdc-eth.token'
           )
           break
 
@@ -207,10 +208,18 @@ export default {
           )
           break
 
-        case this.network.USD_TOKEN.split('-')[0].toUpperCase():
+        case 'USD':
+          // TODO All usdt tokens
           markets = this.markets.filter((i) => {
-            return this.network.USD_TOKEN.includes(i.base_token.contract) ||
-              this.network.USD_TOKEN.includes(i.quote_token.contract)
+            //console.log('z', [i.quote_token.symbol.name, i.base_token.symbol.name], [i.quote_token.symbol.name, i.base_token.symbol.name].some(s => s.includes('USD')))
+
+            return (
+              this.network.USD_TOKEN.includes(i.base_token.contract) || this.network.USD_TOKEN.includes(i.quote_token.contract) ||
+
+              // TODO add config for USD tokens!
+              ([i.quote_token.contract, i.base_token.contract].includes('eth.token') && [i.quote_token.symbol.name,
+                i.base_token.symbol.name].some(s => s.includes('USD')))
+            )
           })
           break
 

@@ -109,5 +109,18 @@ module.exports = {
       },
       //cron_restart: '0 * * * *'
     },
+
+    {
+      name: 'Alcor-swap-service',
+      script: './lib/server/services/swapV2Service/start.js',
+      restart_delay: 10000,
+      kill_timeout: 10000,
+    },
+    {
+      name: 'Alcor-chainEvent-service',
+      script: './lib/server/services/chainEventService/index.js',
+      restart_delay: 10000,
+      kill_timeout: 10000,
+    },
   ],
 }

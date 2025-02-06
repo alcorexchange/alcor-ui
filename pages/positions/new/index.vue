@@ -138,7 +138,6 @@ import {
   TickMath, Rounding, priceToClosestTick, tickToPrice, Fraction
 } from '@alcorexchange/alcor-swap-sdk'
 
-import JSBI from 'jsbi'
 import { mapActions, mapState, mapGetters } from 'vuex'
 
 import AlcorButton from '~/components/AlcorButton'
@@ -274,7 +273,7 @@ export default {
       const fees = {}
 
       // Default 1 so to not get devision by 0
-      const totalLiquidity = currnetPools.reduce((total, b) => JSBI.add(total, JSBI.BigInt(b.liquidity)), JSBI.BigInt(1))
+      const totalLiquidity = currnetPools.reduce((total, b) => total + b.liquidity, 1n)
 
       currnetPools.forEach(p => {
         fees[p.fee] = parseInt((parseFloat(new Fraction(p.liquidity, totalLiquidity).toFixed(6)) * 100).toFixed())
@@ -386,7 +385,7 @@ export default {
     price() {
       const { sortedA, sortedB, startPriceTypedValue, invertPrice, pool } = this
 
-      if (!this.pool) {
+      if (!this.pool && parseFloat(startPriceTypedValue) != 0) {
         // if no liquidity use typed value
         const parsedQuoteAmount = tryParseCurrencyAmount(startPriceTypedValue, invertPrice ? sortedA : sortedB)
         if (parsedQuoteAmount && sortedA && sortedB) {

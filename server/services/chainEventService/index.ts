@@ -3,6 +3,7 @@ require('dotenv').config()
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
+import { mongoConnect } from '../../utils'
 import { start } from './start'
 
 const redisClient = createClient()
@@ -11,8 +12,7 @@ async function makeConnections() {
   if (!redisClient.isOpen) await redisClient.connect()
   console.log('Redis connected..')
 
-  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+  await mongoConnect()
   console.log('MongoDB connected!')
 }
 

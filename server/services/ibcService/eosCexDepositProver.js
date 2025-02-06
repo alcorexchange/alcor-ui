@@ -72,7 +72,7 @@ export async function eosCexDepsitsWorker() {
   while (true) {
     try {
       await transferDeposits()
-      await sleep(5000)
+      await sleep(15000)
     } catch (e) {
       console.error('EOS DEPOSITS WORKER ERR:', e)
     }

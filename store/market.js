@@ -17,6 +17,7 @@ export const state = () => ({
 
   slug: '',
   symbol: '',
+  scam: false,
   meta: {},
 
   base_token: {},
@@ -189,8 +190,9 @@ export const mutations = {
   backupChartOrdersSettings: state => state.backup_orders_settings = state.chart_orders_settings,
   setChartOrdersSettingsFromBackup: state => state.chart_orders_settings = state.backup_orders_settings || state.chart_orders_settings,
   setMarket: (state, market) => {
-    const { id, base_token, quote_token, slug } = market
+    const { id, base_token, quote_token, slug, scam } = market
 
+    state.scam = scam
     state.id = id
     state.slug = slug
     state.symbol = quote_token.symbol.name + '/' + base_token.symbol.name
@@ -423,9 +425,8 @@ export const actions = {
       commit('SET_AMOUNT_SELL', amount)
     }
   },
-  async calcAndSetTotal({ state, commit, dispatch }) {
-    console.log('calcAndSetTotal', state.amount_buy)
 
+  async calcAndSetTotal({ state, commit, dispatch }) {
     if (state.amount_buy > 0) {
       const totalBuy = await dispatch('calculateTotal', { amount: state.amount_buy })
       commit('SET_TOTAL_BUY', totalBuy)

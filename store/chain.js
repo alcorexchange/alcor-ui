@@ -9,6 +9,7 @@ import AnchoWallet from '~/plugins/wallets/Anchor'
 import ProtonWallet from '~/plugins/wallets/Proton'
 import ScatterWallet from '~/plugins/wallets/Scatter'
 import WombatWallet from '~/plugins/wallets/Wombat'
+import Ultra from '~/plugins/wallets/Ultra'
 
 export const state = () => ({
   loginPromise: null,
@@ -34,7 +35,12 @@ export const actions = {
       scatter: ScatterWallet,
       wcw: WCW,
       proton: ProtonWallet,
-      wombat: WombatWallet
+      wombat: WombatWallet,
+      ultra: Ultra,
+    }
+
+    if (rootState.user?.name) {
+      dispatch('afterLoginHook')
     }
 
     commit('setWallets', wallets)
@@ -649,7 +655,7 @@ export const actions = {
     { state, rootState, dispatch, getters, commit },
     actions
   ) {
-    if (actions && actions[0].name != 'delegatebw' && state.lastWallet != 'wcw') {
+    if (actions && actions[0].name != 'delegatebw' && state.lastWallet != 'wcw' && !['ultra'].includes(rootState.network.name)) {
       await dispatch('resources/showIfNeeded', undefined, { root: true })
     }
 
@@ -665,7 +671,12 @@ export const actions = {
         { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
       )
 
-      // TODO Manage leap soon
+      // TODO Make one standart for success tx response
+      if (state.wallet.name == 'ultra') {
+        console.log('signedTx', signedTx)
+        return signedTx
+      }
+
       const packedTx = {
         signatures: signedTx.signatures,
         serializedTransaction: signedTx.resolved

@@ -5,12 +5,13 @@ import findIndex from 'lodash/findIndex'
 
 import { parseToken } from '~/utils/amm'
 import { parseAsset, make256key, nameToUint64 } from '~/utils'
+import { loadAccountBalancesHyperion } from '~/utils/api'
 
 export const strict = false
 
 export const state = () => ({
   user: null,
-  //user: { name: 'liquid.mars' },
+  //user: { name: 'neyau.wam' },
   userBalances: [],
   userDeals: [],
   userOrders: [],
@@ -262,7 +263,12 @@ export const actions = {
       m.symbol = quote_token.symbol.name + ' / ' + base_token.symbol.name
       m.slug = (quote_token.str + '_' + base_token.str).toLowerCase().replace(/@/g, '-') // TODO change to ticker_id
       m.promoted = state.network.PINNED_MARKETS.includes(m.id)
-      m.scam = state.network.SCAM_CONTRACTS.includes(quote_token.contract)
+
+      m.scam =
+        state.network.SCAM_CONTRACTS.includes(quote_token.contract) ||
+        state.network.SCAM_CONTRACTS.includes(base_token.contract) ||
+        state.network.SCAM_TOKENS.includes(quote_token.id) ||
+        state.network.SCAM_TOKENS.includes(base_token.id)
 
       m.i256 = make256key(base_token.contract, base_token.symbol.name, quote_token.contract, quote_token.symbol.name)
     })
@@ -419,7 +425,13 @@ export const actions = {
     })
   },
 
-  async loadUserBalances({ dispatch }) {
+  async loadUserBalances({ dispatch, state }) {
+    //console.log('loadUserBalances')
+    if (!state.network.lightapi) {
+      //console.log('requests balances using hyperion')
+      return dispatch('loadUserBalancesHyperion')
+    }
+
     try {
       await dispatch('loadUserBalancesLightAPI')
       //await dispatch('loadUserBalancesHyperion')
@@ -467,40 +479,35 @@ export const actions = {
   async loadUserBalancesLightAPI({ state, commit }) {
     if (!state.user) return
 
-    try {
-      const url = `${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`
-      const response = await axios.get(url)
-      const data = response.data
-      const blockTime = new Date(data.chain.block_time + ' UTC')
-      const timeDiff = (new Date() - blockTime) / 1000
+    const url = `${state.network.lightapi}/api/balances/${state.network.name}/${state.user.name}`
+    const response = await axios.get(url)
+    const data = response.data
+    const blockTime = new Date(data.chain.block_time + ' UTC')
+    const timeDiff = (new Date() - blockTime) / 1000
 
-      if (timeDiff > 60) {
-        throw new Error('LightAPI sync is more than one minute out.')
-      }
+    if (timeDiff > 60) {
+      throw new Error('LightAPI sync is more than one minute out.')
+    }
 
-      if (Array.isArray(data.balances) && data.balances.length) {
-        // Использование Map ускоряет доступ к ценам токенов
-        const tokenPrices = new Map(state.tokens.map((t) => [t.id, t.usd_price]))
+    if (Array.isArray(data.balances) && data.balances.length) {
+      // Использование Map ускоряет доступ к ценам токенов
+      const tokenPrices = new Map(state.tokens.map((t) => [t.id, t.usd_price]))
 
-        const balances = data.balances
-          .filter((b) => parseFloat(b.amount) > 0)
-          .map((token) => {
-            const id = `${token.currency}@${token.contract}`
-            const tokenKey = id.replace('@', '-').toLowerCase()
-            const price = tokenPrices.get(tokenKey) || 0
-            return {
-              ...token,
-              id,
-              usd_value: parseFloat(token.amount) * price,
-            }
-          })
+      const balances = data.balances
+        .filter((b) => parseFloat(b.amount) > 0)
+        .map((token) => {
+          const id = `${token.currency}@${token.contract}`
+          const tokenKey = id.replace('@', '-').toLowerCase()
+          const price = tokenPrices.get(tokenKey) || 0
+          return {
+            ...token,
+            id,
+            usd_value: parseFloat(token.amount) * price,
+          }
+        })
 
-        commit('setLihgHistoryBlock', data.chain.block_num)
-        commit('setUserBalances', balances)
-        console.log({ balances })
-      }
-    } catch (error) {
-      console.error('Error loading user balances:', error)
+      commit('setLihgHistoryBlock', data.chain.block_num)
+      commit('setUserBalances', balances)
     }
   },
 
@@ -508,31 +515,8 @@ export const actions = {
   async loadUserBalancesHyperion({ state, rootState, commit }) {
     console.log('loadUserBalances..')
     if (state.user) {
-      const { data } = await axios.get(`${state.network.hyperion}/v2/state/get_tokens`, {
-        params: { account: rootState.user.name, limit: 10000 },
-      })
-
-      if (Array.isArray(data?.tokens) && data.tokens.length) {
-        const tokenPrices = new Map(state.tokens.map((t) => [t.id, t.usd_price]))
-
-        const balances = data.tokens
-          .filter((b) => parseFloat(b.amount) > 0)
-          .map((token) => {
-            const id = `${token.symbol}@${token.contract}`
-            const tokenKey = id.replace('@', '-').toLowerCase()
-            const price = tokenPrices.get(tokenKey) || 0
-
-            return {
-              ...token,
-              id,
-              currency: token.symbol,
-              decimals: token.precision,
-              usd_value: parseFloat(token.amount) * price,
-            }
-          })
-
-        commit('setUserBalances', balances)
-      }
+      const balances = await loadAccountBalancesHyperion(rootState.user.name, state.network.hyperion, state.tokens)
+      commit('setUserBalances', balances)
     }
   },
 

@@ -2,6 +2,7 @@ require('dotenv').config()
 
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
+import { mongoConnect } from '../../utils'
 import { throttledPoolUpdate } from '.'
 
 const redis = createClient()
@@ -9,8 +10,7 @@ const subscriber = redis.duplicate()
 const publisher = redis.duplicate()
 
 export async function connectAll() {
-  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+  await mongoConnect()
 
   // Redis
   if (!redis.isOpen) {
@@ -27,7 +27,9 @@ export async function main() {
   subscriber.pSubscribe('chainAction:*:swap.alcor:*', action => {
     const { chain, name, data } = JSON.parse(action)
 
-    if (['logmint', 'logburn', 'logswap', 'logcollect', 'transferpos'].includes(name)) {
+  // if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
+
+    if (['logmint', 'logburn', 'logswap', 'logcollect', 'transferpos', 'logpool'].includes(name)) {
       console.log('subscribe pool update', { chain, name, poolId: data.poolId })
       throttledPoolUpdate(chain, Number(data.poolId))
     }

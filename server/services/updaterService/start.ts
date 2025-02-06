@@ -20,8 +20,8 @@ export function startUpdaters() {
   if (process.env.NETWORK) {
     console.log('NETWORK=', process.env.NETWORK)
     //updater(process.env.NETWORK, 'node', ['swap', 'prices', 'markets'])
-    //updater(process.env.NETWORK, 'node', ['swap'])
-    updater('ultra', 'hyperion', ['markets'])
+    updater(process.env.NETWORK, 'node', ['swap'])
+    //updater(process.env.NETWORK, 'hyperion', ['swap'])
   } else {
     updater('eos', 'node', ['markets', 'prices', 'swap'])
     updater('wax', 'node', ['markets', 'prices', 'swap'])
@@ -46,7 +46,7 @@ export async function updater(chain, provider, services) {
 
   // TODO Remove after test
   try {
-    await updateGlobalStats(network)
+    await updateGlobalStats(network, null, provider)
   } catch (e) {
     console.log('GlobalStats err', e)
   }
@@ -60,8 +60,8 @@ export async function updater(chain, provider, services) {
 
     updateTokensPrices(network)
 
-    setInterval(() => updateSystemPrice(network), 3 * 60 * 1000)
-    setInterval(() => updateTokensPrices(network), 1 * 60 * 1000)
+    setInterval(() => updateSystemPrice(network), 5 * 60 * 1000)
+    setInterval(() => updateTokensPrices(network), 5 * 60 * 1000)
   }
 
   if (services.includes('markets')) {
@@ -71,7 +71,7 @@ export async function updater(chain, provider, services) {
     await updateMarkets(network)
     console.timeEnd('update markets for ' + network.name)
 
-    setInterval(() => updateMarkets(network), 1 * 60 * 1000)
+    setInterval(() => updateMarkets(network), 3 * 60 * 1000)
 
     streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
       // Production PM2 should restart updater after it

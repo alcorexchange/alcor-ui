@@ -46,7 +46,7 @@ async function getActions(chain, account, params = {}) {
       params: {
         account,
         'act.name': 'emitxfer',
-        limit: 50,
+        limit: 100,
         skip: xfers.length,
         sort: -1,
         ...params
@@ -55,10 +55,16 @@ async function getActions(chain, account, params = {}) {
 
     xfers.push(...actions)
 
+    // GET ONLY LAST 100
+    break
+
     if (xfers.length == total.value) {
       break
     }
   }
+
+  // from oldest to nevest
+  xfers.sort((a, b) => a.block_num - b.block_num)
 
   return xfers
 }
@@ -153,8 +159,8 @@ async function main() {
   const ibcTokens = await getWrapLockContracts(chains)
 
   await Promise.all([
-    WaxToEosWorker(ibcTokens),
-    eosToWaxWorker(ibcTokens),
+    //WaxToEosWorker(ibcTokens),
+    //eosToWaxWorker(ibcTokens),
     eosCexDepsitsWorker()
   ])
 }

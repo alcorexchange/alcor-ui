@@ -117,6 +117,7 @@ export default {
   computed: {
     ...mapState(['network', 'user']),
     ...mapGetters('farms', ['farmPools']),
+    ...mapGetters('amm/liquidity', ['tokens']),
 
     activeIncentivesLength() {
       const poolId = this.poolId
@@ -183,48 +184,6 @@ export default {
         ...feeToken,
         quantity: this.network.farmCreationFee.amount.toFixed(feeToken.decimals) + ' ' + feeToken.symbol,
       }
-    },
-
-    tokens() {
-      const tokens = []
-
-      this.$store.state.amm.pools.forEach((p) => {
-        const tokenA = parseToken(p.tokenA)
-        const tokenB = parseToken(p.tokenB)
-
-        if (
-          this.network.SCAM_CONTRACTS.includes(tokenA.contract) ||
-          this.network.SCAM_CONTRACTS.includes(tokenB.contract)
-        ) {
-          return
-        }
-
-        if (tokens.filter((t) => t.id == tokenA.id).length == 0) tokens.push(tokenA)
-        if (tokens.filter((t) => t.id == tokenB.id).length == 0) tokens.push(tokenB)
-      })
-
-      return tokens
-    },
-
-    pools() {
-      const pools = [...this.$store.state.amm.poolsStats]
-      return (
-        pools
-          // sort by pool fee
-          .sort((poolA, poolB) => {
-            if (poolA.fee < poolB.fee) return -1
-            if (poolA.fee > poolB.fee) return 1
-            return 0
-          })
-          // sort by token symbols
-          .sort((poolA, poolB) => {
-            const poolATokens = poolA.tokenA.symbol + poolA.tokenB.symbol
-            const poolBTokens = poolB.tokenA.symbol + poolB.tokenB.symbol
-            if (poolATokens < poolBTokens) return -1
-            if (poolATokens > poolBTokens) return 1
-            return 0
-          })
-      )
     },
 
     rewardTokens() {
@@ -355,7 +314,7 @@ export default {
         reverse: true,
       })
 
-      let lastIncentiveId = lastIncentive?.id ?? -1 // In case no incentives yet
+      let lastIncentiveId = lastIncentive?.id ?? 0 // In case no incentives yet
 
       this.rewardList.forEach((r) => {
         lastIncentiveId += 1

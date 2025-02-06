@@ -10,6 +10,7 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
+import { mongoConnect } from '../../utils'
 import upload from './upload.js'
 
 import { networkResolver } from './middleware.js'
@@ -25,8 +26,7 @@ async function start () {
   //db sync
   if (!process.env.DISABLE_DB) {
     try {
-      const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-      await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+      await mongoConnect()
       console.log('MongoDB connected!')
     } catch (e) {
       console.log('MongoDB connect err: ', e)

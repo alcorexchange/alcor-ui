@@ -59,7 +59,7 @@ export default {
       navigator.clipboard.writeText('w.ibc.alcor')
       this.$notify({
         title: 'Clipboard',
-        message: 'Address name copyed to Clipboard',
+        message: 'Address name copied to Clipboard',
         type: 'info'
       })
     },
@@ -68,7 +68,7 @@ export default {
       navigator.clipboard.writeText(this.memo)
       this.$notify({
         title: 'Clipboard',
-        message: 'Account name copyed to Clipboard',
+        message: 'Account name copied to Clipboard',
         type: 'info'
       })
     },

@@ -3,10 +3,11 @@ import axios from 'axios'
 import { SwapPool, Market, Match, GlobalStats, PositionHistory, Swap } from '../../models'
 import { getOrderbook } from '../orderbookService/start'
 import { getTokens } from '../../utils'
+import { loadAccountBalancesHyperion } from '../../../utils/api'
 
 const MIN_SYSTEM_TVL = 100
 
-export async function updateGlobalStats(network, day?) {
+export async function updateGlobalStats(network, day = null, provider = 'node') {
   console.log('fetching global stats for', network.name)
 
   const now = day || new Date()
@@ -64,7 +65,15 @@ export async function updateGlobalStats(network, day?) {
   }
 
   let spotValueLocked = 0
-  const { data: { balances } } = await axios.get(`${network.lightapi}/api/balances/${network.name}/${network.contract}`)
+  let balances = []
+
+  console.log({ tokens })
+  if (provider == 'hyperion') {
+    balances = await loadAccountBalancesHyperion(network.contract, network.hyperion, tokens)
+  } else {
+    const { data } = await axios.get(`${network.lightapi}/api/balances/${network.name}/${network.contract}`)
+    balances = data.balances
+  }
 
   for (const balance of balances) {
     const price = tokens.find(t => t.id == (balance.currency + '-' + balance.contract).toLowerCase())?.usd_price || 0

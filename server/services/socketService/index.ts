@@ -5,7 +5,8 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import mongoose from 'mongoose'
 
-import { Match, Bar } from '../../models'
+import { mongoConnect } from '../../utils'
+import { Match, Bar, SwapBar } from '../../models'
 
 import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
@@ -24,8 +25,8 @@ httpServer.listen(process.env.PORT || 7002, function () {
 })
 
 async function main() {
-  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+  await mongoConnect()
+
   await client.connect()
   await subscriber.connect()
 
@@ -48,14 +49,12 @@ async function main() {
     unsubscribe(io, socket)
   })
 
-  Match.watch().on('change', (op) => {
-    if (op.operationType != 'insert') return
-
+  Match.watch([{ $match: { operationType: 'insert' } }]).on('change', (op: any) => {
     pushDeal(io, op.fullDocument)
     pushAccountNewMatch(io, op.fullDocument)
   })
 
-  Bar.watch().on('change', async (op) => {
+  Bar.watch([], { batchSize: 200 }).on('change', async (op) => {
     let bar
 
     if (op.operationType == 'update') {
@@ -68,6 +67,21 @@ async function main() {
     const { chain, market, timeframe, time, close, open, high, low, volume } = bar
     const tick = { close, open, high, low, volume, time: new Date(time).getTime() }
     io.to(`ticker:${chain}.${market}.${timeframe}`).emit('tick', tick)
+  })
+
+  SwapBar.watch([], { batchSize: 200 }).on('change', async (op) => {
+    let bar
+
+    if (op.operationType == 'update') {
+      const { documentKey: { _id } } = op
+      bar = await SwapBar.findById(_id)
+    } else if (op.operationType == 'insert') {
+      bar = op.fullDocument
+    }
+
+    const { chain, pool, timeframe, time, close, open, high, low, volumeUSD } = bar
+    const tick = { close, open, high, low, volumeUSD, time: new Date(time).getTime() }
+    io.to(`swap-ticker:${chain}.${pool}.${timeframe}`).emit('swap-tick', tick)
   })
 
   subscriber.subscribe('orderbook_update', msg => {

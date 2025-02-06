@@ -1,44 +1,16 @@
 <template lang="pug">
-  alcor-container
-    el-button(@click="test") Test
-    el-button(@click="openCreatePoolModal") Create Pool
-
-    hr
-
-    .token-input
-      el-input(placeholder="amount" v-model="input" type="text")
-        template(slot="append")
-          select-token(:tokens="tokens" @selected="setToken")
-
-    hr
-
-    | range..
-    hr
-
-    //RangeSelector(
-      v-if="pool"
-      currencyA="baseCurrency || undefined"
-      currencyB="quoteCurrency || undefined"
-      feeAmount="feeAmount}"
-      ticksAtLimit="ticksAtLimit"
-      price="price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined"
-      priceLower="priceLower"
-      priceUpper="priceUpper"
-      onLeftRangeInput="onLeftRangeInput"
-      onRightRangeInput="onRightRangeInput"
-      interactive="!hasExistingPosition")
+alcor-container
+  el-button(@click="test") Test
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
 
-import SelectToken from '~/components/modals/amm/SelectToken2'
 import AlcorContainer from '~/components/AlcorContainer'
-import TokenImage from '~/components/elements/TokenImage'
 
 export default {
   layout: 'test',
-  components: { AlcorContainer, TokenImage, SelectToken },
+  components: { AlcorContainer },
 
   data: () => {
     return {
@@ -49,34 +21,42 @@ export default {
   computed: {
     ...mapState(['user', 'network']),
 
-    tokens() {
-      return this.user?.balances || []
-    },
-
-    //ticksAtLimit() {
-    //  return {
-    //    [Bound.LOWER]: feeAmount && tickLower === tickSpaceLimits.LOWER,
-    //    [Bound.UPPER]: feeAmount && tickUpper === tickSpaceLimits.UPPER,
-    //  }
-    //}
   },
 
   created() {
-    //this.$store.dispatch('amm/placePosition')
   },
 
   methods: {
     ...mapActions('modal', ['createPool', 'assets']),
 
-    setToken(token) {
-      console.log('selected token', token)
-    },
-
-    openCreatePoolModal() {
-      this.createPool()
-    },
-
     async test() {
+      const wallet = this.$store.state.chain.wallet
+      const signProvider = wallet.session.link.makeSignatureProvider()
+
+      function bytesToHex(bytes) {
+        return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+      }
+
+      // Пример: создание hex строки из массива байтов
+      const byteArray = [0, 255, 128, 64, 32]
+      const hexString = bytesToHex(byteArray)
+
+
+      const data = {
+        chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
+
+        requiredKeys: ['EOS7cFXxd9456zKamT2X6k9W6RktmcWyM4Gx5x3egKfxRY8VS1ii7'],
+
+        /** Transaction to sign */
+        serializedTransaction: hexString,
+
+        abis: []
+      }
+
+      const r = await signProvider.sign(data)
+
+      console.dir(r)
+
     }
   }
 }

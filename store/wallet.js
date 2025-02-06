@@ -33,25 +33,28 @@ export const getters = {
     const result = userBalances.map((token) => {
       const id = `${token.currency}-${token.contract}`.toLowerCase()
       const tokenData = tokens.find((t) => t.id === id)
-      const price = tokenData ? tokenData.usd_price : 0
-      const usd_value = parseFloat(token.amount) * price
+      const usd_price = tokenData ? tokenData.usd_price : 0
+      const system_price = tokenData ? tokenData.system_price : 0
+      const usd_value = parseFloat(token.amount) * usd_price
 
       return {
         ...token,
         id,
         symbol: token.currency,
+        usd_price,
+        system_price,
         usd_value,
       }
     })
 
     // Check and add a default entry for 'usdt.alcor' on the 'wax' network if it does not exist
-    if (network.name === 'wax' && !result.some((b) => b.currency === 'USDT' && b.contract === 'usdt.alcor')) {
+    if (network.name === 'wax' && !result.some((b) => b.currency === 'WAXUSDC' && b.contract === 'eth.token')) {
       result.push({
-        currency: 'USDT',
-        contract: 'usdt.alcor',
-        decimals: 4,
+        currency: 'WAXUSDC',
+        contract: 'eth.token',
+        decimals: 6,
         amount: 0,
-        id: 'usdt-usdt.alcor', // Match the ID format of other entries
+        id: 'waxusdc-eth.token', // Match the ID format of other entries
         usd_value: 0,
       })
     }
@@ -59,7 +62,7 @@ export const getters = {
     result.sort((a, b) => {
       const { baseToken, name } = network
 
-      if (name === 'wax' && a.contract === 'usdt.alcor') {
+      if (name === 'wax' && a.currency === 'WAXUSDC' && a.contract === 'eth.token') {
         return -1
       }
 

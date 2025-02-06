@@ -129,8 +129,8 @@
     AuthOnly.w-100.mt-2
       AlcorButton.w-100.submit(@click="submit" big access :disabled="!canSubmit || loading" :class="{ disabled: !canSubmit }") {{ renderSubmitText }}
   RandomBanner(
-    v-if="!hideBanner"
-    :banners="banners"
+    v-if="!hideBanner && networkBanners?.length"
+    :banners="networkBanners"
   )
 </template>
 
@@ -202,26 +202,30 @@ export default {
     swapListener: null,
 
     rateInverted: false,
-    banners: [
-      {
-        link: 'https://www.wuffi.io/',
-        image: require('@/assets/images/swap-banner-1.jpg'),
-        colors: [
-          'rgba(78,24,168,0.2)',
-          'rgba(230,145,54, 1)',
-          'rgba(35,216,186,1)',
-        ],
-      },
-      // {
-      //   link: 'https://machiavellic.io/season-0-1/',
-      //   image: require('@/assets/images/swap-banner-2.gif'),
-      //   colors: [
-      //     'rgba(177,14,20,0.2)',
-      //     'rgba(224,193,131,1)',
-      //     'rgba(225,103,51, 1)',
-      //   ],
-      // },
-    ]
+    banners: {
+      wax: [
+        {
+          link: 'https://maxylab.com/wax-holidays/',
+          image: require('@/assets/images/swap-banner-3.gif'),
+          colors: [
+            'rgba(221,74,95,0.2)',
+            'rgba(183,44,47, 1)',
+            'rgba(129,22,25,1)',
+          ],
+        },
+      ],
+      proton: [
+        {
+          link: 'https://metalseaxpr.com/',
+          image: require('@/assets/images/swap-banner-xpr-1.gif'),
+          colors: [
+            'rgba(169,131,191,0.2)',
+            'rgba(78,54,128, 1)',
+            'rgba(249,212,232,1)',
+          ],
+        },
+      ]
+    }
   }),
 
   fetch() {
@@ -271,6 +275,9 @@ export default {
   },
 
   computed: {
+    networkBanners() {
+      return this.banners[this.network.name]
+    },
     rate() {
       const { rateInverted, price, priceInverted } = this
 

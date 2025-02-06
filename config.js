@@ -107,6 +107,7 @@ const networks = {
 
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: [
       'usdcoinchain',
       'effectaiswap',
@@ -158,7 +159,7 @@ const networks = {
       id: 'xpr-eosio.token'
     },
 
-    marketCreationFee: '1000.0000 XPR',
+    marketCreationFee: '10000.0000 XPR',
     feeAccount: 'avral',
 
     chainId: '384da888112027f0321850a169f737c33e53b388aad48b5adace4bab97f437e0',
@@ -214,11 +215,20 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
-    PINNED_MARKETS: [493],
+    PINNED_MARKETS: [493, 715, 836, 1089],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [
+      'xusdt-tokencreate', 'xusdt-tokencreate'
+    ],
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
-      'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet'
+      'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet', 'liquidtokens', 'metaltoken',
+      'quantnetwork', 'xtokeneosio', 'xflare', 'sui.xpr', 'thorchain', 'xrpl2', 'sologenicxpr', 'eosioavax', 'xahaunetwork',
+      'celestia', 'moneroxmr', 'arbitrum', 'toncoinxpr', 'polkadotx', 'hederax', 'icpx', 'protoninj', 'protonfile', 'xlinkchain',
+      'nearx', 'celestia.xpr', 'optimism.xpr', 'ecash.xpr', 'fantomx', 'algorandx', 'casinoxpr', 'galagamesx', 'xcore.xpr', 'xports',
+      'xopencoinx', 'protonsara', 'audius', 'bep2', 'sonicx', 'zcashxpr', 'aptos.xpr', 'braveprivacy', 'waxblock',
+      'tronx', 'polkadotx', 'seinetwork', 'deroq', 'loantokens', 'xsport', 'alcorex', 'infinitybend', 'infinityhash', 'lcorex',
+      'toilet', 'infinityhash', 'infinitybend', 'stellarx', 'btccash',
     ],
     CEX_CONTRACTS: [],
 
@@ -228,7 +238,7 @@ const networks = {
 
     USD_TOKEN: 'xusdc-xtokens',
 
-    popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens'],
+    popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens', 'clan-clanx', 'atom-tokencreate'],
     GLOBAL_TOKENS: [],
   },
 
@@ -249,7 +259,7 @@ const networks = {
 
     chainId: '8fc6dce7942189f842170de953932b1f66693ad3788f766e777b6f9d22335c02',
 
-    host: 'api.uxnetwork.io',
+    host: 'ux.eosusa.io',
     port: 443,
     protocol: 'https',
     monitor: 'https://explorer.uxnetwork.io',
@@ -262,7 +272,7 @@ const networks = {
     //backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      'https://explorer.uxnetwork.io': 'UX Explorer',
+      'https://ux.eosusa.io': 'UX Explorer',
     },
 
     otc: {
@@ -295,7 +305,7 @@ const networks = {
     ibc: {
       name: 'ux',
       returnValueEnabled: false,
-      proofSockets: ['wss://ibc-server.uxnetwork.io/ux'],
+      proofSockets: ['wss://ibc-server.uxnetwork.io/ux', 'wss://ux.eosusa.io/ibc'],
 
       wrapLockContracts: {
         'ibc.prove': ['ibc.wl.eos', 'ibc.wl.tlos', 'ibc.wl.wax'],
@@ -310,6 +320,7 @@ const networks = {
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
 
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: [],
 
     CEX_CONTRACTS: [],
@@ -349,8 +360,8 @@ const networks = {
     monitor: 'http://wax.bloks.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
-    hyperion: 'https://wax-history.eosdac.io',
-    //hyperion: 'https://wax.eu.eosamsterdam.net',
+    //hyperion: 'https://wax-history.eosdac.io',
+    hyperion: 'https://wax.eu.eosamsterdam.net',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',
@@ -417,12 +428,16 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [
+      843,
+      910,
+
+      // other
       /* USDT put others after */ 763,
-      185,
-      843
+      // 185,
     ],
     BANNER_MARKETS: [],
 
+    SCAM_TOKENS: [''],
     SCAM_CONTRACTS: [
       'okbtothemoon',
       'huobideposit',
@@ -461,7 +476,8 @@ const networks = {
 
     popularTokens: [
       'wax-eosio.token',
-      'usdt-usdt.alcor',
+      'waxusdc-eth.token',
+      //'usdt-usdt.alcor',
       //'eos-ibc.wt.eos',
       //'wombat-wombattokens',
       //'cred-musictoken',
@@ -546,6 +562,7 @@ const networks = {
 
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain', 'bosibc.io'],
     CEX_CONTRACTS: [],
 
@@ -595,11 +612,16 @@ const networks = {
     protocol: 'https',
     monitor: 'https://explorer.mainnet.ultra.io',
     monitor_params: '',
-    lightapi: 'https://mainnet.ultra.io',
-    hyperion: 'https://ultra.eosusa.io',
+    lightapi: null,
+    //hyperion: 'https://ultra.eosusa.io',
+    hyperion: 'https://api.ultra.eossweden.org',
 
     client_nodes: {
+      'https://ultra.eosusa.io': 'USA',
       'https://api.mainnet.ultra.io': 'Ultra.io',
+      'http://ultra.api.eosnation.io': 'Nazion',
+      'https://ultra.eosrio.io': 'Rio',
+      'https://api.ultra.cryptolions.io': 'Lions',
     },
 
     otc: {
@@ -645,6 +667,7 @@ const networks = {
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
 
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: [],
 
     CEX_CONTRACTS: [],
@@ -680,7 +703,7 @@ const networks = {
     monitor: 'https://wax-test.bloks.io',
     monitor_params: '',
     lightapi: 'https://testnet-lightapi.eosams.xeos.me',
-    hyperion: 'https://jungle3.cryptolions.io',
+    hyperion: 'https://waxtest-hyperion.alcor.exchange',
     backEnd: 'http://localhost:8000/api/',
 
     client_nodes: {
@@ -714,6 +737,7 @@ const networks = {
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -764,6 +788,7 @@ const networks = {
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 
@@ -828,6 +853,7 @@ const networks = {
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain'],
     CEX_CONTRACTS: [],
 

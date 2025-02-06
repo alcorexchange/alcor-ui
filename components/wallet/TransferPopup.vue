@@ -116,7 +116,9 @@ export default {
     },
 
     tokenBalance() {
-      if (!this.user || !this.user.balances || !this.token.currency) return '0.0000'
+      const balances = this.$store.getters['wallet/balances']
+
+      if (!this.user || !balances || !this.token.currency) return '0.0000'
 
       const balance = this.user.balances.filter((b) => {
         return b.currency === this.token.currency && b.contract === this.token.contract

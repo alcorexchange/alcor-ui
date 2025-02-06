@@ -118,7 +118,6 @@ export default {
         })
 
         this.deals.push(...deals)
-        console.log(this.deals)
         $state.loaded()
         console.log('loaded')
       } else {
