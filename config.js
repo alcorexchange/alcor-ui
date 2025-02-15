@@ -228,7 +228,9 @@ const networks = {
       'nearx', 'celestia.xpr', 'optimism.xpr', 'ecash.xpr', 'fantomx', 'algorandx', 'casinoxpr', 'galagamesx', 'xcore.xpr', 'xports',
       'xopencoinx', 'protonsara', 'audius', 'bep2', 'sonicx', 'zcashxpr', 'aptos.xpr', 'braveprivacy', 'waxblock',
       'tronx', 'polkadotx', 'seinetwork', 'deroq', 'loantokens', 'xsport', 'alcorex', 'infinitybend', 'infinityhash', 'lcorex',
-      'toilet', 'infinityhash', 'infinitybend', 'stellarx', 'btccash',
+      'toilet', 'infinityhash', 'infinitybend', 'stellarx', 'btccash', 'thetax', 'classiceth', 'xvechain', 'x2network', 'inet',
+      'xkaspa', 'teranode', 'xaxie', 'mantrachain', 'onyxcoin', 'protonethena', 'xcompound', 'berachain', 'protonavve', 'unilateral',
+      'xcronos', 'xuniswapxpr', 'litecoinx', 'quantumchain', 'rippleledger', 'dogex', 'ondocoin'
     ],
     CEX_CONTRACTS: [],
 
