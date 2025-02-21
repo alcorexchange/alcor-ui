@@ -203,6 +203,7 @@ export default {
 
     rateInverted: false,
     banners: {
+      all: [],
       wax: [
         {
           link: 'https://maxylab.com/wax-holidays/',
@@ -276,7 +277,9 @@ export default {
 
   computed: {
     networkBanners() {
-      return this.banners[this.network.name]
+      const networkBanners = this.banners[this.network.name]
+      const sharedBanners = this.banners.all
+      return [...networkBanners, ...sharedBanners]
     },
     rate() {
       const { rateInverted, price, priceInverted } = this
