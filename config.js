@@ -430,6 +430,9 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [
+      37,
+      36,
+
       843,
       910,
 
@@ -479,12 +482,10 @@ const networks = {
     popularTokens: [
       'wax-eosio.token',
       'waxusdc-eth.token',
-      //'usdt-usdt.alcor',
-      //'eos-ibc.wt.eos',
-      //'wombat-wombattokens',
-      //'cred-musictoken',
       'wuf-wuffi',
       'tlm-alien.worlds',
+      'purple-purplepurple',
+      'blux-bluxbluxblux'
     ],
 
     GLOBAL_TOKENS: [
