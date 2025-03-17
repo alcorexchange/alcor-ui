@@ -10,16 +10,14 @@ COPY package.json yarn.lock ./
 # Устанавливаем зависимости с помощью yarn
 RUN yarn install --frozen-lockfile
 
-# Устанавливаем зависимости с помощью yarn
-RUN yarn build-server
-
 # Копируем оставшиеся файлы проекта в контейнер
 COPY . .
 
 # Устанавливаем PM2
 RUN yarn global add @socket.io/pm2
 
-# TODO Build server for api
+# Building
+RUN yarn build-server
 
 # Указываем порт, который будет слушать приложение
 EXPOSE 7003
