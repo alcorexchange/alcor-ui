@@ -10,6 +10,9 @@ COPY package.json yarn.lock ./
 # Устанавливаем зависимости с помощью yarn
 RUN yarn install --frozen-lockfile
 
+# Устанавливаем зависимости с помощью yarn
+RUN yarn build-server
+
 # Копируем оставшиеся файлы проекта в контейнер
 COPY . .
 
