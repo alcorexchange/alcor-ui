@@ -49,12 +49,17 @@ export async function getPools(chain: string, fetchTicks = true, filterFunc = (p
     const ticks = fetchTicks ? await getRedisTicks(chain, p.id) : []
 
     pools.push(new Pool({
-      ...p,
+      id: p.id,
+      active: p.active,
       tokenA: new Token(p.tokenA.contract, p.tokenA.decimals, p.tokenA.symbol),
       tokenB: new Token(p.tokenB.contract, p.tokenB.decimals, p.tokenB.symbol),
-
+      fee: p.fee,
+      sqrtPriceX64: p.sqrtPriceX64,
+      liquidity: p.liquidity,
       ticks: Array.from(ticks.values()).sort((a, b) => a.id - b.id),
-      tickCurrent: p.tick
+      tickCurrent: p.tick,
+      feeGrowthGlobalAX64: p.feeGrowthGlobalAX64,
+      feeGrowthGlobalBX64: p.feeGrowthGlobalBX64,
     }))
   }
 

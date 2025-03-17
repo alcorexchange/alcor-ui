@@ -92,16 +92,9 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   return routes
 }
 
-async function updateCache(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
+async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
   const startTime = performance.now()
   const updatingKey = 'updating_' + cacheKey
-
-  const input = findToken(pools, inputToken.id)
-  const output = findToken(pools, outputToken.id)
-
-  if (!input || !output) {
-    throw new Error(`${chain} ${cacheKey} getCachedPools: INVALID input/output:`)
-  }
 
   try {
     console.log('set updating key', updatingKey)
@@ -130,9 +123,6 @@ async function updateCache(chain, pools, inputToken, outputToken, maxHops, cache
   }
 }
 
-function updateCacheInBackground(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
-}
-
 function findToken(pools, tokenID) {
   return pools.find((p) => p.tokenA.id === tokenID)?.tokenA || pools.find((p) => p.tokenB.id === tokenID)?.tokenB
 }
@@ -153,7 +143,11 @@ function computeRoutesInWorker(input, output, pools, maxHops) {
       worker.terminate()
     })
 
-    worker.on('error', reject)
+    worker.on('error', e => {
+      console.log('error worker compute routes', e)
+      reject(e)
+      worker.terminate()
+    })
 
     worker.on('exit', (code) => {
       if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`))
@@ -217,7 +211,7 @@ swapRouter.get('/getRoute', async (req, res) => {
     return res.status(403).send('No route found')
   }
 
-  cachedRoutes.sort((a, b) => a.midPrice.greaterThan(b.midPrice) ? -1 : 1)
+  //cachedRoutes.sort((a, b) => a.midPrice.greaterThan(b.midPrice) ? -1 : 1)
 
   let trade
   try {

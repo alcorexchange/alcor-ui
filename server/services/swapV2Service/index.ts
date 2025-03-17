@@ -210,7 +210,7 @@ export async function updatePool(chain: string, poolId: number) {
     parseToken(pool.tokenA),
     parseToken(pool.tokenB),
     Q128,
-    BigInt(parsedPool.sqrtPriceX64) * BigInt(parsedPool.sqrtPriceX64)
+    parsedPool.sqrtPriceX64 * parsedPool.sqrtPriceX64
   )
 
   const priceA = price.toSignificant()
@@ -324,7 +324,7 @@ export async function updatePools(chain) {
         parseToken(pool.tokenA),
         parseToken(pool.tokenB),
         Q128,
-        BigInt(parsed_pool.sqrtPriceX64) * BigInt(parsed_pool.sqrtPriceX64)
+        parsed_pool.sqrtPriceX64 * parsed_pool.sqrtPriceX64
       )
 
       const priceA = price.toSignificant()
