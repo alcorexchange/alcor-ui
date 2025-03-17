@@ -1,11 +1,11 @@
 import { performance } from 'perf_hooks'
 import { Worker } from 'worker_threads'
 import { createClient } from 'redis'
-import { TradeType, Trade, Percent, Token, Pool, Route, TickListDataProvider } from '@alcorexchange/alcor-swap-sdk'
+import { TradeType, Trade, Percent, Token, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 import { tryParseCurrencyAmount } from '../../../utils/amm'
 import { getPools } from '../swapV2Service/utils'
-import { bestTradeWithSplitMultiThreaded, parseTrade } from './utils'
+import { parseTrade } from './utils'
 
 export const swapRouter = Router()
 
@@ -18,47 +18,10 @@ const connectRedis = async (client) => {
   }
 }
 
-const MAX_COUMPUTE_ROUTES_WORKERS = 4
-const SEMAPHORE_KEY = 'global:comput_worker_semafore'
-const SEMAPHORE_TTL_SECONDS = 3600 // 1 час
-
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const POOLS = {}
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 3
 const ROUTES_UPDATING_TIMEOUT = 60 * 15
-
-async function refreshSemaphoreTTL() {
-  await redisClient.expire(SEMAPHORE_KEY, SEMAPHORE_TTL_SECONDS)
-}
-
-async function acquireSemaphore(retryInterval = 500) {
-  while (true) {
-    const activeWorkers = await redisClient.get(SEMAPHORE_KEY)
-    if (activeWorkers === null || parseInt(activeWorkers, 10) < MAX_COUMPUTE_ROUTES_WORKERS) {
-      console.log('acquired Semaphore, total: ' + activeWorkers)
-
-      const newCount = await redisClient.incr(SEMAPHORE_KEY)
-
-      if (newCount <= MAX_COUMPUTE_ROUTES_WORKERS) {
-        await refreshSemaphoreTTL() // обновляем TTL при успешном изменении счётчика
-        return
-      } else {
-        await redisClient.decr(SEMAPHORE_KEY)
-      }
-    }
-    await new Promise(resolve => setTimeout(resolve, retryInterval))
-  }
-}
-
-async function releaseSemaphore() {
-  const newCount = await redisClient.decr(SEMAPHORE_KEY)
-  console.log('released Semaphore, total: ' + newCount)
-
-  if (newCount < 0) {
-    await redisClient.set(SEMAPHORE_KEY, '0')
-  }
-  await refreshSemaphoreTTL()
-}
 
 subscriber.connect().then(() => {
   subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
@@ -174,34 +137,28 @@ function findToken(pools, tokenID) {
   return pools.find((p) => p.tokenA.id === tokenID)?.tokenA || pools.find((p) => p.tokenB.id === tokenID)?.tokenB
 }
 
-async function computeRoutesInWorker(input, output, pools, maxHops) {
-  await acquireSemaphore()
-
-  try {
-    return await new Promise((resolve, reject) => {
-      const worker = new Worker('./server/services/apiV2Service/workers/computeAllRoutesWorker.js', {
-        workerData: {
-          input: Token.toJSON(input),
-          output: Token.toJSON(output),
-          pools: pools.map(p => Pool.toBuffer(p)),
-          maxHops
-        }
-      })
-
-      worker.on('message', routes => {
-        resolve(routes.map(r => Route.fromBuffer(r)))
-        worker.terminate()
-      })
-
-      worker.on('error', reject)
-
-      worker.on('exit', (code) => {
-        if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`))
-      })
+function computeRoutesInWorker(input, output, pools, maxHops) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker('./server/services/apiV2Service/workers/computeAllRoutesWorker.js', {
+      workerData: {
+        input: Token.toJSON(input),
+        output: Token.toJSON(output),
+        pools: pools.map(p => Pool.toBuffer(p)),
+        maxHops
+      }
     })
-  } finally {
-    await releaseSemaphore()
-  }
+
+    worker.on('message', routes => {
+      resolve(routes.map(r => Route.fromBuffer(r)))
+      worker.terminate()
+    })
+
+    worker.on('error', reject)
+
+    worker.on('exit', (code) => {
+      if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`))
+    })
+  })
 }
 
 swapRouter.get('/getRoute', async (req, res) => {
@@ -265,7 +222,6 @@ swapRouter.get('/getRoute', async (req, res) => {
   let trade
   try {
     if (v2) {
-      //trade = await (maxHops > 2 ? bestTradeWithSplitMultiThreaded : Trade.bestTradeWithSplit)(
       trade = Trade.bestTradeWithSplit(
         cachedRoutes,
         amount,
