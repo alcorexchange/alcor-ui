@@ -556,6 +556,24 @@
       "https://linktr.ee/MetaversalMatrix"
     ]
   },
+  "CHEESE@cheeseburger": {
+        "name": "CHEESE",
+        "website": {
+            "link": "https://cheeseonwax.github.io",
+            "name": "CHEESE"
+        },
+        "tags": [
+            "CHEESE",
+            "Memecoin"
+        ],
+        "github": "https://github.com/cheeseonwax/",
+        "socials": [
+            "https://t.me/cheeseonwaxofficial",
+            "https://cheeseonwax.github.io",
+            "https://x.com/cheesetoken"
+        ],
+        "description": "$CHEESE – The First of Its Kind on WAX! Not just the first meme token on WAX, but the very first token on WAX overall (besides WAX itself). With a limited total supply of 21 million and over 80% locked in the WAX-DAO contract for the next 12 years, $CHEESE is setting new standards. 🧀 Cheese the Future – Limited, Locked & Legendary! 🚀"
+  },
   "KING@alpha.waxfun": {
     "name": "KING of Pixals",
     "website": {
