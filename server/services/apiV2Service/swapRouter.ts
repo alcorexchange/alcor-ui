@@ -97,23 +97,24 @@ async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
   const updatingKey = 'updating_' + cacheKey
 
   try {
-    console.log('set updating key', updatingKey)
-    await redisClient.set(updatingKey, 'true', { EX: ROUTES_UPDATING_TIMEOUT, NX: true })
+    const setResult = await redisClient.set(updatingKey, 'true', { EX: ROUTES_UPDATING_TIMEOUT, NX: true })
+    if (setResult !== 'OK') {
+      console.log('ALREADY UPDATING:', cacheKey)
+      return // Прерываем выполнение, так как блокировка не получена
+    }
 
     const routes: any = await computeRoutesInWorker(input, output, pools, maxHops)
     const redisRoutes = routes.map(({ input, output, pools }) => ({
       input: Token.toJSON(input),
       output: Token.toJSON(output),
-      pools: pools.map(p => p.id)
+      pools: pools.map((p) => p.id),
     }))
 
     await redisClient.set('routes_' + cacheKey, JSON.stringify(redisRoutes))
     await redisClient.set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT * 1000).toString())
 
     const endTime = performance.now()
-
     console.log('cacheUpdated:', `${Math.round(endTime - startTime)}ms ${cacheKey}`)
-
     return routes
   } catch (error) {
     console.error('Error computing routes in worker:', error)
