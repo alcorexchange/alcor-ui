@@ -218,7 +218,7 @@ const networks = {
     PINNED_MARKETS: [493, 715, 836, 1089],
     BANNER_MARKETS: [],
     SCAM_TOKENS: [
-      'xusdt-tokencreate', 'xusdt-tokencreate'
+      'xusdt-tokencreate', 'xusdt-tokencreate', 'yfi-tokencreate'
     ],
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
