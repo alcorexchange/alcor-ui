@@ -16,19 +16,19 @@ const providers = {
   node: streamByGreymass
 }
 
+const pLimit = require('p-limit')
+const limit = pLimit(2)
+
 export function startUpdaters() {
-  if (process.env.NETWORK) {
-    console.log('NETWORK=', process.env.NETWORK)
-    //updater(process.env.NETWORK, 'node', ['swap', 'prices', 'markets'])
-    updater(process.env.NETWORK, 'node', ['swap'])
-    //updater(process.env.NETWORK, 'hyperion', ['swap'])
-  } else {
-    updater('eos', 'node', ['markets', 'prices', 'swap'])
-    updater('wax', 'node', ['markets', 'prices', 'swap'])
-    updater('proton', 'node', ['markets', 'prices', 'swap'])
-    updater('telos', 'node', ['markets', 'prices', 'swap'])
-    updater('ultra', 'hyperion', ['markets', 'prices', 'swap'])
-  }
+  const chains = process.env.NETWORK
+    ? [process.env.NETWORK]
+    : ['eos', 'wax', 'proton', 'telos', 'ultra']
+
+  chains.forEach(chain => {
+    const provider = chain === 'ultra' ? 'hyperion' : 'node'
+    limit(() => updater(chain, provider, ['markets', 'prices', 'swap']))
+      .catch(e => console.error(`Updater for ${chain} failed:`, e))
+  })
 }
 
 export async function updater(chain, provider, services) {

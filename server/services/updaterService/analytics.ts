@@ -67,7 +67,6 @@ export async function updateGlobalStats(network, day = null, provider = 'node') 
   let spotValueLocked = 0
   let balances = []
 
-  console.log({ tokens })
   if (provider == 'hyperion') {
     balances = await loadAccountBalancesHyperion(network.contract, network.hyperion, tokens)
   } else {
