@@ -19,7 +19,6 @@ const connectRedis = async (client) => {
 }
 
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
-const POOLS = {}
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 3
 const ROUTES_UPDATING_TIMEOUT = 60 * 15
 
@@ -38,13 +37,24 @@ subscriber.connect().then(() => {
   })
 })
 
+const POOLS = {}
+const POOLS_LOADING_PROMISES = {}
+
 async function getAllPools(chain) {
   if (!POOLS[chain]) {
-    const pools = await getPools(chain, true, (p) => p.active)
-    POOLS[chain] = new Map(pools.map(p => [p.id, p]))
-    console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
+    // Если промис загрузки еще не существует, создаем его
+    POOLS_LOADING_PROMISES[chain] =
+      POOLS_LOADING_PROMISES[chain] ||
+      (async () => {
+        const pools = await getPools(chain, true, (p) => p.active)
+        POOLS[chain] = new Map(pools.map((p) => [p.id, p]))
+        console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
+        delete POOLS_LOADING_PROMISES[chain] // Очищаем промис после завершения
+        return POOLS[chain]
+      })()
+    // Ждем завершения загрузки
+    POOLS[chain] = await POOLS_LOADING_PROMISES[chain]
   }
-
   return POOLS[chain]
 }
 
