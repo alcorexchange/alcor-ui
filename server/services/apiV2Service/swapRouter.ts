@@ -31,7 +31,7 @@ const POOLS_LOADING_PROMISES = {}
 
 const pool = workerpool.pool('./server/services/apiV2Service/workers/computeAllRoutesWorker.js', {
   minWorkers: 1,
-  maxWorkers: 2,
+  maxWorkers: 4,
   workerType: 'thread'
 })
 
