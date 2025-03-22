@@ -93,7 +93,7 @@
     "vuex-persistedstate": "^3.0.1",
     "vuex-router-sync": "^5.0.0",
     "web3-utils": "^1.6.0",
-    "workerpool": "^9.1.1"
+    "workerpool": "^9.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.10",

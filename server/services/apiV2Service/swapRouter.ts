@@ -1,5 +1,6 @@
 import { performance } from 'perf_hooks'
-import { Worker } from 'worker_threads'
+import workerpool from 'workerpool'
+
 import { createClient } from 'redis'
 import { TradeType, Trade, Percent, Token, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
@@ -22,6 +23,18 @@ const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 3
 const ROUTES_UPDATING_TIMEOUT = 60 * 15
 
+// const ROUTES_CACHE_TIMEOUT = 10
+// const ROUTES_UPDATING_TIMEOUT = 15
+
+const POOLS = {}
+const POOLS_LOADING_PROMISES = {}
+
+const pool = workerpool.pool('./server/services/apiV2Service/workers/computeAllRoutesWorker.js', {
+  minWorkers: 1,
+  maxWorkers: 2,
+  workerType: 'thread'
+})
+
 subscriber.connect().then(() => {
   subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
     const { chain, buffer } = JSON.parse(msg)
@@ -36,9 +49,6 @@ subscriber.connect().then(() => {
     POOLS[chain].set(pool.id, pool)
   })
 })
-
-const POOLS = {}
-const POOLS_LOADING_PROMISES = {}
 
 async function getAllPools(chain) {
   if (!POOLS[chain]) {
@@ -102,6 +112,27 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   return routes
 }
 
+async function computeRoutesInWorker(input, output, pools, maxHops) {
+  const workerData = [
+    Token.toJSON(input),
+    Token.toJSON(output),
+    pools.map(p => Pool.toBuffer(p)),
+    maxHops
+  ]
+
+  try {
+    const routes = await pool.exec('computeRoutes', workerData, {
+      on(payload) {
+        //console.log({ payload })
+      }
+    })
+    return routes.map((r) => Route.fromBuffer(r))
+  } catch (error) {
+    console.error('Worker pool error:', error)
+    throw error
+  }
+}
+
 async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
   const startTime = performance.now()
   const updatingKey = 'updating_' + cacheKey
@@ -110,7 +141,7 @@ async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
     const setResult = await redisClient.set(updatingKey, 'true', { EX: ROUTES_UPDATING_TIMEOUT, NX: true })
     if (setResult !== 'OK') {
       console.log('ALREADY UPDATING:', cacheKey)
-      return // Прерываем выполнение, так как блокировка не получена
+      return
     }
 
     const routes: any = await computeRoutesInWorker(input, output, pools, maxHops)
@@ -127,7 +158,7 @@ async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
     console.log('cacheUpdated:', `${Math.round(endTime - startTime)}ms ${cacheKey}`)
     return routes
   } catch (error) {
-    console.error('Error computing routes in worker:', error)
+    console.error('Error computing routes:', error)
     return []
   } finally {
     await redisClient.del(updatingKey)
@@ -136,34 +167,6 @@ async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
 
 function findToken(pools, tokenID) {
   return pools.find((p) => p.tokenA.id === tokenID)?.tokenA || pools.find((p) => p.tokenB.id === tokenID)?.tokenB
-}
-
-function computeRoutesInWorker(input, output, pools, maxHops) {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker('./server/services/apiV2Service/workers/computeAllRoutesWorker.js', {
-      workerData: {
-        input: Token.toJSON(input),
-        output: Token.toJSON(output),
-        pools: pools.map(p => Pool.toBuffer(p)),
-        maxHops
-      }
-    })
-
-    worker.on('message', routes => {
-      resolve(routes.map(r => Route.fromBuffer(r)))
-      worker.terminate()
-    })
-
-    worker.on('error', e => {
-      console.log('error worker compute routes', e)
-      reject(e)
-      worker.terminate()
-    })
-
-    worker.on('exit', (code) => {
-      if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`))
-    })
-  })
 }
 
 swapRouter.get('/getRoute', async (req, res) => {
