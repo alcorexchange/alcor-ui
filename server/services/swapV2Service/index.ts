@@ -458,8 +458,8 @@ export async function onSwapAction(message: string) {
       const tokenB_id = quantityB.split(' ')[1].toLowerCase() + '-' + contractB
 
       // Removing cache to re-generate swap routes
-      deleteKeysByPattern(redis, `routes_${chain}-*${tokenA_id}*`)
-      deleteKeysByPattern(redis, `routes_${chain}-*${tokenB_id}*`)
+      deleteKeysByPattern(redis, `routes_expiration_${chain}-*${tokenA_id}*`)
+      deleteKeysByPattern(redis, `routes_expiration_${chain}-*${tokenB_id}*`)
     } catch (e) {
       console.error('REMOVE CACHE ROUTES ERR', e, data)
     }

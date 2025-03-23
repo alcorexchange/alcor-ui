@@ -145,6 +145,12 @@ async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
     }
 
     const routes: any = await computeRoutesInWorker(input, output, pools, maxHops)
+
+    if (!routes || routes?.length == 0) {
+      console.warn('NO ROUTES FOUND FOR', cacheKey)
+      return []
+    }
+
     const redisRoutes = routes.map(({ input, output, pools }) => ({
       input: Token.toJSON(input),
       output: Token.toJSON(output),
