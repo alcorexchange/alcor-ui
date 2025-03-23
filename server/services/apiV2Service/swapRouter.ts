@@ -224,10 +224,12 @@ swapRouter.get('/getRoute', async (req, res) => {
       maxHops
     )
   } catch (e) {
+    console.error('No route found: ' + e.message)
     return res.status(403).send('No route found: ' + e.message)
   }
 
   if (cachedRoutes.length == 0) {
+    console.warn('No route found: ', network.name, inputToken.id, outputToken.id, maxHops)
     return res.status(403).send('No route found')
   }
 
