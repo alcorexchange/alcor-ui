@@ -653,5 +653,19 @@
       "https://discord.com/invite/TGK3U2Me2g", 
       "https://www.youtube.com/@FarFromHomeNFT"],
     "description": "The Soren token serves as a cornerstone of the Far From Home (FFH) economy, enabling players to enhance and expand their in-game activities. Through Soren, players participate in a robust, player-driven economy, with every transaction contributing to economic growth and strategic depth. "
+  },
+  "WPIXAL@pixeljourney": {
+    "name": "Wrapped Pixal (WPIXAL)",
+    "website": {
+      "link": "https://r-wax.io/token/pixeljourney/WPIXAL",
+      "name": "WPIXAL @ RWAX.IO"
+    },
+    "description": "WPIXAL is the wrapped tokenized form of Pixal PFPs, enabling trading and liquidity via RWAX.io. Standard Pixals redeem for ~1 WPIXAL, PixelPet Pixals for 1.1 WPIXAL, and WaxRock Pixals for 25 WPIXAL. WPIXAL can be used to reclaim tokenized Pixals or traded in DeFi, with liquidity rewards on Alcor & TacoSwap.",
+    "tags": ["DeFi", "NFT", "Social", "Community"],
+    "socials": [
+      "https://discord.gg/5wNjYD2zDY",
+      "https://x.com/pxjourney",
+      "https://t.me/pixel_journey"
+    ]
   }
 }
