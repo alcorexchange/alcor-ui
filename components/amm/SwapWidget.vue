@@ -204,20 +204,20 @@ export default {
     rateInverted: false,
     banners: {
       wax: [
-        {
-          link: 'https://maxylab.com/wax-holidays/',
-          image: require('@/assets/images/swap-banner-3.gif'),
-          colors: [
-            'rgba(221,74,95,0.2)',
-            'rgba(183,44,47, 1)',
-            'rgba(129,22,25,1)',
-          ],
-        },
+        // {
+        //   link: 'https://maxylab.com/wax-holidays/',
+        //   image: require('@/assets/images/swap-banner-3.gif'),
+        //   colors: [
+        //     'rgba(221,74,95,0.2)',
+        //     'rgba(183,44,47, 1)',
+        //     'rgba(129,22,25,1)',
+        //   ],
+        // },
       ],
       proton: [
         {
-          link: 'https://www.atom3studio.com/',
-          image: require('@/assets/images/swap-banner-xpr-1.gif'),
+          link: 'https://metalseaxpr.com/',
+          image: require('@/assets/images/swap-banner-xpr-2.gif'),
           colors: [
             'rgba(169,131,191,0.2)',
             'rgba(78,54,128, 1)',
