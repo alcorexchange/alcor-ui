@@ -357,7 +357,7 @@ account.get('/:account/poolsPositionsIn', async (req, res) => {
   res.json(pools)
 })
 
-account.get('/:account/positions', cacheSeconds(10, (req, res) => {
+account.get('/:account/positions', cacheSeconds(2, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.account
 }), async (req, res) => {
   const network: Network = req.app.get('network')
