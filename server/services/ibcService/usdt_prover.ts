@@ -46,7 +46,7 @@ async function getActions(chain, account, params = {}) {
       params: {
         account,
         'act.name': 'emitxfer',
-        limit: 100,
+        limit: 1000,
         skip: xfers.length,
         sort: -1,
         ...params
@@ -120,8 +120,12 @@ async function proveTransfers(ibcToken, sourceChain, destinationChain, _native) 
       for (const action of actions) {
         if (!action.proven) {
           console.log(action.timestamp, action)
-          const proved = await prove(sourceChain, destinationChain, action, ibcToken, _native)
-          console.log({ proved })
+          try {
+            const proved = await prove(sourceChain, destinationChain, action, ibcToken, _native)
+            console.log({ proved })
+          } catch (e) {
+            console.error('Prove error!!!', { sourceChain, destinationChain, action, ibcToken, _native })
+          }
         }
       }
     } catch (e) {
@@ -159,9 +163,9 @@ async function main() {
   const ibcTokens = await getWrapLockContracts(chains)
 
   await Promise.all([
-    //WaxToEosWorker(ibcTokens),
+    WaxToEosWorker(ibcTokens),
     //eosToWaxWorker(ibcTokens),
-    eosCexDepsitsWorker()
+    //eosCexDepsitsWorker()
   ])
 }
 
