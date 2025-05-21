@@ -667,5 +667,23 @@
       "https://x.com/pxjourney",
       "https://t.me/pixel_journey"
     ]
+  },
+  "HEL@moonmhe3tokn": {
+    "name": "Helium (He3)",
+    "website": {
+      "link": "https://moonmininghe3.com/",
+      "name": "Moon Mining He3"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "NFT"
+    ],
+    "socials": [
+      "https://twitter.com/moonmininghe3",
+      "https://discord.com/invite/FZT9yQ3mU2",
+      "https://www.youtube.com/channel/UCtMmckqvOus7JFd3p-9Bxmw"
+    ],
+    "description": "He3 (HEL) is the utility token of MMHe3, a blockchain strategy game set on the Moon. HEL is used to repair machines and buildings, upgrade city infrastructure, and purchase exclusive NFTs in the in-game shop. With a newly added HEL/WAX liquidity pool and real player demand, HEL is a vital asset in the lunar economy — and a promising token for the future."
   }
 }
