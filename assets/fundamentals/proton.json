@@ -107,5 +107,24 @@
       
     ],
     "description": "ANCHOR provides targeted liquidity focused on the +- 1% and +-6% range for select stable coins on XPR. Low liquidity in these pools is a pain point of XPR Network, eased through our pools. ANCHOR provides information and opportunities presented by value differences of the three main stable coins to arbitrage bots. ANCHOR liquidity results in a cheap source of liquidity for arbitrage bots to swap pools. ANCHOR uses .05% fee pools for ANCHOR with XUSDC, XUSDT, and XMD. ANCHOR is not advertised or offered in public or private. Do not buy ANCHOR, there is no expectation of profit, and any value placed in exchange for ANCHOR is considered a donation. The project is private, with 100% of token ownership to the contract. This stabilization method is untested, and we do not know if it will be stable. Even if it appears to be stable, ANCHOR may be changed or canceled at any time, resulting in up to 100% loss of value for ANCHOR token. ANCHOR was named such in relation to a part of an Ark (boat). ANCHOR is not related to Anchor Wallet, nor to Alcor exchange, XPR Network, or any providers of pooled stable coins. All proceeds are hereby perpetually donated to the Lyran civilization, and / or to rebuild Noah's Ark"
+    },
+    "MEME@m3m3": {
+      "name": "MEME - All XPR's MEMEs and ALTs, reflectively",
+      "website": {
+        "link": "https://proton.alcor.exchange/swap?input=xpr-eosio.token&output=MEME-m3m3",
+        "name": "MEME"
+      },
+      "tags": [
+        "meme",
+        "passive",
+        "rewards",
+        "reflection",
+        "reflective",
+        "alt"
+      ],
+      "socials": [
+        "https://t.me/ottoxpr"
+      ],
+      "description": "MEME is your Lambo ride to infinite wealth in the commodity of the future — memecoins. Ape in and hodl to get rich like the degens. Yeet every f*cking day. Diamond hands will be reflected 💎🙌 (did we say this is a reflective token?) 1% of every TX to you. What else? 1% is burnt each TX. Deflationary AF. 🔥 Simple AF. Oh wait, it's more complex. Smash setflextoken on the m3m3 contract to change the reward token that shows up in your account. Choose from most MEMEs and ALTs on XPR. If ur fav tok is missing, add 100k XPR to the 1% MEME/URFAVTOK pool and DM dev. | 💪 Don't be Jerry. Be Chad. 😎 | Legal: No plebs. MEME is a meme coin with no intrinsic value or expectation of financial return. There is no formal team or roadmap, only our community t.me/ottoxpr and volunteers who donate effort. MEME is for entertainment purposes only. 🎉 Any token reward(s) is provided as a gift, not a return on investment, or formal compensation, and is in no way related to the purchase price, nor is any amount guaranteed at any time or for any time period. Comply with regional laws regarding digital assets. Part of OTTO. Website: t.me/ottoxpr | 🤑 OTTO on XPR’s fast, free blockchain, and watch tokens flow into your account. 🚀 You’re a degen, you wouldn't dare sell your MEME."    
     }
 }

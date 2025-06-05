@@ -556,6 +556,24 @@
       "https://linktr.ee/MetaversalMatrix"
     ]
   },
+  "CHEESE@cheeseburger": {
+        "name": "CHEESE",
+        "website": {
+            "link": "https://cheeseonwax.github.io",
+            "name": "CHEESE"
+        },
+        "tags": [
+            "CHEESE",
+            "Memecoin"
+        ],
+        "github": "https://github.com/cheeseonwax/",
+        "socials": [
+            "https://t.me/cheeseonwaxofficial",
+            "https://cheeseonwax.github.io",
+            "https://x.com/cheesetoken"
+        ],
+        "description": "$CHEESE – The First of Its Kind on WAX! Not just the first meme token on WAX, but the very first token on WAX overall (besides WAX itself). With a limited total supply of 21 million and over 80% locked in the WAX-DAO contract for the next 12 years, $CHEESE is setting new standards. 🧀 Cheese the Future – Limited, Locked & Legendary! 🚀"
+  },
   "KING@alpha.waxfun": {
     "name": "KING of Pixals",
     "website": {
@@ -622,5 +640,50 @@
   ],
   "github": "https://github.com/antelopebuilder/waxcache",
   "description": "A branch of the antelope{cache} protocol, wax{cache} is a sovereign RAM mining protocol that fosters an open market where participants compete for market share of WCACHE, by virtue of RAM held in reserve. The contract is governed exclusively by the mining weight of its participants, who can vote to modify the contract’s ABI/WASM and transaction fees. wax{cache} operates with one-hour block intervals, featuring an initial block reward of 26.2144 WCACHE, which halves every 20,000 blocks, and incorporates token burns dynamically pegged to RAM prices. Deployed on three leading Antelope Networks, including WAX, TELOS, and EOS, each with its own token (WCACHE, TCACHE, and ECACHE respectively), it not only creates cross-chain RAM arbitrage opportunities but also redefines the concept of commodity-backed cash, specifically RAM-backed cash."
-}
+  },
+  "SOREN@farfromhomes": {
+    "name": "SOREN",
+    "website": {
+      "link": "https://www.farfromhome.io/",
+      "name": "farfromhome.io"
+    },
+    "tags": ["DeFi", "Gaming", "NFT", "P2E"],
+    "socials": [
+      "https://x.com/FarFromHomeNFT", 
+      "https://discord.com/invite/TGK3U2Me2g", 
+      "https://www.youtube.com/@FarFromHomeNFT"],
+    "description": "The Soren token serves as a cornerstone of the Far From Home (FFH) economy, enabling players to enhance and expand their in-game activities. Through Soren, players participate in a robust, player-driven economy, with every transaction contributing to economic growth and strategic depth. "
+  },
+  "WPIXAL@pixeljourney": {
+    "name": "Wrapped Pixal (WPIXAL)",
+    "website": {
+      "link": "https://r-wax.io/token/pixeljourney/WPIXAL",
+      "name": "WPIXAL @ RWAX.IO"
+    },
+    "description": "WPIXAL is the wrapped tokenized form of Pixal PFPs, enabling trading and liquidity via RWAX.io. Standard Pixals redeem for ~1 WPIXAL, PixelPet Pixals for 1.1 WPIXAL, and WaxRock Pixals for 25 WPIXAL. WPIXAL can be used to reclaim tokenized Pixals or traded in DeFi, with liquidity rewards on Alcor & TacoSwap.",
+    "tags": ["DeFi", "NFT", "Social", "Community"],
+    "socials": [
+      "https://discord.gg/5wNjYD2zDY",
+      "https://x.com/pxjourney",
+      "https://t.me/pixel_journey"
+    ]
+  },
+  "HEL@moonmhe3tokn": {
+    "name": "Helium (He3)",
+    "website": {
+      "link": "https://moonmininghe3.com/",
+      "name": "Moon Mining He3"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "NFT"
+    ],
+    "socials": [
+      "https://twitter.com/moonmininghe3",
+      "https://discord.com/invite/FZT9yQ3mU2",
+      "https://www.youtube.com/channel/UCtMmckqvOus7JFd3p-9Bxmw"
+    ],
+    "description": "He3 (HEL) is the utility token of MMHe3, a blockchain strategy game set on the Moon. HEL is used to repair machines and buildings, upgrade city infrastructure, and purchase exclusive NFTs in the in-game shop. With a newly added HEL/WAX liquidity pool and real player demand, HEL is a vital asset in the lunar economy — and a promising token for the future."
+  }
 }

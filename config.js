@@ -218,7 +218,7 @@ const networks = {
     PINNED_MARKETS: [493, 715, 836, 1089],
     BANNER_MARKETS: [],
     SCAM_TOKENS: [
-      'xusdt-tokencreate', 'xusdt-tokencreate'
+      'xusdt-tokencreate', 'xusdt-tokencreate', 'yfi-tokencreate'
     ],
     SCAM_CONTRACTS: [
       'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
@@ -430,6 +430,9 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [
+      37,
+      36,
+
       843,
       910,
 
@@ -479,12 +482,10 @@ const networks = {
     popularTokens: [
       'wax-eosio.token',
       'waxusdc-eth.token',
-      //'usdt-usdt.alcor',
-      //'eos-ibc.wt.eos',
-      //'wombat-wombattokens',
-      //'cred-musictoken',
       'wuf-wuffi',
       'tlm-alien.worlds',
+      'purple-purplepurple',
+      'blux-bluxbluxblux'
     ],
 
     GLOBAL_TOKENS: [

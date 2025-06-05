@@ -96,9 +96,9 @@ export async function getPositionStats(chain, redisPosition) {
   const history = await PositionHistory.find({ chain, id: redisPosition.id, owner: redisPosition.owner }).sort({ time: 1, type: 1 }).lean()
   const endTime = performance.now()
 
-  console.log('getAccountPoolPositions mongo query time:', `${Math.round(endTime - startTime)}ms`,
-    { chain, id: redisPosition.id, owner: redisPosition.owner }
-  )
+  // console.log('getAccountPoolPositions mongo query time:', `${Math.round(endTime - startTime)}ms`,
+  //   { chain, id: redisPosition.id, owner: redisPosition.owner }
+  // )
 
   let total = 0
   let sub = 0
@@ -357,7 +357,9 @@ account.get('/:account/poolsPositionsIn', async (req, res) => {
   res.json(pools)
 })
 
-account.get('/:account/positions', async (req, res) => {
+account.get('/:account/positions', cacheSeconds(2, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.account
+}), async (req, res) => {
   const network: Network = req.app.get('network')
 
   const result = await getAccountPoolPositions(network.name, req.params.account)

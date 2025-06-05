@@ -1,11 +1,12 @@
 import { performance } from 'perf_hooks'
-import { Worker } from 'worker_threads'
+import workerpool from 'workerpool'
+
 import { createClient } from 'redis'
-import { TradeType, Trade, Percent, Token, Pool, Route, TickListDataProvider } from '@alcorexchange/alcor-swap-sdk'
+import { TradeType, Trade, Percent, Token, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 import { tryParseCurrencyAmount } from '../../../utils/amm'
 import { getPools } from '../swapV2Service/utils'
-import { bestTradeWithSplitMultiThreaded, parseTrade } from './utils'
+import { parseTrade } from './utils'
 
 export const swapRouter = Router()
 
@@ -19,9 +20,20 @@ const connectRedis = async (client) => {
 }
 
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
-const POOLS = {}
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 3
 const ROUTES_UPDATING_TIMEOUT = 60 * 15
+
+// const ROUTES_CACHE_TIMEOUT = 10
+// const ROUTES_UPDATING_TIMEOUT = 15
+
+const POOLS = {}
+const POOLS_LOADING_PROMISES = {}
+
+const pool = workerpool.pool('./server/services/apiV2Service/workers/computeAllRoutesWorker.js', {
+  minWorkers: 1,
+  maxWorkers: 4,
+  workerType: 'thread'
+})
 
 subscriber.connect().then(() => {
   subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
@@ -40,11 +52,19 @@ subscriber.connect().then(() => {
 
 async function getAllPools(chain) {
   if (!POOLS[chain]) {
-    const pools = await getPools(chain, true, (p) => p.active)
-    POOLS[chain] = new Map(pools.map(p => [p.id, p]))
-    console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
+    // Если промис загрузки еще не существует, создаем его
+    POOLS_LOADING_PROMISES[chain] =
+      POOLS_LOADING_PROMISES[chain] ||
+      (async () => {
+        const pools = await getPools(chain, true, (p) => p.active)
+        POOLS[chain] = new Map(pools.map((p) => [p.id, p]))
+        console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
+        delete POOLS_LOADING_PROMISES[chain] // Очищаем промис после завершения
+        return POOLS[chain]
+      })()
+    // Ждем завершения загрузки
+    POOLS[chain] = await POOLS_LOADING_PROMISES[chain]
   }
-
   return POOLS[chain]
 }
 
@@ -92,73 +112,67 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   return routes
 }
 
-async function updateCache(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
+async function computeRoutesInWorker(input, output, pools, maxHops) {
+  const workerData = [
+    Token.toJSON(input),
+    Token.toJSON(output),
+    pools.map(p => Pool.toBuffer(p)),
+    maxHops
+  ]
+
+  try {
+    const routes = await pool.exec('computeRoutes', workerData, {
+      on(payload) {
+        //console.log({ payload })
+      }
+    })
+    return routes.map((r) => Route.fromBuffer(r))
+  } catch (error) {
+    console.error('Worker pool error:', error)
+    throw error
+  }
+}
+
+async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
   const startTime = performance.now()
   const updatingKey = 'updating_' + cacheKey
 
-  const input = findToken(pools, inputToken.id)
-  const output = findToken(pools, outputToken.id)
-
-  if (!input || !output) {
-    throw new Error(`${chain} ${cacheKey} getCachedPools: INVALID input/output:`)
-  }
-
   try {
-    console.log('set updating key', updatingKey)
-    await redisClient.set(updatingKey, 'true', { EX: ROUTES_UPDATING_TIMEOUT, NX: true })
+    const setResult = await redisClient.set(updatingKey, 'true', { EX: ROUTES_UPDATING_TIMEOUT, NX: true })
+    if (setResult !== 'OK') {
+      console.log('ALREADY UPDATING:', cacheKey)
+      return
+    }
 
     const routes: any = await computeRoutesInWorker(input, output, pools, maxHops)
+
+    // if (!routes || routes?.length == 0) {
+    //   console.warn('NO ROUTES FOUND FOR', cacheKey)
+    //   return []
+    // }
+
     const redisRoutes = routes.map(({ input, output, pools }) => ({
       input: Token.toJSON(input),
       output: Token.toJSON(output),
-      pools: pools.map(p => p.id)
+      pools: pools.map((p) => p.id),
     }))
 
     await redisClient.set('routes_' + cacheKey, JSON.stringify(redisRoutes))
     await redisClient.set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT * 1000).toString())
 
     const endTime = performance.now()
-
     console.log('cacheUpdated:', `${Math.round(endTime - startTime)}ms ${cacheKey}`)
-
     return routes
   } catch (error) {
-    console.error('Error computing routes in worker:', error)
+    console.error('Error computing routes:', error)
     return []
   } finally {
     await redisClient.del(updatingKey)
   }
 }
 
-function updateCacheInBackground(chain, pools, inputToken, outputToken, maxHops, cacheKey) {
-}
-
 function findToken(pools, tokenID) {
   return pools.find((p) => p.tokenA.id === tokenID)?.tokenA || pools.find((p) => p.tokenB.id === tokenID)?.tokenB
-}
-
-function computeRoutesInWorker(input, output, pools, maxHops) {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker('./server/services/apiV2Service/workers/computeAllRoutesWorker.js', {
-      workerData: {
-        input: Token.toJSON(input),
-        output: Token.toJSON(output),
-        pools: pools.map(p => Pool.toBuffer(p)),
-        maxHops
-      }
-    })
-
-    worker.on('message', routes => {
-      resolve(routes.map(r => Route.fromBuffer(r)))
-      worker.terminate()
-    })
-
-    worker.on('error', reject)
-
-    worker.on('exit', (code) => {
-      if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`))
-    })
-  })
 }
 
 swapRouter.get('/getRoute', async (req, res) => {
@@ -210,19 +224,20 @@ swapRouter.get('/getRoute', async (req, res) => {
       maxHops
     )
   } catch (e) {
+    console.error('No route found error: ' + e.message)
     return res.status(403).send('No route found: ' + e.message)
   }
 
   if (cachedRoutes.length == 0) {
+    console.warn('No route found: ', network.name, inputToken.id, outputToken.id, maxHops)
     return res.status(403).send('No route found')
   }
 
-  cachedRoutes.sort((a, b) => a.midPrice.greaterThan(b.midPrice) ? -1 : 1)
+  //cachedRoutes.sort((a, b) => a.midPrice.greaterThan(b.midPrice) ? -1 : 1)
 
   let trade
   try {
     if (v2) {
-      //trade = await (maxHops > 2 ? bestTradeWithSplitMultiThreaded : Trade.bestTradeWithSplit)(
       trade = Trade.bestTradeWithSplit(
         cachedRoutes,
         amount,

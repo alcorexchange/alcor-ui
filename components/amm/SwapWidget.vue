@@ -205,15 +205,15 @@ export default {
     banners: {
       all: [],
       wax: [
-        {
-          link: 'https://maxylab.com/wax-holidays/',
-          image: require('@/assets/images/swap-banner-3.gif'),
-          colors: [
-            'rgba(221,74,95,0.2)',
-            'rgba(183,44,47, 1)',
-            'rgba(129,22,25,1)',
-          ],
-        },
+        // {
+        //   link: 'https://maxylab.com/wax-holidays/',
+        //   image: require('@/assets/images/swap-banner-3.gif'),
+        //   colors: [
+        //     'rgba(221,74,95,0.2)',
+        //     'rgba(183,44,47, 1)',
+        //     'rgba(129,22,25,1)',
+        //   ],
+        // },
       ],
       proton: [
         {
