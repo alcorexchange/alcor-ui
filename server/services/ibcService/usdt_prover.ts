@@ -115,17 +115,21 @@ async function proveTransfers(ibcToken, sourceChain, destinationChain, _native) 
   while (true) {
     console.log('prove transfers while.. ', sourceChain.name, destinationChain.name)
     try {
+      // FIXME Proven is not correct for old transfers (before migration)
       const actions = await fetchXfers(chains, ibcToken, _native)
+      const actionsToProve = actions.filter(a => !a.proven)
 
-      for (const action of actions) {
-        if (!action.proven) {
-          console.log(action.timestamp, action)
-          try {
-            const proved = await prove(sourceChain, destinationChain, action, ibcToken, _native)
-            console.log({ proved })
-          } catch (e) {
-            console.error('Prove error!!!', { sourceChain, destinationChain, action, ibcToken, _native })
-          }
+      console.log("ACTIONS TO PROVE", actionsToProve.length)
+
+      //for (const action of actionsToProve.slice(6)) {
+      for (const action of actionsToProve) {
+        console.log(action.timestamp, action)
+        try {
+          const proved = await prove(sourceChain, destinationChain, action, ibcToken, _native)
+          console.log({ proved })
+        } catch (e) {
+          //console.error('Prove error!!!', e, { action, ibcToken, _native })
+          console.error('Prove error!!!', e)
         }
       }
     } catch (e) {

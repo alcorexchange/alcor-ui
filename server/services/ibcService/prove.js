@@ -581,6 +581,7 @@ export async function prove(sourceChain, destinationChain, action, lockContract,
   console.log('getProof')
   const emitxferProof = await ibcTransfer.getProof(query)
 
+  console.log('LIGHT!!!', { light })
   if (light)
     emitxferProof.data.blockproof.root =
       last_proven_block.block_merkle_root
