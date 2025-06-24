@@ -55,12 +55,21 @@ export const actions = {
     const { incentives } = state
     const poolsPlainWithStatsAndUserData = rootGetters['amm/poolsPlainWithStatsAndUserData']
 
+    // Группируем инсентивы по poolId один раз
+    const incentivesByPool = new Map()
+    incentives.forEach((incentive) => {
+      const poolId = incentive.poolId
+      if (!incentivesByPool.has(poolId)) {
+        incentivesByPool.set(poolId, [])
+      }
+      incentivesByPool.get(poolId).push(incentive)
+    })
+
+    // Обрабатываем пулы с использованием сгруппированных инсентивов
     const r = poolsPlainWithStatsAndUserData.map((pool) => {
-      const poolIncentives = incentives
-        .filter((incentive) => incentive.poolId === pool.id)
-        .map((incentive) => {
-          return { ...incentive, apr: getAPR(incentive, pool.poolStats, rootState.tokens) }
-        })
+      const poolIncentives = (incentivesByPool.get(pool.id) || []).map((incentive) => {
+        return { ...incentive, apr: getAPR(incentive, pool.poolStats, rootState.tokens) }
+      })
 
       return {
         ...pool,
