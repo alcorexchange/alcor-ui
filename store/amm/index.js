@@ -260,7 +260,7 @@ export const getters = {
   slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
 
   tokensMap(state) {
-    return new Map(state.allTokens.map(t => [t.id, new Token(t.contract, t.decimals, t.symbol)]))
+    return new Map(state.allTokens.map((t) => [t.id, new Token(t.contract, t.decimals, t.symbol)]))
   },
 
   poolStatsMap(state) {
@@ -292,16 +292,29 @@ export const getters = {
       .filter((position) => position !== null)
   },
 
+  positionsByPool(state) {
+    const positionsMap = new Map()
+    state.positions.forEach((position) => {
+      const poolId = position.pool
+      if (!positionsMap.has(poolId)) {
+        positionsMap.set(poolId, [])
+      }
+      positionsMap.get(poolId).push(position)
+    })
+    return positionsMap
+  },
+
   poolsPlainWithStatsAndUserData(state, getters, rootState) {
     const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
     const poolStatsMap = getters.poolStatsMap
+    const positionsByPool = getters.positionsByPool
 
     return state.pools
       .filter((pool) => !scamContractsSet.has(pool.tokenA.contract) && !scamContractsSet.has(pool.tokenB.contract))
       .map((pool) => ({
         ...pool,
         poolStats: poolStatsMap.get(pool.id),
-        positions: state.positions.filter((p) => p.pool === pool.id),
+        positions: positionsByPool.get(pool.id) || [], // Берем готовый массив или пустой, если позиций нет
       }))
   },
 
