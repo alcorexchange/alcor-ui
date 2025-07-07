@@ -685,5 +685,25 @@
       "https://www.youtube.com/channel/UCtMmckqvOus7JFd3p-9Bxmw"
     ],
     "description": "He3 (HEL) is the utility token of MMHe3, a blockchain strategy game set on the Moon. HEL is used to repair machines and buildings, upgrade city infrastructure, and purchase exclusive NFTs in the in-game shop. With a newly added HEL/WAX liquidity pool and real player demand, HEL is a vital asset in the lunar economy — and a promising token for the future."
+  },
+  "DEERIUM@new.waxdeers": {
+    "name": "Deerium (WDJC 2.0)",
+    "website": {
+      "link": "https://waxdeer.com/",
+      "name": "Wax Deer Jungle Club"
+    },
+    "tags": [
+      "Gaming",
+      "P2E",
+      "NFT",
+      "F2E"
+    ],
+    "socials": [
+      "https://discord.com/invite/bbkVTmfdAU",
+      "https://x.com/WAXDEER",
+      "https://waxdeerjungleclub.medium.com",
+      "https://www.twitch.tv/waxjungle"
+    ],
+    "description": "Wax Deer Jungle Club is a Play-to-Earn project on WAX, built around NFT hunting, jungle survival, and a unique ‘Proof of Going Up’ system where every transaction fee supports the economy and pushes growth."
   }
 }
