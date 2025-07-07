@@ -159,4 +159,20 @@ async function main() {
   }
 }
 
+async function cleanup() {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect()
+  }
+
+  if (redisClient?.isOpen) {
+    await redisClient.quit()
+  }
+}
+
 main()
+  .then(() => cleanup())
+  .then(() => process.exit(0))
+  .catch(err => {
+    console.error('Unhandled error:', err)
+    cleanup().then(() => process.exit(1))
+  })
