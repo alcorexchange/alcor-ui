@@ -111,7 +111,7 @@ async function updateOrders(side, chain, market_id) {
 
   const push = JSON.stringify({ key: `${chain}_${side}_${market_id}`, update })
   publisher.publish('orderbook_update', push)
-  console.log(side, 'orders updated', market_id)
+  console.log(chain, side, 'orders updated', market_id)
 }
 
 async function connectAll() {
