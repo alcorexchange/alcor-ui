@@ -13,7 +13,7 @@ import { initialUpdate as initialOrderbookUpdate } from './services/orderbookSer
 import { updateGlobalStats } from './services/updaterService/analytics'
 import { connectAll, initialUpdate as swapInitialUpdate, updatePool } from './services/swapV2Service'
 import { makeSwapBars, makeSpotBars } from './services/updaterService/charts'
-import { mongoConnect } from './utils'
+import { initRedis, mongoConnect } from './utils'
 
 let redisClient
 const ONEDAY = 60 * 60 * 24 * 1000
@@ -26,6 +26,7 @@ if (!command) { console.log('No command provided'); process.exit() }
 async function main() {
   await mongoConnect()
   await connectAll()
+  await initRedis()
 
   if (command == 'clean_markets') {
     const network = config.networks[process.argv[3]]

@@ -2,7 +2,7 @@ import 'dotenv/config' // Импорт dotenv для ESM
 
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
-import { mongoConnect } from '../../utils'
+import { initRedis, mongoConnect } from '../../utils'
 import { startUpdaters } from './start'
 
 // Создаем Redis-клиент
@@ -47,6 +47,7 @@ async function start() {
     console.error('Startup failed:', e)
     process.exit(1)
   }
+  await initRedis()
 
   // Обработка сигналов завершения
   const shutdown = async () => {

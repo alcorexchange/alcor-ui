@@ -3,7 +3,7 @@ require('dotenv').config()
 import mongoose from 'mongoose'
 import { createClient } from 'redis'
 
-import { mongoConnect } from '../../utils'
+import { initRedis, mongoConnect } from '../../utils'
 import { start } from './start'
 
 const redisClient = createClient()
@@ -23,6 +23,7 @@ async function init () {
     console.log('makeConnections retry... :' + e)
     await new Promise(resolve => setTimeout(resolve, 2000))
     await init()
+    await initRedis()
   }
 
   start()

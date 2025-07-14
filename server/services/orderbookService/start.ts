@@ -8,7 +8,7 @@ import { Market } from '../../models'
 import { networks } from '../../../config'
 import { littleEndianToDesimal, parseAsset } from '../../../utils'
 import { fetchAllRows } from '../../../utils/eosjs'
-import { getFailOverAlcorOnlyRpc, mongoConnect } from './../../utils'
+import { getFailOverAlcorOnlyRpc, initRedis, mongoConnect } from './../../utils'
 
 const client = createClient()
 const publisher = client.duplicate()
@@ -183,6 +183,7 @@ function onChainEvent(message) {
 
 export async function main() {
   await connectAll()
+  await initRedis()
   console.log('OrderbookService setarted')
 
   subscriber.subscribe('market_action', message => {

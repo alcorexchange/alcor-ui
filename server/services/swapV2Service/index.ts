@@ -12,7 +12,7 @@ import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { makeSwapBars } from '../updaterService/charts'
 import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
-import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, mongoConnect } from './../../utils'
+import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, initRedis, mongoConnect } from './../../utils'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -168,6 +168,7 @@ async function updatePositions(chain: string, poolId: number) {
 
 export async function updatePool(chain: string, poolId: number) {
   await connectAll()
+  await initRedis()
 
   const network = networks[chain]
   const rpc = getFailOverAlcorOnlyRpc(network)

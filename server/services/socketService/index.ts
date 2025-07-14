@@ -5,7 +5,7 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import mongoose from 'mongoose'
 
-import { mongoConnect } from '../../utils'
+import { initRedis, mongoConnect } from '../../utils'
 import { Match, Bar, SwapBar } from '../../models'
 
 import { subscribe, unsubscribe } from './sockets'
@@ -29,6 +29,7 @@ async function main() {
 
   await client.connect()
   await subscriber.connect()
+  await initRedis()
 
   // FOR PM2
   //process.send('ready')
