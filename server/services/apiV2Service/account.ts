@@ -56,7 +56,7 @@ async function getCurrentPositionState(chain, plainPosition) {
     fees = await position.getFees()
   } catch (e) {
     console.log(`Error get fees for position(${chain}): `, plainPosition)
-    await updatePool(chain, plainPosition.id)
+    await updatePool(chain, plainPosition.pool)
     throw e
   }
 
