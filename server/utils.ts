@@ -9,10 +9,17 @@ const redisClient = createClient()
 const publisherClient = createClient()
 
 export async function initRedis() {
-  await Promise.all([
-    redisClient.connect(),
-    publisherClient.connect()
-  ])
+  if (!redisClient.isOpen) {
+    await redisClient.connect()
+  } else {
+    console.warn('REDIS CLIENT ALREADY OPENED')
+  }
+
+  if (!publisherClient.isOpen) {
+    await publisherClient.connect()
+  } else {
+    console.warn('REDIS Publisher ALREADY OPENED')
+  }
 
   console.log('✅ Redis and Publisher connected')
   return [redisClient, publisherClient]
