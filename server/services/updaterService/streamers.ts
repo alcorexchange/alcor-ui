@@ -3,7 +3,7 @@ import fetch from 'cross-fetch'
 import { JsonRpc } from 'enf-eosjs'
 
 import { Match, Settings } from '../../models'
-import { getSettings } from '../../utils'
+import { getSettings, sleep } from '../../utils'
 
 function getAccountAsKey(account: string) {
   return account.replace('.', '-')
@@ -53,10 +53,8 @@ export async function streamByGreymass(network, account, callback, actions, dela
 
     await Settings.updateOne({ chain: network.name }, { $set })
 
-    if (r.actions.length < 100) {
-      //console.log(`waitForNewActions(${network.name}, ${account})...`)
-      await new Promise((resolve, reject) => setTimeout(resolve, delay))
-    }
+    const pause = r.actions.length < 100 ? delay : 20
+    await sleep(pause)
   }
 }
 

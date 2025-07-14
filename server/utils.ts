@@ -132,3 +132,5 @@ export async function deleteKeysByPattern(client, pattern) {
     throw error
   }
 }
+
+export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
