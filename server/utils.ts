@@ -1,11 +1,30 @@
 import mongoose from 'mongoose'
 import fetch from 'cross-fetch'
-import { createClient } from 'redis'
+import { createClient, RedisClientType } from 'redis'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { getMultyEndRpc } from '../utils/eosjs'
 import { Settings } from './models'
 
-const redis = createClient()
+let redis = createClient()
+let publisher = createClient()
+
+export function setRedisClient(client) {
+  redis = client
+}
+
+export function getRedisClient() {
+  if (!redis) throw new Error('Redis client not set!')
+  return redis
+}
+
+export function setRedisPublisher(client) {
+  publisher = client
+}
+
+export function getRedisPublisher() {
+  if (!publisher) throw new Error('Redis publisher not set!')
+  return publisher
+}
 
 export async function mongoConnect() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}?directConnection=true`
