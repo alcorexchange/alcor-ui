@@ -11,7 +11,7 @@ import { fetchAllRows } from '../utils/eosjs'
 import { Swap, SwapBar, Match, Market, Bar, GlobalStats } from './models'
 import { initialUpdate as initialOrderbookUpdate } from './services/orderbookService/start'
 import { updateGlobalStats } from './services/updaterService/analytics'
-import { initialUpdate as swapInitialUpdate, updatePool } from './services/swapV2Service'
+import { connectAll, initialUpdate as swapInitialUpdate, updatePool } from './services/swapV2Service'
 import { makeSwapBars, makeSpotBars } from './services/updaterService/charts'
 import { mongoConnect } from './utils'
 
@@ -25,6 +25,7 @@ if (!command) { console.log('No command provided'); process.exit() }
 
 async function main() {
   await mongoConnect()
+  await connectAll()
 
   if (command == 'clean_markets') {
     const network = config.networks[process.argv[3]]
