@@ -5,25 +5,29 @@ import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { getMultyEndRpc } from '../utils/eosjs'
 import { Settings } from './models'
 
-let redis = createClient()
-let publisher = createClient()
+const redisClient = createClient()
+const publisherClient = createClient()
 
-export function setRedisClient(client) {
-  redis = client
+export async function initRedis() {
+  await Promise.all([
+    redisClient.connect(),
+    publisherClient.connect()
+  ])
+
+  console.log('✅ Redis and Publisher connected')
+  return [redisClient, publisherClient]
 }
 
-export function getRedisClient() {
-  if (!redis) throw new Error('Redis client not set!')
-  return redis
+// 🧠 Ленивые безопасные геттеры
+
+export function redis() {
+  if (!redisClient?.isOpen) throw new Error('redisClient is not connected!')
+  return redisClient
 }
 
-export function setRedisPublisher(client) {
-  publisher = client
-}
-
-export function getRedisPublisher() {
-  if (!publisher) throw new Error('Redis publisher not set!')
-  return publisher
+export function publisher() {
+  if (!publisherClient?.isOpen) throw new Error('publisherClient is not connected!')
+  return publisherClient
 }
 
 export async function mongoConnect() {
@@ -32,9 +36,7 @@ export async function mongoConnect() {
 }
 
 export async function getTokens(chain: string) {
-  if (!redis.isOpen) await redis.connect()
-
-  return JSON.parse(await redis.get(`${chain}_token_prices`))
+  return JSON.parse(await redis().get(`${chain}_token_prices`))
 }
 
 export async function getToken(chain: string, id: string) {

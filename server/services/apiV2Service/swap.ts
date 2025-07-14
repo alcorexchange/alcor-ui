@@ -166,7 +166,7 @@ swap.get('/pools/:id/positions', cacheSeconds(60, (req, res) => {
   const network: Network = req.app.get('network')
   const redis = req.app.get('redisClient')
 
-  const positions = JSON.parse(await redis.get(`positions_${network.name}`))
+  const positions = JSON.parse(await redis.get(`positions_${network.name}`)) || []
 
   const result = []
   for (const position of positions.filter(p => p.pool == req.params.id)) {

@@ -8,26 +8,23 @@ import { Match, Swap, PositionHistory, Position } from '../../models'
 import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
 import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
 import { updatePool } from '../swapV2Service'
-import { getRedisClient, getRedisPublisher } from '../../utils'
+import { redis } from '../../utils'
 import { getIncentives } from './farms'
 
 // TODO Account validation
 export const account = Router()
-
-const redis = getRedisClient()
-
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
 export async function getAccountPoolPositions(chain: string, account: string) {
   const startTime = performance.now()
 
-  const allPositions = JSON.parse(await redis.get(`positions_${chain}`)) || []
+  const allPositions = JSON.parse(await redis().get(`positions_${chain}`)) || []
 
   // Оставляем только нужные
   const accountPositions = allPositions.filter(p => p.owner === account)
 
   // Загружаем цены один раз
-  const tokenPrices = JSON.parse(await redis.get(`${chain}_token_prices`))
+  const tokenPrices = JSON.parse(await redis().get(`${chain}_token_prices`))
 
   const historyCache = new Map()
 
@@ -68,7 +65,7 @@ async function getCurrentPositionState(chain, plainPosition, tokenPrices = null)
   const feesB = fees.feesB.toAsset()
 
   // 🧠 грузим только если не передали
-  const tokens = tokenPrices || JSON.parse(await redis.get(`${chain}_token_prices`))
+  const tokens = tokenPrices || JSON.parse(await redis().get(`${chain}_token_prices`))
 
   const tokenA = tokens.find(t => t.id === position.pool.tokenA.id)
   const tokenB = tokens.find(t => t.id === position.pool.tokenB.id)
@@ -105,14 +102,11 @@ export async function getPositionStats(
   if (historyCache.has(idKey)) {
     history = historyCache.get(idKey)
   } else {
-    const startTime = performance.now()
     history = await PositionHistory.find({
       chain,
       id: redisPosition.id,
       owner: redisPosition.owner
     }).sort({ time: 1, type: 1 }).lean()
-    const endTime = performance.now()
-    console.log(`Mongo history for ${idKey}: ${Math.round(endTime - startTime)}ms`)
 
     historyCache.set(idKey, history)
   }
@@ -393,9 +387,9 @@ account.get('/:account/positions', cacheSeconds(2, (req, res) => {
 
   try {
     const historyCache = new Map()
-    const tokenPrices = JSON.parse(await redis.get(`${network.name}_token_prices`))
+    const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`))
 
-    const allPositions = JSON.parse(await redis.get(`positions_${network.name}`)) || []
+    const allPositions = JSON.parse(await redis().get(`positions_${network.name}`)) || []
     const accountPositions = allPositions.filter(p => p.owner === account)
 
     const result = await Promise.all(accountPositions.map(async (position) => {
@@ -437,7 +431,7 @@ account.get('/:account/positions-stats', async (req, res) => {
       owner: account
     }).lean()
 
-    const tokenPrices = JSON.parse(await redis.get(`${network.name}_token_prices`))
+    const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`))
     const historyCache = new Map()
 
     const fullPositions = await Promise.all(ids.map(async (id) => {

@@ -11,7 +11,7 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
-import { mongoConnect, setRedisClient, setRedisPublisher } from '../../utils'
+import { initRedis, mongoConnect } from '../../utils'
 import { networkResolver } from '../apiService/middleware'
 import { spot } from './spot'
 import { swap } from './swap'
@@ -36,15 +36,8 @@ async function start () {
       throw new Error('MongoDB connect err')
     }
 
-    // REDIS client shared globally
-    const redis = createClient()
-    await redis.connect()
-    setRedisClient(redis)
+    const [redis, publisher] = await initRedis()
     app.set('redisClient', redis)
-
-    const publisher = redis.duplicate()
-    await publisher.connect()
-    setRedisPublisher(publisher)
     app.set('publisher', publisher)
   }
 
