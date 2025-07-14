@@ -29,9 +29,10 @@ const ROUTES_UPDATING_TIMEOUT = 60 * 15
 const POOLS = {}
 const POOLS_LOADING_PROMISES = {}
 
+
 const pool = workerpool.pool('./server/services/apiV2Service/workers/computeAllRoutesWorker.js', {
   //minWorkers: 1,
-  maxWorkers: 1,
+  maxWorkers: 1, // HOTFIX 1 main thread + 1 worker. so 2 thread consumed by one instance
   workerType: 'thread'
 })
 
