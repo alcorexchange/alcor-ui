@@ -12,7 +12,7 @@ import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { makeSwapBars } from '../updaterService/charts'
 import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
-import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, initRedis, mongoConnect } from './../../utils'
+import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, getTokens, initRedis, mongoConnect } from './../../utils'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -64,10 +64,9 @@ async function handlePoolChart(
   const poolInstance = await getPool({ chain, id: poolId })
   const { tokenA: { id: tokenA_id }, tokenB: { id: tokenB_id } } = poolInstance
 
-  const [tokenAprice, tokenBprice] = await Promise.all([
-    getToken(chain, tokenA_id),
-    getToken(chain, tokenB_id)
-  ])
+  const tokenCache = await getTokens(chain)
+  const tokenAprice = tokenCache.find(t => t.id === tokenA_id)
+  const tokenBprice = tokenCache.find(t => t.id === tokenB_id)
 
   const usdReserveA = reserveA * (tokenAprice?.usd_price || 0)
   const usdReserveB = reserveB * (tokenBprice?.usd_price || 0)
