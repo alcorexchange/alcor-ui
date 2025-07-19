@@ -25,18 +25,22 @@ export async function updateCMSucid() {
 export async function updateSystemPrice(network: Network) {
   if (!redis.isOpen) await redis.connect()
 
+  let network_name = network.name
+
+  if (network_name === 'waxtest') network_name = 'wax'
+
   try {
     const { data } = await axios.get(
       'https://api.coingecko.com/api/v3/simple/price',
       {
         params: {
-          ids: network.name,
+          ids: network_name,
           vs_currencies: 'usd',
         },
       }
     )
 
-    const price = data[network.name].usd
+    const price = data[network_name].usd
     redis.set(`${network.name}_price`, String(price))
     console.log(`Updated ${network.name} price: `, price)
   } catch (e) {

@@ -688,7 +688,7 @@ const networks = {
   waxtest: {
     name: 'waxtest',
     desc: 'Wax testnet',
-    contract: 'alcordexswap',
+    contract: 'book.alcor',
 
     baseToken: {
       contract: 'eosio.token',

@@ -22,7 +22,7 @@ const limit = pLimit(2)
 export function startUpdaters() {
   const chains = process.env.NETWORK
     ? [process.env.NETWORK]
-    : ['eos', 'wax', 'proton', 'telos', 'ultra']
+    : ['eos', 'wax', 'proton', 'telos', 'ultra', 'waxtest']
 
   chains.forEach(chain => {
     const provider = chain === 'ultra' ? 'hyperion' : 'node'
