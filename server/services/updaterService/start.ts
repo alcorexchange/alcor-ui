@@ -25,7 +25,7 @@ export function startUpdaters() {
     : ['eos', 'wax', 'proton', 'telos', 'ultra', 'waxtest']
 
   chains.forEach(chain => {
-    const provider = chain === 'ultra' ? 'hyperion' : 'node'
+    const provider = ['ultra', 'waxtest'].includes(chain) ? 'hyperion' : 'node'
     limit(() => updater(chain, provider, ['markets', 'prices', 'swap']))
       .catch(e => console.error(`Updater for ${chain} failed:`, e))
   })
