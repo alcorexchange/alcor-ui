@@ -205,7 +205,7 @@ export default {
     banners: {
       wax: [
          {
-           link: 'tinyurl.com/nftopia5-alcor',
+           link: 'https://tinyurl.com/nftopia5-alcor',
            image: require('@/assets/images/swap-banner-nftopia.gif'),
            colors: [
              'rgba(221,74,95,0.2)',
