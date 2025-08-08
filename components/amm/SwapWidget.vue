@@ -204,15 +204,15 @@ export default {
     rateInverted: false,
     banners: {
       wax: [
-        // {
-        //   link: 'https://maxylab.com/wax-holidays/',
-        //   image: require('@/assets/images/swap-banner-3.gif'),
-        //   colors: [
-        //     'rgba(221,74,95,0.2)',
-        //     'rgba(183,44,47, 1)',
-        //     'rgba(129,22,25,1)',
-        //   ],
-        // },
+         {
+           link: 'tinyurl.com/nftopia5-alcor',
+           image: require('@/assets/images/swap-banner-nftopia.gif'),
+           colors: [
+             'rgba(221,74,95,0.2)',
+             'rgba(183,44,47, 1)',
+             'rgba(129,22,25,1)',
+           ],
+         },
       ],
       proton: [
         {
