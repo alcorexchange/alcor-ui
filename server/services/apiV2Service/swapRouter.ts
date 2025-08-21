@@ -73,36 +73,22 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   await connectRedis(redisClient)
 
   const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
-  const updatingKey = 'updating_' + cacheKey
-  const isUpdating = await redisClient.get(updatingKey)
-  const allPools = await getAllPools(chain)
-  const liquidPools = Array.from(allPools.values()).filter((p: any) => p.active && p.tickDataProvider.ticks.length > 0)
-
   let redisRoutes = await redisClient.get('routes_' + cacheKey)
-  const cacheExpiration = await redisClient.get('routes_expiration_' + cacheKey)
-
-  const currentTime = Date.now()
-  const isCacheExpired = !cacheExpiration || currentTime > parseInt(cacheExpiration, 10)
-
-  if (!redisRoutes && isCacheExpired) {
-    if (isUpdating) {
-      throw new Error('Initial cache updating')
-    }
-
-    await updateCache(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey)
-    redisRoutes = await redisClient.get('routes_' + cacheKey)
-  } else if (isCacheExpired) {
-    if (!isUpdating) {
-      updateCache(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey).catch((error) =>
-        console.error('Error updating cache in background:', error)
-      )
-    }
+  
+  if (!redisRoutes) {
+    // Создаем пустой кеш с истекшим временем, чтобы updater подхватил его
+    console.log(`[CACHE] Creating empty cache entry for: ${cacheKey}`)
+    await redisClient.set('routes_' + cacheKey, JSON.stringify([]))
+    // Устанавливаем время истечения в прошлое (1 час назад)
+    await redisClient.set('routes_expiration_' + cacheKey, (Date.now() - 60 * 60 * 1000).toString())
+    throw new Error('Route not found in cache. Cache entry created for background update.')
   }
 
+  const allPools = await getAllPools(chain)
   const routes = []
+  
   for (const route of JSON.parse(redisRoutes) || []) {
     const pools = route.pools.map(p => allPools.get(p))
-
     const poolsValid = pools.every(p => p != undefined && p.active && p.tickDataProvider.ticks.length > 0)
 
     if (poolsValid) {
