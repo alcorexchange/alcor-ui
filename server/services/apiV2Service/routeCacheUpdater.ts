@@ -9,7 +9,7 @@ import { getPools } from '../swapV2Service/utils'
 import { mongoConnect } from '../../utils'
 
 // КОНФИГУРАЦИЯ
-const MAX_WORKERS = 2 // Количество воркеров для вычисления роутов
+const MAX_WORKERS = 3 // Количество воркеров для вычисления роутов
 const CHECK_INTERVAL = 30000 // Интервал между проверками (30 сек)
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 5 // 3 дня в секундах
 const ROUTES_UPDATING_TIMEOUT = 60 * 15 // 15 минут
