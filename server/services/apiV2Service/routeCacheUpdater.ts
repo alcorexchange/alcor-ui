@@ -93,7 +93,6 @@ async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
       return false
     }
 
-    console.log(`[UPDATE] Computing route: ${cacheKey}`)
     const routes = await computeRoutesInWorker(input, output, pools, maxHops)
 
     const redisRoutes = routes.map(({ input, output, pools }) => ({

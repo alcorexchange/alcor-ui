@@ -26,4 +26,4 @@ ENV PORT=7003
 ENV PM2_PORT=8081
 
 # Запускаем приложение с помощью PM2 Runtime
-CMD ["pm2-runtime", "--name", "Alcor-apiV2-server", "--instances", "8", "./lib/server/services/apiV2Service/index.js"]
+CMD ["pm2-runtime", "--name", "Alcor-apiV2-server", "--instances", "10", "./lib/server/services/apiV2Service/index.js"]
