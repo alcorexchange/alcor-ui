@@ -122,14 +122,46 @@ function findToken(pools, tokenID) {
 // Парсинг ключа роута
 function parseRouteKey(key) {
   // routes_chain-inputTokenId-outputTokenId-maxHops
-  const parts = key.replace('routes_', '').split('-')
-  if (parts.length < 4) return null
-
+  // Пример: routes_proton-xhbar-xtokens-dank-electronteam-2
+  const withoutPrefix = key.replace('routes_', '')
+  
+  // Находим последний дефис для maxHops (всегда число в конце)
+  const lastDashIndex = withoutPrefix.lastIndexOf('-')
+  if (lastDashIndex === -1) return null
+  
+  const maxHops = parseInt(withoutPrefix.substring(lastDashIndex + 1))
+  if (isNaN(maxHops)) return null
+  
+  // Оставшаяся часть без maxHops
+  const withoutMaxHops = withoutPrefix.substring(0, lastDashIndex)
+  
+  // Находим первый дефис для chain
+  const firstDashIndex = withoutMaxHops.indexOf('-')
+  if (firstDashIndex === -1) return null
+  
+  const chain = withoutMaxHops.substring(0, firstDashIndex)
+  
+  // Оставшаяся часть - это два токена, разделенных посередине
+  const tokensPart = withoutMaxHops.substring(firstDashIndex + 1)
+  
+  // Ищем разделитель между токенами
+  // Предполагаем, что это средний дефис (может быть неточно для некоторых случаев)
+  // Лучше искать по паттерну: symbol-contract
+  const tokenParts = tokensPart.split('-')
+  
+  // Если частей меньше 4 (минимум symbol1-contract1-symbol2-contract2), значит ошибка
+  if (tokenParts.length < 4) return null
+  
+  // Находим середину для разделения токенов
+  const midIndex = Math.floor(tokenParts.length / 2)
+  const inputTokenId = tokenParts.slice(0, midIndex).join('-')
+  const outputTokenId = tokenParts.slice(midIndex).join('-')
+  
   return {
-    chain: parts[0],
-    inputTokenId: parts[1],
-    outputTokenId: parts[2],
-    maxHops: parseInt(parts[3])
+    chain,
+    inputTokenId,
+    outputTokenId,
+    maxHops
   }
 }
 
