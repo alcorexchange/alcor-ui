@@ -1,15 +1,17 @@
+require('dotenv').config()
+
 import { performance } from 'perf_hooks'
 import workerpool from 'workerpool'
 import { createClient } from 'redis'
 import { Token, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
 
 import { getPools } from '../swapV2Service/utils'
-import { connectAll } from '../swapV2Service/start'
+import { mongoConnect } from '../../utils'
 
 // КОНФИГУРАЦИЯ
 const MAX_WORKERS = 2 // Количество воркеров для вычисления роутов
 const CHECK_INTERVAL = 30000 // Интервал между проверками (30 сек)
-const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 3 // 3 дня в секундах
+const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 5 // 3 дня в секундах
 const ROUTES_UPDATING_TIMEOUT = 60 * 15 // 15 минут
 const NETWORKS = ['eos', 'proton', 'ux', 'wax', 'telos', 'ultra']
 const EXPIRING_SOON_THRESHOLD = 60 * 60 // Обновляем роуты, истекающие в течение часа
@@ -124,39 +126,39 @@ function parseRouteKey(key) {
   // routes_chain-inputTokenId-outputTokenId-maxHops
   // Пример: routes_proton-xhbar-xtokens-dank-electronteam-2
   const withoutPrefix = key.replace('routes_', '')
-  
+
   // Находим последний дефис для maxHops (всегда число в конце)
   const lastDashIndex = withoutPrefix.lastIndexOf('-')
   if (lastDashIndex === -1) return null
-  
+
   const maxHops = parseInt(withoutPrefix.substring(lastDashIndex + 1))
   if (isNaN(maxHops)) return null
-  
+
   // Оставшаяся часть без maxHops
   const withoutMaxHops = withoutPrefix.substring(0, lastDashIndex)
-  
+
   // Находим первый дефис для chain
   const firstDashIndex = withoutMaxHops.indexOf('-')
   if (firstDashIndex === -1) return null
-  
+
   const chain = withoutMaxHops.substring(0, firstDashIndex)
-  
+
   // Оставшаяся часть - это два токена, разделенных посередине
   const tokensPart = withoutMaxHops.substring(firstDashIndex + 1)
-  
+
   // Ищем разделитель между токенами
   // Предполагаем, что это средний дефис (может быть неточно для некоторых случаев)
   // Лучше искать по паттерну: symbol-contract
   const tokenParts = tokensPart.split('-')
-  
+
   // Если частей меньше 4 (минимум symbol1-contract1-symbol2-contract2), значит ошибка
   if (tokenParts.length < 4) return null
-  
+
   // Находим середину для разделения токенов
   const midIndex = Math.floor(tokenParts.length / 2)
   const inputTokenId = tokenParts.slice(0, midIndex).join('-')
   const outputTokenId = tokenParts.slice(midIndex).join('-')
-  
+
   return {
     chain,
     inputTokenId,
@@ -273,7 +275,7 @@ async function mainLoop() {
   console.log(`[CONFIG] Cache timeout: ${ROUTES_CACHE_TIMEOUT}s (${ROUTES_CACHE_TIMEOUT / 60 / 60} hours)`)
 
   // Подключаемся к MongoDB и Redis
-  await connectAll()
+  await mongoConnect()
   console.log('[MONGO] Connected to MongoDB')
 
   await connectRedis()
