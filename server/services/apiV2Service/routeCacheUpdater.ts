@@ -245,12 +245,6 @@ async function scanAndUpdateRoutes(chain) {
         continue
       }
 
-      const logInfo = route.priority === 1
-        ? `(expired ${route.expiredAgo})`
-        : `(expires in ${route.expiresIn})`
-
-      console.log(`[UPDATE] Updating route: ${route.key} ${logInfo}`)
-
       const success = await updateCache(chain, liquidPools, inputToken, outputToken, routeInfo.maxHops, route.key)
       if (success) updated++
     }
