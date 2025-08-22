@@ -171,7 +171,7 @@ async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
   }
 
   const endTime = performance.now()
-  console.log(`[POOLS] Loaded ${pools.length} liquid pools for ${chain} in ${Math.round(endTime - startTime)}ms`)
+  //console.log(`[POOLS] Loaded ${pools.length} liquid pools for ${chain} in ${Math.round(endTime - startTime)}ms`)
 
   return pools
 }
