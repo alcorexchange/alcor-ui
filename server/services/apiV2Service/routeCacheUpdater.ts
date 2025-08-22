@@ -1,20 +1,24 @@
 require('dotenv').config()
 
 import { performance } from 'perf_hooks'
-import workerpool from 'workerpool'
+import * as workerpool from 'workerpool'
 import { createClient } from 'redis'
-import { Token, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
+import { Token, Route, Pool } from '@alcorexchange/alcor-swap-sdk'
 
-import { getPools } from '../swapV2Service/utils'
-import { mongoConnect } from '../../utils'
+import { getPools, poolInstanceFromMongoPool, getRedisTicks } from '../swapV2Service/utils'
+import { mongoConnect, initRedis } from '../../utils'
+import { SwapPool } from '../../models'
 
 // КОНФИГУРАЦИЯ
-const MAX_WORKERS = 3 // Количество воркеров для вычисления роутов
+const MAX_WORKERS = 5 // Количество воркеров для вычисления роутов
 const CHECK_INTERVAL = 30000 // Интервал между проверками (30 сек)
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 20 // 20 дня в секундах
 const ROUTES_UPDATING_TIMEOUT = 60 * 15 // 15 минут
 const NETWORKS = ['eos', 'proton', 'ux', 'wax', 'telos', 'ultra']
 const EXPIRING_SOON_THRESHOLD = 60 * 60 // Обновляем роуты, истекающие в течение часа
+const BATCH_SIZE = 10 // Размер батча для параллельной обработки роутов
+const POOLS_UPDATE_INTERVAL = 30000 // Интервал обновления пулов (30 сек)
+const SHARED_BUFFER_SIZE = 100_000_000 // 100MB для SharedArrayBuffer
 
 // Redis клиент
 const redisClient = createClient()
@@ -25,7 +29,108 @@ const pool = workerpool.pool('./server/services/apiV2Service/workers/computeAllR
   workerType: 'thread'
 })
 
-// Локальный кеш пулов
+// Управление shared memory для пулов
+class SharedPoolsMemory {
+  private sharedBuffer: SharedArrayBuffer
+  private dataView: DataView
+  private poolsMetadata: Map<string, Map<string, { offset: number, length: number }>>
+  private currentOffset: number
+  private lastUpdate: Map<string, number>
+
+  constructor() {
+    this.sharedBuffer = new SharedArrayBuffer(SHARED_BUFFER_SIZE)
+    this.dataView = new DataView(this.sharedBuffer)
+    this.poolsMetadata = new Map()
+    this.currentOffset = 0
+    this.lastUpdate = new Map()
+  }
+
+  // Сериализация пула в буфер
+  private serializePool(pool: Pool): Uint8Array {
+    // Используем Pool.toBuffer если доступен, иначе JSON
+    const buffer = Pool.toBuffer ? Pool.toBuffer(pool) : Buffer.from(JSON.stringify(pool))
+    return new Uint8Array(buffer)
+  }
+
+  // Загрузка пулов в shared memory
+  async loadPools(chain: string, pools: Pool[]) {
+    const chainMetadata = new Map<string, { offset: number, length: number }>()
+
+    // Получаем начальный offset для этой сети
+    // Если сеть уже есть, используем существующий offset, иначе currentOffset
+    let chainOffset = this.getChainStartOffset(chain)
+    const startOffset = chainOffset
+
+    for (const pool of pools) {
+      const serialized = this.serializePool(pool)
+      const length = serialized.length
+
+      // Проверяем, что есть место в буфере
+      if (chainOffset + length > SHARED_BUFFER_SIZE) {
+        console.error(`[ERROR] SharedArrayBuffer overflow for chain ${chain}`)
+        break
+      }
+
+      // Записываем данные в shared buffer
+      for (let i = 0; i < length; i++) {
+        this.dataView.setUint8(chainOffset + i, serialized[i])
+      }
+
+      chainMetadata.set(pool.id.toString(), { offset: chainOffset, length })
+      chainOffset += length
+    }
+
+    // Обновляем метаданные для этой сети (перезаписываем старые)
+    this.poolsMetadata.set(chain, chainMetadata)
+    this.lastUpdate.set(chain, Date.now())
+
+    // Обновляем currentOffset только если это новая сеть или мы вышли за пределы
+    if (chainOffset > this.currentOffset) {
+      this.currentOffset = chainOffset
+    }
+
+    //console.log(`[SHARED] Loaded ${pools.length} pools for ${chain} at offset ${startOffset}-${chainOffset}`)
+
+    return {
+      buffer: this.sharedBuffer,
+      metadata: Object.fromEntries(chainMetadata),
+      chain
+    }
+  }
+
+  // Получить начальный offset для сети
+  private getChainStartOffset(chain: string): number {
+    // Если сеть уже загружена, найдем минимальный offset её пулов
+    const existingMetadata = this.poolsMetadata.get(chain)
+    if (existingMetadata && existingMetadata.size > 0) {
+      const offsets = Array.from(existingMetadata.values()).map(m => m.offset)
+      return Math.min(...offsets)
+    }
+    // Для новой сети используем текущий offset
+    return this.currentOffset
+  }
+
+  getSharedData() {
+    return {
+      buffer: this.sharedBuffer,
+      metadata: Object.fromEntries(
+        Array.from(this.poolsMetadata.entries()).map(([chain, pools]) => [
+          chain,
+          Object.fromEntries(pools)
+        ])
+      )
+    }
+  }
+
+  needsUpdate(chain: string): boolean {
+    const lastUpdate = this.lastUpdate.get(chain) || 0
+    return Date.now() - lastUpdate > POOLS_UPDATE_INTERVAL
+  }
+}
+
+const sharedPoolsMemory = new SharedPoolsMemory()
+
+// Локальный кеш пулов для быстрого доступа
 const POOLS = {}
 const POOLS_LOADING_PROMISES = {}
 
@@ -40,19 +145,51 @@ async function connectRedis() {
   }
 }
 
-// Загрузка всех пулов для сети
+// Загрузка пулов из MongoDB
+async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
+  //console.log(`[POOLS] Loading pools from MongoDB for ${chain}...`)
+  const startTime = performance.now()
+
+  // Загружаем активные пулы
+  const mongoPools = await SwapPool.find({
+    chain,
+    active: true
+  }).lean()
+
+  const pools = []
+  for (const mongoPool of mongoPools) {
+    try {
+      // Используем существующую функцию для конвертации
+      const poolInstance = await poolInstanceFromMongoPool(mongoPool)
+
+      // Проверяем что пул активен и имеет тики
+      // poolInstanceFromMongoPool уже загружает тики из Redis
+      pools.push(poolInstance)
+    } catch (error) {
+      console.error(`[ERROR] Failed to convert pool ${mongoPool.id}:`, error.message)
+    }
+  }
+
+  const endTime = performance.now()
+  //console.log(`[POOLS] Loaded ${pools.length} liquid pools for ${chain} in ${Math.round(endTime - startTime)}ms`)
+
+  return pools
+}
+
+// Загрузка всех пулов для сети с кешированием и обновлением
 async function getAllPools(chain) {
-  if (!POOLS[chain]) {
+  // Проверяем, нужно ли обновить пулы
+  if (sharedPoolsMemory.needsUpdate(chain) || !POOLS[chain]) {
     // Если промис загрузки еще не существует, создаем его
     POOLS_LOADING_PROMISES[chain] =
       POOLS_LOADING_PROMISES[chain] ||
       (async () => {
-        console.log(`[POOLS] Loading pools for ${chain}...`)
-        const startTime = performance.now()
-        const pools = await getPools(chain, true, (p) => p.active)
+        const pools = await loadPoolsFromMongo(chain)
         POOLS[chain] = new Map(pools.map((p) => [p.id, p]))
-        const endTime = performance.now()
-        console.log(`[POOLS] Loaded ${POOLS[chain].size} active pools for ${chain} in ${Math.round(endTime - startTime)}ms`)
+
+        // Загружаем в shared memory для воркеров
+        await sharedPoolsMemory.loadPools(chain, pools)
+
         delete POOLS_LOADING_PROMISES[chain]
         return POOLS[chain]
       })()
@@ -62,18 +199,23 @@ async function getAllPools(chain) {
   return POOLS[chain]
 }
 
-// Вычисление роутов через воркер
-async function computeRoutesInWorker(input, output, pools, maxHops) {
-  const workerData = [
-    Token.toJSON(input),
-    Token.toJSON(output),
-    pools.map(p => Pool.toBuffer(p)),
+// Вычисление роутов через воркер с использованием shared memory
+async function computeRoutesInWorker(chain, input, output, poolIds, maxHops) {
+  // Получаем текущие shared data
+  const sharedData = sharedPoolsMemory.getSharedData()
+
+  const workerData = {
+    sharedData, // Передаем shared data с каждым вызовом
+    chain,
+    input: Token.toJSON(input),
+    output: Token.toJSON(output),
+    poolIds, // Передаем только ID пулов
     maxHops
-  ]
+  }
 
   try {
-    const routes = await pool.exec('computeRoutes', workerData)
-    return routes.map((r) => Route.fromBuffer(r))
+    const routes = await pool.exec('computeRoutesWithInit', [workerData])
+    return routes.map((r) => Route.fromBuffer ? Route.fromBuffer(r) : r)
   } catch (error) {
     console.error('[ERROR] Worker pool error:', error)
     throw error
@@ -81,7 +223,7 @@ async function computeRoutesInWorker(input, output, pools, maxHops) {
 }
 
 // Обновление кеша для конкретного роута
-async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
+async function updateCache(chain, poolIds, input, output, maxHops, cacheKey) {
   const startTime = performance.now()
   const updatingKey = 'updating_' + cacheKey
 
@@ -93,7 +235,7 @@ async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
       return false
     }
 
-    const routes = await computeRoutesInWorker(input, output, pools, maxHops)
+    const routes = await computeRoutesInWorker(chain, input, output, poolIds, maxHops)
 
     const redisRoutes = routes.map(({ input, output, pools }) => ({
       input: Token.toJSON(input),
@@ -187,17 +329,31 @@ async function scanAndUpdateRoutes(chain) {
 
     // Загружаем пулы для сети
     const allPools = await getAllPools(chain)
-    const liquidPools = Array.from(allPools.values()).filter((p: any) => p.active && p.tickDataProvider.ticks.length > 0)
+    // Все пулы из getAllPools уже отфильтрованы (активные с тиками)
+    const liquidPools = Array.from(allPools.values())
     console.log(`[POOLS] Using ${liquidPools.length} liquid pools for ${chain}`)
 
-    // Проверяем expiration для каждого роута
+    // Проверяем expiration для каждого роута с использованием pipeline
     const currentTime = Date.now()
     const routesToUpdate = []
 
-    for (const key of keys) {
-      const cacheKey = key.replace('routes_', '')
-      const expirationKey = `routes_expiration_${cacheKey}`
-      const expiration = await redisClient.get(expirationKey)
+    // Используем pipeline для массовой проверки expiration
+    const pipeline = redisClient.multi()
+    const cacheKeys = keys.map(key => key.replace('routes_', ''))
+
+    // Добавляем все GET операции в pipeline
+    for (const cacheKey of cacheKeys) {
+      pipeline.get(`routes_expiration_${cacheKey}`)
+    }
+
+    // Выполняем все операции одним запросом
+    const expirations = await pipeline.exec()
+
+    // Обрабатываем результаты
+    for (let i = 0; i < cacheKeys.length; i++) {
+      const cacheKey = cacheKeys[i]
+      // Redis pipeline возвращает массив [error, result] для каждой операции
+      const expiration = expirations[i] as string | null
 
       if (!expiration || currentTime > parseInt(expiration, 10)) {
         // Истек
@@ -226,27 +382,45 @@ async function scanAndUpdateRoutes(chain) {
 
     console.log(`[EXPIRED] ${expiredCount} routes expired, ${soonExpiring} expiring soon`)
 
-    // Обновляем роуты
+    // Обновляем роуты батчами для параллельной обработки
     let updated = 0
-    for (const route of routesToUpdate) {
+    const poolIds = liquidPools.map((p: any) => p.id)
+
+    // Разбиваем на батчи
+    for (let i = 0; i < routesToUpdate.length; i += BATCH_SIZE) {
       if (isShuttingDown) {
         console.log('[SHUTDOWN] Stopping route updates due to shutdown')
         break
       }
 
-      const routeInfo = parseRouteKey('routes_' + route.key)
-      if (!routeInfo || routeInfo.chain !== chain) continue
+      const batch = routesToUpdate.slice(i, Math.min(i + BATCH_SIZE, routesToUpdate.length))
 
-      const inputToken = findToken(liquidPools, routeInfo.inputTokenId)
-      const outputToken = findToken(liquidPools, routeInfo.outputTokenId)
+      // Параллельно обрабатываем батч
+      const updatePromises = batch.map(async (route) => {
+        const routeInfo = parseRouteKey('routes_' + route.key)
+        if (!routeInfo || routeInfo.chain !== chain) return false
 
-      if (!inputToken || !outputToken) {
-        console.log(`[SKIP] Tokens not found for route: ${route.key}`)
-        continue
-      }
+        const inputToken = findToken(liquidPools, routeInfo.inputTokenId)
+        const outputToken = findToken(liquidPools, routeInfo.outputTokenId)
 
-      const success = await updateCache(chain, liquidPools, inputToken, outputToken, routeInfo.maxHops, route.key)
-      if (success) updated++
+        if (!inputToken || !outputToken) {
+          console.log(`[SKIP] Tokens not found for route: ${route.key}`)
+          return false
+        }
+
+        return updateCache(chain, poolIds, inputToken, outputToken, routeInfo.maxHops, route.key)
+      })
+
+      // Ждем завершения батча
+      const results = await Promise.allSettled(updatePromises)
+      const batchUpdated = results.filter(r => r.status === 'fulfilled' && r.value).length
+      updated += batchUpdated
+
+      const currentBatch = Math.floor(i / BATCH_SIZE) + 1
+      const totalBatches = Math.ceil(routesToUpdate.length / BATCH_SIZE)
+      const processedSoFar = Math.min(i + BATCH_SIZE, routesToUpdate.length)
+
+      console.log(`[BATCH] Processed batch ${currentBatch}/${totalBatches}, updated ${batchUpdated}/${batch.length} routes | Total progress: ${updated}/${processedSoFar} (${Math.round(processedSoFar / routesToUpdate.length * 100)}%)`)
     }
 
     const endTime = performance.now()
@@ -260,18 +434,48 @@ async function scanAndUpdateRoutes(chain) {
   }
 }
 
+// Периодическое обновление пулов из MongoDB
+async function startPoolsUpdater() {
+  setInterval(async () => {
+    if (isShuttingDown) return
+
+    //console.log('[POOLS] Starting periodic pools update...')
+    for (const chain of NETWORKS) {
+      try {
+        // Принудительно обновляем пулы
+        // loadPools автоматически перезапишет данные для этой сети
+        delete POOLS[chain]
+        await getAllPools(chain)
+      } catch (error) {
+        console.error(`[ERROR] Failed to update pools for ${chain}:`, error)
+      }
+    }
+  }, POOLS_UPDATE_INTERVAL)
+}
+
 // Основной цикл обновления
 async function mainLoop() {
   console.log(`[START] Route Cache Updater service started with ${MAX_WORKERS} workers`)
   console.log(`[CONFIG] Networks: ${NETWORKS.join(', ')}`)
   console.log(`[CONFIG] Check interval: ${CHECK_INTERVAL}ms`)
   console.log(`[CONFIG] Cache timeout: ${ROUTES_CACHE_TIMEOUT}s (${ROUTES_CACHE_TIMEOUT / 60 / 60} hours)`)
+  console.log(`[CONFIG] Batch size: ${BATCH_SIZE} routes`)
+  console.log(`[CONFIG] Pools update interval: ${POOLS_UPDATE_INTERVAL}ms`)
 
   // Подключаемся к MongoDB и Redis
   await mongoConnect()
   console.log('[MONGO] Connected to MongoDB')
 
   await connectRedis()
+  await initRedis()
+
+  // Загружаем начальные пулы для всех сетей
+  for (const chain of NETWORKS) {
+    await getAllPools(chain)
+  }
+
+  // Запускаем периодическое обновление пулов
+  startPoolsUpdater()
 
   while (!isShuttingDown) {
     const cycleStartTime = performance.now()
