@@ -73,36 +73,28 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   await connectRedis(redisClient)
 
   const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
-  const updatingKey = 'updating_' + cacheKey
-  const isUpdating = await redisClient.get(updatingKey)
-  const allPools = await getAllPools(chain)
-  const liquidPools = Array.from(allPools.values()).filter((p: any) => p.active && p.tickDataProvider.ticks.length > 0)
-
   let redisRoutes = await redisClient.get('routes_' + cacheKey)
-  const cacheExpiration = await redisClient.get('routes_expiration_' + cacheKey)
-
-  const currentTime = Date.now()
-  const isCacheExpired = !cacheExpiration || currentTime > parseInt(cacheExpiration, 10)
-
-  if (!redisRoutes && isCacheExpired) {
-    if (isUpdating) {
-      throw new Error('Initial cache updating')
-    }
-
-    await updateCache(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey)
-    redisRoutes = await redisClient.get('routes_' + cacheKey)
-  } else if (isCacheExpired) {
-    if (!isUpdating) {
-      updateCache(chain, liquidPools, inputToken, outputToken, maxHops, cacheKey).catch((error) =>
-        console.error('Error updating cache in background:', error)
-      )
-    }
+  
+  if (!redisRoutes) {
+    // Создаем пустой кеш с истекшим временем, чтобы updater подхватил его
+    console.log(`[CACHE] Creating empty cache entry for: ${cacheKey}`)
+    await redisClient.set('routes_' + cacheKey, JSON.stringify([]))
+    // Устанавливаем время истечения в прошлое (1 час назад)
+    await redisClient.set('routes_expiration_' + cacheKey, (Date.now() - 60 * 60 * 1000).toString())
+    return [] // Возвращаем пустой массив вместо ошибки
   }
 
+  const allPools = await getAllPools(chain)
   const routes = []
-  for (const route of JSON.parse(redisRoutes) || []) {
+  const parsedRoutes = JSON.parse(redisRoutes)
+  
+  // Если кеш пустой, возвращаем сразу
+  if (!parsedRoutes || parsedRoutes.length === 0) {
+    return routes
+  }
+  
+  for (const route of parsedRoutes) {
     const pools = route.pools.map(p => allPools.get(p))
-
     const poolsValid = pools.every(p => p != undefined && p.active && p.tickDataProvider.ticks.length > 0)
 
     if (poolsValid) {
@@ -172,8 +164,24 @@ async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
   }
 }
 
+// Кешируем токены для быстрого поиска
+const tokenCache = new Map()
+
 function findToken(pools, tokenID) {
-  return pools.find((p) => p.tokenA.id === tokenID)?.tokenA || pools.find((p) => p.tokenB.id === tokenID)?.tokenB
+  // Проверяем кеш
+  if (tokenCache.has(tokenID)) {
+    return tokenCache.get(tokenID)
+  }
+  
+  // Ищем токен
+  const token = pools.find((p) => p.tokenA.id === tokenID)?.tokenA || pools.find((p) => p.tokenB.id === tokenID)?.tokenB
+  
+  // Сохраняем в кеш
+  if (token) {
+    tokenCache.set(tokenID, token)
+  }
+  
+  return token
 }
 
 swapRouter.get('/getRoute', async (req, res) => {
@@ -225,13 +233,14 @@ swapRouter.get('/getRoute', async (req, res) => {
       maxHops
     )
   } catch (e) {
-    console.error('No route found error: ' + e.message)
-    return res.status(403).send('No route found: ' + e.message)
+    console.error('Error getting cached routes:', e.message)
+    return res.status(500).send('Service temporarily unavailable')
   }
 
   if (cachedRoutes.length == 0) {
-    console.warn('No route found: ', network.name, inputToken.id, outputToken.id, maxHops)
-    return res.status(403).send('No route found')
+    // Более информативная ошибка
+    console.log(`No routes available: ${network.name} ${inputToken.symbol}(${inputToken.id}) -> ${outputToken.symbol}(${outputToken.id}) maxHops:${maxHops}`)
+    return res.status(404).send('No trading route available. Try again in a few moments.')
   }
 
   //cachedRoutes.sort((a, b) => a.midPrice.greaterThan(b.midPrice) ? -1 : 1)
