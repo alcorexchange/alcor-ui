@@ -265,7 +265,7 @@ async function updateTicks(chain: string, poolId: number) {
 }
 
 export async function connectAll() {
-  // await mongoConnect()
+  await mongoConnect()
 
   // Redis
   if (!redis.isOpen) await redis.connect()
