@@ -55,7 +55,7 @@ class SharedPoolsMemory {
   // Загрузка пулов в shared memory
   async loadPools(chain: string, pools: Pool[]) {
     const chainMetadata = new Map<string, { offset: number, length: number }>()
-    
+
     // Получаем начальный offset для этой сети
     // Если сеть уже есть, используем существующий offset, иначе currentOffset
     let chainOffset = this.getChainStartOffset(chain)
@@ -83,13 +83,13 @@ class SharedPoolsMemory {
     // Обновляем метаданные для этой сети (перезаписываем старые)
     this.poolsMetadata.set(chain, chainMetadata)
     this.lastUpdate.set(chain, Date.now())
-    
+
     // Обновляем currentOffset только если это новая сеть или мы вышли за пределы
     if (chainOffset > this.currentOffset) {
       this.currentOffset = chainOffset
     }
 
-    console.log(`[SHARED] Loaded ${pools.length} pools for ${chain} at offset ${startOffset}-${chainOffset}`)
+    //console.log(`[SHARED] Loaded ${pools.length} pools for ${chain} at offset ${startOffset}-${chainOffset}`)
 
     return {
       buffer: this.sharedBuffer,
@@ -97,7 +97,7 @@ class SharedPoolsMemory {
       chain
     }
   }
-  
+
   // Получить начальный offset для сети
   private getChainStartOffset(chain: string): number {
     // Если сеть уже загружена, найдем минимальный offset её пулов
@@ -147,9 +147,9 @@ async function connectRedis() {
 
 // Загрузка пулов из MongoDB
 async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
-  console.log(`[POOLS] Loading pools from MongoDB for ${chain}...`)
+  //console.log(`[POOLS] Loading pools from MongoDB for ${chain}...`)
   const startTime = performance.now()
-  
+
   // Загружаем активные пулы
   const mongoPools = await SwapPool.find({
     chain,
@@ -161,7 +161,7 @@ async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
     try {
       // Используем существующую функцию для конвертации
       const poolInstance = await poolInstanceFromMongoPool(mongoPool)
-      
+
       // Проверяем что пул активен и имеет тики
       // poolInstanceFromMongoPool уже загружает тики из Redis
       pools.push(poolInstance)
@@ -172,7 +172,7 @@ async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
 
   const endTime = performance.now()
   console.log(`[POOLS] Loaded ${pools.length} liquid pools for ${chain} in ${Math.round(endTime - startTime)}ms`)
-  
+
   return pools
 }
 
@@ -186,10 +186,10 @@ async function getAllPools(chain) {
       (async () => {
         const pools = await loadPoolsFromMongo(chain)
         POOLS[chain] = new Map(pools.map((p) => [p.id, p]))
-        
+
         // Загружаем в shared memory для воркеров
         await sharedPoolsMemory.loadPools(chain, pools)
-        
+
         delete POOLS_LOADING_PROMISES[chain]
         return POOLS[chain]
       })()
@@ -203,7 +203,7 @@ async function getAllPools(chain) {
 async function computeRoutesInWorker(chain, input, output, poolIds, maxHops) {
   // Получаем текущие shared data
   const sharedData = sharedPoolsMemory.getSharedData()
-  
+
   const workerData = {
     sharedData, // Передаем shared data с каждым вызовом
     chain,
@@ -340,15 +340,15 @@ async function scanAndUpdateRoutes(chain) {
     // Используем pipeline для массовой проверки expiration
     const pipeline = redisClient.multi()
     const cacheKeys = keys.map(key => key.replace('routes_', ''))
-    
+
     // Добавляем все GET операции в pipeline
     for (const cacheKey of cacheKeys) {
       pipeline.get(`routes_expiration_${cacheKey}`)
     }
-    
+
     // Выполняем все операции одним запросом
     const expirations = await pipeline.exec()
-    
+
     // Обрабатываем результаты
     for (let i = 0; i < cacheKeys.length; i++) {
       const cacheKey = cacheKeys[i]
@@ -385,16 +385,16 @@ async function scanAndUpdateRoutes(chain) {
     // Обновляем роуты батчами для параллельной обработки
     let updated = 0
     const poolIds = liquidPools.map((p: any) => p.id)
-    
+
     // Разбиваем на батчи
     for (let i = 0; i < routesToUpdate.length; i += BATCH_SIZE) {
       if (isShuttingDown) {
         console.log('[SHUTDOWN] Stopping route updates due to shutdown')
         break
       }
-      
+
       const batch = routesToUpdate.slice(i, Math.min(i + BATCH_SIZE, routesToUpdate.length))
-      
+
       // Параллельно обрабатываем батч
       const updatePromises = batch.map(async (route) => {
         const routeInfo = parseRouteKey('routes_' + route.key)
@@ -410,16 +410,16 @@ async function scanAndUpdateRoutes(chain) {
 
         return updateCache(chain, poolIds, inputToken, outputToken, routeInfo.maxHops, route.key)
       })
-      
+
       // Ждем завершения батча
       const results = await Promise.allSettled(updatePromises)
       const batchUpdated = results.filter(r => r.status === 'fulfilled' && r.value).length
       updated += batchUpdated
-      
+
       const currentBatch = Math.floor(i / BATCH_SIZE) + 1
       const totalBatches = Math.ceil(routesToUpdate.length / BATCH_SIZE)
       const processedSoFar = Math.min(i + BATCH_SIZE, routesToUpdate.length)
-      
+
       console.log(`[BATCH] Processed batch ${currentBatch}/${totalBatches}, updated ${batchUpdated}/${batch.length} routes | Total progress: ${updated}/${processedSoFar} (${Math.round(processedSoFar / routesToUpdate.length * 100)}%)`)
     }
 
@@ -438,7 +438,7 @@ async function scanAndUpdateRoutes(chain) {
 async function startPoolsUpdater() {
   setInterval(async () => {
     if (isShuttingDown) return
-    
+
     console.log('[POOLS] Starting periodic pools update...')
     for (const chain of NETWORKS) {
       try {
@@ -468,12 +468,12 @@ async function mainLoop() {
 
   await connectRedis()
   await initRedis()
-  
+
   // Загружаем начальные пулы для всех сетей
   for (const chain of NETWORKS) {
     await getAllPools(chain)
   }
-  
+
   // Запускаем периодическое обновление пулов
   startPoolsUpdater()
 
