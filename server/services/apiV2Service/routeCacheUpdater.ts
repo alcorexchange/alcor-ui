@@ -413,9 +413,14 @@ async function scanAndUpdateRoutes(chain) {
       
       // Ждем завершения батча
       const results = await Promise.allSettled(updatePromises)
-      updated += results.filter(r => r.status === 'fulfilled' && r.value).length
+      const batchUpdated = results.filter(r => r.status === 'fulfilled' && r.value).length
+      updated += batchUpdated
       
-      console.log(`[BATCH] Processed batch ${Math.floor(i / BATCH_SIZE) + 1}, updated ${results.filter(r => r.status === 'fulfilled' && r.value).length}/${batch.length} routes`)
+      const currentBatch = Math.floor(i / BATCH_SIZE) + 1
+      const totalBatches = Math.ceil(routesToUpdate.length / BATCH_SIZE)
+      const processedSoFar = Math.min(i + BATCH_SIZE, routesToUpdate.length)
+      
+      console.log(`[BATCH] Processed batch ${currentBatch}/${totalBatches}, updated ${batchUpdated}/${batch.length} routes | Total progress: ${updated}/${processedSoFar} (${Math.round(processedSoFar / routesToUpdate.length * 100)}%)`)
     }
 
     const endTime = performance.now()
