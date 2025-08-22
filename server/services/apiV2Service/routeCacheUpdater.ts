@@ -184,31 +184,22 @@ async function getAllPools(chain) {
   return POOLS[chain]
 }
 
-// Инициализация воркеров с shared memory
-async function initializeWorkers() {
-  const sharedData = sharedPoolsMemory.getSharedData()
-  
-  // Инициализируем каждый воркер с shared memory
-  try {
-    await pool.exec('initSharedMemory', [sharedData])
-    console.log('[WORKERS] Initialized with shared memory')
-  } catch (error) {
-    console.error('[ERROR] Failed to initialize workers:', error)
-  }
-}
-
 // Вычисление роутов через воркер с использованием shared memory
 async function computeRoutesInWorker(chain, input, output, poolIds, maxHops) {
-  const workerData = [
+  // Получаем текущие shared data
+  const sharedData = sharedPoolsMemory.getSharedData()
+  
+  const workerData = {
+    sharedData, // Передаем shared data с каждым вызовом
     chain,
-    Token.toJSON(input),
-    Token.toJSON(output),
+    input: Token.toJSON(input),
+    output: Token.toJSON(output),
     poolIds, // Передаем только ID пулов
     maxHops
-  ]
+  }
 
   try {
-    const routes = await pool.exec('computeRoutes', workerData)
+    const routes = await pool.exec('computeRoutesWithInit', [workerData])
     return routes.map((r) => Route.fromBuffer ? Route.fromBuffer(r) : r)
   } catch (error) {
     console.error('[ERROR] Worker pool error:', error)
@@ -439,9 +430,6 @@ async function startPoolsUpdater() {
         // Принудительно обновляем пулы
         delete POOLS[chain]
         await getAllPools(chain)
-        
-        // Обновляем shared memory для воркеров
-        await initializeWorkers()
       } catch (error) {
         console.error(`[ERROR] Failed to update pools for ${chain}:`, error)
       }
@@ -468,9 +456,6 @@ async function mainLoop() {
   for (const chain of NETWORKS) {
     await getAllPools(chain)
   }
-  
-  // Инициализируем воркеры с shared memory
-  await initializeWorkers()
   
   // Запускаем периодическое обновление пулов
   startPoolsUpdater()
@@ -538,6 +523,5 @@ if (require.main === module) {
 export {
   getAllPools,
   computeRoutesInWorker,
-  updateCache,
-  initializeWorkers
+  updateCache
 }

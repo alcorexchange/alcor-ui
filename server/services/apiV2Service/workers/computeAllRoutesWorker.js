@@ -122,9 +122,21 @@ function computeRoutes(chain, input, output, poolIds, maxHops) {
   return routes.map((r) => Route.toBuffer ? Route.toBuffer(r) : r)
 }
 
+// Функция, которая инициализирует shared memory и вычисляет роуты
+function computeRoutesWithInit(data) {
+  const { sharedData, chain, input, output, poolIds, maxHops } = data
+  
+  // Всегда инициализируем/обновляем shared memory
+  initSharedMemory(sharedData)
+  
+  // Вычисляем роуты
+  return computeRoutes(chain, input, output, poolIds, maxHops)
+}
+
 // Регистрация функций воркера
 workerpool.worker({
   initSharedMemory,
-  computeRoutes
+  computeRoutes,
+  computeRoutesWithInit
 })
 
