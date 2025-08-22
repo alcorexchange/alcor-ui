@@ -439,7 +439,7 @@ async function startPoolsUpdater() {
   setInterval(async () => {
     if (isShuttingDown) return
 
-    console.log('[POOLS] Starting periodic pools update...')
+    //console.log('[POOLS] Starting periodic pools update...')
     for (const chain of NETWORKS) {
       try {
         // Принудительно обновляем пулы
