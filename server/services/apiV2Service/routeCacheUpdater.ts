@@ -55,7 +55,11 @@ class SharedPoolsMemory {
   // Загрузка пулов в shared memory
   async loadPools(chain: string, pools: Pool[]) {
     const chainMetadata = new Map<string, { offset: number, length: number }>()
-    let chainOffset = this.currentOffset
+    
+    // Получаем начальный offset для этой сети
+    // Если сеть уже есть, используем существующий offset, иначе currentOffset
+    let chainOffset = this.getChainStartOffset(chain)
+    const startOffset = chainOffset
 
     for (const pool of pools) {
       const serialized = this.serializePool(pool)
@@ -76,15 +80,34 @@ class SharedPoolsMemory {
       chainOffset += length
     }
 
+    // Обновляем метаданные для этой сети (перезаписываем старые)
     this.poolsMetadata.set(chain, chainMetadata)
-    this.currentOffset = chainOffset
     this.lastUpdate.set(chain, Date.now())
+    
+    // Обновляем currentOffset только если это новая сеть или мы вышли за пределы
+    if (chainOffset > this.currentOffset) {
+      this.currentOffset = chainOffset
+    }
+
+    console.log(`[SHARED] Loaded ${pools.length} pools for ${chain} at offset ${startOffset}-${chainOffset}`)
 
     return {
       buffer: this.sharedBuffer,
       metadata: Object.fromEntries(chainMetadata),
       chain
     }
+  }
+  
+  // Получить начальный offset для сети
+  private getChainStartOffset(chain: string): number {
+    // Если сеть уже загружена, найдем минимальный offset её пулов
+    const existingMetadata = this.poolsMetadata.get(chain)
+    if (existingMetadata && existingMetadata.size > 0) {
+      const offsets = Array.from(existingMetadata.values()).map(m => m.offset)
+      return Math.min(...offsets)
+    }
+    // Для новой сети используем текущий offset
+    return this.currentOffset
   }
 
   getSharedData() {
@@ -102,12 +125,6 @@ class SharedPoolsMemory {
   needsUpdate(chain: string): boolean {
     const lastUpdate = this.lastUpdate.get(chain) || 0
     return Date.now() - lastUpdate > POOLS_UPDATE_INTERVAL
-  }
-
-  reset() {
-    this.currentOffset = 0
-    this.poolsMetadata.clear()
-    this.lastUpdate.clear()
   }
 }
 
@@ -132,8 +149,6 @@ async function connectRedis() {
 async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
   console.log(`[POOLS] Loading pools from MongoDB for ${chain}...`)
   const startTime = performance.now()
-  
-  await initRedis()
   
   // Загружаем активные пулы
   const mongoPools = await SwapPool.find({
@@ -422,12 +437,8 @@ async function startPoolsUpdater() {
     console.log('[POOLS] Starting periodic pools update...')
     for (const chain of NETWORKS) {
       try {
-        // Сбрасываем shared memory перед обновлением
-        if (POOLS[chain]) {
-          sharedPoolsMemory.reset()
-        }
-        
         // Принудительно обновляем пулы
+        // loadPools автоматически перезапишет данные для этой сети
         delete POOLS[chain]
         await getAllPools(chain)
       } catch (error) {
@@ -451,6 +462,7 @@ async function mainLoop() {
   console.log('[MONGO] Connected to MongoDB')
 
   await connectRedis()
+  await initRedis()
   
   // Загружаем начальные пулы для всех сетей
   for (const chain of NETWORKS) {
