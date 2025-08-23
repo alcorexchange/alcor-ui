@@ -228,7 +228,7 @@ async function computeRoutesInWorker(chain, input, output, poolIds, maxHops) {
   if (USE_WASM_WORKERS) {
     // WASM режим: передаем пулы напрямую, если нужно обновить
     const allPools = await getAllPools(chain)
-    const pools = Array.from(allPools.values())
+    const pools: Pool[] = Array.from(allPools.values())
 
     // Проверяем, нужно ли передать пулы воркеру
     const currentVersion = POOLS_VERSIONS[chain] || 0
@@ -240,7 +240,7 @@ async function computeRoutesInWorker(chain, input, output, poolIds, maxHops) {
       output: Token.toJSON(output),
       maxHops,
       // Передаем пулы только если версия изменилась
-      pools: currentVersion !== workerVersion ? pools.map(p => Pool.toJSON ? Pool.toJSON(p) : p) : null,
+      pools: currentVersion !== workerVersion ? pools.map(p => Pool.toJSON(p)) : null,
       isUpdate: workerVersion > 0 // Если воркер уже инициализирован, это обновление
     }
 
