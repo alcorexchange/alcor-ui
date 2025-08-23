@@ -18,4 +18,4 @@ ARG DOCKER_TAG
 ENV DOCKER_TAG $DOCKER_TAG
 
 # Start the route cache updater service with WebAssembly flags
-CMD [ "node", "--experimental-wasm-reftypes", "--experimental-wasm-gc", "./lib/server/services/apiV2Service/routeCacheUpdater.js" ]
+CMD [ "node", "./lib/server/services/apiV2Service/routeCacheUpdater.js" ]
