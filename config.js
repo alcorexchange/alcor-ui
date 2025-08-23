@@ -230,7 +230,8 @@ const networks = {
       'tronx', 'polkadotx', 'seinetwork', 'deroq', 'loantokens', 'xsport', 'alcorex', 'infinitybend', 'infinityhash', 'lcorex',
       'toilet', 'infinityhash', 'infinitybend', 'stellarx', 'btccash', 'thetax', 'classiceth', 'xvechain', 'x2network', 'inet',
       'xkaspa', 'teranode', 'xaxie', 'mantrachain', 'onyxcoin', 'protonethena', 'xcompound', 'berachain', 'protonavve', 'unilateral',
-      'xcronos', 'xuniswapxpr', 'litecoinx', 'quantumchain', 'rippleledger', 'dogex', 'ondocoin', 'xprliquid', 'tokensxpr', 'xprswap'
+      'xcronos', 'xuniswapxpr', 'litecoinx', 'quantumchain', 'rippleledger', 'dogex', 'ondocoin', 'xprliquid', 'tokensxpr', 'xprswap',
+      'tradexpr'
     ],
     CEX_CONTRACTS: [],
 
@@ -688,7 +689,7 @@ const networks = {
   waxtest: {
     name: 'waxtest',
     desc: 'Wax testnet',
-    contract: 'alcordexswap',
+    contract: 'book.alcor',
 
     baseToken: {
       contract: 'eosio.token',

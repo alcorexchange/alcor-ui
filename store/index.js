@@ -247,6 +247,13 @@ export const actions = {
 
   async loadAllTokens({ dispatch, commit, state }) {
     const { data: tokens } = await this.$axios.get('/v2/tokens')
+
+    if (tokens === null) {
+      console.warn('TOKEN(API) IS NULL!')
+      commit('setTokens', [])
+      return
+    }
+
     commit('setTokens', tokens)
 
     const { contract, symbol } = state.network.baseToken
