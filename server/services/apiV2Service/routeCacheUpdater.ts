@@ -12,7 +12,7 @@ import { SwapPool } from '../../models'
 // КОНФИГУРАЦИЯ
 const USE_WASM_WORKERS = process.env.USE_WASM_WORKERS !== 'false' // По умолчанию включен WASM
 const MAX_WORKERS = USE_WASM_WORKERS ? 3 : 5 // Меньше воркеров для WASM (они эффективнее)
-const CHECK_INTERVAL = 30000 // Интервал между проверками (30 сек)
+const CHECK_INTERVAL = 10000 // Интервал между проверками (10 сек)
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 20 // 20 дня в секундах
 const ROUTES_UPDATING_TIMEOUT = 60 * 15 // 15 минут
 const NETWORKS = ['eos', 'proton', 'ux', 'wax', 'telos', 'ultra']
