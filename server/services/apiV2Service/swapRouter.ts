@@ -28,6 +28,46 @@ const TOKEN_INDEX = {} // { chain: Map<tokenId, Token> }
 const TRADE_CACHE = new Map() // Кеш для результатов trade
 const CACHE_TTL = 3000 // 3 секунды TTL для кеша
 
+// Статистика по источникам запросов
+const REQUEST_STATS = new Map() // origin -> { count, lastSeen, routes: Map }
+const STATS_WINDOW = 60 * 60 * 1000 // 1 час окно статистики
+
+// Функция для очистки старой статистики
+function cleanRequestStats() {
+  const now = Date.now()
+  for (const [origin, stats] of REQUEST_STATS.entries()) {
+    if (now - stats.lastSeen > STATS_WINDOW) {
+      REQUEST_STATS.delete(origin)
+    }
+  }
+}
+
+// Функция для записи статистики
+function recordRequestStats(origin, route) {
+  if (!origin) origin = 'direct'
+  
+  if (!REQUEST_STATS.has(origin)) {
+    REQUEST_STATS.set(origin, {
+      count: 0,
+      lastSeen: Date.now(),
+      routes: new Map()
+    })
+  }
+  
+  const stats = REQUEST_STATS.get(origin)
+  stats.count++
+  stats.lastSeen = Date.now()
+  
+  // Считаем популярные роуты для каждого источника
+  const routeKey = route
+  stats.routes.set(routeKey, (stats.routes.get(routeKey) || 0) + 1)
+  
+  // Периодически чистим старую статистику
+  if (REQUEST_STATS.size > 1000) {
+    cleanRequestStats()
+  }
+}
+
 subscriber.connect().then(() => {
   subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
     const { chain, buffer } = JSON.parse(msg)
@@ -129,6 +169,38 @@ function cleanTradeCache() {
   }
 }
 
+// Эндпоинт для просмотра статистики
+swapRouter.get('/stats', async (req, res) => {
+  const stats = []
+  
+  // Чистим старую статистику перед показом
+  cleanRequestStats()
+  
+  for (const [origin, data] of REQUEST_STATS.entries()) {
+    const topRoutes = Array.from(data.routes.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([route, count]) => ({ route, count }))
+    
+    stats.push({
+      origin,
+      count: data.count,
+      lastSeen: new Date(data.lastSeen).toISOString(),
+      topRoutes
+    })
+  }
+  
+  // Сортируем по количеству запросов
+  stats.sort((a, b) => b.count - a.count)
+  
+  res.json({
+    totalOrigins: stats.length,
+    totalRequests: stats.reduce((sum, s) => sum + s.count, 0),
+    window: '1 hour',
+    stats: stats.slice(0, 50) // Топ 50 источников
+  })
+})
+
 swapRouter.get('/getRoute', async (req, res) => {
   const network = req.app.get('network')
   let { v2, trade_type, input, output, amount, slippage, receiver = '<receiver>', maxHops } = <any>req.query
@@ -153,7 +225,10 @@ swapRouter.get('/getRoute', async (req, res) => {
   // Проверяем кеш
   const cached = TRADE_CACHE.get(cacheKey)
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    console.log(`Cache hit for ${input} -> ${output}`)
+    const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
+    const routeInfo = `${input}->${output}`
+    recordRequestStats(origin, routeInfo)
+    console.log(`Cache hit for ${input} -> ${output} from ${origin}`)
     return res.json(cached.data)
   }
 
@@ -223,12 +298,18 @@ swapRouter.get('/getRoute', async (req, res) => {
   const endTime = performance.now()
 
   const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+  const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
+  const userAgent = req.headers['user-agent'] || 'unknown'
+  
+  // Записываем статистику
+  const routeInfo = `${inputToken.symbol}->${outputToken.symbol}`
+  recordRequestStats(origin, routeInfo)
 
   console.log(
     network.name,
     `find route ${maxHops} hop ${Math.round(
       endTime - startTime
-    )} ms ${inputToken.symbol} -> ${outputToken.symbol} v2: ${Boolean(v2)} amount: ${amount.toSignificant()} IP: ${clientIp}`
+    )} ms ${inputToken.symbol} -> ${outputToken.symbol} v2: ${Boolean(v2)} amount: ${amount.toSignificant()} origin: ${origin} IP: ${clientIp}`
   )
 
   if (!trade) {
