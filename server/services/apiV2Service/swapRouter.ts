@@ -30,8 +30,8 @@ const CACHE_TTL = 3000 // 3 секунды TTL для кеша
 
 // PM2 Instance configuration
 const INSTANCE_ID = parseInt(process.env.NODE_APP_INSTANCE || '0')
-const TOTAL_INSTANCES = parseInt(process.env.instances || '10')
-const INSTANCE_ROLE = INSTANCE_ID < 5 ? 'user' : 'api' // 0-4 для Alcor users (5 инстансов), 5-9 для Direct API (5 инстансов)
+const TOTAL_INSTANCES = parseInt(process.env.instances || '8')
+const INSTANCE_ROLE = INSTANCE_ID < 4 ? 'user' : 'api' // 0-3 для Alcor users (4 инстанса), 4-7 для Direct API (4 инстанса)
 
 console.log(`[PM2] Instance ${INSTANCE_ID} of ${TOTAL_INSTANCES} started as role: ${INSTANCE_ROLE}`)
 
@@ -333,13 +333,13 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   // Адаптивная обработка в зависимости от роли инстанса
   if (INSTANCE_ROLE === 'user') {
-    // Инстансы 0-1: приоритет для Alcor
+    // Инстансы 0-3: приоритет для Alcor
     if (priority === 0 && REQUEST_QUEUE.length > 5) {
       // Добавляем задержку для direct запросов на user инстансах
       await new Promise(resolve => setTimeout(resolve, 2000))
     }
   } else {
-    // Инстансы 2-9: приоритет для Direct API
+    // Инстансы 4-7: приоритет для Direct API
     if (priority > 0) {
       // Добавляем задержку для Alcor запросов на API инстансах
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -391,9 +391,7 @@ async function processRouteRequest(req, res, origin) {
 
   const startTime = performance.now()
 
-  console.log(`[Instance ${INSTANCE_ID}] Before getAllPools - Pools: ${POOLS[network.name]?.size || 0}, Index: ${TOKEN_INDEX[network.name]?.size || 0}`)
   const allPools = await getAllPools(network.name)
-  console.log(`[Instance ${INSTANCE_ID}] After getAllPools - Pools: ${POOLS[network.name]?.size || 0}, Index: ${TOKEN_INDEX[network.name]?.size || 0}`)
 
   const inputToken = findToken(network.name, input)
   const outputToken = findToken(network.name, output)
