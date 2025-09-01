@@ -28,6 +28,13 @@ const TOKEN_INDEX = {} // { chain: Map<tokenId, Token> }
 const TRADE_CACHE = new Map() // Кеш для результатов trade
 const CACHE_TTL = 3000 // 3 секунды TTL для кеша
 
+// PM2 Instance configuration
+const INSTANCE_ID = parseInt(process.env.NODE_APP_INSTANCE || '0')
+const TOTAL_INSTANCES = parseInt(process.env.instances || '10')
+const INSTANCE_ROLE = INSTANCE_ID < 2 ? 'user' : 'api' // 0,1 для Alcor users, 2-9 для Direct API
+
+console.log(`[PM2] Instance ${INSTANCE_ID} of ${TOTAL_INSTANCES} started as role: ${INSTANCE_ROLE}`)
+
 // Статистика по источникам запросов
 const REQUEST_STATS = new Map() // origin -> { count, lastSeen, routes: Map }
 const STATS_WINDOW = 60 * 60 * 1000 // 1 час окно статистики
@@ -260,6 +267,11 @@ swapRouter.get('/stats', async (req, res) => {
     totalOrigins: stats.length,
     totalRequests: stats.reduce((sum, s) => sum + s.count, 0),
     window: '1 hour',
+    instance: {
+      id: INSTANCE_ID,
+      role: INSTANCE_ROLE,
+      total: TOTAL_INSTANCES
+    },
     queue: queueInfo,
     stats: stats.slice(0, 50) // Топ 50 источников
   })
@@ -268,6 +280,21 @@ swapRouter.get('/stats', async (req, res) => {
 swapRouter.get('/getRoute', async (req, res) => {
   const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
   const priority = getRequestPriority(origin)
+  
+  // Адаптивная обработка в зависимости от роли инстанса
+  if (INSTANCE_ROLE === 'user') {
+    // Инстансы 0-1: приоритет для Alcor
+    if (priority === 0 && REQUEST_QUEUE.length > 5) {
+      // Добавляем задержку для direct запросов на user инстансах
+      await new Promise(resolve => setTimeout(resolve, 2000))
+    }
+  } else {
+    // Инстансы 2-9: приоритет для Direct API
+    if (priority > 0) {
+      // Добавляем задержку для Alcor запросов на API инстансах
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
+  }
   
   // Обрабатываем запрос через очередь с приоритетом
   try {
@@ -386,7 +413,7 @@ async function processRouteRequest(req, res, origin) {
 
   console.log(
     network.name,
-    `find route ${maxHops} hop ${Math.round(
+    `[Instance ${INSTANCE_ID}] find route ${maxHops} hop ${Math.round(
       endTime - startTime
     )} ms ${inputToken.symbol} -> ${outputToken.symbol} v2: ${Boolean(v2)} amount: ${amount.toSignificant()} origin: ${origin} IP: ${clientIp}`
   )
