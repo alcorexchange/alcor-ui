@@ -32,6 +32,59 @@ const CACHE_TTL = 3000 // 3 секунды TTL для кеша
 const REQUEST_STATS = new Map() // origin -> { count, lastSeen, routes: Map }
 const STATS_WINDOW = 60 * 60 * 1000 // 1 час окно статистики
 
+// Система приоритетов для запросов
+const REQUEST_QUEUE = []
+const MAX_CONCURRENT_REQUESTS = 10 // Максимум параллельных запросов
+let ACTIVE_REQUESTS = 0
+
+// Определение приоритета по источнику
+function getRequestPriority(origin) {
+  if (!origin || origin === 'direct') return 0 // Низкий приоритет для direct API
+  if (origin.includes('alcor.exchange')) return 2 // Высокий приоритет для Alcor
+  return 1 // Средний приоритет для остальных
+}
+
+// Обработка очереди запросов
+async function processRequestQueue() {
+  while (REQUEST_QUEUE.length > 0 && ACTIVE_REQUESTS < MAX_CONCURRENT_REQUESTS) {
+    // Сортируем очередь по приоритету (высокий приоритет первый)
+    REQUEST_QUEUE.sort((a, b) => b.priority - a.priority)
+    
+    const request = REQUEST_QUEUE.shift()
+    if (!request) break
+    
+    ACTIVE_REQUESTS++
+    
+    // Выполняем запрос асинхронно
+    request.execute().finally(() => {
+      ACTIVE_REQUESTS--
+      // Запускаем обработку следующего запроса из очереди
+      processRequestQueue()
+    })
+  }
+}
+
+// Функция для добавления запроса в очередь
+function queueRequest(priority, executeFunc) {
+  return new Promise((resolve, reject) => {
+    const request = {
+      priority,
+      timestamp: Date.now(),
+      execute: async () => {
+        try {
+          const result = await executeFunc()
+          resolve(result)
+        } catch (error) {
+          reject(error)
+        }
+      }
+    }
+    
+    REQUEST_QUEUE.push(request)
+    processRequestQueue()
+  })
+}
+
 // Функция для очистки старой статистики
 function cleanRequestStats() {
   const now = Date.now()
@@ -172,6 +225,16 @@ function cleanTradeCache() {
 // Эндпоинт для просмотра статистики
 swapRouter.get('/stats', async (req, res) => {
   const stats = []
+  const queueInfo = {
+    queueLength: REQUEST_QUEUE.length,
+    activeRequests: ACTIVE_REQUESTS,
+    maxConcurrent: MAX_CONCURRENT_REQUESTS,
+    queueByPriority: {
+      high: REQUEST_QUEUE.filter(r => r.priority === 2).length,
+      medium: REQUEST_QUEUE.filter(r => r.priority === 1).length,
+      low: REQUEST_QUEUE.filter(r => r.priority === 0).length
+    }
+  }
   
   // Чистим старую статистику перед показом
   cleanRequestStats()
@@ -197,11 +260,29 @@ swapRouter.get('/stats', async (req, res) => {
     totalOrigins: stats.length,
     totalRequests: stats.reduce((sum, s) => sum + s.count, 0),
     window: '1 hour',
+    queue: queueInfo,
     stats: stats.slice(0, 50) // Топ 50 источников
   })
 })
 
 swapRouter.get('/getRoute', async (req, res) => {
+  const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
+  const priority = getRequestPriority(origin)
+  
+  // Обрабатываем запрос через очередь с приоритетом
+  try {
+    const result = await queueRequest(priority, async () => {
+      return processRouteRequest(req, res, origin)
+    })
+    return result
+  } catch (error) {
+    console.error('Route request error:', error)
+    return res.status(500).send('Internal server error')
+  }
+})
+
+// Основная логика обработки запроса вынесена в отдельную функцию
+async function processRouteRequest(req, res, origin) {
   const network = req.app.get('network')
   let { v2, trade_type, input, output, amount, slippage, receiver = '<receiver>', maxHops } = <any>req.query
 
@@ -225,7 +306,6 @@ swapRouter.get('/getRoute', async (req, res) => {
   // Проверяем кеш
   const cached = TRADE_CACHE.get(cacheKey)
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
     const routeInfo = `${input}->${output}`
     recordRequestStats(origin, routeInfo)
     console.log(`Cache hit for ${input} -> ${output} from ${origin}`)
@@ -298,7 +378,6 @@ swapRouter.get('/getRoute', async (req, res) => {
   const endTime = performance.now()
 
   const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-  const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
   const userAgent = req.headers['user-agent'] || 'unknown'
   
   // Записываем статистику
@@ -330,6 +409,6 @@ swapRouter.get('/getRoute', async (req, res) => {
   }
 
   return res.json(parsedTrade)
-})
+}
 
 export default swapRouter
