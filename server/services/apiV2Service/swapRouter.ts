@@ -56,12 +56,12 @@ async function processRequestQueue() {
   while (REQUEST_QUEUE.length > 0 && ACTIVE_REQUESTS < MAX_CONCURRENT_REQUESTS) {
     // Сортируем очередь по приоритету (высокий приоритет первый)
     REQUEST_QUEUE.sort((a, b) => b.priority - a.priority)
-    
+
     const request = REQUEST_QUEUE.shift()
     if (!request) break
-    
+
     ACTIVE_REQUESTS++
-    
+
     // Выполняем запрос асинхронно
     request.execute().finally(() => {
       ACTIVE_REQUESTS--
@@ -86,7 +86,7 @@ function queueRequest(priority, executeFunc) {
         }
       }
     }
-    
+
     REQUEST_QUEUE.push(request)
     processRequestQueue()
   })
@@ -105,7 +105,7 @@ function cleanRequestStats() {
 // Функция для записи статистики
 function recordRequestStats(origin, route) {
   if (!origin) origin = 'direct'
-  
+
   if (!REQUEST_STATS.has(origin)) {
     REQUEST_STATS.set(origin, {
       count: 0,
@@ -113,15 +113,15 @@ function recordRequestStats(origin, route) {
       routes: new Map()
     })
   }
-  
+
   const stats = REQUEST_STATS.get(origin)
   stats.count++
   stats.lastSeen = Date.now()
-  
+
   // Считаем популярные роуты для каждого источника
   const routeKey = route
   stats.routes.set(routeKey, (stats.routes.get(routeKey) || 0) + 1)
-  
+
   // Периодически чистим старую статистику
   if (REQUEST_STATS.size > 1000) {
     cleanRequestStats()
@@ -140,13 +140,13 @@ subscriber.connect().then(() => {
     }
 
     POOLS[chain].set(pool.id, pool)
-    
+
     // Создаем индекс если его нет
     if (!TOKEN_INDEX[chain]) {
       console.log(`[Instance ${INSTANCE_ID}] Creating TOKEN_INDEX for chain ${chain} from subscriber`)
       TOKEN_INDEX[chain] = new Map()
     }
-    
+
     // Обновляем индекс токенов
     TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
     TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
@@ -161,14 +161,14 @@ async function getAllPools(chain) {
       (async () => {
         const pools = await getPools(chain, true, (p) => p.active)
         POOLS[chain] = new Map(pools.map((p) => [p.id, p]))
-        
+
         // Создаем индекс токенов для быстрого поиска
         TOKEN_INDEX[chain] = new Map()
         for (const pool of pools) {
           TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
           TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
         }
-        
+
         console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
         delete POOLS_LOADING_PROMISES[chain] // Очищаем промис после завершения
         return POOLS[chain]
@@ -176,7 +176,7 @@ async function getAllPools(chain) {
     // Ждем завершения загрузки
     await POOLS_LOADING_PROMISES[chain]
   }
-  
+
   // Гарантируем что TOKEN_INDEX существует даже если был создан через subscriber
   if (!TOKEN_INDEX[chain] && POOLS[chain]) {
     console.log(`[Instance ${INSTANCE_ID}] TOKEN_INDEX missing, rebuilding from ${POOLS[chain].size} pools`)
@@ -186,12 +186,12 @@ async function getAllPools(chain) {
       TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
     }
   }
-  
+
   // Проверка консистентности
   if (POOLS[chain] && POOLS[chain].size > 0 && (!TOKEN_INDEX[chain] || TOKEN_INDEX[chain].size === 0)) {
     console.error(`[Instance ${INSTANCE_ID}][CRITICAL] TOKEN_INDEX empty but POOLS has ${POOLS[chain].size} pools!`)
   }
-  
+
   return POOLS[chain]
 }
 
@@ -238,7 +238,7 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
 function findToken(chain, tokenID) {
   // Пробуем индекс
   let token = TOKEN_INDEX[chain]?.get(tokenID)
-  
+
   // Если индекс пустой но пулы есть - пересоздаем индекс
   if (!token && POOLS[chain] && (!TOKEN_INDEX[chain] || TOKEN_INDEX[chain].size === 0)) {
     console.log(`[TOKEN_INDEX] Rebuilding index for chain ${chain}`)
@@ -249,7 +249,7 @@ function findToken(chain, tokenID) {
     }
     token = TOKEN_INDEX[chain].get(tokenID)
   }
-  
+
   return token
 }
 
@@ -276,16 +276,16 @@ swapRouter.get('/stats', async (req, res) => {
       low: REQUEST_QUEUE.filter(r => r.priority === 0).length
     }
   }
-  
+
   // Чистим старую статистику перед показом
   cleanRequestStats()
-  
+
   for (const [origin, data] of REQUEST_STATS.entries()) {
     const topRoutes = Array.from(data.routes.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([route, count]) => ({ route, count }))
-    
+
     stats.push({
       origin,
       count: data.count,
@@ -293,10 +293,10 @@ swapRouter.get('/stats', async (req, res) => {
       topRoutes
     })
   }
-  
+
   // Сортируем по количеству запросов
   stats.sort((a, b) => b.count - a.count)
-  
+
   res.json({
     totalOrigins: stats.length,
     totalRequests: stats.reduce((sum, s) => sum + s.count, 0),
@@ -314,7 +314,7 @@ swapRouter.get('/stats', async (req, res) => {
 swapRouter.get('/getRoute', async (req, res) => {
   const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
   const priority = getRequestPriority(origin)
-  
+
   // Адаптивная обработка в зависимости от роли инстанса
   if (INSTANCE_ROLE === 'user') {
     // Инстансы 0-1: приоритет для Alcor
@@ -329,7 +329,7 @@ swapRouter.get('/getRoute', async (req, res) => {
       await new Promise(resolve => setTimeout(resolve, 1000))
     }
   }
-  
+
   // Обрабатываем запрос через очередь с приоритетом
   try {
     const result = await queueRequest(priority, async () => {
@@ -360,10 +360,10 @@ async function processRouteRequest(req, res, origin) {
   maxHops = Math.min(3, !isNaN(parseInt(maxHops)) ? parseInt(maxHops) : TRADE_LIMITS.maxHops)
 
   const exactIn = trade_type === 'EXACT_INPUT'
-  
+
   // Создаем ключ для кеша
   const cacheKey = `${network.name}-${input}-${output}-${amount}-${trade_type}-${maxHops}-${slippage.toSignificant()}-${v2}`
-  
+
   // Проверяем кеш
   const cached = TRADE_CACHE.get(cacheKey)
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -448,7 +448,7 @@ async function processRouteRequest(req, res, origin) {
 
   const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   const userAgent = req.headers['user-agent'] || 'unknown'
-  
+
   // Записываем статистику
   const routeInfo = `${inputToken.symbol}->${outputToken.symbol}`
   recordRequestStats(origin, routeInfo)
@@ -465,13 +465,13 @@ async function processRouteRequest(req, res, origin) {
   }
 
   const parsedTrade = parseTrade(trade, slippage, receiver)
-  
+
   // Сохраняем результат в кеш
   TRADE_CACHE.set(cacheKey, {
     data: parsedTrade,
     timestamp: Date.now()
   })
-  
+
   // Периодически чистим кеш
   if (TRADE_CACHE.size > 1000) {
     cleanTradeCache()
