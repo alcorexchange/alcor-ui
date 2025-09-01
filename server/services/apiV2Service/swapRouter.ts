@@ -1,5 +1,4 @@
 import { performance } from 'perf_hooks'
-import workerpool from 'workerpool'
 
 import { createClient } from 'redis'
 import { TradeType, Trade, Percent, Token, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
@@ -13,6 +12,9 @@ export const swapRouter = Router()
 const redisClient = createClient()
 const subscriber = createClient()
 
+// Подключаемся к Redis один раз при старте
+redisClient.connect().catch(console.error)
+
 const connectRedis = async (client) => {
   if (!client.isOpen) {
     await client.connect()
@@ -20,21 +22,11 @@ const connectRedis = async (client) => {
 }
 
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
-const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 3
-const ROUTES_UPDATING_TIMEOUT = 60 * 15
-
-// const ROUTES_CACHE_TIMEOUT = 10
-// const ROUTES_UPDATING_TIMEOUT = 15
-
 const POOLS = {}
 const POOLS_LOADING_PROMISES = {}
-
-
-const pool = workerpool.pool('./server/services/apiV2Service/workers/computeAllRoutesWorker.js', {
-  //minWorkers: 1,
-  maxWorkers: 1, // HOTFIX 1 main thread + 1 worker. so 2 thread consumed by one instance
-  workerType: 'thread'
-})
+const TOKEN_INDEX = {} // { chain: Map<tokenId, Token> }
+const TRADE_CACHE = new Map() // Кеш для результатов trade
+const CACHE_TTL = 3000 // 3 секунды TTL для кеша
 
 subscriber.connect().then(() => {
   subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
@@ -48,6 +40,12 @@ subscriber.connect().then(() => {
     }
 
     POOLS[chain].set(pool.id, pool)
+    
+    // Обновляем индекс токенов
+    if (TOKEN_INDEX[chain]) {
+      TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
+      TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
+    }
   })
 })
 
@@ -59,6 +57,14 @@ async function getAllPools(chain) {
       (async () => {
         const pools = await getPools(chain, true, (p) => p.active)
         POOLS[chain] = new Map(pools.map((p) => [p.id, p]))
+        
+        // Создаем индекс токенов для быстрого поиска
+        TOKEN_INDEX[chain] = new Map()
+        for (const pool of pools) {
+          TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
+          TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
+        }
+        
         console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
         delete POOLS_LOADING_PROMISES[chain] // Очищаем промис после завершения
         return POOLS[chain]
@@ -70,11 +76,14 @@ async function getAllPools(chain) {
 }
 
 async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
-  await connectRedis(redisClient)
+  // Redis уже подключен при старте, не нужно переподключаться
+  if (!redisClient.isOpen) {
+    await connectRedis(redisClient)
+  }
 
   const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
-  let redisRoutes = await redisClient.get('routes_' + cacheKey)
-  
+  const redisRoutes = await redisClient.get('routes_' + cacheKey)
+
   if (!redisRoutes) {
     // Создаем пустой кеш с истекшим временем, чтобы updater подхватил его
     console.log(`[CACHE] Creating empty cache entry for: ${cacheKey}`)
@@ -87,12 +96,12 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   const allPools = await getAllPools(chain)
   const routes = []
   const parsedRoutes = JSON.parse(redisRoutes)
-  
+
   // Если кеш пустой, возвращаем сразу
   if (!parsedRoutes || parsedRoutes.length === 0) {
     return routes
   }
-  
+
   for (const route of parsedRoutes) {
     const pools = route.pools.map(p => allPools.get(p))
     const poolsValid = pools.every(p => p != undefined && p.active && p.tickDataProvider.ticks.length > 0)
@@ -105,83 +114,19 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   return routes
 }
 
-async function computeRoutesInWorker(input, output, pools, maxHops) {
-  const workerData = [
-    Token.toJSON(input),
-    Token.toJSON(output),
-    pools.map(p => Pool.toBuffer(p)),
-    maxHops
-  ]
-
-  try {
-    const routes = await pool.exec('computeRoutes', workerData, {
-      on(payload) {
-        //console.log({ payload })
-      }
-    })
-    return routes.map((r) => Route.fromBuffer(r))
-  } catch (error) {
-    console.error('Worker pool error:', error)
-    throw error
-  }
+// Оптимизированный поиск токенов через индекс O(1)
+function findToken(chain, tokenID) {
+  return TOKEN_INDEX[chain]?.get(tokenID)
 }
 
-async function updateCache(chain, pools, input, output, maxHops, cacheKey) {
-  const startTime = performance.now()
-  const updatingKey = 'updating_' + cacheKey
-
-  try {
-    const setResult = await redisClient.set(updatingKey, 'true', { EX: ROUTES_UPDATING_TIMEOUT, NX: true })
-    if (setResult !== 'OK') {
-      console.log('ALREADY UPDATING:', cacheKey)
-      return
+// Функция для очистки кеша
+function cleanTradeCache() {
+  const now = Date.now()
+  for (const [key, value] of TRADE_CACHE.entries()) {
+    if (now - value.timestamp > CACHE_TTL) {
+      TRADE_CACHE.delete(key)
     }
-
-    const routes: any = await computeRoutesInWorker(input, output, pools, maxHops)
-
-    // if (!routes || routes?.length == 0) {
-    //   console.warn('NO ROUTES FOUND FOR', cacheKey)
-    //   return []
-    // }
-
-    const redisRoutes = routes.map(({ input, output, pools }) => ({
-      input: Token.toJSON(input),
-      output: Token.toJSON(output),
-      pools: pools.map((p) => p.id),
-    }))
-
-    await redisClient.set('routes_' + cacheKey, JSON.stringify(redisRoutes))
-    await redisClient.set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT * 1000).toString())
-
-    const endTime = performance.now()
-    console.log('cacheUpdated:', `${Math.round(endTime - startTime)}ms ${cacheKey}`)
-    return routes
-  } catch (error) {
-    console.error('Error computing routes:', error)
-    return []
-  } finally {
-    await redisClient.del(updatingKey)
   }
-}
-
-// Кешируем токены для быстрого поиска
-const tokenCache = new Map()
-
-function findToken(pools, tokenID) {
-  // Проверяем кеш
-  if (tokenCache.has(tokenID)) {
-    return tokenCache.get(tokenID)
-  }
-  
-  // Ищем токен
-  const token = pools.find((p) => p.tokenA.id === tokenID)?.tokenA || pools.find((p) => p.tokenB.id === tokenID)?.tokenB
-  
-  // Сохраняем в кеш
-  if (token) {
-    tokenCache.set(tokenID, token)
-  }
-  
-  return token
 }
 
 swapRouter.get('/getRoute', async (req, res) => {
@@ -201,14 +146,23 @@ swapRouter.get('/getRoute', async (req, res) => {
   maxHops = Math.min(3, !isNaN(parseInt(maxHops)) ? parseInt(maxHops) : TRADE_LIMITS.maxHops)
 
   const exactIn = trade_type === 'EXACT_INPUT'
+  
+  // Создаем ключ для кеша
+  const cacheKey = `${network.name}-${input}-${output}-${amount}-${trade_type}-${maxHops}-${slippage.toSignificant()}-${v2}`
+  
+  // Проверяем кеш
+  const cached = TRADE_CACHE.get(cacheKey)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log(`Cache hit for ${input} -> ${output}`)
+    return res.json(cached.data)
+  }
 
   const startTime = performance.now()
 
   const allPools = await getAllPools(network.name)
-  const poolsArray = Array.from(allPools.values())
 
-  const inputToken = findToken(poolsArray, input)
-  const outputToken = findToken(poolsArray, output)
+  const inputToken = findToken(network.name, input)
+  const outputToken = findToken(network.name, output)
 
   if (!inputToken || !outputToken || inputToken.equals(outputToken)) {
     return res.status(403).send('Invalid input/output')
@@ -269,7 +223,7 @@ swapRouter.get('/getRoute', async (req, res) => {
   const endTime = performance.now()
 
   const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-  
+
   console.log(
     network.name,
     `find route ${maxHops} hop ${Math.round(
@@ -282,6 +236,17 @@ swapRouter.get('/getRoute', async (req, res) => {
   }
 
   const parsedTrade = parseTrade(trade, slippage, receiver)
+  
+  // Сохраняем результат в кеш
+  TRADE_CACHE.set(cacheKey, {
+    data: parsedTrade,
+    timestamp: Date.now()
+  })
+  
+  // Периодически чистим кеш
+  if (TRADE_CACHE.size > 1000) {
+    cleanTradeCache()
+  }
 
   return res.json(parsedTrade)
 })
