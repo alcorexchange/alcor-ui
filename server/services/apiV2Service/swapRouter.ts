@@ -170,8 +170,18 @@ async function getAllPools(chain) {
         return POOLS[chain]
       })()
     // Ждем завершения загрузки
-    POOLS[chain] = await POOLS_LOADING_PROMISES[chain]
+    await POOLS_LOADING_PROMISES[chain]
   }
+  
+  // Гарантируем что TOKEN_INDEX существует даже если был создан через subscriber
+  if (!TOKEN_INDEX[chain] && POOLS[chain]) {
+    TOKEN_INDEX[chain] = new Map()
+    for (const pool of POOLS[chain].values()) {
+      TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
+      TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
+    }
+  }
+  
   return POOLS[chain]
 }
 
@@ -216,7 +226,21 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
 
 // Оптимизированный поиск токенов через индекс O(1)
 function findToken(chain, tokenID) {
-  return TOKEN_INDEX[chain]?.get(tokenID)
+  // Пробуем индекс
+  let token = TOKEN_INDEX[chain]?.get(tokenID)
+  
+  // Если индекс пустой но пулы есть - пересоздаем индекс
+  if (!token && POOLS[chain] && (!TOKEN_INDEX[chain] || TOKEN_INDEX[chain].size === 0)) {
+    console.log(`[TOKEN_INDEX] Rebuilding index for chain ${chain}`)
+    TOKEN_INDEX[chain] = new Map()
+    for (const pool of POOLS[chain].values()) {
+      TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
+      TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
+    }
+    token = TOKEN_INDEX[chain].get(tokenID)
+  }
+  
+  return token
 }
 
 // Функция для очистки кеша
@@ -347,6 +371,8 @@ async function processRouteRequest(req, res, origin) {
   const outputToken = findToken(network.name, output)
 
   if (!inputToken || !outputToken || inputToken.equals(outputToken)) {
+    console.log(`[Token not found] chain: ${network.name}, input: ${input} (found: ${!!inputToken}), output: ${output} (found: ${!!outputToken})`)
+    console.log(`[TOKEN_INDEX] size: ${TOKEN_INDEX[network.name]?.size || 0}, POOLS size: ${POOLS[network.name]?.size || 0}`)
     return res.status(403).send('Invalid input/output')
   }
 
