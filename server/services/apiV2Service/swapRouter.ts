@@ -268,11 +268,13 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   const endTime = performance.now()
 
+  const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+  
   console.log(
     network.name,
     `find route ${maxHops} hop ${Math.round(
       endTime - startTime
-    )} ms ${inputToken.symbol} -> ${outputToken.symbol} v2: ${Boolean(v2)}`
+    )} ms ${inputToken.symbol} -> ${outputToken.symbol} v2: ${Boolean(v2)} amount: ${amount.toSignificant()} IP: ${clientIp}`
   )
 
   if (!trade) {
