@@ -31,7 +31,7 @@ const CACHE_TTL = 3000 // 3 секунды TTL для кеша
 // PM2 Instance configuration
 const INSTANCE_ID = parseInt(process.env.NODE_APP_INSTANCE || '0')
 const TOTAL_INSTANCES = parseInt(process.env.instances || '10')
-const INSTANCE_ROLE = INSTANCE_ID < 2 ? 'user' : 'api' // 0,1 для Alcor users, 2-9 для Direct API
+const INSTANCE_ROLE = INSTANCE_ID < 5 ? 'user' : 'api' // 0-4 для Alcor users (5 инстансов), 5-9 для Direct API (5 инстансов)
 
 console.log(`[PM2] Instance ${INSTANCE_ID} of ${TOTAL_INSTANCES} started as role: ${INSTANCE_ROLE}`)
 
@@ -141,11 +141,15 @@ subscriber.connect().then(() => {
 
     POOLS[chain].set(pool.id, pool)
     
-    // Обновляем индекс токенов
-    if (TOKEN_INDEX[chain]) {
-      TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
-      TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
+    // Создаем индекс если его нет
+    if (!TOKEN_INDEX[chain]) {
+      console.log(`[Instance ${INSTANCE_ID}] Creating TOKEN_INDEX for chain ${chain} from subscriber`)
+      TOKEN_INDEX[chain] = new Map()
     }
+    
+    // Обновляем индекс токенов
+    TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
+    TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
   })
 })
 
@@ -175,11 +179,17 @@ async function getAllPools(chain) {
   
   // Гарантируем что TOKEN_INDEX существует даже если был создан через subscriber
   if (!TOKEN_INDEX[chain] && POOLS[chain]) {
+    console.log(`[Instance ${INSTANCE_ID}] TOKEN_INDEX missing, rebuilding from ${POOLS[chain].size} pools`)
     TOKEN_INDEX[chain] = new Map()
     for (const pool of POOLS[chain].values()) {
       TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
       TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
     }
+  }
+  
+  // Проверка консистентности
+  if (POOLS[chain] && POOLS[chain].size > 0 && (!TOKEN_INDEX[chain] || TOKEN_INDEX[chain].size === 0)) {
+    console.error(`[Instance ${INSTANCE_ID}][CRITICAL] TOKEN_INDEX empty but POOLS has ${POOLS[chain].size} pools!`)
   }
   
   return POOLS[chain]
@@ -365,7 +375,9 @@ async function processRouteRequest(req, res, origin) {
 
   const startTime = performance.now()
 
+  console.log(`[Instance ${INSTANCE_ID}] Before getAllPools - Pools: ${POOLS[network.name]?.size || 0}, Index: ${TOKEN_INDEX[network.name]?.size || 0}`)
   const allPools = await getAllPools(network.name)
+  console.log(`[Instance ${INSTANCE_ID}] After getAllPools - Pools: ${POOLS[network.name]?.size || 0}, Index: ${TOKEN_INDEX[network.name]?.size || 0}`)
 
   const inputToken = findToken(network.name, input)
   const outputToken = findToken(network.name, output)
@@ -377,12 +389,16 @@ async function processRouteRequest(req, res, origin) {
   }
 
   try {
-    amount = tryParseCurrencyAmount(amount, exactIn ? inputToken : outputToken)
+    // Нормализуем amount - убираем лишние нули после точки
+    const normalizedAmount = parseFloat(amount).toString()
+    amount = tryParseCurrencyAmount(normalizedAmount, exactIn ? inputToken : outputToken)
   } catch (e) {
+    console.log(`[Amount parse error] amount: ${amount}, token: ${exactIn ? inputToken.symbol : outputToken.symbol}, error: ${e.message}`)
     return res.status(403).send(e.message)
   }
 
   if (!amount) {
+    console.log(`[Invalid amount] original: ${req.query.amount}, normalized: ${parseFloat(req.query.amount).toString()}`)
     return res.status(403).send('Invalid amount')
   }
 
