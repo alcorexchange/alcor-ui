@@ -35,6 +35,22 @@ const INSTANCE_ROLE = INSTANCE_ID < 5 ? 'user' : 'api' // 0-4 для Alcor users
 
 console.log(`[PM2] Instance ${INSTANCE_ID} of ${TOTAL_INSTANCES} started as role: ${INSTANCE_ROLE}`)
 
+// Предзагрузка пулов основных сетей при старте
+const PRELOAD_CHAINS = ['wax', 'proton', 'eos', 'telos']
+
+setTimeout(async () => {
+  console.log(`[Instance ${INSTANCE_ID}] Starting pools preload for: ${PRELOAD_CHAINS.join(', ')}`)
+  for (const chain of PRELOAD_CHAINS) {
+    try {
+      await getAllPools(chain)
+      console.log(`[Instance ${INSTANCE_ID}] Loaded ${POOLS[chain]?.size || 0} pools, ${TOKEN_INDEX[chain]?.size || 0} tokens for ${chain}`)
+    } catch (e) {
+      console.error(`[Instance ${INSTANCE_ID}] Failed to preload ${chain}:`, e.message)
+    }
+  }
+  console.log(`[Instance ${INSTANCE_ID}] Preloading complete`)
+}, 5000) // 5 секунд задержка чтобы не нагружать старт
+
 // Статистика по источникам запросов
 const REQUEST_STATS = new Map() // origin -> { count, lastSeen, routes: Map }
 const STATS_WINDOW = 60 * 60 * 1000 // 1 час окно статистики
