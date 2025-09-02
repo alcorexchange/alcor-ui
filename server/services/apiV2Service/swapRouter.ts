@@ -300,6 +300,7 @@ swapRouter.get('/getRoute', async (req, res) => {
   const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
   const userAgent = req.headers['user-agent'] || 'unknown'
+  const cfClearance = req.headers['cf_clearance'] || 'not present'
   
   // Записываем статистику
   const routeInfo = `${inputToken.symbol}->${outputToken.symbol}`
@@ -309,7 +310,7 @@ swapRouter.get('/getRoute', async (req, res) => {
     network.name,
     `find route ${maxHops} hop ${Math.round(
       endTime - startTime
-    )} ms ${inputToken.symbol} -> ${outputToken.symbol} v2: ${Boolean(v2)} amount: ${amount.toSignificant()} origin: ${origin} IP: ${clientIp}`
+    )} ms ${inputToken.symbol} -> ${outputToken.symbol} v2: ${Boolean(v2)} amount: ${amount.toSignificant()} origin: ${origin} IP: ${clientIp} cf_clearance: ${cfClearance}`
   )
 
   if (!trade) {
