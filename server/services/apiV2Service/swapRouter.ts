@@ -304,7 +304,8 @@ swapRouter.get('/getRoute', async (req, res) => {
   let source
   if (origin === 'direct') {
     // Если direct call, показываем IP
-    source = clientIp ? clientIp.split(',')[0].trim() : 'unknown'
+    const ipString = Array.isArray(clientIp) ? clientIp[0] : clientIp
+    source = ipString ? ipString.split(',')[0].trim() : 'unknown'
   } else {
     // Если есть origin/referer, показываем домен
     source = new URL(origin).hostname
