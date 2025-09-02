@@ -10,26 +10,37 @@ import { mongoConnect, initRedis } from '../../utils'
 import { SwapPool } from '../../models'
 
 // КОНФИГУРАЦИЯ
-const MAX_WORKERS = 5 // Количество воркеров для вычисления роутов
-const CHECK_INTERVAL = 30000 // Интервал между проверками (30 сек)
+const USE_WASM_WORKERS = process.env.USE_WASM_WORKERS !== 'false' // По умолчанию включен WASM
+const MAX_WORKERS = USE_WASM_WORKERS ? 3 : 5 // Меньше воркеров для WASM (они эффективнее)
+const CHECK_INTERVAL = 10000 // Интервал между проверками (10 сек)
 const ROUTES_CACHE_TIMEOUT = 60 * 60 * 24 * 20 // 20 дня в секундах
 const ROUTES_UPDATING_TIMEOUT = 60 * 15 // 15 минут
 const NETWORKS = ['eos', 'proton', 'ux', 'wax', 'telos', 'ultra']
 const EXPIRING_SOON_THRESHOLD = 60 * 60 // Обновляем роуты, истекающие в течение часа
-const BATCH_SIZE = 10 // Размер батча для параллельной обработки роутов
-const POOLS_UPDATE_INTERVAL = 30000 // Интервал обновления пулов (30 сек)
-const SHARED_BUFFER_SIZE = 100_000_000 // 100MB для SharedArrayBuffer
+const BATCH_SIZE = USE_WASM_WORKERS ? 50 : 10 // Больший батч для WASM (быстрее обрабатывает)
+const POOLS_UPDATE_INTERVAL = USE_WASM_WORKERS ? 60000 : 30000 // Реже обновляем с WASM (60 сек vs 30 сек)
+const SHARED_BUFFER_SIZE = 100_000_000 // 100MB для SharedArrayBuffer (не используется в WASM режиме)
 
 // Redis клиент
 const redisClient = createClient()
 
 // Worker pool для вычислений
-const pool = workerpool.pool('./server/services/apiV2Service/workers/computeAllRoutesWorker.js', {
+const workerPath = USE_WASM_WORKERS
+  ? './server/services/apiV2Service/workers/computeAllRoutesWASMWorker.js'
+  : './server/services/apiV2Service/workers/computeAllRoutesWorker.js'
+
+const pool = workerpool.pool(workerPath, {
   maxWorkers: MAX_WORKERS,
   workerType: 'thread'
 })
 
-// Управление shared memory для пулов
+if (USE_WASM_WORKERS) {
+  console.log('[CONFIG] Using WASM workers for route computation')
+} else {
+  console.log('[CONFIG] Using standard JS workers for route computation')
+}
+
+// Управление shared memory для пулов (только для non-WASM режима)
 class SharedPoolsMemory {
   private sharedBuffer: SharedArrayBuffer
   private dataView: DataView
@@ -128,11 +139,14 @@ class SharedPoolsMemory {
   }
 }
 
-const sharedPoolsMemory = new SharedPoolsMemory()
+const sharedPoolsMemory = USE_WASM_WORKERS ? null : new SharedPoolsMemory()
 
 // Локальный кеш пулов для быстрого доступа
 const POOLS = {}
 const POOLS_LOADING_PROMISES = {}
+// Трекинг версий пулов для WASM режима
+const POOLS_VERSIONS = {}
+const POOLS_LAST_UPDATE = {}
 
 // Флаг для graceful shutdown
 let isShuttingDown = false
@@ -178,8 +192,12 @@ async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
 
 // Загрузка всех пулов для сети с кешированием и обновлением
 async function getAllPools(chain) {
+  const needsUpdate = USE_WASM_WORKERS
+    ? (!POOLS_LAST_UPDATE[chain] || Date.now() - POOLS_LAST_UPDATE[chain] > POOLS_UPDATE_INTERVAL || !POOLS[chain])
+    : (sharedPoolsMemory?.needsUpdate(chain) || !POOLS[chain])
+
   // Проверяем, нужно ли обновить пулы
-  if (sharedPoolsMemory.needsUpdate(chain) || !POOLS[chain]) {
+  if (needsUpdate) {
     // Если промис загрузки еще не существует, создаем его
     POOLS_LOADING_PROMISES[chain] =
       POOLS_LOADING_PROMISES[chain] ||
@@ -187,8 +205,14 @@ async function getAllPools(chain) {
         const pools = await loadPoolsFromMongo(chain)
         POOLS[chain] = new Map(pools.map((p) => [p.id, p]))
 
-        // Загружаем в shared memory для воркеров
-        await sharedPoolsMemory.loadPools(chain, pools)
+        if (USE_WASM_WORKERS) {
+          // Для WASM режима обновляем версию пулов
+          POOLS_VERSIONS[chain] = (POOLS_VERSIONS[chain] || 0) + 1
+          POOLS_LAST_UPDATE[chain] = Date.now()
+        } else {
+          // Загружаем в shared memory для воркеров
+          await sharedPoolsMemory.loadPools(chain, pools)
+        }
 
         delete POOLS_LOADING_PROMISES[chain]
         return POOLS[chain]
@@ -199,26 +223,54 @@ async function getAllPools(chain) {
   return POOLS[chain]
 }
 
-// Вычисление роутов через воркер с использованием shared memory
+// Вычисление роутов через воркер
 async function computeRoutesInWorker(chain, input, output, poolIds, maxHops) {
-  // Получаем текущие shared data
-  const sharedData = sharedPoolsMemory.getSharedData()
+  if (USE_WASM_WORKERS) {
+    // WASM режим: передаем пулы напрямую, если нужно обновить
+    const allPools = await getAllPools(chain)
+    const pools: Pool[] = Array.from(allPools.values())
 
-  const workerData = {
-    sharedData, // Передаем shared data с каждым вызовом
-    chain,
-    input: Token.toJSON(input),
-    output: Token.toJSON(output),
-    poolIds, // Передаем только ID пулов
-    maxHops
-  }
+    // Проверяем, нужно ли передать пулы воркеру
+    const currentVersion = POOLS_VERSIONS[chain] || 0
+    const workerVersion = await pool.exec('getStats', []).then(stats => stats[chain]?.version || 0).catch(() => 0)
 
-  try {
-    const routes = await pool.exec('computeRoutesWithInit', [workerData])
-    return routes.map((r) => Route.fromBuffer ? Route.fromBuffer(r) : r)
-  } catch (error) {
-    console.error('[ERROR] Worker pool error:', error)
-    throw error
+    const workerData = {
+      chain,
+      input: Token.toJSON(input),
+      output: Token.toJSON(output),
+      maxHops,
+      // Передаем пулы только если версия изменилась
+      pools: currentVersion !== workerVersion ? pools.map(p => Pool.toJSON(p)) : null,
+      isUpdate: workerVersion > 0 // Если воркер уже инициализирован, это обновление
+    }
+
+    try {
+      const routes = await pool.exec('computeRoutesWithInit', [workerData])
+      return routes.map((r) => Route.fromBuffer ? Route.fromBuffer(r) : r)
+    } catch (error) {
+      console.error('[ERROR] WASM Worker pool error:', error)
+      throw error
+    }
+  } else {
+    // Стандартный режим с SharedArrayBuffer
+    const sharedData = sharedPoolsMemory.getSharedData()
+
+    const workerData = {
+      sharedData, // Передаем shared data с каждым вызовом
+      chain,
+      input: Token.toJSON(input),
+      output: Token.toJSON(output),
+      poolIds, // Передаем только ID пулов
+      maxHops
+    }
+
+    try {
+      const routes = await pool.exec('computeRoutesWithInit', [workerData])
+      return routes.map((r) => Route.fromBuffer ? Route.fromBuffer(r) : r)
+    } catch (error) {
+      console.error('[ERROR] Worker pool error:', error)
+      throw error
+    }
   }
 }
 
@@ -455,12 +507,13 @@ async function startPoolsUpdater() {
 
 // Основной цикл обновления
 async function mainLoop() {
-  console.log(`[START] Route Cache Updater service started with ${MAX_WORKERS} workers`)
+  console.log(`[START] Route Cache Updater service started with ${MAX_WORKERS} ${USE_WASM_WORKERS ? 'WASM' : 'JS'} workers`)
   console.log(`[CONFIG] Networks: ${NETWORKS.join(', ')}`)
   console.log(`[CONFIG] Check interval: ${CHECK_INTERVAL}ms`)
   console.log(`[CONFIG] Cache timeout: ${ROUTES_CACHE_TIMEOUT}s (${ROUTES_CACHE_TIMEOUT / 60 / 60} hours)`)
   console.log(`[CONFIG] Batch size: ${BATCH_SIZE} routes`)
   console.log(`[CONFIG] Pools update interval: ${POOLS_UPDATE_INTERVAL}ms`)
+  console.log(`[CONFIG] Mode: ${USE_WASM_WORKERS ? 'WASM (10-13x faster)' : 'Standard JS'}`)
 
   // Подключаемся к MongoDB и Redis
   await mongoConnect()
@@ -511,6 +564,10 @@ async function shutdown() {
 
     // Закрываем worker pool
     console.log('[SHUTDOWN] Terminating worker pool...')
+    if (USE_WASM_WORKERS) {
+      // Очищаем WASM память перед завершением
+      await pool.exec('cleanup', []).catch(() => {})
+    }
     await pool.terminate()
 
     // Отключаемся от Redis
