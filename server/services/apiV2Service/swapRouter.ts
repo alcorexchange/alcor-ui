@@ -26,7 +26,7 @@ const POOLS = {}
 const POOLS_LOADING_PROMISES = {}
 const TOKEN_INDEX = {} // { chain: Map<tokenId, Token> }
 const TRADE_CACHE = new Map() // Кеш для результатов trade
-const CACHE_TTL = 3000 // 3 секунды TTL для кеша
+const CACHE_TTL = 5000 // 3 секунды TTL для кеша
 
 // Статистика по источникам запросов
 const REQUEST_STATS = new Map() // origin -> { count, lastSeen, routes: Map }
@@ -45,7 +45,7 @@ function cleanRequestStats() {
 // Функция для записи статистики
 function recordRequestStats(origin, route) {
   if (!origin) origin = 'direct'
-  
+
   if (!REQUEST_STATS.has(origin)) {
     REQUEST_STATS.set(origin, {
       count: 0,
@@ -53,15 +53,15 @@ function recordRequestStats(origin, route) {
       routes: new Map()
     })
   }
-  
+
   const stats = REQUEST_STATS.get(origin)
   stats.count++
   stats.lastSeen = Date.now()
-  
+
   // Считаем популярные роуты для каждого источника
   const routeKey = route
   stats.routes.set(routeKey, (stats.routes.get(routeKey) || 0) + 1)
-  
+
   // Периодически чистим старую статистику
   if (REQUEST_STATS.size > 1000) {
     cleanRequestStats()
@@ -80,7 +80,7 @@ subscriber.connect().then(() => {
     }
 
     POOLS[chain].set(pool.id, pool)
-    
+
     // Обновляем индекс токенов
     if (TOKEN_INDEX[chain]) {
       TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
@@ -97,14 +97,14 @@ async function getAllPools(chain) {
       (async () => {
         const pools = await getPools(chain, true, (p) => p.active)
         POOLS[chain] = new Map(pools.map((p) => [p.id, p]))
-        
+
         // Создаем индекс токенов для быстрого поиска
         TOKEN_INDEX[chain] = new Map()
         for (const pool of pools) {
           TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
           TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
         }
-        
+
         console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
         delete POOLS_LOADING_PROMISES[chain] // Очищаем промис после завершения
         return POOLS[chain]
@@ -172,16 +172,16 @@ function cleanTradeCache() {
 // Эндпоинт для просмотра статистики
 swapRouter.get('/stats', async (req, res) => {
   const stats = []
-  
+
   // Чистим старую статистику перед показом
   cleanRequestStats()
-  
+
   for (const [origin, data] of REQUEST_STATS.entries()) {
     const topRoutes = Array.from(data.routes.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([route, count]) => ({ route, count }))
-    
+
     stats.push({
       origin,
       count: data.count,
@@ -189,10 +189,10 @@ swapRouter.get('/stats', async (req, res) => {
       topRoutes
     })
   }
-  
+
   // Сортируем по количеству запросов
   stats.sort((a, b) => b.count - a.count)
-  
+
   res.json({
     totalOrigins: stats.length,
     totalRequests: stats.reduce((sum, s) => sum + s.count, 0),
@@ -218,10 +218,10 @@ swapRouter.get('/getRoute', async (req, res) => {
   maxHops = Math.min(3, !isNaN(parseInt(maxHops)) ? parseInt(maxHops) : TRADE_LIMITS.maxHops)
 
   const exactIn = trade_type === 'EXACT_INPUT'
-  
+
   // Создаем ключ для кеша
   const cacheKey = `${network.name}-${input}-${output}-${amount}-${trade_type}-${maxHops}-${slippage.toSignificant()}-${v2}`
-  
+
   // Проверяем кеш
   const cached = TRADE_CACHE.get(cacheKey)
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -299,7 +299,7 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
-  
+
   // Извлекаем домен или IP для direct calls
   let source
   if (origin === 'direct') {
@@ -310,7 +310,7 @@ swapRouter.get('/getRoute', async (req, res) => {
     // Если есть origin/referer, показываем домен
     source = new URL(origin).hostname
   }
-  
+
   // Записываем статистику
   const routeInfo = `${inputToken.symbol}->${outputToken.symbol}`
   recordRequestStats(origin, routeInfo)
@@ -324,13 +324,13 @@ swapRouter.get('/getRoute', async (req, res) => {
   }
 
   const parsedTrade = parseTrade(trade, slippage, receiver)
-  
+
   // Сохраняем результат в кеш
   TRADE_CACHE.set(cacheKey, {
     data: parsedTrade,
     timestamp: Date.now()
   })
-  
+
   // Периодически чистим кеш
   if (TRADE_CACHE.size > 1000) {
     cleanTradeCache()
