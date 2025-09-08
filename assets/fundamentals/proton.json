@@ -104,10 +104,10 @@
       "https://proton.alcor.exchange/trade/anchor-arcana_xmd-xmd.token",
       "https://proton.alcor.exchange/trade/anchor-arcana_xusdt-xtokens",
       "https://proton.alcor.exchange/trade/anchor-arcana_xusdc-xtokens"
-      
+
     ],
     "description": "ANCHOR provides targeted liquidity focused on the +- 1% and +-6% range for select stable coins on XPR. Low liquidity in these pools is a pain point of XPR Network, eased through our pools. ANCHOR provides information and opportunities presented by value differences of the three main stable coins to arbitrage bots. ANCHOR liquidity results in a cheap source of liquidity for arbitrage bots to swap pools. ANCHOR uses .05% fee pools for ANCHOR with XUSDC, XUSDT, and XMD. ANCHOR is not advertised or offered in public or private. Do not buy ANCHOR, there is no expectation of profit, and any value placed in exchange for ANCHOR is considered a donation. The project is private, with 100% of token ownership to the contract. This stabilization method is untested, and we do not know if it will be stable. Even if it appears to be stable, ANCHOR may be changed or canceled at any time, resulting in up to 100% loss of value for ANCHOR token. ANCHOR was named such in relation to a part of an Ark (boat). ANCHOR is not related to Anchor Wallet, nor to Alcor exchange, XPR Network, or any providers of pooled stable coins. All proceeds are hereby perpetually donated to the Lyran civilization, and / or to rebuild Noah's Ark"
-    }
+    },
     "MEME@m3m3": {
       "name": "MEME",
       "website": {
