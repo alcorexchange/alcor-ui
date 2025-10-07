@@ -4,19 +4,19 @@
       .pr-4.fs-24.text-danger.fw-bold {{ title }}
     .dialog-content
       .main-content
-        p.fs-18.fw-bold You've been identified as the operator behind recent XPR scams. You're online here right now from a London mobile network, using the same device fingerprint. We know your exchange routes (KuCoin/MEXC) and your USDC destination on Ethereum: 0xc54a8358213B7C72C5DCb1ADc8e12271f93e1533. We also have the CEX deposit details: KuCoin Deposit ID 1897163629 (acct kucoindotxpr) and MEXC Deposit ID 102010 (acct mexcloanloan).
+        p.fs-18.fw-bold You've been identified as the operator behind recurring XPR scams since 2022. You are online here right now from a London mobile network, using the same device fingerprint. We know your on-chain routes and the current USDC location on Ethereum: 0xc54a8358213B7C72C5DCb1ADc8e12271f93e1533.
 
         .pt-4
           p.fs-18.fw-bold.text-warning Offer (24 hours):
-          p Send back the full amount to 0x049c340f0dB461b51Fc49767E72A5ABc179b5a03 and message me at @avral on Telegram. If you do this within 24 hours, we will pay a $10,000 bug bounty and close the matter on our side.
+          p Send back the full amount to 0x049c340f0dB461b51Fc49767E72A5ABc179b5a03 and message me on Telegram @avral. If you do this within 24 hours, we will pay a $10,000 bug bounty and close the matter on our side.
 
         .pt-4
-          p.fs-18.fw-bold.text-danger Otherwise:
-          p We will proceed with formal reports to law enforcement and to compliance at Circle (USDC), KuCoin, and MEXC, along with your network/device evidence. In the UK, this conduct may be chargeable under:
+          p.fs-18.fw-bold.text-danger Otherwise (police action):
+          p We will file formal criminal reports in the UK and our local jurisdiction and provide your network/device evidence (timestamps, IPs, carrier, device fingerprint) and on-chain tracing. With this evidence, identification is straightforward; police can lawfully obtain your subscriber details and attend your home address. In England, penalties for this conduct are serious and may include:
           ul.pt-2
             li • Fraud Act 2006 — up to 10 years
-            li • Computer Misuse Act — up to 10 years
-            li • Proceeds of Crime Act (money laundering) — up to 14 years
+            li • Computer Misuse Act 1990 (s.3) — up to 10 years
+            li • Proceeds of Crime Act 2002 (money laundering) — up to 14 years
 
         p.pt-4.fs-18.fw-bold.text-center This is a one-time offer. The clock is running.
 </template>
