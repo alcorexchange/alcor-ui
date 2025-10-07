@@ -4,7 +4,7 @@
       .pr-4.fs-24.text-danger.fw-bold {{ title }}
     .dialog-content
       .main-content
-        p.fs-16 You've been identified as the operator behind recurring XPR scams since 2022. You are online here right now from a London mobile network, using the same device fingerprint. We know your on-chain routes and the current USDC location on Ethereum:
+        p.fs-16 You've been identified as the operator behind recurring XPR scams. You are online here right now from a London mobile network, using the same device fingerprint. We know your on-chain routes and the current USDC location on Ethereum:
         p.fs-16.fw-bold.text-warning.text-center 0xc54a8358213B7C72C5DCb1ADc8e12271f93e1533
         p.fs-16 We also hold your exchange deposit references:
         p.fs-16.fw-bold.text-warning.text-center KuCoin Deposit ID 1897163629 (acct kucoindotxpr)
