@@ -231,7 +231,8 @@ const networks = {
       'toilet', 'infinityhash', 'infinitybend', 'stellarx', 'btccash', 'thetax', 'classiceth', 'xvechain', 'x2network', 'inet',
       'xkaspa', 'teranode', 'xaxie', 'mantrachain', 'onyxcoin', 'protonethena', 'xcompound', 'berachain', 'protonavve', 'unilateral',
       'xcronos', 'xuniswapxpr', 'litecoinx', 'quantumchain', 'rippleledger', 'dogex', 'ondocoin', 'xprliquid', 'tokensxpr', 'xprswap',
-      'tradexpr'
+      'tradexpr', 'eostoken', 'eostokens', 'mockmint', 'xtokems', 'x1okens', 'eosiotokenx', 'eosiotokens', 'xprlx.xpr', 'llluminati',
+      'royalcoins'
     ],
     CEX_CONTRACTS: [],
 
