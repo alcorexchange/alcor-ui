@@ -8,6 +8,7 @@ recycle-scroller(
   :item-size="table.itemSize"
   :pageMode="table.pageMode"
   :buffer="buffer || 450"
+  key-field="id"
   list-tag="div"
 )
   template(#before)
@@ -62,6 +63,17 @@ export default {
 </script>
 
 <style>
+.scroller .vue-recycle-scroller__item-wrapper {
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+.scroller .vue-recycle-scroller__item-view {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .scroller .vue-recycle-scroller__item-view.hover {
   background: var(--hover);
 }
