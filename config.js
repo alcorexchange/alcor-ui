@@ -233,7 +233,8 @@ const networks = {
       'xkaspa', 'teranode', 'xaxie', 'mantrachain', 'onyxcoin', 'protonethena', 'xcompound', 'berachain', 'protonavve', 'unilateral',
       'xcronos', 'xuniswapxpr', 'litecoinx', 'quantumchain', 'rippleledger', 'dogex', 'ondocoin', 'xprliquid', 'tokensxpr', 'xprswap',
       'tradexpr', 'eostoken', 'eostokens', 'mockmint', 'xtokems', 'x1okens', 'eosiotokenx', 'eosiotokens', 'xprlx.xpr', 'llluminati',
-      'royalcoins'
+      'royalcoins', 'xprl1', 'peggedtoken', 'tokenproton', 'protonmeta', 'xxxtokens', 'metaltokens', 'ternary', 'swapxpr',
+      'protontokens', 'xrpl1', 'otokens', 'taruntoken', 'usdctoken'
     ],
     CEX_CONTRACTS: [],
 
