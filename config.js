@@ -234,7 +234,9 @@ const networks = {
       'xcronos', 'xuniswapxpr', 'litecoinx', 'quantumchain', 'rippleledger', 'dogex', 'ondocoin', 'xprliquid', 'tokensxpr', 'xprswap',
       'tradexpr', 'eostoken', 'eostokens', 'mockmint', 'xtokems', 'x1okens', 'eosiotokenx', 'eosiotokens', 'xprlx.xpr', 'llluminati',
       'royalcoins', 'xprl1', 'peggedtoken', 'tokenproton', 'protonmeta', 'xxxtokens', 'metaltokens', 'ternary', 'swapxpr',
-      'protontokens', 'xrpl1', 'otokens', 'taruntoken', 'usdctoken'
+      'protontokens', 'xrpl1', 'otokens', 'taruntoken', 'usdctoken', 'memezz', 'xroyalty323', 'xprotos', 'debtcoin', 'omniflix',
+      'bsvb', 'comunityfund', 'luciferase', 'fiatrail', 'fiatrail2', 'pythias', 'ethena.xpr', 'worldpeace', 'vaulty',
+      'acrossprotcl', 'equilibriumx', 'aioz', 'qulantis', 'illluminati'
     ],
     CEX_CONTRACTS: [],
 
