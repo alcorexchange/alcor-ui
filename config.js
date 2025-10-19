@@ -236,7 +236,9 @@ const networks = {
       'royalcoins', 'xprl1', 'peggedtoken', 'tokenproton', 'protonmeta', 'xxxtokens', 'metaltokens', 'ternary', 'swapxpr',
       'protontokens', 'xrpl1', 'otokens', 'taruntoken', 'usdctoken', 'memezz', 'xroyalty323', 'xprotos', 'debtcoin', 'omniflix',
       'bsvb', 'comunityfund', 'luciferase', 'fiatrail', 'fiatrail2', 'pythias', 'ethena.xpr', 'worldpeace', 'vaulty',
-      'acrossprotcl', 'equilibriumx', 'aioz', 'qulantis', 'illluminati'
+      'acrossprotcl', 'equilibriumx', 'aioz', 'qulantis', 'illluminati', 'pepetoken', 'agix', 'xagix', 'memetoken',
+      'bitque', 'millionmax', 'metalapp', '311gateway', 'xrln', 'quantumwave', 'burnbro', 'xbot', 'lunatoken',
+      'royalcoin', 'knightbank', 'xpromotion'
     ],
     CEX_CONTRACTS: [],
 
