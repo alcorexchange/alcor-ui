@@ -238,7 +238,9 @@ const networks = {
       'bsvb', 'comunityfund', 'luciferase', 'fiatrail', 'fiatrail2', 'pythias', 'ethena.xpr', 'worldpeace', 'vaulty',
       'acrossprotcl', 'equilibriumx', 'aioz', 'qulantis', 'illluminati', 'pepetoken', 'agix', 'xagix', 'memetoken',
       'bitque', 'millionmax', 'metalapp', '311gateway', 'xrln', 'quantumwave', 'burnbro', 'xbot', 'lunatoken',
-      'royalcoin', 'knightbank', 'xpromotion'
+      'royalcoin', 'knightbank', 'xpromotion', 'nukw', 'conductor', 'nfrm', 'ovdrx', 'memezr', 'xwcu', 'abctoken',
+      'tikargoo', 'xyztoken', 'xweb', 'gaiachaine', 'orionpax', 'bcha', 'exodius', 'xera', 'ivrp', 'solpro',
+      'novachain', 'havanachain', 'blu3stck'
     ],
     CEX_CONTRACTS: [],
 
