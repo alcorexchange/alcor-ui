@@ -38,10 +38,10 @@
       )
         TransitionGroup(:name="`content-${transitionDirection}`" @enter="handleContentEnter" appear)
 
-          template(v-for="section in items.filter((item) => item.contentKey)")
+          template(v-for="section in itemsWithIcons")
             .menu-content(v-show="currentContent === section.contentKey" :key="section.contentKey")
               ul.content-items(v-for="column in section.content")
-                LayoutMenuContentItem(v-for="item in column" :isNew="item.isNew" :title="item.title" :description="item.description" :to="item.to" :href="item.href" :isSocial="item.isSocial" :icon="require(`~/assets/icons/${item.icon}.svg`)")
+                LayoutMenuContentItem(v-for="item in column" :key="item.title" :isNew="item.isNew" :title="item.title" :description="item.description" :to="item.to" :href="item.href" :isSocial="item.isSocial" :icon="item.iconSrc")
 </template>
 
 <script>
@@ -60,10 +60,10 @@ export default {
       isOpen: false,
       closeTimeout: null,
       size: null,
-      resizeObserver: null,
       currentContent: null, // 'trade' | 'earn' | 'bridge' | 'docs'
       contentOffset: null,
       transitionDirection: 'forward', // 'backward'
+      cachedItems: null,
     }
   },
 
@@ -76,6 +76,62 @@ export default {
       }
     },
     items() {
+      return this.cachedItems || []
+    },
+    sectionsWithContent() {
+      return this.items.filter((item) => item.contentKey)
+    },
+    itemsWithIcons() {
+      return this.sectionsWithContent.map((section) => {
+        return {
+          ...section,
+          content: section.content.map((column) =>
+            column.map((item) => ({
+              ...item,
+              iconSrc: require(`~/assets/icons/${item.icon}.svg`),
+            }))
+          ),
+        }
+      })
+    },
+  },
+
+  created() {
+    this.buildItems()
+  },
+
+  watch: {
+    '$store.state.network.name'() {
+      this.buildItems()
+    },
+    $route() {
+      this.close()
+    },
+    currentContent(current, previous) {
+      if (!current || !previous) {
+        this.transitionDirection = 'forward'
+        return
+      }
+      const currentIndex = this.items.findIndex(({ contentKey }) => contentKey === current)
+      const previousIndex = this.items.findIndex(({ contentKey }) => contentKey === previous)
+
+      if (currentIndex == -1 || previousIndex == -1) {
+        console.log('some index not found', { currentIndex, previousIndex }, { current, previous })
+        this.transitionDirection = 'forward'
+        return
+      }
+
+      if (currentIndex > previousIndex) this.transitionDirection = 'forward'
+      else this.transitionDirection = 'backward'
+    },
+  },
+
+  beforeDestroy() {
+    clearTimeout(this.closeTimeout)
+  },
+
+  methods: {
+    buildItems() {
       const swap = { name: 'Swap', contentKey: null, to: '/swap' }
       const trade = {
         name: 'Trade',
@@ -213,7 +269,8 @@ export default {
           ],
         ],
       }
-      return [
+
+      this.cachedItems = [
         swap,
         trade,
         earn,
@@ -223,36 +280,7 @@ export default {
         docs,
       ]
     },
-  },
 
-  watch: {
-    $route() {
-      this.close()
-    },
-    currentContent(current, previous) {
-      if (!current || !previous) {
-        this.transitionDirection = 'forward'
-        return
-      }
-      const currentIndex = this.items.findIndex(({ contentKey }) => contentKey === current)
-      const previousIndex = this.items.findIndex(({ contentKey }) => contentKey === previous)
-
-      if (currentIndex == -1 || previousIndex == -1) {
-        console.log('some index not found', { currentIndex, previousIndex }, { current, previous })
-        this.transitionDirection = 'forward'
-        return
-      }
-
-      if (currentIndex > previousIndex) this.transitionDirection = 'forward'
-      else this.transitionDirection = 'backward'
-    },
-  },
-
-  mounted() {
-    this.runResizeObserver()
-  },
-
-  methods: {
     hasActiveLink(contentKey) {
       const { path } = this.$route
 
@@ -337,14 +365,6 @@ export default {
         return
       }
       this.close()
-    },
-
-    runResizeObserver() {
-      this.resizeObserver = new ResizeObserver((entries) => {
-        console.log(entries)
-      })
-
-      // this.resizeObserver.observe(this.$refs.contentContainer)
     },
   },
 }
