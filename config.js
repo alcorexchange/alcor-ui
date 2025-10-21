@@ -242,7 +242,9 @@ const networks = {
       'tikargoo', 'xyztoken', 'xweb', 'gaiachaine', 'orionpax', 'bcha', 'exodius', 'xera', 'ivrp', 'solpro',
       'novachain', 'havanachain', 'blu3stck', 'lght', 'infura', 'royaltytoken', 'vsgill', 'fishtankdao', 'znja',
       'vsco', 'idbx', '13cipher', 'icnt', 'infinitlabs', 'tcontract', 'synthetix', 'blockcipher', 'stacks.xpr',
-      'xprsatan', 'thegraph', 'aelfscan', 'ontio', 'valoreum', 'virtualpro', 'aipc', 'bsva'
+      'xprsatan', 'thegraph', 'aelfscan', 'ontio', 'valoreum', 'virtualpro', 'aipc', 'bsva', 'xmetalxpr',
+      'omniversal', 'xsatosi', 'raydiumxpr', 'qllp', 'loantreasury', 'sanex', 'photopickle', 'infinitive',
+      'veridium', 'proofofmemes', 'yeettoken', 'pumpito', 'stvalentine', 'solayer', 'ivrq'
     ],
     CEX_CONTRACTS: [],
 
