@@ -244,7 +244,10 @@ const networks = {
       'vsco', 'idbx', '13cipher', 'icnt', 'infinitlabs', 'tcontract', 'synthetix', 'blockcipher', 'stacks.xpr',
       'xprsatan', 'thegraph', 'aelfscan', 'ontio', 'valoreum', 'virtualpro', 'aipc', 'bsva', 'xmetalxpr',
       'omniversal', 'xsatosi', 'raydiumxpr', 'qllp', 'loantreasury', 'sanex', 'photopickle', 'infinitive',
-      'veridium', 'proofofmemes', 'yeettoken', 'pumpito', 'stvalentine', 'solayer', 'ivrq'
+      'veridium', 'proofofmemes', 'yeettoken', 'pumpito', 'stvalentine', 'solayer', 'ivrq', 'eotoken',
+      '54231', 'melaniameme', 'btcreserve', 'fartcoin', 'luce.xpr', 'eosiopowcoin', 'edu.xpr', 'spacedemon',
+      'mysticlion', 'zetas', 'starknet.xpr', 'xsatoshi', 'whitebitcoin', 'kibainu', 'kaia', 'erjkerewj',
+      'frankcoin', 'vbtn', 'hiphopbank'
     ],
     CEX_CONTRACTS: [],
 
