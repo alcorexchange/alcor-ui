@@ -247,8 +247,8 @@ const networks = {
       'veridium', 'proofofmemes', 'yeettoken', 'pumpito', 'stvalentine', 'solayer', 'ivrq', 'eotoken',
       '54231', 'melaniameme', 'btcreserve', 'fartcoin', 'luce.xpr', 'eosiopowcoin', 'edu.xpr', 'spacedemon',
       'mysticlion', 'zetas', 'starknet.xpr', 'xsatoshi', 'whitebitcoin', 'kibainu', 'kaia', 'erjkerewj',
-      'frankcoin', 'vbtn', 'hiphopbank', 'wrappedtoken', 'xu3o5', 'xtok3n', 'xpel', 'lambobank',
-      'aquaprotocol', 'tnode', 'projak', 'terramoney', 'protonai'
+      'frankcoin', 'vbtn', 'hiphopbank', 'wrappedtoken', 'xu3o5', 'xtok3n', 'xpel',
+      'aquaprotocol', 'tnode', 'projak', 'terramoney', 'protonai', '1gram', 'xprjesus.xpr', 'xrpn', 'acix'
     ],
     CEX_CONTRACTS: [],
 
