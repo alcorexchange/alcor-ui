@@ -713,5 +713,12 @@
     "socials": [
       "https://t.me/wax_memecreators"
     ]
+  },
+  "LILCASH@tkn": {
+    "name": "LilCash",
+    "website": { "link": "https://lilmonsters.io", "name": "LilMonsters" },
+    "tags": ["Gaming","P2E","WAX"],
+    "socials": ["https://twitter.com/lilmonstersgame", "https://discord.gg/fVkykMxVWR"],
+    "description": "Token used in Lil Monsters game on WAX."
   }
 }
