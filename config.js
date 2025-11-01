@@ -250,7 +250,8 @@ const networks = {
       'frankcoin', 'vbtn', 'hiphopbank', 'wrappedtoken', 'xu3o5', 'xtok3n', 'xpel',
       'aquaprotocol', 'tnode', 'projak', 'terramoney', 'protonai', '1gram', 'xprjesus.xpr', 'xrpn', 'acix', 'lambobank',
       'xasterdex', 'fasa', '51st', 'bfrost', 'xplasma', 'bttt', 'webx', 'sbwy', 'xfund', 'astremn',
-      'vril', 'eurt', 'si44', 'prxq', 'nacuso', 'eveningmoon', '5t4r', 'binaryx', 'cumbank', 'xprn2', 'qxte', 'magx'
+      'vril', 'eurt', 'si44', 'prxq', 'nacuso', 'eveningmoon', '5t4r', 'binaryx', 'cumbank', 'xprn2', 'qxte', 'magx',
+      'xpot', 'aeonprotocol'
     ],
     CEX_CONTRACTS: [],
 
