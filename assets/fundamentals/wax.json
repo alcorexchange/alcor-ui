@@ -721,4 +721,11 @@
     "socials": ["https://twitter.com/lilmonstersgame", "https://discord.gg/fVkykMxVWR"],
     "description": "Token used in Lil Monsters game on WAX."
   }
+  "CHOMP@visionz44.gm": {
+    "name": "CHOMP",
+    "website": { "link": "https://visionz44.com/", "name": "visionz44.com" },
+    "tags": ["Gaming", "Community"],
+    "socials": ["https://x.com/V44Gaming"],
+    "description": "Channel/community token for V44Gaming and SharkAttack."
+  }
 }
