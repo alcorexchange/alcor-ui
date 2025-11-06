@@ -176,7 +176,7 @@ export default {
           stakes,
           action: 'getreward',
         })
-        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 3000)
       } catch (e) {
         this.$notify({
           title: 'Error',

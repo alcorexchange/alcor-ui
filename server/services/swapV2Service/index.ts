@@ -12,7 +12,7 @@ import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
 import { makeSwapBars } from '../updaterService/charts'
 import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
-import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, mongoConnect } from './../../utils'
+import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, getTokens, initRedis, mongoConnect } from './../../utils'
 
 const redis = createClient()
 const publisher = redis.duplicate()
@@ -64,10 +64,9 @@ async function handlePoolChart(
   const poolInstance = await getPool({ chain, id: poolId })
   const { tokenA: { id: tokenA_id }, tokenB: { id: tokenB_id } } = poolInstance
 
-  const [tokenAprice, tokenBprice] = await Promise.all([
-    getToken(chain, tokenA_id),
-    getToken(chain, tokenB_id)
-  ])
+  const tokenCache = await getTokens(chain)
+  const tokenAprice = tokenCache.find(t => t.id === tokenA_id)
+  const tokenBprice = tokenCache.find(t => t.id === tokenB_id)
 
   const usdReserveA = reserveA * (tokenAprice?.usd_price || 0)
   const usdReserveB = reserveB * (tokenBprice?.usd_price || 0)
@@ -168,6 +167,7 @@ async function updatePositions(chain: string, poolId: number) {
 
 export async function updatePool(chain: string, poolId: number) {
   await connectAll()
+  await initRedis()
 
   const network = networks[chain]
   const rpc = getFailOverAlcorOnlyRpc(network)
@@ -210,7 +210,7 @@ export async function updatePool(chain: string, poolId: number) {
     parseToken(pool.tokenA),
     parseToken(pool.tokenB),
     Q128,
-    BigInt(parsedPool.sqrtPriceX64) * BigInt(parsedPool.sqrtPriceX64)
+    parsedPool.sqrtPriceX64 * parsedPool.sqrtPriceX64
   )
 
   const priceA = price.toSignificant()
@@ -265,7 +265,7 @@ async function updateTicks(chain: string, poolId: number) {
 }
 
 export async function connectAll() {
-  // await mongoConnect()
+  await mongoConnect()
 
   // Redis
   if (!redis.isOpen) await redis.connect()
@@ -324,7 +324,7 @@ export async function updatePools(chain) {
         parseToken(pool.tokenA),
         parseToken(pool.tokenB),
         Q128,
-        BigInt(parsed_pool.sqrtPriceX64) * BigInt(parsed_pool.sqrtPriceX64)
+        parsed_pool.sqrtPriceX64 * parsed_pool.sqrtPriceX64
       )
 
       const priceA = price.toSignificant()
@@ -447,22 +447,22 @@ export async function onSwapAction(message: string) {
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
 
     // Lead to high load
-    // try {
-    //   const quantityA = data.tokenA.quantity || data.tokenA.asset
-    //   const quantityB = data.tokenB.quantity || data.tokenB.asset
+    try {
+      const quantityA = data.tokenA.quantity || data.tokenA.asset
+      const quantityB = data.tokenB.quantity || data.tokenB.asset
 
-    //   const contractA = data.tokenA.contract || data.tokenA.Contract
-    //   const contractB = data.tokenB.contract || data.tokenB.Contract
+      const contractA = data.tokenA.contract || data.tokenA.Contract
+      const contractB = data.tokenB.contract || data.tokenB.Contract
 
-    //   const tokenA_id = quantityA.split(' ')[1].toLowerCase() + '-' + contractA
-    //   const tokenB_id = quantityB.split(' ')[1].toLowerCase() + '-' + contractB
+      const tokenA_id = quantityA.split(' ')[1].toLowerCase() + '-' + contractA
+      const tokenB_id = quantityB.split(' ')[1].toLowerCase() + '-' + contractB
 
-    //   // Removing cache to re-generate swap routes
-    //   deleteKeysByPattern(redis, `*routes_*${tokenA_id}*`)
-    //   deleteKeysByPattern(redis, `*routes_*${tokenB_id}*`)
-    // } catch (e) {
-    //   console.error('REMOVE CACHE ROUTES ERR', e, data)
-    // }
+      // Removing cache to re-generate swap routes
+      deleteKeysByPattern(redis, `routes_expiration_${chain}-*${tokenA_id}*`)
+      deleteKeysByPattern(redis, `routes_expiration_${chain}-*${tokenB_id}*`)
+    } catch (e) {
+      console.error('REMOVE CACHE ROUTES ERR', e, data)
+    }
   }
 
   if (name == 'logswap') {

@@ -205,8 +205,8 @@ export default {
     banners: {
       wax: [
         // {
-        //   link: 'https://maxylab.com/wax-holidays/',
-        //   image: require('@/assets/images/swap-banner-3.gif'),
+        //   link: 'https://tinyurl.com/nftopia5-alcor',
+        //   image: require('@/assets/images/swap-banner-nftopia.gif'),
         //   colors: [
         //     'rgba(221,74,95,0.2)',
         //     'rgba(183,44,47, 1)',

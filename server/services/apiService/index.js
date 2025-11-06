@@ -10,7 +10,7 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
-import { mongoConnect } from '../../utils'
+import { initRedis, mongoConnect } from '../../utils'
 import upload from './upload.js'
 
 import { networkResolver } from './middleware.js'
@@ -36,6 +36,7 @@ async function start () {
     // REDIS client shared globally
     const redis = createClient()
     await redis.connect()
+    await initRedis()
     app.set('redisClient', redis)
   }
 

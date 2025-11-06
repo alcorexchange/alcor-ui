@@ -1,11 +1,41 @@
 import mongoose from 'mongoose'
 import fetch from 'cross-fetch'
-import { createClient } from 'redis'
+import { createClient, RedisClientType } from 'redis'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { getMultyEndRpc } from '../utils/eosjs'
 import { Settings } from './models'
 
-const redis = createClient()
+const redisClient = createClient()
+const publisherClient = createClient()
+
+export async function initRedis() {
+  if (!redisClient.isOpen) {
+    await redisClient.connect()
+  } else {
+    console.warn('REDIS CLIENT ALREADY OPENED')
+  }
+
+  if (!publisherClient.isOpen) {
+    await publisherClient.connect()
+  } else {
+    console.warn('REDIS Publisher ALREADY OPENED')
+  }
+
+  console.log('✅ Redis and Publisher connected')
+  return [redisClient, publisherClient]
+}
+
+// 🧠 Ленивые безопасные геттеры
+
+export function redis() {
+  if (!redisClient?.isOpen) throw new Error('redisClient is not connected!')
+  return redisClient
+}
+
+export function publisher() {
+  if (!publisherClient?.isOpen) throw new Error('publisherClient is not connected!')
+  return publisherClient
+}
 
 export async function mongoConnect() {
   const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}?directConnection=true`
@@ -13,9 +43,7 @@ export async function mongoConnect() {
 }
 
 export async function getTokens(chain: string) {
-  if (!redis.isOpen) await redis.connect()
-
-  return JSON.parse(await redis.get(`${chain}_token_prices`))
+  return JSON.parse(await redis().get(`${chain}_token_prices`))
 }
 
 export async function getToken(chain: string, id: string) {
@@ -111,3 +139,5 @@ export async function deleteKeysByPattern(client, pattern) {
     throw error
   }
 }
+
+export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))

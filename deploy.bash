@@ -12,14 +12,39 @@ yarn install && yarn build && yarn build-server
 echo "Clearing NGINX cache..."
 find /data/nginx/cache/alcor -type f -delete
 
-# Перезапускать контейнер
-echo "Building Docker container..."
-docker build -f Dockerfile.apiV2 -t alcor-api:v2 .
+# Перезапускать контейнеры для ботов
+echo "Building Docker container for bots..."
+docker build -f Dockerfile.apiV2.bots -t alcor-api-bots:v2 .
 
-echo "Restarting Docker container..."
-docker stop alcor-api-v2 || true
-docker rm alcor-api-v2 || true
-docker run -d --name alcor-api-v2 --network=host --restart always alcor-api:v2
+echo "Restarting Docker container for bots..."
+docker stop alcor-api-v2-bots || true
+docker rm alcor-api-v2-bots || true
+docker run -d --name alcor-api-v2-bots --network=host --restart always alcor-api-bots:v2
+
+# Перезапускать контейнеры для людей
+echo "Building Docker container for humans..."
+docker build -f Dockerfile.apiV2.humans -t alcor-api-humans:v2 .
+
+echo "Restarting Docker container for humans..."
+docker stop alcor-api-v2-humans || true
+docker rm alcor-api-v2-humans || true
+docker run -d --name alcor-api-v2-humans --network=host --restart always alcor-api-humans:v2
+
+# Обновить Route Cache Updater
+echo "Building Route Cache Updater Docker container..."
+docker build -f Dockerfile.routecache-simple -t alcor-routecache:latest .
+
+echo "Restarting Route Cache Updater container..."
+docker stop alcor-routecache || true
+docker rm alcor-routecache || true
+docker run -d --name alcor-routecache --network=host --restart always alcor-routecache:latest
+
+echo "Cleaning up old Docker images..."
+docker image prune -af --filter "until=24h"
+
+# Очистить build cache
+echo "Cleaning up Docker build cache..."
+docker builder prune -af --filter "until=24h"
 
 # Перезапускать другие службы PM2
 echo "Restarting PM2 services..."

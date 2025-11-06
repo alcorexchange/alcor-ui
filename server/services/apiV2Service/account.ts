@@ -4,48 +4,49 @@ import { cacheSeconds } from 'route-cache'
 import { Position as PositionClass } from '@alcorexchange/alcor-swap-sdk'
 
 import { Router } from 'express'
-import { createClient } from 'redis'
 import { Match, Swap, PositionHistory, Position } from '../../models'
 import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
 import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
 import { updatePool } from '../swapV2Service'
+import { redis } from '../../utils'
 import { getIncentives } from './farms'
 
 // TODO Account validation
 export const account = Router()
-
-const redis = createClient()
-const publisher = redis.duplicate()
-
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
 export async function getAccountPoolPositions(chain: string, account: string) {
   const startTime = performance.now()
 
-  if (!redis.isOpen) await redis.connect()
-  const positions = JSON.parse(await redis.get(`positions_${chain}`)) || []
+  const allPositions = JSON.parse(await redis().get(`positions_${chain}`)) || []
 
-  const result = []
-  for (const position of positions.filter(p => p.owner == account)) {
-    const stats = await getPositionStats(chain, position)
+  // Оставляем только нужные
+  const accountPositions = allPositions.filter(p => p.owner === account)
 
-    result.push({ ...position, ...stats })
-  }
+  // Загружаем цены один раз
+  const tokenPrices = JSON.parse(await redis().get(`${chain}_token_prices`))
+
+  const historyCache = new Map()
+
+  const result = await Promise.all(accountPositions.map(async (position) => {
+    try {
+      const stats = await getPositionStats(chain, position, tokenPrices, historyCache)
+      return { ...position, ...stats }
+    } catch (err) {
+      console.error(`Failed to get stats for position ${position.id}`, err)
+      return null
+    }
+  }))
 
   const endTime = performance.now()
-
   console.log(`getAccountPoolPositions(${chain}: ${account}):`, `${Math.round(endTime - startTime)}ms`)
 
-  return result
+  return result.filter(Boolean)
 }
 
-async function getCurrentPositionState(chain, plainPosition) {
+async function getCurrentPositionState(chain, plainPosition, tokenPrices = null) {
   const pool = await getPoolInstance(chain, plainPosition.pool)
-
   const position = new PositionClass({ ...plainPosition, pool })
-
-  // console.log(pool.tickDataProvider)
-  // console.log(position)
 
   const inRange = position.inRange
   const amountA = position.amountA.toAsset()
@@ -56,23 +57,23 @@ async function getCurrentPositionState(chain, plainPosition) {
     fees = await position.getFees()
   } catch (e) {
     console.log(`Error get fees for position(${chain}): `, plainPosition)
-    await updatePool(chain, plainPosition.id)
+    await updatePool(chain, plainPosition.pool)
     throw e
   }
 
   const feesA = fees.feesA.toAsset()
   const feesB = fees.feesB.toAsset()
 
-  const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
+  // 🧠 грузим только если не передали
+  const tokens = tokenPrices || JSON.parse(await redis().get(`${chain}_token_prices`))
 
-  const tokenA = tokens.find(t => t.id == position.pool.tokenA.id)
-  const tokenB = tokens.find(t => t.id == position.pool.tokenB.id)
+  const tokenA = tokens.find(t => t.id === position.pool.tokenA.id)
+  const tokenB = tokens.find(t => t.id === position.pool.tokenB.id)
 
   const tokenAUSDPrice = tokenA?.usd_price || 0
   const tokenBUSDPrice = tokenB?.usd_price || 0
 
-  const totalFeesUSD = (parseFloat(feesA) * tokenAUSDPrice) + (parseFloat(feesB) * tokenBUSDPrice)
-
+  const totalFeesUSD = parseFloat(feesA) * tokenAUSDPrice + parseFloat(feesB) * tokenBUSDPrice
   const totalValue =
     parseFloat(position.amountA.toFixed()) * tokenAUSDPrice +
     parseFloat(position.amountB.toFixed()) * tokenBUSDPrice +
@@ -89,16 +90,26 @@ async function getCurrentPositionState(chain, plainPosition) {
   }
 }
 
-export async function getPositionStats(chain, redisPosition) {
-  if (!redis.isOpen) await redis.connect()
-  // Will sort "closed" to the end
-  const startTime = performance.now()
-  const history = await PositionHistory.find({ chain, id: redisPosition.id, owner: redisPosition.owner }).sort({ time: 1, type: 1 }).lean()
-  const endTime = performance.now()
+export async function getPositionStats(
+  chain: string,
+  redisPosition,
+  tokenPrices = null,
+  historyCache: Map<string, any[]> = new Map()
+) {
+  const idKey = `${chain}:${redisPosition.id}:${redisPosition.owner}`
 
-  console.log('getAccountPoolPositions mongo query time:', `${Math.round(endTime - startTime)}ms`,
-    { chain, id: redisPosition.id, owner: redisPosition.owner }
-  )
+  let history: any[]
+  if (historyCache.has(idKey)) {
+    history = historyCache.get(idKey)
+  } else {
+    history = await PositionHistory.find({
+      chain,
+      id: redisPosition.id,
+      owner: redisPosition.owner
+    }).sort({ time: 1, type: 1 }).lean()
+
+    historyCache.set(idKey, history)
+  }
 
   let total = 0
   let sub = 0
@@ -107,12 +118,12 @@ export async function getPositionStats(chain, redisPosition) {
 
   for (const h of history) {
     if (h.type === 'burn') {
-      liquidity = liquidity - BigInt(h.liquidity)
+      liquidity -= BigInt(h.liquidity)
       sub += h.totalUSDValue
     }
 
     if (h.type === 'mint') {
-      liquidity = liquidity + BigInt(h.liquidity)
+      liquidity += BigInt(h.liquidity)
       total += h.totalUSDValue
     }
 
@@ -123,20 +134,18 @@ export async function getPositionStats(chain, redisPosition) {
       collectedFees.lastCollectTime = h.time
     }
 
-    // Might be after close
     if (['burn', 'collect'].includes(h.type)) sub += h.totalUSDValue
   }
 
   const depositedUSDTotal = +(total - sub).toFixed(4)
-  const closed = liquidity == BigInt(0)
+  const closed = liquidity === BigInt(0)
 
   const stats = { depositedUSDTotal, closed, collectedFees }
 
-  let current: { feesA: string, feesB: string, totalValue: number, pNl?: number } = { feesA: '0.0000', feesB: '0.0000', totalValue: 0 }
+  let current: { feesA: string, feesB: string, totalValue: number, pNl?: number } = { feesA: '0.0000', feesB: '0.0000', totalValue: 0, pNl: 0 }
 
   if (redisPosition) {
-    current = await getCurrentPositionState(chain, redisPosition)
-    // pNL is not cout current fees
+    current = await getCurrentPositionState(chain, redisPosition, tokenPrices)
     current.pNl = (current.totalValue + collectedFees.inUSD) - depositedUSDTotal
   }
 
@@ -148,62 +157,57 @@ async function loadUserFarms(network: Network, account: string) {
   const positions = await getAccountPoolPositions(network.name, account)
 
   const positionIds = positions.map(p => Number(p.id))
+  const positionMap = new Map(positions.map(p => [Number(p.id), p]))
 
-  const stakingpos_requests = positionIds.map(posId => {
-    return fetchAllRows(rpc, {
+  const stakingposRequests = positionIds.map(posId =>
+    fetchAllRows(rpc, {
       code: network.amm.contract,
       scope: network.amm.contract,
       table: 'stakingpos',
       lower_bound: posId,
       upper_bound: posId
     })
-  })
+  )
 
-  const rows = (await Promise.all(stakingpos_requests)).flat(1)
+  const stakingRows = (await Promise.all(stakingposRequests)).flat()
 
-  //const rows = stakingpos_requests.flat(2)
-  //console.log({ rows })
-  // const rows = await fetchAllRows(this.$rpc, {
-  //   code: rootState.network.amm.contract,
-  //   scope: rootState.network.amm.contract,
-  //   table: 'stakingpos',
-  //   lower_bound: Math.min(positionIds),
-  //   upper_bound: Math.max(positionIds)
-  // })
-
+  const stakedPositions = stakingRows.filter(i => positionIds.includes(i.posId))
   const farmPositions = []
-  const stakedPositions = rows.filter(i => positionIds.includes(i.posId))
 
   for (const sp of stakedPositions) {
-    const position = positions.find(p => p.id == sp.posId)
-    position.incentiveIds = sp.incentiveIds
-
-    farmPositions.push(position)
+    const pos = positionMap.get(sp.posId)
+    if (pos) {
+      pos.incentiveIds = sp.incentiveIds
+      farmPositions.push(pos)
+    }
   }
 
-  const userUnicueIncentives = [...new Set(farmPositions.map(p => p.incentiveIds).flat(1))]
+  const userIncentiveIds = [...new Set(farmPositions.flatMap(p => p.incentiveIds))]
 
-  // Fetching stakes amounts of positions
-  const userStakes = []
-  for (const incentiveScope of userUnicueIncentives) {
+  const stakeRequests = userIncentiveIds.map(async (scope) => {
     const rows = await fetchAllRows(rpc, {
       code: network.amm.contract,
-      scope: incentiveScope,
+      scope,
       table: 'stakes',
       lower_bound: Math.min(...positionIds),
       upper_bound: Math.max(...positionIds)
     })
 
-    const stakes = rows.filter(r => positionIds.includes(r.posId)).map(r => {
-      r.incentiveId = incentiveScope
-      r.incentive = incentiveScope
-      r.pool = positions.find(p => p.id == r.posId).pool
-      r.poolStats = positions.find(p => p.id == r.posId).pool
-      return r
-    })
+    return rows
+      .filter(r => positionIds.includes(r.posId))
+      .map(r => {
+        const pos = positionMap.get(r.posId)
+        return {
+          ...r,
+          incentiveId: scope,
+          incentive: scope,
+          pool: pos?.pool,
+          poolStats: pos?.pool
+        }
+      })
+  })
 
-    userStakes.push(...stakes)
-  }
+  const userStakes = (await Promise.all(stakeRequests)).flat()
 
   return userStakes
 }
@@ -233,27 +237,45 @@ const getRewardPerToken = incentive => {
 function calculateUserFarms(incentives, plainUserStakes) {
   const userStakes = []
 
+  const positionMap = new Map()
+  for (const stake of plainUserStakes) {
+    positionMap.set(stake.posId, stake)
+  }
+
   for (const r of plainUserStakes) {
-    r.incentive = incentives.find(i => i.id = r.incentive)
+    // ⚠ здесь была ошибка: ты писал `=` вместо `===` в find
+    r.incentive = incentives.find(i => i.id === r.incentive)
+
     const totalStakingWeight = r.incentive.totalStakingWeight
     const stakingWeight = bigInt(r.stakingWeight)
     const userRewardPerTokenPaid = bigInt(r.userRewardPerTokenPaid)
     const rewards = bigInt(r.rewards)
 
-    //console.log(stakingWeight.toString(), totalStakingWeight.toString())
-
-    const reward = stakingWeight.multiply(
-      getRewardPerToken(r.incentive).subtract(userRewardPerTokenPaid)).divide(PrecisionMultiplier).add(rewards)
+    const reward = stakingWeight
+      .multiply(getRewardPerToken(r.incentive).subtract(userRewardPerTokenPaid))
+      .divide(PrecisionMultiplier)
+      .add(rewards)
 
     const rewardToken = asset(r.incentive.reward.quantity)
-
     rewardToken.set_amount(reward)
     r.farmedReward = rewardToken.to_string()
 
-    //r.userSharePercent = stakingWeight.multiply(100).divide(bigInt.max(totalStakingWeight, 1)).toJSNumber()
-    r.userSharePercent = Math.round(parseFloat(stakingWeight.toString()) * 100 / bigInt.max(totalStakingWeight, 1).toJSNumber() * 10000) / 10000
-    r.dailyRewards = r.incentive.isFinished ? 0 : r.incentive.rewardPerDay * r.userSharePercent / 100
+    r.userSharePercent =
+      Math.round(parseFloat(stakingWeight.toString()) * 100 /
+      bigInt.max(totalStakingWeight, 1).toJSNumber() * 10000) / 10000
+
+    r.dailyRewards = r.incentive.isFinished
+      ? 0
+      : r.incentive.rewardPerDay * r.userSharePercent / 100
+
     r.dailyRewards += ' ' + r.incentive.reward.quantity.split(' ')[1]
+
+    // 🧠 Берём из Map вместо .find
+    const pos = positionMap.get(r.posId)
+    if (pos) {
+      r.pool = pos.pool
+      r.poolStats = pos.pool
+    }
 
     r.incentive = r.incentive.id
 
@@ -357,12 +379,34 @@ account.get('/:account/poolsPositionsIn', async (req, res) => {
   res.json(pools)
 })
 
-account.get('/:account/positions', async (req, res) => {
+account.get('/:account/positions', cacheSeconds(2, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.account
+}), async (req, res) => {
   const network: Network = req.app.get('network')
+  const account = req.params.account
 
-  const result = await getAccountPoolPositions(network.name, req.params.account)
+  try {
+    const historyCache = new Map()
+    const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`))
 
-  res.json(result)
+    const allPositions = JSON.parse(await redis().get(`positions_${network.name}`)) || []
+    const accountPositions = allPositions.filter(p => p.owner === account)
+
+    const result = await Promise.all(accountPositions.map(async (position) => {
+      try {
+        const stats = await getPositionStats(network.name, position, tokenPrices, historyCache)
+        return { ...position, ...stats }
+      } catch (err) {
+        console.error('Error calculating position stats:', err)
+        return null
+      }
+    }))
+
+    res.json(result.filter(Boolean))
+  } catch (err) {
+    console.error('Error in /positions:', err)
+    res.status(500).json({ error: 'Failed to load positions' })
+  }
 })
 
 account.get('/:account/farms', cacheSeconds(2, (req, res) => {
@@ -379,25 +423,38 @@ account.get('/:account/farms', cacheSeconds(2, (req, res) => {
 
 account.get('/:account/positions-stats', async (req, res) => {
   const network: Network = req.app.get('network')
-
   const { account } = req.params
 
-  const positions = await PositionHistory.distinct('id', { chain: network.name, owner: account }).lean()
+  try {
+    const ids = await PositionHistory.distinct('id', {
+      chain: network.name,
+      owner: account
+    }).lean()
 
-  const fullPositions = []
-  for (const id of positions) {
-    const redisPosition = await getRedisPosition(network.name, id)
+    const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`))
+    const historyCache = new Map()
 
-    if (!redisPosition) {
-      console.log('NO FOUND POSITION FOR EXISTING HISTORY:', network.name, id)
-      continue
-    }
+    const fullPositions = await Promise.all(ids.map(async (id) => {
+      try {
+        const redisPosition = await getRedisPosition(network.name, id)
+        if (!redisPosition) {
+          console.warn('NO FOUND POSITION FOR EXISTING HISTORY:', network.name, id)
+          return null
+        }
 
-    const stats = await getPositionStats(network.name, redisPosition)
-    fullPositions.push({ id, ...stats })
+        const stats = await getPositionStats(network.name, redisPosition, tokenPrices, historyCache)
+        return { id, ...stats }
+      } catch (err) {
+        console.error('Error processing position stats:', id, err)
+        return null
+      }
+    }))
+
+    res.json(fullPositions.filter(Boolean))
+  } catch (err) {
+    console.error('Error in /positions-stats:', err)
+    res.status(500).json({ error: 'Failed to fetch positions stats' })
   }
-
-  res.json(fullPositions)
 })
 
 account.get('/:account/positions-history', async (req, res) => {

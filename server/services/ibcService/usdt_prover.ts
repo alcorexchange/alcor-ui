@@ -46,7 +46,7 @@ async function getActions(chain, account, params = {}) {
       params: {
         account,
         'act.name': 'emitxfer',
-        limit: 100,
+        limit: 1000,
         skip: xfers.length,
         sort: -1,
         ...params
@@ -115,13 +115,21 @@ async function proveTransfers(ibcToken, sourceChain, destinationChain, _native) 
   while (true) {
     console.log('prove transfers while.. ', sourceChain.name, destinationChain.name)
     try {
+      // FIXME Proven is not correct for old transfers (before migration)
       const actions = await fetchXfers(chains, ibcToken, _native)
+      const actionsToProve = actions.filter(a => !a.proven)
 
-      for (const action of actions) {
-        if (!action.proven) {
-          console.log(action.timestamp, action)
+      console.log("ACTIONS TO PROVE", actionsToProve.length)
+
+      //for (const action of actionsToProve.slice(6)) {
+      for (const action of actionsToProve) {
+        console.log(action.timestamp, action)
+        try {
           const proved = await prove(sourceChain, destinationChain, action, ibcToken, _native)
           console.log({ proved })
+        } catch (e) {
+          //console.error('Prove error!!!', e, { action, ibcToken, _native })
+          console.error('Prove error!!!', e)
         }
       }
     } catch (e) {
@@ -159,9 +167,9 @@ async function main() {
   const ibcTokens = await getWrapLockContracts(chains)
 
   await Promise.all([
-    //WaxToEosWorker(ibcTokens),
+    WaxToEosWorker(ibcTokens),
     //eosToWaxWorker(ibcTokens),
-    eosCexDepsitsWorker()
+    //eosCexDepsitsWorker()
   ])
 }
 

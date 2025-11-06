@@ -11,9 +11,9 @@ import { fetchAllRows } from '../utils/eosjs'
 import { Swap, SwapBar, Match, Market, Bar, GlobalStats } from './models'
 import { initialUpdate as initialOrderbookUpdate } from './services/orderbookService/start'
 import { updateGlobalStats } from './services/updaterService/analytics'
-import { initialUpdate as swapInitialUpdate, updatePool } from './services/swapV2Service'
+import { connectAll, initialUpdate as swapInitialUpdate, updatePool } from './services/swapV2Service'
 import { makeSwapBars, makeSpotBars } from './services/updaterService/charts'
-import { mongoConnect } from './utils'
+import { initRedis, mongoConnect } from './utils'
 
 let redisClient
 const ONEDAY = 60 * 60 * 24 * 1000
@@ -25,6 +25,8 @@ if (!command) { console.log('No command provided'); process.exit() }
 
 async function main() {
   await mongoConnect()
+  await connectAll()
+  await initRedis()
 
   if (command == 'clean_markets') {
     const network = config.networks[process.argv[3]]
@@ -159,4 +161,20 @@ async function main() {
   }
 }
 
+async function cleanup() {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect()
+  }
+
+  if (redisClient?.isOpen) {
+    await redisClient.quit()
+  }
+}
+
 main()
+  .then(() => cleanup())
+  .then(() => process.exit(0))
+  .catch(err => {
+    console.error('Unhandled error:', err)
+    cleanup().then(() => process.exit(1))
+  })

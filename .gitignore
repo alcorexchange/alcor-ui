@@ -92,3 +92,4 @@ ecosystem.config.js
 .sentryclirc
 
 localhost*.pem
+.playwright-mcp/

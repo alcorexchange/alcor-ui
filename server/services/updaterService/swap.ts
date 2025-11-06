@@ -48,11 +48,15 @@ export async function getChangeFrom(date, pool, chain) {
   const date_deal = await Swap.findOne({ chain, pool, time: { $gte: new Date(date) } }, {}, { sort: { time: 1 } })
   const last_deal = await Swap.findOne({ chain, pool }, {}, { sort: { time: -1 } })
 
-  if (date_deal) {
-    const price_before = parseInt(date_deal.sqrtPriceX64)
-    const price_after = parseInt(last_deal.sqrtPriceX64)
+  if (date_deal && last_deal) {
+    // Use BigInt for uint128_t values to avoid precision loss
+    const price_before = BigInt(date_deal.sqrtPriceX64)
+    const price_after = BigInt(last_deal.sqrtPriceX64)
 
-    return (((price_after - price_before) / price_before) * 100).toFixed(2)
+    // Calculate percentage change using BigInt arithmetic
+    // Multiply by 10000 to preserve 2 decimal places
+    const change = ((price_after - price_before) * BigInt(10000)) / price_before
+    return (Number(change) / 100).toFixed(2)
   } else {
     return 0
   }
@@ -61,57 +65,100 @@ export async function getChangeFrom(date, pool, chain) {
 export async function updatePoolsStats(chain) {
   console.time(`${chain} pools updated`)
   try {
+    const now = Date.now()
+    const dayAgo = now - ONEDAY
+    const weekAgo = now - WEEK
+    const monthAgo = now - ONEDAY * 30
+
+    // Get all volume stats in one aggregation query
+    const volumeStats = await Swap.aggregate([
+      {
+        $match: {
+          chain,
+          time: { $gte: new Date(monthAgo) } // Get all data from the furthest date
+        }
+      },
+      {
+        $facet: {
+          day: [
+            { $match: { time: { $gte: new Date(dayAgo) } } },
+            {
+              $group: {
+                _id: '$pool',
+                volumeUSD: { $sum: { $abs: { $ifNull: ['$totalUSDVolume', 0] } } },
+                volumeA: { $sum: { $abs: { $ifNull: ['$tokenA', 0] } } },
+                volumeB: { $sum: { $abs: { $ifNull: ['$tokenB', 0] } } }
+              }
+            }
+          ],
+          week: [
+            { $match: { time: { $gte: new Date(weekAgo) } } },
+            {
+              $group: {
+                _id: '$pool',
+                volumeUSD: { $sum: { $abs: { $ifNull: ['$totalUSDVolume', 0] } } },
+                volumeA: { $sum: { $abs: { $ifNull: ['$tokenA', 0] } } },
+                volumeB: { $sum: { $abs: { $ifNull: ['$tokenB', 0] } } }
+              }
+            }
+          ],
+          month: [
+            {
+              $group: {
+                _id: '$pool',
+                volumeUSD: { $sum: { $abs: { $ifNull: ['$totalUSDVolume', 0] } } },
+                volumeA: { $sum: { $abs: { $ifNull: ['$tokenA', 0] } } },
+                volumeB: { $sum: { $abs: { $ifNull: ['$tokenB', 0] } } }
+              }
+            }
+          ]
+        }
+      }
+    ])
+
+    // Convert arrays to maps for quick lookup
+    const stats = {
+      day: new Map(volumeStats[0].day.map(item => [item._id, item])),
+      week: new Map(volumeStats[0].week.map(item => [item._id, item])),
+      month: new Map(volumeStats[0].month.map(item => [item._id, item]))
+    }
+
+    // Get all pools and update them
     const pools = await SwapPool.find({ chain })
-    const promises = pools.map((pool) => updatePoolData(pool, chain))
-    await Promise.all(promises)
+
+    // Process pools in batches to avoid overwhelming the database
+    const batchSize = 10
+    for (let i = 0; i < pools.length; i += batchSize) {
+      const batch = pools.slice(i, i + batchSize)
+      await Promise.all(batch.map(pool => updatePoolData(pool, chain, stats)))
+    }
   } catch (error) {
     console.error('UPDATE POOL STATS ERR', chain, error)
   }
   console.timeEnd(`${chain} pools updated`)
 }
 
-async function updatePoolData(pool, chain) {
-  const now = Date.now()
-  const dayAgo = now - ONEDAY
-  const weekAgo = now - WEEK
-  const monthAgo = now - ONEDAY * 30
-
+async function updatePoolData(pool, chain, stats) {
   try {
-    const [
-      volumeUSD24,
-      volumeUSDWeek,
-      volumeUSDMonth,
-      volumeA24,
-      volumeAWeek,
-      volumeAMonth,
-      volumeB24,
-      volumeBWeek,
-      volumeBMonth,
-      change24,
-      changeWeek,
-    ] = await Promise.all([
-      getFieldSumFrom('totalUSDVolume', dayAgo, pool.id, chain),
-      getFieldSumFrom('totalUSDVolume', weekAgo, pool.id, chain),
-      getFieldSumFrom('totalUSDVolume', monthAgo, pool.id, chain),
-      getFieldSumFrom('tokenA', dayAgo, pool.id, chain),
-      getFieldSumFrom('tokenA', weekAgo, pool.id, chain),
-      getFieldSumFrom('tokenA', monthAgo, pool.id, chain),
-      getFieldSumFrom('tokenB', dayAgo, pool.id, chain),
-      getFieldSumFrom('tokenB', weekAgo, pool.id, chain),
-      getFieldSumFrom('tokenB', monthAgo, pool.id, chain),
-      getChangeFrom(dayAgo, pool.id, chain),
-      getChangeFrom(weekAgo, pool.id, chain),
+    const dayStats = stats.day.get(pool.id) || { volumeUSD: 0, volumeA: 0, volumeB: 0 }
+    const weekStats = stats.week.get(pool.id) || { volumeUSD: 0, volumeA: 0, volumeB: 0 }
+    const monthStats = stats.month.get(pool.id) || { volumeUSD: 0, volumeA: 0, volumeB: 0 }
+
+    // Get price changes separately (these still need individual queries due to sorting)
+    const [change24, changeWeek] = await Promise.all([
+      getChangeFrom(Date.now() - ONEDAY, pool.id, chain),
+      getChangeFrom(Date.now() - WEEK, pool.id, chain),
     ])
 
-    pool.volumeUSD24 = volumeUSD24
-    pool.volumeUSDWeek = volumeUSDWeek
-    pool.volumeUSDMonth = volumeUSDMonth
-    pool.volumeA24 = volumeA24
-    pool.volumeAWeek = volumeAWeek
-    pool.volumeAMonth = volumeAMonth
-    pool.volumeB24 = volumeB24
-    pool.volumeBWeek = volumeBWeek
-    pool.volumeBMonth = volumeBMonth
+    pool.volumeUSD24 = dayStats.volumeUSD
+    pool.volumeUSDWeek = weekStats.volumeUSD
+    pool.volumeUSDMonth = monthStats.volumeUSD
+    pool.volumeA24 = dayStats.volumeA
+    pool.volumeAWeek = weekStats.volumeA
+    pool.volumeAMonth = monthStats.volumeA
+    pool.volumeB24 = dayStats.volumeB
+    pool.volumeBWeek = weekStats.volumeB
+    pool.volumeBMonth = monthStats.volumeB
     pool.change24 = change24
     pool.changeWeek = changeWeek
 
@@ -120,63 +167,3 @@ async function updatePoolData(pool, chain) {
     console.error(`Error updating pool ${pool.id} stats:`, error)
   }
 }
-
-// export async function getChangeFrom(date, market, chain) {
-//   const date_deal = await Match.findOne({ chain, market, time: { $gte: new Date(date) } }, {}, { sort: { time: 1 } })
-//   const last_deal = await Match.findOne({ chain, market }, {}, { sort: { time: -1 } })
-
-//   if (date_deal) {
-//     const price_before = date_deal.unit_price
-//     const price_after = last_deal.unit_price
-
-//     return (((price_after - price_before) / price_before) * 100).toFixed(2)
-//   } else {
-//     return 0
-//   }
-// }
-
-// export async function getMarketStats(network, market_id) {
-//   const stats = {}
-
-//   if ('last_price' in stats) return stats
-
-//   const last_deal = await Match.findOne({ chain: network.name, market: market_id }, {}, { sort: { time: -1 } })
-//   if (last_deal) {
-//     stats.last_price = parseFloat(last_deal.unit_price)
-//   } else {
-//     stats.last_price = 0
-//   }
-
-//   const oneMonthAgo = new Date(
-//     new Date().getFullYear(),
-//     new Date().getMonth() - 1,
-//     new Date().getDate()
-//   )
-
-//   const [base_volume, target_volume] = await getFieldSumFrom(Date.now() - ONEDAY, market_id, network.name)
-
-//   stats.volume24 = target_volume
-//   stats.target_volume = target_volume
-//   stats.base_volume = base_volume
-
-//   stats.volumeWeek = (await getFieldSumFrom(Date.now() - WEEK, market_id, network.name))[1]
-//   stats.volumeMonth = (await getFieldSumFrom(oneMonthAgo, market_id, network.name))[1]
-
-//   stats.change24 = await getChangeFrom(Date.now() - ONEDAY, market_id, network.name)
-//   stats.changeWeek = await getChangeFrom(Date.now() - WEEK, market_id, network.name)
-
-//   // Calc 24 high/low
-//   stats.high24 = stats.last_price
-//   stats.low24 = stats.last_price
-
-//   const chain = network.name
-//   const market = market_id
-
-//   const high24_deal = await Match.findOne({ chain, market, time: { $gte: new Date(Date.now() - ONEDAY) } }, {}, { sort: { unit_price: -1 } })
-//   const low24_deal = await Match.findOne({ chain, market, time: { $gte: new Date(Date.now() - ONEDAY) } }, {}, { sort: { unit_price: 1 } })
-
-//   if (high24_deal) stats.high24 = parseFloat(high24_deal.unit_price)
-//   if (low24_deal) stats.low24 = parseFloat(low24_deal.unit_price)
-
-//   return stats
-// }
