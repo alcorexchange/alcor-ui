@@ -1,0 +1,29 @@
+# Используем базовый образ с Node.js
+FROM node:22-alpine
+
+# Устанавливаем рабочую директорию внутри контейнера
+WORKDIR /app
+
+# Копируем package.json и yarn.lock в контейнер
+COPY package.json yarn.lock ./
+
+# Устанавливаем зависимости с помощью yarn
+RUN yarn install --frozen-lockfile
+
+# Копируем оставшиеся файлы проекта в контейнер
+COPY . .
+
+# Устанавливаем PM2
+RUN yarn global add @socket.io/pm2
+
+# Building
+RUN yarn build-server
+
+# Указываем порт, который будет слушать приложение
+EXPOSE 7003
+
+ENV PORT=7003
+ENV PM2_PORT=8081
+
+# Запускаем приложение с помощью PM2 Runtime (4 процесса для ботов)
+CMD ["pm2-runtime", "--name", "Alcor-apiV2-bots", "--instances", "8", "./lib/server/services/apiV2Service/index.js"]

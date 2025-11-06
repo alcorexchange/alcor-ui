@@ -708,8 +708,24 @@
   },
   "HODL@memecreators": {
     "name": "HODL and create your own MEME",
-    "description": "HOLD is first official MEME token of memecreators. All tokens(max supply 21,000,000,000) will be locked and burned at alcor.exchange. A burn rate of  0.3%+ occurs on every swap or trade. 1% fee is applied to every transaction, distributed: (1) 0.5% is burned (sent to eosio.null),(2)0.4% goes to the contract (part of this fee will be used to burn and promote the MEMEcreators token) and (3)0.1% is allocated to the creator. To become one of the creators, join our community on Telegram!",
+    "description": "HODL is first official MEME token of MEMEcreators. All tokens(max supply 21,000,000,000) will be locked at alcor.exchange. A burn rate of  0.3%+ occurs on every swap or trade. 1% fee is applied to transactions, distributed: (1) 0.5% is burned (sent to eosio.null), (2) 0.4% goes to the contract (part of this fee will be burned or promote the MEMEcreators tokens) and (3) 0.1% is allocated to the creator. To become one of the creators and create your own token, join our community on Telegram, https://t.me/wax_memecreators!",
     "tags": ["MEME", "BURN", "CREATORS"],
-    "socials": "https://t.me/wax_memecreators"
+    "socials": [
+      "https://t.me/wax_memecreators"
+    ]
+  },
+  "LILCASH@tkn": {
+    "name": "LilCash",
+    "website": { "link": "https://lilmonsters.io", "name": "LilMonsters" },
+    "tags": ["Gaming","P2E","WAX"],
+    "socials": ["https://twitter.com/lilmonstersgame", "https://discord.gg/fVkykMxVWR"],
+    "description": "Token used in Lil Monsters game on WAX."
+  },
+  "CHOMP@visionz44.gm": {
+    "name": "CHOMP",
+    "website": { "link": "https://visionz44.com/", "name": "visionz44.com" },
+    "tags": ["Gaming", "Community"],
+    "socials": ["https://x.com/V44Gaming"],
+    "description": "Channel/community token for V44Gaming and SharkAttack."
   }
 }

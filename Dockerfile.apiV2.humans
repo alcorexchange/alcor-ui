@@ -20,10 +20,10 @@ RUN yarn global add @socket.io/pm2
 RUN yarn build-server
 
 # Указываем порт, который будет слушать приложение
-EXPOSE 7003
+EXPOSE 7004
 
-ENV PORT=7003
-ENV PM2_PORT=8081
+ENV PORT=7004
+ENV PM2_PORT=8082
 
-# Запускаем приложение с помощью PM2 Runtime
-CMD ["pm2-runtime", "--name", "Alcor-apiV2-server", "--instances", "8", "./lib/server/services/apiV2Service/index.js"]
+# Запускаем приложение с помощью PM2 Runtime (4 процесса для людей)
+CMD ["pm2-runtime", "--name", "Alcor-apiV2-humans", "--instances", "5", "./lib/server/services/apiV2Service/index.js"]

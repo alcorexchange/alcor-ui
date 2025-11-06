@@ -215,7 +215,8 @@ const networks = {
     },
 
     RECOMMENDED_MARKETS: ['CIRCUS@pbcbank_xpr'],
-    PINNED_MARKETS: [493, 715, 836, 1089],
+    //PINNED_MARKETS: [493, 715, 836, 1089],
+    PINNED_MARKETS: [],
     BANNER_MARKETS: [],
     SCAM_TOKENS: [
       'xusdt-tokencreate', 'xusdt-tokencreate', 'yfi-tokencreate'
@@ -231,7 +232,26 @@ const networks = {
       'toilet', 'infinityhash', 'infinitybend', 'stellarx', 'btccash', 'thetax', 'classiceth', 'xvechain', 'x2network', 'inet',
       'xkaspa', 'teranode', 'xaxie', 'mantrachain', 'onyxcoin', 'protonethena', 'xcompound', 'berachain', 'protonavve', 'unilateral',
       'xcronos', 'xuniswapxpr', 'litecoinx', 'quantumchain', 'rippleledger', 'dogex', 'ondocoin', 'xprliquid', 'tokensxpr', 'xprswap',
-      'tradexpr'
+      'tradexpr', 'eostoken', 'eostokens', 'mockmint', 'xtokems', 'x1okens', 'eosiotokenx', 'eosiotokens', 'xprlx.xpr', 'llluminati',
+      'royalcoins', 'xprl1', 'peggedtoken', 'tokenproton', 'protonmeta', 'xxxtokens', 'metaltokens', 'ternary', 'swapxpr',
+      'protontokens', 'xrpl1', 'otokens', 'usdctoken', 'xroyalty323', 'xprotos', 'debtcoin', 'omniflix',
+      'bsvb', 'comunityfund', 'luciferase', 'fiatrail', 'fiatrail2', 'pythias', 'ethena.xpr', 'worldpeace', 'vaulty',
+      'acrossprotcl', 'equilibriumx', 'aioz', 'qulantis', 'illluminati', 'pepetoken', 'agix', 'xagix', 'memetoken',
+      'bitque', 'millionmax', 'metalapp', '311gateway', 'xrln', 'quantumwave', 'burnbro', 'xbot', 'lunatoken',
+      'royalcoin', 'knightbank', 'xpromotion', 'nukw', 'conductor', 'nfrm', 'ovdrx', 'memezr', 'xwcu', 'abctoken',
+      'tikargoo', 'xyztoken', 'xweb', 'gaiachaine', 'orionpax', 'bcha', 'exodius', 'xera', 'ivrp', 'solpro',
+      'novachain', 'havanachain', 'blu3stck', 'lght', 'infura', 'royaltytoken', 'vsgill', 'fishtankdao', 'znja',
+      'vsco', 'idbx', '13cipher', 'icnt', 'infinitlabs', 'tcontract', 'synthetix', 'blockcipher', 'stacks.xpr',
+      'xprsatan', 'thegraph', 'aelfscan', 'ontio', 'valoreum', 'virtualpro', 'aipc', 'bsva', 'xmetalxpr',
+      'omniversal', 'xsatosi', 'raydiumxpr', 'qllp', 'loantreasury', 'sanex', 'photopickle', 'infinitive',
+      'veridium', 'proofofmemes', 'yeettoken', 'pumpito', 'stvalentine', 'solayer', 'ivrq', 'eotoken',
+      '54231', 'melaniameme', 'btcreserve', 'fartcoin', 'eosiopowcoin', 'edu.xpr', 'spacedemon',
+      'mysticlion', 'zetas', 'starknet.xpr', 'xsatoshi', 'whitebitcoin', 'kibainu', 'kaia', 'erjkerewj',
+      'frankcoin', 'vbtn', 'hiphopbank', 'wrappedtoken', 'xu3o5', 'xtok3n', 'xpel',
+      'aquaprotocol', 'tnode', 'projak', 'terramoney', 'protonai', '1gram', 'xprjesus.xpr', 'xrpn', 'acix', 'lambobank',
+      'xasterdex', 'fasa', '51st', 'bfrost', 'xplasma', 'bttt', 'webx', 'sbwy', 'xfund', 'astremn',
+      'vril', 'eurt', 'si44', 'prxq', 'nacuso', 'eveningmoon', '5t4r', 'binaryx', 'cumbank', 'xprn2', 'qxte', 'magx',
+      'xpot', 'aeonprotocol'
     ],
     CEX_CONTRACTS: [],
 

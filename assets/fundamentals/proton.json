@@ -104,15 +104,15 @@
       "https://proton.alcor.exchange/trade/anchor-arcana_xmd-xmd.token",
       "https://proton.alcor.exchange/trade/anchor-arcana_xusdt-xtokens",
       "https://proton.alcor.exchange/trade/anchor-arcana_xusdc-xtokens"
-      
+
     ],
     "description": "ANCHOR provides targeted liquidity focused on the +- 1% and +-6% range for select stable coins on XPR. Low liquidity in these pools is a pain point of XPR Network, eased through our pools. ANCHOR provides information and opportunities presented by value differences of the three main stable coins to arbitrage bots. ANCHOR liquidity results in a cheap source of liquidity for arbitrage bots to swap pools. ANCHOR uses .05% fee pools for ANCHOR with XUSDC, XUSDT, and XMD. ANCHOR is not advertised or offered in public or private. Do not buy ANCHOR, there is no expectation of profit, and any value placed in exchange for ANCHOR is considered a donation. The project is private, with 100% of token ownership to the contract. This stabilization method is untested, and we do not know if it will be stable. Even if it appears to be stable, ANCHOR may be changed or canceled at any time, resulting in up to 100% loss of value for ANCHOR token. ANCHOR was named such in relation to a part of an Ark (boat). ANCHOR is not related to Anchor Wallet, nor to Alcor exchange, XPR Network, or any providers of pooled stable coins. All proceeds are hereby perpetually donated to the Lyran civilization, and / or to rebuild Noah's Ark"
     },
     "MEME@m3m3": {
-      "name": "MEME - All XPR's MEMEs and ALTs, reflectively",
+      "name": "MEME",
       "website": {
-        "link": "https://proton.alcor.exchange/swap?input=xpr-eosio.token&output=MEME-m3m3",
-        "name": "MEME"
+        "link": "https://t.me/flextokens",
+        "name": "MEME - The First Customizable Reflective Token"
       },
       "tags": [
         "meme",
@@ -123,8 +123,28 @@
         "alt"
       ],
       "socials": [
-        "https://t.me/ottoxpr"
+        "https://t.me/flextokens",
+        "https://proton.alcor.exchange/swap?input=xpr-eosio.token&output=MEME-m3m3",
+        "https://www.notion.so/aquariusacademy/m3m3-Liftoff-1ccac693574b80539503cf232a9e73b5"
       ],
-      "description": "MEME is your Lambo ride to infinite wealth in the commodity of the future — memecoins. Ape in and hodl to get rich like the degens. Yeet every f*cking day. Diamond hands will be reflected 💎🙌 (did we say this is a reflective token?) 1% of every TX to you. What else? 1% is burnt each TX. Deflationary AF. 🔥 Simple AF. Oh wait, it's more complex. Smash setflextoken on the m3m3 contract to change the reward token that shows up in your account. Choose from most MEMEs and ALTs on XPR. If ur fav tok is missing, add 100k XPR to the 1% MEME/URFAVTOK pool and DM dev. | 💪 Don't be Jerry. Be Chad. 😎 | Legal: No plebs. MEME is a meme coin with no intrinsic value or expectation of financial return. There is no formal team or roadmap, only our community t.me/ottoxpr and volunteers who donate effort. MEME is for entertainment purposes only. 🎉 Any token reward(s) is provided as a gift, not a return on investment, or formal compensation, and is in no way related to the purchase price, nor is any amount guaranteed at any time or for any time period. Comply with regional laws regarding digital assets. Part of OTTO. Website: t.me/ottoxpr | 🤑 OTTO on XPR’s fast, free blockchain, and watch tokens flow into your account. 🚀 You’re a degen, you wouldn't dare sell your MEME."    
-    }
+      "description": "More than a meme, m3m3 ($MEME) is the first reflective token on XPR 🥇 and first on any chain to let you choose what token you get reflected to your account. 💱🤑 Pick your poison from the best alts and memes XPR has to offer 🍺🍸 For best results, ape in and hodl. Diamond hands will be reflected 💎🙌 1% of every TX to holders by % held. 1% is burnt. Deflationary AF. 🔥 Simple AF. 😎 But wait, it's more complex. To customize the reward token reflected to your account smash setflextoken on the m3m3 contract, or prefer to enjoy the default auto-compounding $MEME flowing into your account. Choose from most memes and alts on XPR. If ur chosen token is missing as a reward option, verify 100k XPR exists in the 1% MEME/URFAVTOK pool and badger us in t.me/flextokens 💪 Don't be Jerry 👔 Start as a Morty with your m3m3 and advance to Rick status with m3m3 playbooks 🧪 | Legal: No plebs. MEME is a meme coin with no intrinsic value or expectation of financial return. There is no formal team or roadmap, only our community including volunteers who donate effort. MEME is for entertainment purposes only, and is an experiment in tokenomics that may be changed or canceled at any time. 🎉 Any token reward(s) is provided as a gift, not a return on investment, or compensation, and is in no way related to the purchase price, nor is any amount guaranteed at any time or for any time period. Comply with regional laws regarding digital assets. | Part of FLEX on XPR’s fast, free blockchain. 🚀 Keep HODLin or you'll miss your reflections! 🥇 m3m3 Liftoff Playbook: notion.so/aquariusacademy/m3m3-Liftoff-1ccac693574b80539503cf232a9e73b5"
+      },
+      "PEOPLES@xpr.m3m3": {
+        "name": "People's Pupils",
+        "website": {
+          "link": "https://proton.alcor.exchange/swap?input=XPR-eosio.token&output=PEOPLES-xpr.m3m3",
+          "name": "PEOPLES / XPR"
+        },
+        "tags": [
+          "meme",
+          "m3m3",
+          "liquidity",
+          "pool",
+          "entertainment"
+        ],
+        "socials": [
+          "https://proton.alcor.exchange/swap?input=XPR-eosio.token&output=PEOPLES-xpr.m3m3"
+        ],
+        "description": "'Peoples Pupils is a crypto token that I hope will make a lot of people happy.' Created by 8 year old nephew of prominent Crypto dev. For entertainment purposes only."
+      }
 }

@@ -7,6 +7,7 @@
     ResourcesModal
     ModalsDialog
     AnnouncementModal
+    HackerWarningModal
 
     .main(:class="{ 'alcor-inner': !fullWidth , 'unlim-width': fullWidth }")
       nuxt
@@ -26,6 +27,7 @@ import ConnectNav from '~/components/layout/ConnectNav.vue'
 import AlcorLoading from '~/components/AlcorLoading.vue'
 import ResourcesModal from '~/components/modals/Resources.vue'
 import AnnouncementModal from '~/components/modals/AnnouncementModal.vue'
+import HackerWarningModal from '~/components/modals/HackerWarningModal.vue'
 
 export default {
   components: {
@@ -38,6 +40,7 @@ export default {
     AlcorLoading,
     ResourcesModal,
     AnnouncementModal,
+    HackerWarningModal,
     TopNav,
   },
 
