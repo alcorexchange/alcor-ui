@@ -39,6 +39,13 @@ docker stop alcor-routecache || true
 docker rm alcor-routecache || true
 docker run -d --name alcor-routecache --network=host --restart always alcor-routecache:latest
 
+echo "Cleaning up old Docker images..."
+docker image prune -af --filter "until=24h"
+
+# Очистить build cache
+echo "Cleaning up Docker build cache..."
+docker builder prune -af --filter "until=24h"
+
 # Перезапускать другие службы PM2
 echo "Restarting PM2 services..."
 pm2 reload all --update-env
