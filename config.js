@@ -234,7 +234,7 @@ const networks = {
       'xcronos', 'xuniswapxpr', 'litecoinx', 'quantumchain', 'rippleledger', 'dogex', 'ondocoin', 'xprliquid', 'tokensxpr', 'xprswap',
       'tradexpr', 'eostoken', 'eostokens', 'mockmint', 'xtokems', 'x1okens', 'eosiotokenx', 'eosiotokens', 'xprlx.xpr', 'llluminati',
       'royalcoins', 'xprl1', 'peggedtoken', 'tokenproton', 'protonmeta', 'xxxtokens', 'metaltokens', 'ternary', 'swapxpr',
-      'protontokens', 'xrpl1', 'otokens', 'taruntoken', 'usdctoken', 'xroyalty323', 'xprotos', 'debtcoin', 'omniflix',
+      'protontokens', 'xrpl1', 'otokens', 'usdctoken', 'xroyalty323', 'xprotos', 'debtcoin', 'omniflix',
       'bsvb', 'comunityfund', 'luciferase', 'fiatrail', 'fiatrail2', 'pythias', 'ethena.xpr', 'worldpeace', 'vaulty',
       'acrossprotcl', 'equilibriumx', 'aioz', 'qulantis', 'illluminati', 'pepetoken', 'agix', 'xagix', 'memetoken',
       'bitque', 'millionmax', 'metalapp', '311gateway', 'xrln', 'quantumwave', 'burnbro', 'xbot', 'lunatoken',
@@ -245,9 +245,13 @@ const networks = {
       'xprsatan', 'thegraph', 'aelfscan', 'ontio', 'valoreum', 'virtualpro', 'aipc', 'bsva', 'xmetalxpr',
       'omniversal', 'xsatosi', 'raydiumxpr', 'qllp', 'loantreasury', 'sanex', 'photopickle', 'infinitive',
       'veridium', 'proofofmemes', 'yeettoken', 'pumpito', 'stvalentine', 'solayer', 'ivrq', 'eotoken',
-      '54231', 'melaniameme', 'btcreserve', 'fartcoin', 'luce.xpr', 'eosiopowcoin', 'edu.xpr', 'spacedemon',
+      '54231', 'melaniameme', 'btcreserve', 'fartcoin', 'eosiopowcoin', 'edu.xpr', 'spacedemon',
       'mysticlion', 'zetas', 'starknet.xpr', 'xsatoshi', 'whitebitcoin', 'kibainu', 'kaia', 'erjkerewj',
-      'frankcoin', 'vbtn', 'hiphopbank'
+      'frankcoin', 'vbtn', 'hiphopbank', 'wrappedtoken', 'xu3o5', 'xtok3n', 'xpel',
+      'aquaprotocol', 'tnode', 'projak', 'terramoney', 'protonai', '1gram', 'xprjesus.xpr', 'xrpn', 'acix', 'lambobank',
+      'xasterdex', 'fasa', '51st', 'bfrost', 'xplasma', 'bttt', 'webx', 'sbwy', 'astremn',
+      'vril', 'eurt', 'si44', 'prxq', 'nacuso', 'eveningmoon', '5t4r', 'binaryx', 'cumbank', 'xprn2', 'qxte', 'magx',
+      'xpot', 'aeonprotocol', 'xmtlchain', 'xnet'
     ],
     CEX_CONTRACTS: [],
 
