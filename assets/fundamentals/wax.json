@@ -727,5 +727,59 @@
     "tags": ["Gaming", "Community"],
     "socials": ["https://x.com/V44Gaming"],
     "description": "Channel/community token for V44Gaming and SharkAttack."
+  },
+  "BUZZ@buzzingarden": {
+    "name": "BUZZ - Tireless Superhero 🐝🔗",
+    "tags": ["DeFi", "NFT", "Ecosystem", "Blend", "Collectibles"],
+    "socials": [
+      "https://x.com/buzzingarden",
+      "https://t.me/buzzingarden"
+    ],
+    "description": "BUZZ flows like honey – Born from real-world hive passion, BUZZ is the tireless hero supercharging liquidity across the WAX ecosystem. Seamless routing and with a 3% on-transer fee (sender) → liquidity & eternal growth. Every pool a cell, every swap a pulse – one unified swarm of capital pollinating the entire chain. Feel the BUZZ!"
+  },
+  "BUTTERZ@buzzingarden": {
+    "name": "BUTTERZ – Fluttering Gently 🦋🌼",
+    "tags": ["NFT", "Transformation", "Blend", "Collectibles"],
+    "socials": [
+      "https://x.com/buzzingarden",
+      "https://t.me/buzzingarden"
+    ],
+    "description": "BUTTERZ are BUZZ’s graceful renewal companions. Used in project drops, blends and rewards. 3% on-transer fee (sender) → liquidity & eternal growth. Flutter with us!"
+  },
+  "CATERZ@buzzingarden": {
+    "name": "CATERZ – Diligent Workers 🐛🌱",
+    "tags": ["NFT", "Evolution", "Blend", "Collectibles"],
+    "socials": [
+      "https://x.com/buzzingarden",
+      "https://t.me/buzzingarden"
+    ],
+    "description": "CATERZ are BUZZ’s hardworking starter friends. Used in project drops, blends and rewards. 3% on-transer fee (sender) → liquidity & eternal growth. From larva to legend!"
+  },
+  "DRAGONZ@buzzingarden": {
+    "name": "DRAGONZ – Soaring Above 🐉💧",
+    "tags": ["NFT", "Adventure", "Blend", "Collectibles"],
+    "socials": [
+      "https://x.com/buzzingarden",
+      "https://t.me/buzzingarden"
+    ],
+    "description": "DRAGONZ are BUZZ’s swift sky companions. Used in project drops, blends and rewards. 3% on-transer fee (sender) → liquidity & eternal growth.. Soar to glory!"
+  },
+  "HOPPERZ@buzzingarden": {
+    "name": "HOPPERZ – Leaping With Energy 🦗🌿",
+    "tags": ["NFT", "Exploration", "Blend", "Collectibles"],
+    "socials": [
+      "https://x.com/buzzingarden",
+      "https://t.me/buzzingarden"
+    ],
+    "description": "HOPPERZ are BUZZ’s joyful leaping friends. Used in project drops, blends and rewards. 3% on-transer fee (sender) → liquidity & eternal growth. Bounce into the hive!"
+  },
+  "LADYZ@buzzingarden": {
+    "name": "LADYZ – Elegant & Poised 🐞👑",
+    "tags": ["NFT", "Sophistication", "Blend", "Collectibles"],
+    "socials": [
+      "https://x.com/buzzingarden",
+      "https://t.me/buzzingarden"
+    ],
+    "description": "LADYZ are BUZZ’s elegant guardian companions. Used in project drops, blends and rewards. 3% on-transer fee (sender) → liquidity & eternal growth. Rule the garden in style!"
   }
 }
