@@ -451,6 +451,7 @@ const networks = {
 
     RECOMMENDED_MARKETS: ['TLM@tlm-alien.worlds'],
     PINNED_MARKETS: [
+      911,
       37,
       36,
 

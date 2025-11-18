@@ -204,26 +204,17 @@ export default {
     rateInverted: false,
     banners: {
       wax: [
-        // {
-        //   link: 'https://tinyurl.com/nftopia5-alcor',
-        //   image: require('@/assets/images/swap-banner-nftopia.gif'),
-        //   colors: [
-        //     'rgba(221,74,95,0.2)',
-        //     'rgba(183,44,47, 1)',
-        //     'rgba(129,22,25,1)',
-        //   ],
-        // },
-      ],
-      proton: [
         {
-          link: 'https://metalseaxpr.com/',
-          image: require('@/assets/images/swap-banner-xpr-2.gif'),
+          link: 'https://discord.gg/cSPMT6ndSQ',
+          image: require('@/assets/images/swap-banner-mbgr.gif'),
           colors: [
-            'rgba(169,131,191,0.2)',
-            'rgba(78,54,128, 1)',
-            'rgba(249,212,232,1)',
+            'rgba(255,165,0,0.2)',
+            'rgba(255,140,0, 1)',
+            'rgba(139,69,19,1)',
           ],
         },
+      ],
+      proton: [
       ]
     }
   }),
