@@ -199,12 +199,12 @@ export default {
         contentKey: 'bridge',
         content: [
           [
-            {
-              title: 'IBC Bridge',
-              description: 'Bridge from EOS, WAX, Telos and UX Network',
-              to: '/bridge',
-              icon: 'menu-ibc',
-            },
+            // {
+            //   title: 'IBC Bridge',
+            //   description: 'Bridge from EOS, WAX, Telos and UX Network',
+            //   to: '/bridge',
+            //   icon: 'menu-ibc',
+            // },
             {
               title: 'Simple Bridge',
               description: 'Use SimpleSwap to buy & swap crypto',

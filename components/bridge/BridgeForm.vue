@@ -1,5 +1,12 @@
 <template lang="pug">
 #bridge-form-component.form
+  // Overlay для отключенного сервиса
+  .bridge-disabled-overlay
+    .bridge-disabled-message
+      i.el-icon-warning.mb-3
+      h2.mb-3 IBC Bridge Service Discontinued
+      p The IBC bridge between Antelope chains is no longer supported.
+
   //.p-3
     el-alert(
       title="Bridge UI BETA Version"
@@ -931,6 +938,82 @@ export default {
     }
   }
 }
+
+.bridge-disabled-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 12px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.bridge-disabled-message {
+  background: var(--bg-alter-2, #1a1a1a);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 420px;
+  text-align: center;
+
+  i.el-icon-warning {
+    font-size: 48px;
+    color: var(--text-grey-thirdly);
+    opacity: 0.6;
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-default);
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--text-grey-thirdly);
+    line-height: 1.6;
+
+    &.small {
+      font-size: 13px;
+      opacity: 0.7;
+    }
+  }
+
+  .support-links {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+
+    a {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border-color, #333);
+      border-radius: 6px;
+      color: var(--text-default);
+      text-decoration: none;
+      transition: all 0.2s;
+      font-size: 13px;
+
+      &:hover {
+        border-color: var(--main-action-green);
+        color: var(--main-action-green);
+      }
+
+      i {
+        font-size: 16px;
+      }
+    }
+  }
+}
 .to-mobile {
   display: none;
   justify-content: center;
@@ -1001,6 +1084,32 @@ export default {
 @media only screen and (max-width: 480px) {
   .form {
     padding: 16px 8px;
+  }
+
+  .bridge-disabled-message {
+    padding: 24px 16px;
+
+    i.el-icon-warning {
+      font-size: 40px;
+    }
+
+    h2 {
+      font-size: 18px;
+    }
+
+    p {
+      font-size: 13px;
+    }
+
+    .support-links {
+      flex-direction: column;
+      gap: 10px;
+
+      a {
+        width: 100%;
+        justify-content: center;
+      }
+    }
   }
 }
 </style>
