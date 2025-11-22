@@ -781,5 +781,62 @@
       "https://t.me/buzzingarden"
     ],
     "description": "LADYZ are BUZZ’s elegant guardian companions. Used in project drops, blends and rewards. 3% on-transer fee (sender) → liquidity & eternal growth. Rule the garden in style!"
+{
+  "MASTERX@masterxtoken": {
+    "name": {
+      "short": "MASTERX",
+      "full": "MASTERX - Master Asset Stability Token Exchange"
+    },
+    "website": {
+      "link": "https://linktr.ee/cilokmaster",
+      "name": "CILOK MASTER"
+    },
+    "tags": ["Stable", "Reserve", "Treasury", "Staking", "Ecosystem"],
+    "socials": [
+      "https://x.com/cilokmaster",
+      "https://t.me/cilokmaster",
+      "https://discord.com/invite/WSG9mMTs"
+    ],
+    "description_id": "MASTERX (MSTX) adalah Master Asset Stability Token Exchange, stability token utama yang menjadi fondasi ekonomi CILOK MASTER. MASTERX berperan sebagai aset cadangan, penopang nilai, dan pusat likuiditas melalui pool WAX–MASTERX. Soft-pegged mendekati $1 dengan dukungan treasury dan permintaan ekosistem.",
+    "description_en": "MASTERX (MSTX) is the Master Asset Stability Token Exchange, the primary stability token forming the foundation of the CILOK MASTER economy. MASTERX acts as a reserve asset, value support, and liquidity hub via the WAX–MASTERX pool. Soft-pegged near $1, backed by treasury support and ecosystem demand."
+  },
+
+  "CILFUN@masterxtoken": {
+    "name": {
+      "short": "CILFUN",
+      "full": "CILFUN - Community Integration & Leadership Functional Unity Network"
+    },
+    "website": {
+      "link": "https://linktr.ee/cilokmaster",
+      "name": "CILOK MASTER"
+    },
+    "tags": ["DAO", "Governance", "Community", "Rewards"],
+    "socials": [
+      "https://x.com/cilokmaster",
+      "https://t.me/cilokmaster",
+      "https://discord.com/invite/WSG9mMTs",
+      "https://waxdao.io/v2/daos/democraticmx"
+    ],
+    "description_id": "CILFUN (CFUN) adalah Community Integration & Leadership Functional Unity Network, token yang menggerakkan DAO dan komunitas CILOK MASTER. Digunakan untuk voting, kontribusi komunitas, reward event, staking, serta akses fitur eksklusif dalam ekosistem.",
+    "description_en": "CILFUN (CFUN) is the Community Integration & Leadership Functional Unity Network, the token powering the CILOK MASTER community and DAO. Used for voting, community contribution, event rewards, staking, and access to exclusive ecosystem features."
+  },
+
+  "CILBORN@masterxtoken": {
+    "name": {
+      "short": "CILBORN",
+      "full": "CILBORN — Conversion-Integrated Limited-Burn Optimized Redistribution Network"
+    },
+    "website": {
+      "link": "https://linktr.ee/cilokmaster",
+      "name": "CILOK MASTER"
+    },
+    "tags": ["Burn", "Deflationary", "Conversion", "Economy"],
+    "socials": [
+      "https://x.com/cilokmaster",
+      "https://t.me/cilokmaster",
+      "https://discord.com/invite/WSG9mMTs"
+    ],
+    "description_id": "CILBORN (CBRN) adalah Conversion-Integrated Limited-Burn Optimized Redistribution Network, token deflasi yang menjaga keseimbangan suplai ekosistem. Setiap konversi CILBORN → CILMAST memicu burn otomatis pada CILMAST, menciptakan kelangkaan dan stabilitas ekonomi jangka panjang.",
+    "description_en": "CILBORN (CBRN) is the Conversion-Integrated Limited-Burn Optimized Redistribution Network, a deflationary token designed to maintain ecosystem supply balance. Each conversion of CILBORN → CILMAST triggers an automatic burn on CILMAST, creating long-term scarcity and economic stability."
   }
 }
