@@ -835,8 +835,8 @@
       "https://discord.gg/5ZApzNVZkJ"
     ],
     "description": "CILBORN is the Conversion-Integrated Limited-Burn Optimized Redistribution Network, a deflationary token designed to maintain ecosystem supply balance. Each conversion of CILBORN → CILMAST triggers an automatic burn on CILMAST, creating long-term scarcity and economic stability."
-  }
-    "lolk@cilfunxtoken": {
+  },
+  "lolk@cilfunxtoken": {
     "name": {
       "short": "LOLK",
       "full": " Laugh of Cilok "
@@ -849,12 +849,11 @@
     "socials": [
       "https://x.com/cilokmaster",
       "https://t.me/cilokmaster",
-      "https://discord.gg/5ZApzNVZkJ",
+      "https://discord.gg/5ZApzNVZkJ"
     ],
     "description": "LOLK — the laugh token of Cilok Master Funverse."
   },
-}
-    "buzzy@cilfunxtoken": {
+  "buzzy@cilfunxtoken": {
     "name": {
       "short": "BUZZY",
       "full": " Buzzing Yield "
@@ -867,11 +866,11 @@
     "socials": [
       "https://x.com/cilokmaster",
       "https://t.me/cilokmaster",
-      "https://discord.gg/5ZApzNVZkJ",
+      "https://discord.gg/5ZApzNVZkJ"
     ],
     "description": "BUZZY — the hyper-fun token that keeps the Funverse buzzing!"
-      }
-    "jokr@cilfunxtoken": {
+  },
+  "jokr@cilfunxtoken": {
     "name": {
       "short": "JOKR",
       "full": " Joking Reality"
@@ -884,7 +883,8 @@
     "socials": [
       "https://x.com/cilokmaster",
       "https://t.me/cilokmaster",
-      "https://discord.gg/5ZApzNVZkJ",
+      "https://discord.gg/5ZApzNVZkJ"
     ],
     "description": "JOKR — Because the game should never be serious."
-        },
+  }
+}
