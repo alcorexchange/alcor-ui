@@ -19,8 +19,9 @@ export function getPoolPriceB(sqrtPriceX64, precisionA, precisionB) {
 export async function poolInstanceFromMongoPool(poolMongo) {
   poolMongo = poolMongo.constructor.name === 'model' ? poolMongo.toObject() : poolMongo
 
-  // Тики уже отсортированы в Redis (сортировка при записи в setRedisTicks)
-  const ticks: any[] = Array.from((await getRedisTicks(poolMongo.chain, poolMongo.id)).values())
+  const ticksMap = await getRedisTicks(poolMongo.chain, poolMongo.id)
+  // Извлекаем id из ключа Map и добавляем в объект тика
+  const ticks: any[] = Array.from(ticksMap.entries()).map(([id, tick]) => ({ id, ...tick }))
 
   const { tokenA, tokenB } = poolMongo
 
@@ -46,7 +47,9 @@ export async function getPools(chain: string, fetchTicks = true, filterFunc = (p
 
   const pools = []
   for (const p of mongoPools.filter(filterFunc)) {
-    const ticks = fetchTicks ? await getRedisTicks(chain, p.id) : []
+    const ticksMap = fetchTicks ? await getRedisTicks(chain, p.id) : new Map()
+    // Извлекаем id из ключа Map и добавляем в объект тика
+    const ticks = Array.from(ticksMap.entries()).map(([id, tick]) => ({ id, ...tick }))
 
     pools.push(new Pool({
       id: p.id,
@@ -56,8 +59,7 @@ export async function getPools(chain: string, fetchTicks = true, filterFunc = (p
       fee: p.fee,
       sqrtPriceX64: p.sqrtPriceX64,
       liquidity: p.liquidity,
-      // Тики уже отсортированы в Redis
-      ticks: Array.from(ticks.values()),
+      ticks,
       tickCurrent: p.tick,
       feeGrowthGlobalAX64: p.feeGrowthGlobalAX64,
       feeGrowthGlobalBX64: p.feeGrowthGlobalBX64,
@@ -73,8 +75,10 @@ export async function getRedisTicks(chain: string, poolId: number | string) {
   const entries = await redis.get(`ticks_${chain}_${poolId}`)
   const plain = JSON.parse(entries || '[]') || []
 
-  // Данные уже отсортированы при записи в setRedisTicks
-  const ticks = entries ? new Map(plain) : new Map()
+  // Сортируем для backward compatibility (старые тики могут быть не отсортированы)
+  // После миграции всех тиков можно убрать .sort()
+  const sorted = [...plain].sort((a, b) => a[0] - b[0])
+  const ticks = entries ? new Map(sorted) : new Map()
   return ticks
 }
 

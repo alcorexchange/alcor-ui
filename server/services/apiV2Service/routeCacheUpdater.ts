@@ -186,8 +186,9 @@ async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
       const ticksJson = ticksData[i] as string | null
       const ticksArray = ticksJson ? JSON.parse(ticksJson) : []
 
-      // Тики уже отсортированы при записи в Redis
-      const ticks = ticksArray.map(([id, tick]) => ({ id, ...tick }))
+      // Сортируем для backward compatibility (старые тики могут быть не отсортированы)
+      const sortedTicks = [...ticksArray].sort((a, b) => a[0] - b[0])
+      const ticks = sortedTicks.map(([id, tick]) => ({ id, ...tick }))
 
       const { tokenA, tokenB } = mongoPool
       const poolInstance = new Pool({
