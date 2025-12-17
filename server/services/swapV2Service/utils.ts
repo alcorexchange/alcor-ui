@@ -75,10 +75,8 @@ export async function getRedisTicks(chain: string, poolId: number | string) {
   const entries = await redis.get(`ticks_${chain}_${poolId}`)
   const plain = JSON.parse(entries || '[]') || []
 
-  // Сортируем для backward compatibility (старые тики могут быть не отсортированы)
-  // После миграции всех тиков можно убрать .sort()
-  const sorted = [...plain].sort((a, b) => a[0] - b[0])
-  const ticks = entries ? new Map(sorted) : new Map()
+  // Тики уже отсортированы при записи в setRedisTicks
+  const ticks = entries ? new Map(plain) : new Map()
   return ticks
 }
 
