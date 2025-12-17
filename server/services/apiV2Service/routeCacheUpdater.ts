@@ -322,11 +322,8 @@ async function updateCache(chain, poolIds, input, output, maxHops, cacheKey) {
 
     const routes = await computeRoutesInWorker(chain, input, output, poolIds, maxHops)
 
-    const redisRoutes = routes.map(({ input, output, pools }) => ({
-      input: Token.toJSON(input),
-      output: Token.toJSON(output),
-      pools: pools.map((p) => p.id),
-    }))
+    // Новый компактный формат: только массивы pool IDs
+    const redisRoutes = routes.map(({ pools }) => pools.map(p => p.id))
 
     await redisClient.set('routes_' + cacheKey, JSON.stringify(redisRoutes))
     await redisClient.set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT * 1000).toString())
