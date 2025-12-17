@@ -19,8 +19,8 @@ export function getPoolPriceB(sqrtPriceX64, precisionA, precisionB) {
 export async function poolInstanceFromMongoPool(poolMongo) {
   poolMongo = poolMongo.constructor.name === 'model' ? poolMongo.toObject() : poolMongo
 
+  // Тики уже отсортированы в Redis (сортировка при записи в setRedisTicks)
   const ticks: any[] = Array.from((await getRedisTicks(poolMongo.chain, poolMongo.id)).values())
-  ticks.sort((a, b) => a.id - b.id)
 
   const { tokenA, tokenB } = poolMongo
 
@@ -56,7 +56,8 @@ export async function getPools(chain: string, fetchTicks = true, filterFunc = (p
       fee: p.fee,
       sqrtPriceX64: p.sqrtPriceX64,
       liquidity: p.liquidity,
-      ticks: Array.from(ticks.values()).sort((a, b) => a.id - b.id),
+      // Тики уже отсортированы в Redis
+      ticks: Array.from(ticks.values()),
       tickCurrent: p.tick,
       feeGrowthGlobalAX64: p.feeGrowthGlobalAX64,
       feeGrowthGlobalBX64: p.feeGrowthGlobalBX64,
@@ -72,7 +73,8 @@ export async function getRedisTicks(chain: string, poolId: number | string) {
   const entries = await redis.get(`ticks_${chain}_${poolId}`)
   const plain = JSON.parse(entries || '[]') || []
 
-  const ticks = entries ? new Map([...plain].sort((a, b) => a.id - b.id)) : new Map()
+  // Данные уже отсортированы при записи в setRedisTicks
+  const ticks = entries ? new Map(plain) : new Map()
   return ticks
 }
 
