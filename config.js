@@ -251,7 +251,8 @@ const networks = {
       'aquaprotocol', 'tnode', 'projak', 'terramoney', 'protonai', '1gram', 'xprjesus.xpr', 'xrpn', 'acix', 'lambobank',
       'xasterdex', 'fasa', '51st', 'bfrost', 'xplasma', 'bttt', 'webx', 'sbwy', 'astremn',
       'vril', 'eurt', 'si44', 'prxq', 'nacuso', 'eveningmoon', '5t4r', 'binaryx', 'cumbank', 'xprn2', 'qxte', 'magx',
-      'xpot', 'aeonprotocol', 'xmtlchain', 'xnet', 'ytokens', 'tokencreates', 'xrlt'
+      'xpot', 'aeonprotocol', 'xmtlchain', 'xnet', 'ytokens', 'tokencreates', 'xrlt', 'xprlite', 'dirtyx', 'bullishdegen',
+      'solarspark', 'mindxp'
     ],
     CEX_CONTRACTS: [],
 
