@@ -55,10 +55,16 @@ export async function updateTokensPrices(network: Network) {
 
   const cmc_ucids = JSON.parse((await redis.get('CMC_UCIDS')) || '[]')
 
+  // Построить Map для O(1) поиска вместо O(n) find()
+  const cmcBySlug = new Map()
+  const cmcBySymbol = new Map()
+  for (const c of cmc_ucids) {
+    cmcBySlug.set(c.slug, c)
+    cmcBySymbol.set(c.symbol, c)
+  }
+
   tokens.forEach(t => {
-    const cmc_id = cmc_ucids.find(c => {
-      return c.slug == t.symbol.toLowerCase() || c.symbol == t.symbol
-    })
+    const cmc_id = cmcBySlug.get(t.symbol.toLowerCase()) || cmcBySymbol.get(t.symbol)
 
     if (cmc_id && network.GLOBAL_TOKENS.includes(t.id)) t.cmc_id = cmc_id.id
   })
@@ -107,11 +113,18 @@ export async function makeAllTokensWithPrices(network: Network) {
   //   return b.tickDataProvider.ticks.length - a.tickDataProvider.ticks.length
   // })
 
-  pools.map(p => {
+  const tokenIds = new Set(tokens.map(t => t.id))
+  for (const p of pools) {
     const { tokenA, tokenB } = p
-    if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
-    if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
-  })
+    if (!tokenIds.has(tokenA.id)) {
+      tokens.push(tokenA)
+      tokenIds.add(tokenA.id)
+    }
+    if (!tokenIds.has(tokenB.id)) {
+      tokens.push(tokenB)
+      tokenIds.add(tokenB.id)
+    }
+  }
 
   for (const t of tokens) {
     if (t.id == system_token) {
@@ -156,11 +169,18 @@ export async function makeAllTokensWithPrices(network: Network) {
   const market_tokens = []
   const markets = await Market.find({ chain: network.name })
 
-  markets.forEach(m => {
+  const marketTokenIds = new Set()
+  for (const m of markets) {
     const { base_token, quote_token } = m
-    if (!tokens.find(t => t.id == base_token.id) && !market_tokens.find(t => t[0].id == base_token.id)) market_tokens.push([base_token, m])
-    if (!tokens.find(t => t.id == quote_token.id) && !market_tokens.find(t => t[0].id == quote_token.id)) market_tokens.push([quote_token, m])
-  })
+    if (!tokenIds.has(base_token.id) && !marketTokenIds.has(base_token.id)) {
+      market_tokens.push([base_token, m])
+      marketTokenIds.add(base_token.id)
+    }
+    if (!tokenIds.has(quote_token.id) && !marketTokenIds.has(quote_token.id)) {
+      market_tokens.push([quote_token, m])
+      marketTokenIds.add(quote_token.id)
+    }
+  }
 
   // fetching prices
   for (const i of market_tokens) {
