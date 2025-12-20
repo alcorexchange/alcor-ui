@@ -1,4 +1,3 @@
-import { createClient } from 'redis'
 import fetch from 'cross-fetch'
 import { fetchAllRows, getChainRpc } from '../../../utils/eosjs'
 import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
@@ -6,19 +5,12 @@ import { parseExtendedAsset, littleEndianToDesimal, parseAsset } from '../../../
 import { Match, Market } from '../../models'
 import config from '../../../config'
 import { makeSpotBars } from './charts'
-
-// TODO Тут от докера прокидываем
-let redisClient
+import { getPublisher } from '../redis'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
 
 export async function newMatch(match, network) {
-  if (!redisClient) {
-    // TODO Refactor it properly
-    redisClient = createClient()
-    redisClient.connect()
-  }
 
   const { trx_id, block_num, act: { name, data } } = match
 
@@ -53,7 +45,7 @@ export async function newMatch(match, network) {
       })
 
       await makeSpotBars(m)
-      redisClient.publish('market_action', `${network.name}_${market.id}_${name}`)
+      getPublisher().publish('market_action', `${network.name}_${market.id}_${name}`)
     } catch (e) {
       console.log('handle match err..', e, 'retrying...')
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -61,7 +53,7 @@ export async function newMatch(match, network) {
     }
   } else if (['buyreceipt', 'sellreceipt', 'cancelsell', 'cancelbuy'].includes(name)) {
     const { market_id } = 'data' in data ? data.data : data
-    redisClient.publish('market_action', `${network.name}_${market_id}_${name}`)
+    getPublisher().publish('market_action', `${network.name}_${market_id}_${name}`)
   }
 }
 

@@ -1,21 +1,17 @@
 import axios from 'axios'
 
-import { createClient } from 'redis'
 import { getPools } from '../swapV2Service/utils'
 import { Market, Match } from '../../models'
 import { getTokens } from '../../utils'
-
-const redis = createClient()
+import { getRedis } from '../redis'
 
 export async function updateCMSucid() {
-  if (!redis.isOpen) await redis.connect()
-
   try {
     const { data: { data } } = await axios.get(
       'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?CMC_PRO_API_KEY=UNIFIED-CRYPTOASSET-INDEX'
     )
 
-    redis.set('CMC_UCIDS', JSON.stringify(data))
+    await getRedis().set('CMC_UCIDS', JSON.stringify(data))
     console.log('Updated CMC_UCIDS')
   } catch (e) {
     console.error('CMS ucid PRICE UPDATE FAILED!', e)
@@ -23,8 +19,6 @@ export async function updateCMSucid() {
 }
 
 export async function updateSystemPrice(network: Network) {
-  if (!redis.isOpen) await redis.connect()
-
   let network_name = network.name
 
   if (network_name === 'waxtest') network_name = 'wax'
@@ -41,7 +35,7 @@ export async function updateSystemPrice(network: Network) {
     )
 
     const price = data[network_name].usd
-    redis.set(`${network.name}_price`, String(price))
+    await getRedis().set(`${network.name}_price`, String(price))
     console.log(`Updated ${network.name} price: `, price)
   } catch (e) {
     console.error('SYSTEM PRICE UPDATE FAILED!', network.name, e)
@@ -50,10 +44,9 @@ export async function updateSystemPrice(network: Network) {
 
 // system token and their USD prices
 export async function updateTokensPrices(network: Network) {
-  if (!redis.isOpen) await redis.connect()
   const tokens = await makeAllTokensWithPrices(network)
 
-  const cmc_ucids = JSON.parse((await redis.get('CMC_UCIDS')) || '[]')
+  const cmc_ucids = JSON.parse((await getRedis().get('CMC_UCIDS')) || '[]')
 
   // Построить Map для O(1) поиска вместо O(n) find()
   const cmcBySlug = new Map()
@@ -69,18 +62,17 @@ export async function updateTokensPrices(network: Network) {
     if (cmc_id && network.GLOBAL_TOKENS.includes(t.id)) t.cmc_id = cmc_id.id
   })
 
-  await redis.set(`${network.name}_token_prices`, JSON.stringify(tokens))
+  await getRedis().set(`${network.name}_token_prices`, JSON.stringify(tokens))
   console.log(network.name, 'token prices & cmc_ucids updated!')
 }
 
 export async function makeAllTokensWithPrices(network: Network) {
-  if (!redis.isOpen) await redis.connect()
   // Based on swap only, right now
   const tokens = []
   const { baseToken, USD_TOKEN } = network
 
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
-  const systemPrice = parseFloat(await redis.get(`${network.name}_price`)) || 0
+  const systemPrice = parseFloat(await getRedis().get(`${network.name}_price`)) || 0
 
   const minimumUSDAmount = 1 // 1 USD
   const minimumSystemAmount = (1 / systemPrice) * minimumUSDAmount

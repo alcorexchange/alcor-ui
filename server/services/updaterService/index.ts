@@ -1,20 +1,13 @@
 import 'dotenv/config' // Импорт dotenv для ESM
 
 import mongoose from 'mongoose'
-import { createClient } from 'redis'
-import { initRedis, mongoConnect } from '../../utils'
+import { initRedis, closeRedis } from '../redis'
+import { mongoConnect } from '../../utils'
 import { startUpdaters } from './start'
-
-// Создаем Redis-клиент
-const redisClient = createClient()
 
 // Функция для установления соединений
 async function makeConnections() {
-  if (!redisClient.isOpen) {
-    await redisClient.connect()
-    console.log('Redis connected..')
-  }
-
+  await initRedis()
   await mongoConnect()
   console.log('MongoDB connected!')
 }
@@ -47,12 +40,11 @@ async function start() {
     console.error('Startup failed:', e)
     process.exit(1)
   }
-  await initRedis()
 
   // Обработка сигналов завершения
   const shutdown = async () => {
     console.log('Shutting down...')
-    await redisClient.quit()
+    await closeRedis()
     await mongoose.connection.close()
     process.exit(0)
   }

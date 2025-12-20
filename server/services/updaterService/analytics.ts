@@ -26,7 +26,7 @@ export async function updateGlobalStats(network, day = null, provider = 'node') 
   const pools = await SwapPool.find({ chain: network.name })
 
   // Построить Map для O(1) поиска вместо O(n) find()
-  const tokenPriceMap = new Map(tokens.map(t => [t.id, t.usd_price || 0]))
+  const tokenPriceMap = new Map<string, number>(tokens.map(t => [t.id, t.usd_price || 0]))
   const marketsByQuoteToken = new Map()
   for (const m of markets) {
     if (m.base_token.id === system_token) {
@@ -38,7 +38,7 @@ export async function updateGlobalStats(network, day = null, provider = 'node') 
   let spotFees = 0
   let swapFees = 0
   for (const market of markets) {
-    const price = tokenPriceMap.get(market.base_token.id) || 0
+    const price: number = tokenPriceMap.get(market.base_token.id) ?? 0
     spotTradingVolume += market.volume24 * price
     spotFees += (market.volume24 * price) * (market.fee / 1000)
   }
@@ -46,8 +46,8 @@ export async function updateGlobalStats(network, day = null, provider = 'node') 
   let swapValueLocked = 0
   let swapTradingVolume = 0
   for (const pool of pools) {
-    const priceA = tokenPriceMap.get(pool.tokenA.id) || 0
-    const priceB = tokenPriceMap.get(pool.tokenB.id) || 0
+    const priceA: number = tokenPriceMap.get(pool.tokenA.id) ?? 0
+    const priceB: number = tokenPriceMap.get(pool.tokenB.id) ?? 0
 
     swapTradingVolume += pool.volumeUSD24
     swapFees += pool.volumeUSD24 * (pool.fee / 10000 / 100)
@@ -85,7 +85,7 @@ export async function updateGlobalStats(network, day = null, provider = 'node') 
 
   for (const balance of balances) {
     const balance_token_id = (balance.currency + '-' + balance.contract).toLowerCase()
-    const price = tokenPriceMap.get(balance_token_id) || 0
+    const price: number = tokenPriceMap.get(balance_token_id) ?? 0
 
     const marketVsSystemToken = marketsByQuoteToken.get(balance_token_id)
 
