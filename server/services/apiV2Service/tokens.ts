@@ -1,6 +1,7 @@
 import { cacheSeconds } from 'route-cache'
 import { Router } from 'express'
 import { getTokens } from '../../utils'
+import { getRedis } from '../redis'
 
 export const tokens = Router()
 
@@ -13,8 +14,7 @@ tokens.get('/tokens/:id', cacheSeconds(2, (req, res) => {
   const token = tokens.find(t => t.id == req.params.id.toLowerCase())
 
   // Add CMC_UCID
-  const redis = req.app.get('redisClient')
-  const cmc_ucids = redis.get('CMC_UCIDS')
+  const cmc_ucids = await getRedis().get('CMC_UCIDS')
 
   if (!token) return res.status(403).send('Token with this ID is not found')
 

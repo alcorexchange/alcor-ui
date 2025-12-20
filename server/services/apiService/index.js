@@ -4,13 +4,13 @@ import express from 'express'
 import consola from 'consola'
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
-import { createClient } from 'redis'
 
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
 import { initRedis, mongoConnect } from '../../utils'
+import { getRedis } from '../redis'
 import upload from './upload.js'
 
 import { networkResolver } from './middleware.js'
@@ -33,11 +33,9 @@ async function start () {
       process.exit(1)
     }
 
-    // REDIS client shared globally
-    const redis = createClient()
-    await redis.connect()
     await initRedis()
-    app.set('redisClient', redis)
+    // Set getter for backward compatibility with routes using req.app.get('redisClient')
+    app.set('redisClient', getRedis())
   }
 
   app.use(networkResolver)

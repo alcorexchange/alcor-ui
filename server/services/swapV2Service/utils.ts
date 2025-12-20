@@ -1,10 +1,8 @@
 import { Pool, Token } from '@alcorexchange/alcor-swap-sdk'
 
 import { Big } from 'big.js'
-import { createClient } from 'redis'
+import { getRedis } from '../redis'
 import { SwapPool } from '../../models'
-
-const redis = createClient()
 
 export function getPoolPriceA(sqrtPriceX64, precisionA, precisionB) {
   // console.log(sqrtPriceX64, precisionA, precisionB)
@@ -70,9 +68,7 @@ export async function getPools(chain: string, fetchTicks = true, filterFunc = (p
 }
 
 export async function getRedisTicks(chain: string, poolId: number | string) {
-  if (!redis.isOpen) await redis.connect()
-
-  const entries = await redis.get(`ticks_${chain}_${poolId}`)
+  const entries = await getRedis().get(`ticks_${chain}_${poolId}`)
   const plain = JSON.parse(entries || '[]') || []
 
   // Тики уже отсортированы при записи в setRedisTicks
@@ -81,8 +77,6 @@ export async function getRedisTicks(chain: string, poolId: number | string) {
 }
 
 export async function getRedisPosition(chain, id) {
-  if (!redis.isOpen) await redis.connect()
-
-  const positions = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
+  const positions = JSON.parse(await getRedis().get(`positions_${chain}`) || '[]')
   return positions.find(p => p.id == id)
 }

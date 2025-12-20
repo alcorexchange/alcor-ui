@@ -1,18 +1,13 @@
 require('dotenv').config()
 
 import lodash from 'lodash'
-import mongoose from 'mongoose'
-import { createClient } from 'redis'
 
 import { Market } from '../../models'
 import { networks } from '../../../config'
 import { littleEndianToDesimal, parseAsset } from '../../../utils'
 import { fetchAllRows } from '../../../utils/eosjs'
 import { getFailOverAlcorOnlyRpc, initRedis, mongoConnect } from './../../utils'
-
-const client = createClient()
-const publisher = client.duplicate()
-const subscriber = client.duplicate()
+import { getRedis, getPublisher, getSubscriber } from '../redis'
 
 async function updateBidAsk(chain, side, market_id, orders) {
   if (orders.size != 0) {
@@ -25,16 +20,14 @@ async function updateBidAsk(chain, side, market_id, orders) {
 }
 
 export async function getOrderbook(chain, side, market) {
-  if (!client.isOpen) await client.connect()
-
-  const entries = await client.get(`orderbook_${chain}_${side}_${market}`)
+  const entries = await getRedis().get(`orderbook_${chain}_${side}_${market}`)
   return entries ? new Map(JSON.parse(entries) || []) : new Map()
 }
 
 async function setOrderbook(chain, side, market, orderbook) {
   // Orderbook style sort
   const orders = Array.from(orderbook).sort((a, b) => side == 'buy' ? b[0] - a[0] : a[0] - b[0])
-  await client.set(`orderbook_${chain}_${side}_${market}`, JSON.stringify(orders))
+  await getRedis().set(`orderbook_${chain}_${side}_${market}`, JSON.stringify(orders))
 }
 
 export function mergeSamePriceOrders(ords) {
@@ -110,17 +103,13 @@ async function updateOrders(side, chain, market_id) {
   if (update.length == 0) return
 
   const push = JSON.stringify({ key: `${chain}_${side}_${market_id}`, update })
-  publisher.publish('orderbook_update', push)
+  getPublisher().publish('orderbook_update', push)
   console.log(chain, side, 'orders updated', market_id)
 }
 
 async function connectAll() {
   await mongoConnect()
-
-  // Redis
-  await client.connect()
-  await publisher.connect()
-  await subscriber.connect()
+  await initRedis()
 }
 
 async function getOrders({ chain, market_id, side }) {
@@ -183,10 +172,9 @@ function onChainEvent(message) {
 
 export async function main() {
   await connectAll()
-  await initRedis()
   console.log('OrderbookService setarted')
 
-  subscriber.subscribe('market_action', message => {
+  getSubscriber().subscribe('market_action', message => {
     const [chain, market, action] = message.split('_')
 
     if (['buyreceipt', 'cancelbuy', 'sellmatch'].includes(action)) {
@@ -199,8 +187,8 @@ export async function main() {
   })
 
   // TODO update to use config
-  subscriber.pSubscribe('chainAction:*:alcor:*', m => onChainEvent(m))
-  subscriber.pSubscribe('chainAction:*:book.alcor:*', m => onChainEvent(m))
-  subscriber.pSubscribe('chainAction:*:alcordexmain:*', m => onChainEvent(m))
-  subscriber.pSubscribe('chainAction:*:eostokensdex:*', m => onChainEvent(m))
+  getSubscriber().pSubscribe('chainAction:*:alcor:*', m => onChainEvent(m))
+  getSubscriber().pSubscribe('chainAction:*:book.alcor:*', m => onChainEvent(m))
+  getSubscriber().pSubscribe('chainAction:*:alcordexmain:*', m => onChainEvent(m))
+  getSubscriber().pSubscribe('chainAction:*:eostokensdex:*', m => onChainEvent(m))
 }

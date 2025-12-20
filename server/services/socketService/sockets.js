@@ -1,4 +1,5 @@
 import { Match } from '../../models'
+import { getRedis } from '../redis'
 
 export const resolutions = {
   1: 1 * 60,
@@ -12,7 +13,7 @@ export const resolutions = {
   '1M': 60 * 60 * 24 * 30
 }
 
-export function subscribe(io, socket, client) {
+export function subscribe(io, socket) {
   socket.on('subscribe', async ({ room, params }) => {
     if (room == 'deals') {
       socket.join(`deals:${params.chain}.${params.market}`)
@@ -56,7 +57,7 @@ export function subscribe(io, socket, client) {
     if (room == 'orderbook') {
       const { chain, side, market } = params
 
-      const data = await client.get(`orderbook_${chain}_${side}_${market}`)
+      const data = await getRedis().get(`orderbook_${chain}_${side}_${market}`)
 
       let entries
 

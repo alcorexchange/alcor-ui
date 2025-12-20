@@ -1,7 +1,6 @@
 require('dotenv').config()
 
 import { isEqual, throttle } from 'lodash'
-import { createClient } from 'redis'
 
 import { Price, Q128, Pool } from '@alcorexchange/alcor-swap-sdk'
 import { parseAssetPlain, littleEndianToDesimalString } from '../../../utils'
@@ -13,10 +12,7 @@ import { updateTokensPrices } from '../updaterService/prices'
 import { makeSwapBars } from '../updaterService/charts'
 import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
 import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, getTokens, initRedis, mongoConnect } from './../../utils'
-
-const redis = createClient()
-const publisher = redis.duplicate()
-const subscriber = redis.duplicate()
+import { getRedis, getPublisher } from '../redis'
 
 // Used to wait for pool creation and fetching prices
 let poolCreationLock = null
@@ -43,7 +39,7 @@ async function setRedisTicks(chain: string, poolId: number, ticks: Array<[number
   // Сортируем при записи, чтобы не сортировать при каждом чтении
   const sortedTicks = [...ticks].sort((a, b) => a[0] - b[0])
   const mappedTicks = sortedTicks.map(t => [t[0], t[1]])
-  await redis.set(`ticks_${chain}_${poolId}`, JSON.stringify(mappedTicks))
+  await getRedis().set(`ticks_${chain}_${poolId}`, JSON.stringify(mappedTicks))
 }
 
 // FIXME redo without request pool
@@ -157,11 +153,11 @@ async function updatePositions(chain: string, poolId: number) {
   // Mapping pool id to position
   positions.forEach(p => p.pool = poolId)
 
-  const current = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
+  const current = JSON.parse(await getRedis().get(`positions_${chain}`) || '[]')
   const keep = current.filter(p => p.pool != poolId)
 
   const to_set = [...keep, ...positions]
-  await redis.set(`positions_${chain}`, JSON.stringify(to_set))
+  await getRedis().set(`positions_${chain}`, JSON.stringify(to_set))
   console.log('updated position: ', poolId)
 }
 
@@ -185,7 +181,7 @@ export async function updatePool(chain: string, poolId: number) {
   if (!pool) throw new Error('NOT FOUND POOL FOR UPDATE: ' + poolId)
 
   const push = JSON.stringify({ chain, poolId, update: [pool] })
-  publisher.publish('swap:pool:update', push)
+  getPublisher().publish('swap:pool:update', push)
 
   await Promise.all([
     updateTicks(chain, poolId),
@@ -221,7 +217,7 @@ export async function updatePool(chain: string, poolId: number) {
 
   const updatedPool: any = await poolInstanceFromMongoPool(r)
 
-  publisher.publish(
+  getPublisher().publish(
     'swap:pool:instanceUpdated',
     JSON.stringify({
       chain,
@@ -260,17 +256,13 @@ async function updateTicks(chain: string, poolId: number) {
   if (update.length == 0) return
 
   const push = JSON.stringify({ chain, poolId, update })
-  publisher.publish('swap:ticks:update', push)
+  getPublisher().publish('swap:ticks:update', push)
   console.log('updated ticks: ', poolId)
 }
 
 export async function connectAll() {
   await mongoConnect()
-
-  // Redis
-  if (!redis.isOpen) await redis.connect()
-  if (!publisher.isOpen) await publisher.connect()
-  if (!subscriber.isOpen) await subscriber.connect()
+  await initRedis()
 }
 
 async function getChianTicks(chain: string, poolId: number): Promise<TicksList> {
@@ -458,8 +450,8 @@ export async function onSwapAction(message: string) {
       const tokenB_id = quantityB.split(' ')[1].toLowerCase() + '-' + contractB
 
       // Removing cache to re-generate swap routes
-      deleteKeysByPattern(redis, `routes_expiration_${chain}-*${tokenA_id}*`)
-      deleteKeysByPattern(redis, `routes_expiration_${chain}-*${tokenB_id}*`)
+      deleteKeysByPattern(getRedis(), `routes_expiration_${chain}-*${tokenA_id}*`)
+      deleteKeysByPattern(getRedis(), `routes_expiration_${chain}-*${tokenB_id}*`)
     } catch (e) {
       console.error('REMOVE CACHE ROUTES ERR', e, data)
     }
@@ -498,7 +490,7 @@ export async function onSwapAction(message: string) {
 
   if (['logpool', 'logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
     const account = networks[chain].amm.contract
-    publisher.publish(`chainAction:${chain}:${account}:${name}`, message)
+    getPublisher().publish(`chainAction:${chain}:${account}:${name}`, message)
 
     // Might not enough because we stop propoting events when
     // await throttledPoolUpdate(chain, Number(data.poolId))
@@ -509,7 +501,7 @@ export async function onSwapAction(message: string) {
     const { posId, owner } = data
     const push = { chain, account: owner, positions: [posId] }
 
-    publisher.publish('account:update-positions', JSON.stringify(push))
+    getPublisher().publish('account:update-positions', JSON.stringify(push))
   }
 
   if (['logmint', 'logburn', 'logcollect'].includes(name)) {

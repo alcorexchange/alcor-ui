@@ -2,12 +2,12 @@ require('dotenv').config()
 
 import { performance } from 'perf_hooks'
 import * as workerpool from 'workerpool'
-import { createClient } from 'redis'
 import { Token, Route, Pool } from '@alcorexchange/alcor-swap-sdk'
 
 // Убран импорт poolInstanceFromMongoPool и getRedisTicks - теперь batch загрузка напрямую
 import { getPools } from '../swapV2Service/utils'
-import { mongoConnect, initRedis } from '../../utils'
+import { mongoConnect, initRedis, closeRedis } from '../../utils'
+import { getRedis } from '../redis'
 import { SwapPool } from '../../models'
 
 // КОНФИГУРАЦИЯ
@@ -21,9 +21,6 @@ const EXPIRING_SOON_THRESHOLD = 60 * 60 // Обновляем роуты, ист
 const BATCH_SIZE = USE_WASM_WORKERS ? 50 : 10 // Больший батч для WASM (быстрее обрабатывает)
 const POOLS_UPDATE_INTERVAL = USE_WASM_WORKERS ? 60000 : 30000 // Реже обновляем с WASM (60 сек vs 30 сек)
 const SHARED_BUFFER_SIZE = 100_000_000 // 100MB для SharedArrayBuffer (не используется в WASM режиме)
-
-// Redis клиент
-const redisClient = createClient()
 
 // Worker pool для вычислений
 const workerPath = USE_WASM_WORKERS
@@ -153,14 +150,6 @@ const POOLS_SENT_TO_WORKERS = {}
 // Флаг для graceful shutdown
 let isShuttingDown = false
 
-// Подключение к Redis
-async function connectRedis() {
-  if (!redisClient.isOpen) {
-    await redisClient.connect()
-    console.log('[REDIS] Connected to Redis')
-  }
-}
-
 // Загрузка пулов из MongoDB с batch загрузкой тиков
 async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
   const startTime = performance.now()
@@ -174,7 +163,7 @@ async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
 
   // Batch загрузка всех тиков через pipeline (вместо N последовательных запросов)
   const tickKeys = mongoPools.map(p => `ticks_${chain}_${p.id}`)
-  const pipeline = redisClient.multi()
+  const pipeline = getRedis().multi()
   tickKeys.forEach(key => pipeline.get(key))
   const ticksData = await pipeline.exec()
 
@@ -314,7 +303,7 @@ async function updateCache(chain, poolIds, input, output, maxHops, cacheKey) {
 
   try {
     // Устанавливаем флаг обновления
-    const setResult = await redisClient.set(updatingKey, 'true', { EX: ROUTES_UPDATING_TIMEOUT, NX: true })
+    const setResult = await getRedis().set(updatingKey, 'true', { EX: ROUTES_UPDATING_TIMEOUT, NX: true })
     if (setResult !== 'OK') {
       console.log(`[SKIP] Route ${cacheKey} already updating`)
       return false
@@ -325,8 +314,8 @@ async function updateCache(chain, poolIds, input, output, maxHops, cacheKey) {
     // Новый компактный формат: только массивы pool IDs
     const redisRoutes = routes.map(({ pools }) => pools.map(p => p.id))
 
-    await redisClient.set('routes_' + cacheKey, JSON.stringify(redisRoutes))
-    await redisClient.set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT * 1000).toString())
+    await getRedis().set('routes_' + cacheKey, JSON.stringify(redisRoutes))
+    await getRedis().set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT * 1000).toString())
 
     const endTime = performance.now()
     console.log(`[SUCCESS] Route updated: ${cacheKey} in ${Math.round(endTime - startTime)}ms (found ${routes.length} routes)`)
@@ -335,7 +324,7 @@ async function updateCache(chain, poolIds, input, output, maxHops, cacheKey) {
     console.error(`[ERROR] Failed to update route: ${cacheKey} -`, error.message)
     return false
   } finally {
-    await redisClient.del(updatingKey)
+    await getRedis().del(updatingKey)
   }
 }
 
@@ -399,7 +388,7 @@ async function scanAndUpdateRoutes(chain) {
     // Получаем все ключи роутов для этой сети
     const pattern = `routes_${chain}-*`
     const keys = []
-    for await (const key of redisClient.scanIterator({ MATCH: pattern })) {
+    for await (const key of getRedis().scanIterator({ MATCH: pattern })) {
       keys.push(key)
     }
 
@@ -420,7 +409,7 @@ async function scanAndUpdateRoutes(chain) {
     const routesToUpdate = []
 
     // Используем pipeline для массовой проверки expiration
-    const pipeline = redisClient.multi()
+    const pipeline = getRedis().multi()
     const cacheKeys = keys.map(key => key.replace('routes_', ''))
 
     // Добавляем все GET операции в pipeline
@@ -549,8 +538,8 @@ async function mainLoop() {
   await mongoConnect()
   console.log('[MONGO] Connected to MongoDB')
 
-  await connectRedis()
   await initRedis()
+  console.log('[REDIS] Connected to Redis')
 
   // Загружаем начальные пулы для всех сетей
   for (const chain of NETWORKS) {
@@ -602,7 +591,7 @@ async function shutdown() {
 
     // Отключаемся от Redis
     console.log('[SHUTDOWN] Disconnecting from Redis...')
-    await redisClient.quit()
+    await closeRedis()
 
     console.log('[SHUTDOWN] Service stopped successfully')
     process.exit(0)

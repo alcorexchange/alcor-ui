@@ -1,18 +1,15 @@
 require('dotenv').config()
 
-import { createClient } from 'redis'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import mongoose from 'mongoose'
 
 import { initRedis, mongoConnect } from '../../utils'
+import { getSubscriber } from '../redis'
 import { Match, Bar, SwapBar } from '../../models'
 
 import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
-
-const client = createClient()
-const subscriber = client.duplicate()
 
 const httpServer = createServer()
 const io = new Server(httpServer, { cors: { origin: '*' } })
@@ -26,9 +23,6 @@ httpServer.listen(process.env.PORT || 7002, function () {
 
 async function main() {
   await mongoConnect()
-
-  await client.connect()
-  await subscriber.connect()
   await initRedis()
 
   // FOR PM2
@@ -36,9 +30,6 @@ async function main() {
   process.on('SIGINT', async () => {
     await mongoose.connection.close()
     await httpServer.close()
-    //httpServer.close()
-
-    //await client.quit()
 
     process.exit(0)
   })
@@ -46,7 +37,7 @@ async function main() {
   io.on('connection', socket => {
     console.log((<any>socket.client.conn).server.clientsCount + 'users connected')
 
-    subscribe(io, socket, client)
+    subscribe(io, socket)
     unsubscribe(io, socket)
   })
 
@@ -85,20 +76,20 @@ async function main() {
     io.to(`swap-ticker:${chain}.${pool}.${timeframe}`).emit('swap-tick', tick)
   })
 
-  subscriber.subscribe('orderbook_update', msg => {
+  getSubscriber().subscribe('orderbook_update', msg => {
     const { key, update } = JSON.parse(msg)
     const [chain, side, market] = key.split('_')
 
     io.to(`orderbook:${chain}.${side}.${market}`).emit(`orderbook_${side}`, update)
   })
 
-  subscriber.subscribe('account:update-positions', msg => {
+  getSubscriber().subscribe('account:update-positions', msg => {
     const { chain, account, positions } = JSON.parse(msg)
     console.log('push to clicent:', 'account:update-positions', account)
     io.to(`account:${chain}.${account}`).emit('account:update-positions', positions)
   })
 
-  subscriber.subscribe('swap:ticks:update', msg => {
+  getSubscriber().subscribe('swap:ticks:update', msg => {
     const { chain, poolId, update } = JSON.parse(msg)
     io.to(`swap:${chain}.${poolId}`).emit('swap:ticks:update', { poolId, ticks: update })
 
@@ -106,7 +97,7 @@ async function main() {
     io.to(`swap:${chain}`).emit('swap:ticks:update', { poolId, ticks: update })
   })
 
-  subscriber.subscribe('swap:pool:update', msg => {
+  getSubscriber().subscribe('swap:pool:update', msg => {
     const { chain, poolId, update } = JSON.parse(msg)
     io.to(`swap:${chain}.${poolId}`).emit('swap:pool:update', update)
 
