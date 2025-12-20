@@ -120,15 +120,26 @@ export async function updateGlobalStats(network, day = null, provider = 'node') 
   // } else {
 
   // TODO HERE IS NO PLACE/CANCEL ORDERS
-  const matchUsersAsker = await Match.distinct('asker', { chain: network.name, time: { $gte: dayAgo, $lt: now } }).lean()
-  const matchUsersBidder = await Match.distinct('bidder', { chain: network.name, time: { $gte: dayAgo, $lt: now } }).lean()
-  const swapUsersSender = await Swap.distinct('recipient', { chain: network.name, time: { $gte: dayAgo, $lt: now } }).lean()
-  const swapUsersReceiver = await Swap.distinct('sender', { chain: network.name, time: { $gte: dayAgo, $lt: now } }).lean()
-  const positionOwners = await PositionHistory.distinct('owner', { chain: network.name, time: { $gte: dayAgo, $lt: now } }).lean()
-
-  const matchTransactions = await Match.countDocuments({ chain: network.name, time: { $gte: dayAgo, $lt: now } })
-  const swapActionTransactions = await Swap.countDocuments({ chain: network.name, time: { $gte: dayAgo, $lt: now } })
-  const positionTransactions = await PositionHistory.countDocuments({ chain: network.name, time: { $gte: dayAgo, $lt: now } })
+  const timeFilter = { chain: network.name, time: { $gte: dayAgo, $lt: now } }
+  const [
+    matchUsersAsker,
+    matchUsersBidder,
+    swapUsersSender,
+    swapUsersReceiver,
+    positionOwners,
+    matchTransactions,
+    swapActionTransactions,
+    positionTransactions
+  ] = await Promise.all([
+    Match.distinct('asker', timeFilter).lean(),
+    Match.distinct('bidder', timeFilter).lean(),
+    Swap.distinct('recipient', timeFilter).lean(),
+    Swap.distinct('sender', timeFilter).lean(),
+    PositionHistory.distinct('owner', timeFilter).lean(),
+    Match.countDocuments(timeFilter),
+    Swap.countDocuments(timeFilter),
+    PositionHistory.countDocuments(timeFilter)
+  ])
 
   dailyActiveUsers = (new Set([...matchUsersAsker, ...matchUsersBidder, ...positionOwners, ...swapUsersSender, ...swapUsersReceiver])).size
   totalTransactions = matchTransactions + swapActionTransactions + positionTransactions
