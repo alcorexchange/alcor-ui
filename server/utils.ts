@@ -87,8 +87,6 @@ export async function getSettings(network: { name: string }) {
 }
 
 export async function deleteKeysByPattern(client, pattern) {
-  if (!client.isOpen) await client.connect()
-
   let totalDeleted = 0
 
   try {

@@ -65,7 +65,7 @@ export async function updater(chain, provider, services) {
   }
 
   if (services.includes('markets')) {
-    console.log('Start market updater for', chain)
+    console.log('Start market updater for 11', chain)
 
     console.time('update markets for ' + network.name)
     await updateMarkets(network)

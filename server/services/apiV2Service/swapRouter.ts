@@ -1,25 +1,13 @@
 import { performance } from 'perf_hooks'
 
-import { createClient } from 'redis'
 import { TradeType, Trade, Percent, Token, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 import { tryParseCurrencyAmount } from '../../../utils/amm'
 import { getPools } from '../swapV2Service/utils'
 import { parseTrade } from './utils'
+import { getRedis, getSubscriber } from '../redis'
 
 export const swapRouter = Router()
-
-const redisClient = createClient()
-const subscriber = createClient()
-
-// Подключаемся к Redis один раз при старте
-redisClient.connect().catch(console.error)
-
-const connectRedis = async (client) => {
-  if (!client.isOpen) {
-    await client.connect()
-  }
-}
 
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const POOLS = {}
@@ -68,8 +56,9 @@ function recordRequestStats(origin, route) {
   }
 }
 
-subscriber.connect().then(() => {
-  subscriber.subscribe('swap:pool:instanceUpdated', async msg => {
+// Subscribe после инициализации Redis (вызывается из index.ts)
+export function initSwapRouterSubscriptions() {
+  getSubscriber().subscribe('swap:pool:instanceUpdated', async msg => {
     const { chain, buffer } = JSON.parse(msg)
     const pool = Pool.fromBuffer(Buffer.from(buffer, 'hex'))
 
@@ -87,7 +76,7 @@ subscriber.connect().then(() => {
       TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
     }
   })
-})
+}
 
 async function getAllPools(chain) {
   if (!POOLS[chain]) {
@@ -116,20 +105,15 @@ async function getAllPools(chain) {
 }
 
 async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
-  // Redis уже подключен при старте, не нужно переподключаться
-  if (!redisClient.isOpen) {
-    await connectRedis(redisClient)
-  }
-
   const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
-  const redisRoutes = await redisClient.get('routes_' + cacheKey)
+  const redisRoutes = await getRedis().get('routes_' + cacheKey)
 
   if (!redisRoutes) {
     // Создаем пустой кеш с истекшим временем, чтобы updater подхватил его
     console.log(`[CACHE] Creating empty cache entry for: ${cacheKey}`)
-    await redisClient.set('routes_' + cacheKey, JSON.stringify([]))
+    await getRedis().set('routes_' + cacheKey, JSON.stringify([]))
     // Устанавливаем время истечения в прошлое (1 час назад)
-    await redisClient.set('routes_expiration_' + cacheKey, (Date.now() - 60 * 60 * 1000).toString())
+    await getRedis().set('routes_expiration_' + cacheKey, (Date.now() - 60 * 60 * 1000).toString())
     return [] // Возвращаем пустой массив вместо ошибки
   }
 

@@ -5,20 +5,20 @@ import express from 'express'
 import consola from 'consola'
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
-import { createClient } from 'redis'
 
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
 import { initRedis, mongoConnect } from '../../utils'
+import { getRedis, getPublisher } from '../redis'
 import { networkResolver } from '../apiService/middleware'
 import { spot } from './spot'
 import { swap } from './swap'
 import { ibc } from './ibc'
 import { tokens } from './tokens'
 import { account } from './account'
-import { swapRouter } from './swapRouter'
+import { swapRouter, initSwapRouterSubscriptions } from './swapRouter'
 import { analytics } from './analytics'
 import { farms } from './farms'
 
@@ -36,9 +36,13 @@ async function start () {
       throw new Error('MongoDB connect err')
     }
 
-    const [redis, publisher] = await initRedis()
-    app.set('redisClient', redis)
-    app.set('publisher', publisher)
+    await initRedis()
+    // Set for backward compatibility with routes using req.app.get('redisClient')
+    app.set('redisClient', getRedis())
+    app.set('publisher', getPublisher())
+
+    // Initialize swapRouter subscriptions after Redis is ready
+    initSwapRouterSubscriptions()
   }
 
   app.use(networkResolver)

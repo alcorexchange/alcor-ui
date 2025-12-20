@@ -1,23 +1,18 @@
-import { createClient } from 'redis'
-
 import config from '../../../config'
 import { getFailOverAlcorOnlyRpc } from '../../utils'
+import { getPublisher } from '../redis'
 import { decodeActionData } from './utils'
 
 // HOTFIX SOMETHING WITH CONNECTION
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
-const publisher = createClient()
-
 const ACCOUNTS = ['swap.alcor', 'alcordexmain', 'alcor', 'book.alcor']
 const ACTIONS = ['*']
 
 async function handleAction(chain: string, action) {
-  if (!publisher.isOpen) await publisher.connect()
-
   const { account, name } = action
 
-  publisher.publish(`chainAction:${chain}:${account}:${name}`, JSON.stringify({ chain, ...action }))
+  getPublisher().publish(`chainAction:${chain}:${account}:${name}`, JSON.stringify({ chain, ...action }))
   //console.log('new action: ', `chainAction:${chain}.${account}.${name}`, action)
   console.log('new action: ', `chainAction:${chain}.${account}.${name}`)
 }

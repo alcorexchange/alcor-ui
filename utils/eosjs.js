@@ -36,6 +36,7 @@ export const fetchAllRows = async (
   let lowerBound = mergedOptions.lower_bound
 
   for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
+    console.log('rpc', rpc)
     const result = await rpc.get_table_rows({
       ...mergedOptions,
       lower_bound: lowerBound,

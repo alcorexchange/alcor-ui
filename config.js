@@ -252,7 +252,7 @@ const networks = {
       'xasterdex', 'fasa', '51st', 'bfrost', 'xplasma', 'bttt', 'webx', 'sbwy', 'astremn',
       'vril', 'eurt', 'si44', 'prxq', 'nacuso', 'eveningmoon', '5t4r', 'binaryx', 'cumbank', 'xprn2', 'qxte', 'magx',
       'xpot', 'aeonprotocol', 'xmtlchain', 'xnet', 'ytokens', 'tokencreates', 'xrlt', 'xprlite', 'dirtyx', 'bullishdegen',
-      'solarspark', 'mindxp', 'xprsl', 'xtoken.xpr', 'xwave', 'xrpay', 'iweb'
+      'solarspark', 'mindxp', 'xprsl', 'xtoken.xpr', 'xwave', 'xrpay', 'iweb', 'eostoken.xpr'
     ],
     CEX_CONTRACTS: [],
 

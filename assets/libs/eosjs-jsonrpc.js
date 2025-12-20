@@ -46,6 +46,16 @@ export class JsonRpc {
     ])
   }
 
+  // Timeout для чтения body (response.text() может висеть бесконечно)
+  textWithTimeout(response, timeout = 10000) {
+    return Promise.race([
+      response.text(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('body read timeout(' + timeout + ')')), timeout)
+      )
+    ])
+  }
+
   nextEndpoint() {
     if (this.endpoints.length) {
       if (this.currentEndpoint) {
@@ -70,11 +80,11 @@ export class JsonRpc {
 
       if (path.includes('get_table_rows')) {
         // BIG negative Number FIX
-        json = JSON.parse(
-          (await response.text()).replace(/:(-?\d{16,}),/g, ': "$1",')
-        )
+        const text = await this.textWithTimeout(response)
+        json = JSON.parse(text.replace(/:(-?\d{16,}),/g, ': "$1",'))
       } else {
-        json = await response.json()
+        const text = await this.textWithTimeout(response)
+        json = JSON.parse(text)
       }
 
       if (json.processed && json.processed.except) {
