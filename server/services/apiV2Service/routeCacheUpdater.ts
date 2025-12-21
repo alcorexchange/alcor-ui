@@ -5,7 +5,8 @@ import * as workerpool from 'workerpool'
 import { createClient } from 'redis'
 import { Token, Route, Pool } from '@alcorexchange/alcor-swap-sdk'
 
-import { getPools, poolInstanceFromMongoPool, getRedisTicks } from '../swapV2Service/utils'
+// Убран импорт poolInstanceFromMongoPool и getRedisTicks - теперь batch загрузка напрямую
+import { getPools } from '../swapV2Service/utils'
 import { mongoConnect, initRedis } from '../../utils'
 import { SwapPool } from '../../models'
 
@@ -82,10 +83,9 @@ class SharedPoolsMemory {
         break
       }
 
-      // Записываем данные в shared buffer
-      for (let i = 0; i < length; i++) {
-        this.dataView.setUint8(chainOffset + i, serialized[i])
-      }
+      // Bulk copy в shared buffer (вместо byte-by-byte)
+      const targetArray = new Uint8Array(this.sharedBuffer, chainOffset, length)
+      targetArray.set(serialized)
 
       chainMetadata.set(pool.id.toString(), { offset: chainOffset, length })
       chainOffset += length
@@ -147,6 +147,8 @@ const POOLS_LOADING_PROMISES = {}
 // Трекинг версий пулов для WASM режима
 const POOLS_VERSIONS = {}
 const POOLS_LAST_UPDATE = {}
+// Версия пулов, которую мы уже отправили воркерам (убирает лишний getStats() RPC)
+const POOLS_SENT_TO_WORKERS = {}
 
 // Флаг для graceful shutdown
 let isShuttingDown = false
@@ -159,33 +161,57 @@ async function connectRedis() {
   }
 }
 
-// Загрузка пулов из MongoDB
+// Загрузка пулов из MongoDB с batch загрузкой тиков
 async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
-  //console.log(`[POOLS] Loading pools from MongoDB for ${chain}...`)
   const startTime = performance.now()
 
-  // Загружаем активные пулы
-  const mongoPools = await SwapPool.find({
-    chain,
-    active: true
-  }).lean()
+  // Загружаем активные пулы с только нужными полями
+  const mongoPools = await SwapPool.find({ chain, active: true })
+    .select('id active tokenA tokenB fee sqrtPriceX64 liquidity tick feeGrowthGlobalAX64 feeGrowthGlobalBX64')
+    .lean()
 
-  const pools = []
-  for (const mongoPool of mongoPools) {
+  if (mongoPools.length === 0) return []
+
+  // Batch загрузка всех тиков через pipeline (вместо N последовательных запросов)
+  const tickKeys = mongoPools.map(p => `ticks_${chain}_${p.id}`)
+  const pipeline = redisClient.multi()
+  tickKeys.forEach(key => pipeline.get(key))
+  const ticksData = await pipeline.exec()
+
+  // Параллельная конвертация пулов в SDK объекты
+  const pools: Pool[] = []
+  for (let i = 0; i < mongoPools.length; i++) {
     try {
-      // Используем существующую функцию для конвертации
-      const poolInstance = await poolInstanceFromMongoPool(mongoPool)
+      const mongoPool = mongoPools[i]
+      const ticksJson = ticksData[i] as string | null
+      const ticksArray = ticksJson ? JSON.parse(ticksJson) : []
 
-      // Проверяем что пул активен и имеет тики
-      // poolInstanceFromMongoPool уже загружает тики из Redis
+      // Тики уже отсортированы при записи в Redis
+      const ticks = ticksArray.map(([id, tick]) => ({ id, ...tick }))
+
+      const { tokenA, tokenB } = mongoPool
+      const poolInstance = new Pool({
+        id: mongoPool.id,
+        active: mongoPool.active,
+        tokenA: new Token(tokenA.contract, tokenA.decimals, tokenA.symbol),
+        tokenB: new Token(tokenB.contract, tokenB.decimals, tokenB.symbol),
+        fee: mongoPool.fee,
+        sqrtPriceX64: mongoPool.sqrtPriceX64,
+        liquidity: mongoPool.liquidity,
+        tickCurrent: mongoPool.tick,
+        ticks,
+        feeGrowthGlobalAX64: mongoPool.feeGrowthGlobalAX64,
+        feeGrowthGlobalBX64: mongoPool.feeGrowthGlobalBX64,
+      })
+
       pools.push(poolInstance)
     } catch (error) {
-      console.error(`[ERROR] Failed to convert pool ${mongoPool.id}:`, error.message)
+      console.error(`[ERROR] Failed to convert pool ${mongoPools[i].id}:`, error.message)
     }
   }
 
   const endTime = performance.now()
-  //console.log(`[POOLS] Loaded ${pools.length} liquid pools for ${chain} in ${Math.round(endTime - startTime)}ms`)
+  console.log(`[POOLS] Batch loaded ${pools.length} pools for ${chain} in ${Math.round(endTime - startTime)}ms`)
 
   return pools
 }
@@ -230,22 +256,29 @@ async function computeRoutesInWorker(chain, input, output, poolIds, maxHops) {
     const allPools = await getAllPools(chain)
     const pools: Pool[] = Array.from(allPools.values())
 
-    // Проверяем, нужно ли передать пулы воркеру
+    // Проверяем локально, нужно ли передать пулы воркерам (без RPC вызова getStats)
     const currentVersion = POOLS_VERSIONS[chain] || 0
-    const workerVersion = await pool.exec('getStats', []).then(stats => stats[chain]?.version || 0).catch(() => 0)
+    const sentVersion = POOLS_SENT_TO_WORKERS[chain] || 0
+    const needsSendPools = currentVersion > sentVersion
 
     const workerData = {
       chain,
       input: Token.toJSON(input),
       output: Token.toJSON(output),
       maxHops,
-      // Передаем пулы только если версия изменилась
-      pools: currentVersion !== workerVersion ? pools.map(p => Pool.toJSON(p)) : null,
-      isUpdate: workerVersion > 0 // Если воркер уже инициализирован, это обновление
+      // Передаем пулы только если версия изменилась с последней отправки
+      pools: needsSendPools ? pools.map(p => Pool.toJSON(p)) : null,
+      isUpdate: sentVersion > 0 // Если уже отправляли пулы, это обновление
     }
 
     try {
       const routes = await pool.exec('computeRoutesWithInit', [workerData])
+
+      // Отмечаем что пулы отправлены (первый воркер получил их, остальные получат при следующих вызовах)
+      if (needsSendPools) {
+        POOLS_SENT_TO_WORKERS[chain] = currentVersion
+      }
+
       return routes.map((r) => Route.fromBuffer ? Route.fromBuffer(r) : r)
     } catch (error) {
       console.error('[ERROR] WASM Worker pool error:', error)
@@ -289,11 +322,8 @@ async function updateCache(chain, poolIds, input, output, maxHops, cacheKey) {
 
     const routes = await computeRoutesInWorker(chain, input, output, poolIds, maxHops)
 
-    const redisRoutes = routes.map(({ input, output, pools }) => ({
-      input: Token.toJSON(input),
-      output: Token.toJSON(output),
-      pools: pools.map((p) => p.id),
-    }))
+    // Новый компактный формат: только массивы pool IDs
+    const redisRoutes = routes.map(({ pools }) => pools.map(p => p.id))
 
     await redisClient.set('routes_' + cacheKey, JSON.stringify(redisRoutes))
     await redisClient.set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT * 1000).toString())

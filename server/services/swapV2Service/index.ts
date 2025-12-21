@@ -40,9 +40,9 @@ export async function getClosestSqrtPrice(chain, pool, time) {
 }
 
 async function setRedisTicks(chain: string, poolId: number, ticks: Array<[number, Tick]>) {
-  // Orderbook style sort
-  //ticks.sort((a, b) => a.id - b.id) они должны в сете сортернуться
-  const mappedTicks = ticks.map(t => [t[0], t[1]])
+  // Сортируем при записи, чтобы не сортировать при каждом чтении
+  const sortedTicks = [...ticks].sort((a, b) => a[0] - b[0])
+  const mappedTicks = sortedTicks.map(t => [t[0], t[1]])
   await redis.set(`ticks_${chain}_${poolId}`, JSON.stringify(mappedTicks))
 }
 

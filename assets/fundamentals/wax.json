@@ -886,5 +886,89 @@
       "https://discord.gg/5ZApzNVZkJ"
     ],
     "description": "JOKR — Because the game should never be serious."
+  },
+  "DMT@defiminingtk": {
+    "name": "DEFI Mining Token",
+    "website": {
+      "link": "https://thedefimining.io/",
+      "name": "thedefimining.io"
+    },
+    "tags": ["Gamification", "DeFi", "NFT"],
+    "socials": [
+      "https://t.me/+9i0Cn0xkhjw3ZTE0",
+      "https://x.com/DEFIMiningIO",
+      "https://discord.gg/3Z6ssW2Jx4"
+    ],
+    "description": "Has been forked to a higher decimal; fork 1:1 on the dApp."
+  },
+  "DMC@defiminingtk": {
+    "name": "DEFI Mining Component",
+    "website": {
+      "link": "https://thedefimining.io/",
+      "name": "thedefimining.io"
+    },
+    "tags": ["Gamification", "DeFi", "NFT"],
+    "socials": [
+      "https://t.me/+9i0Cn0xkhjw3ZTE0",
+      "https://x.com/DEFIMiningIO",
+      "https://discord.gg/3Z6ssW2Jx4"
+    ],
+    "description": "Has been forked to a higher decimal; fork 1:1 on the dApp."
+  },
+  "DME@defiminingtk": {
+    "name": "DEFI Mining Electricity",
+    "website": {
+      "link": "https://thedefimining.io/",
+      "name": "thedefimining.io"
+    },
+    "tags": ["Gamification", "DeFi", "NFT"],
+    "socials": [
+      "https://t.me/+9i0Cn0xkhjw3ZTE0",
+      "https://x.com/DEFIMiningIO",
+      "https://discord.gg/3Z6ssW2Jx4"
+    ],
+    "description": "Has been forked to a higher decimal; fork 1:1 on the dApp."
+  },
+  "DMT@defiminingtf": {
+    "name": "DEFI Mining Token",
+    "website": {
+      "link": "https://thedefimining.io/",
+      "name": "thedefimining.io"
+    },
+    "tags": ["Gamification", "DeFi", "NFT"],
+    "socials": [
+      "https://t.me/+9i0Cn0xkhjw3ZTE0",
+      "https://x.com/DEFIMiningIO",
+      "https://discord.gg/3Z6ssW2Jx4"
+    ],
+    "description": "It is our BTC; faster, cheaper to move. Mined with NFT rigs; mint NFTs to partake in the deflation and inflation; stake it to earn a share of any revenue DEFI Mining's eco system may be able to generate. Hold a share of an ethereal company; have a say in how it evolves and how to allocate resources to strengthen the eco-system. Built to be a store of value; and simply put, on chain cash liquidity. Greenest of cryptographic currencies; a token of participation and a piece of the eco-system!"
+  },
+  "DMC@defiminingtf": {
+    "name": "DEFI Mining Component",
+    "website": {
+      "link": "https://thedefimining.io/",
+      "name": "thedefimining.io"
+    },
+    "tags": ["Gamification", "DeFi", "NFT"],
+    "socials": [
+      "https://t.me/+9i0Cn0xkhjw3ZTE0",
+      "https://x.com/DEFIMiningIO",
+      "https://discord.gg/3Z6ssW2Jx4"
+    ],
+    "description": "It is a necessary component in mining DMT and DME. Repair your rigs and electricity miners. Also a necessary component to minting NFTs with DMT. Mined with Workshop NFTs. No physical waste!"
+  },
+  "DME@defiminingtf": {
+    "name": "DEFI Mining Electricity",
+    "website": {
+      "link": "https://thedefimining.io/",
+      "name": "thedefimining.io"
+    },
+    "tags": ["Gamification", "DeFi", "NFT"],
+    "socials": [
+      "https://t.me/+9i0Cn0xkhjw3ZTE0",
+      "https://x.com/DEFIMiningIO",
+      "https://discord.gg/3Z6ssW2Jx4"
+    ],
+    "description": "It is a necessary component to mining DMT and DMC. Power your setups. Mined with energy generator NFTs such as Solar Panels, Wind Turbines, Dams, Volcanos. Keep it green, keep it clean!"
   }
 }

@@ -143,7 +143,9 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   }
 
   for (const route of parsedRoutes) {
-    const pools = route.pools.map(p => allPools.get(p))
+    // Backward compatibility: старый формат {pools: [id]} | новый формат [id, id]
+    const poolIds = Array.isArray(route) ? route : route.pools
+    const pools = poolIds.map(p => allPools.get(p))
     const poolsValid = pools.every(p => p != undefined && p.active && p.tickDataProvider.ticks.length > 0)
 
     if (poolsValid) {

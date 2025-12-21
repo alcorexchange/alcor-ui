@@ -121,14 +121,20 @@ export async function deleteKeysByPattern(client, pattern) {
   let totalDeleted = 0
 
   try {
-    // Получаем все ключи по заданному паттерну
-    const keys = await client.keys(pattern)
+    // Используем SCAN вместо KEYS (не блокирует Redis)
+    const keysToDelete: string[] = []
+    for await (const key of client.scanIterator({ MATCH: pattern, COUNT: 100 })) {
+      keysToDelete.push(key)
+    }
 
-    if (keys.length > 0) {
-      // Удаляем найденные ключи
-      const deletedCount = await client.del(keys)
-      totalDeleted += deletedCount
-      console.log(`Deleted ${deletedCount} keys matching the pattern "${pattern}".`)
+    if (keysToDelete.length > 0) {
+      // Удаляем найденные ключи батчами по 100
+      for (let i = 0; i < keysToDelete.length; i += 100) {
+        const batch = keysToDelete.slice(i, i + 100)
+        const deletedCount = await client.del(batch)
+        totalDeleted += deletedCount
+      }
+      console.log(`Deleted ${totalDeleted} keys matching the pattern "${pattern}".`)
     } else {
       console.log(`No keys found matching the pattern "${pattern}".`)
     }
