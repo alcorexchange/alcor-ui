@@ -4,7 +4,6 @@ import fetch from 'cross-fetch'
 import { JsonRpc as JsonRpcMultiEnds } from '../assets/libs/eosjs-jsonrpc'
 
 import config from '../config'
-import { shuffleArray } from './index'
 
 export function getChainRpc(chain) {
   const nodes = Object.keys(config.networks[chain].client_nodes)
@@ -36,7 +35,6 @@ export const fetchAllRows = async (
   let lowerBound = mergedOptions.lower_bound
 
   for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
-    console.log('rpc', rpc)
     const result = await rpc.get_table_rows({
       ...mergedOptions,
       lower_bound: lowerBound,
