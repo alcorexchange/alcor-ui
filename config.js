@@ -253,7 +253,7 @@ const networks = {
       'vril', 'eurt', 'si44', 'prxq', 'nacuso', 'eveningmoon', '5t4r', 'binaryx', 'cumbank', 'xprn2', 'qxte', 'magx',
       'xpot', 'aeonprotocol', 'xmtlchain', 'xnet', 'ytokens', 'tokencreates', 'xrlt', 'xprlite', 'dirtyx', 'bullishdegen',
       'solarspark', 'mindxp', 'xprsl', 'xtoken.xpr', 'xwave', 'xrpay', 'iweb', 'eostoken.xpr', 'xeosio.xpr', 'xiotoken.xpr', 'xmetal.xpr',
-      'x1oken.xpr', 'xtokems.xpr'
+      'x1oken.xpr', 'xtokems.xpr', 'xtok3n.xpr'
     ],
     CEX_CONTRACTS: [],
 
