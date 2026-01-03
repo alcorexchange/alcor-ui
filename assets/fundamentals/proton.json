@@ -146,5 +146,24 @@
           "https://proton.alcor.exchange/swap?input=XPR-eosio.token&output=PEOPLES-xpr.m3m3"
         ],
         "description": "'Peoples Pupils is a crypto token that I hope will make a lot of people happy.' Created by 8 year old nephew of prominent Crypto dev. For entertainment purposes only."
+      },
+      "WON@w3won": {
+        "name": "WON",
+        "website": {
+          "link": "https://t.me/templeearth",
+          "name": "Temple Earth Telegram"
+        },
+        "tags": [
+          "charity",
+          "ecovillage",
+          "love",
+          "peace",
+          "happiness"
+        ],
+        "socials": [
+          "https://t.me/templeearth",
+          "https://t.me/flextokens"
+        ],
+        "description": "We Won. We're already living in paradise. A planet teeming with life, beauty, and happy free beings. WON has a 3% tax, with 1% reflected to holders, 1% to team distributed in bi-weeky fractal contributors meetings, and 1% used to invest in tokenizing one ecovillage per month in an expanding network. WON is based on EASY's revolutionary reflection mechanism, expanding to new horizons. For spiritual purposes only, not an investment vehicle. No promises, no expectations, no guarantees, just faith in our Temple, Earth. WON is a token to circulate a winning future for everywon."
       }
 }
