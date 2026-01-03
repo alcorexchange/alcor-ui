@@ -8,6 +8,18 @@
     "socials": ["https://t.me/Shinchankidverify", "https://bsky.app/profile/shinchankid.bsky.social"],
     "description": "This is a meme token of a decentralized platform fund based on the Proof of Deflation Coin Burning consensus mechanism and the Buy Back concept using the LSTM algorithm."
   },
+  "AOSX@ageofswordsx": {
+    "name": "Age Of Swords",
+    "website": {
+      "link": "https://ageofswords.com/",
+      "name": "Age Of Swords"
+    },
+    "tags": ["Game", "P2E", "Avatar", "Strategy"],
+    "socials": ["https://t.me/ageofswords", 
+      "https://twitter.com/ageofswordss", 
+      "https://discord.com/invite/rb3Mz2NVHY"],
+    "description": "Step into Age of Swords—a high-fantasy Web3 game world where players collect, equip, and battle with a wide range of swords, shields, armor, helmets, boots, and characters"
+  },
   "WOA@worldventure": {
     "name": "World of Adventures",
     "website": {
