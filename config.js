@@ -255,7 +255,7 @@ const networks = {
       'solarspark', 'mindxp', 'xprsl', 'xtoken.xpr', 'xwave', 'xrpay', 'iweb', 'eostoken.xpr', 'xeosio.xpr', 'xiotoken.xpr', 'xmetal.xpr',
       'x1oken.xpr', 'xtokems.xpr', 'xtok3n.xpr', 'xprn1.xpr', 'xprn2.xpr', 'xprn3.xpr', 'xprn4.xpr',
       'xxtoken.xpr', 'xytoken.xpr', 'xtech.xpr', 'm3m3.xpr', 'scoopx', 'xcoin.xpr', 'xcoins.xpr', 'xttokens', 'xlitee.xpr', 'xlite.xpr',
-      'xtrade.xpr', 'xtrader.xpr', 'xtokenn.xpr', 'x1234.xpr'
+      'xtrade.xpr', 'xtrader.xpr', 'xtokenn.xpr', 'x1234.xpr', 'superx.xpr'
     ],
     CEX_CONTRACTS: [],
 
