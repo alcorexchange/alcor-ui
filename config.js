@@ -384,7 +384,7 @@ const networks = {
     host: 'wax.greymass.com',
     port: 443,
     protocol: 'https',
-    monitor: 'http://wax.bloks.io',
+    monitor: 'https://waxblock.io',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
     //hyperion: 'https://wax-history.eosdac.io',

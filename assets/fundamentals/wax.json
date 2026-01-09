@@ -67,8 +67,8 @@
     "github": "https://github.com/CryptoMechanics/eosio-ibc-bridge-contract",
     "socials": [
       "https://ibc-docs.uxnetwork.io",
-      "https://wax.bloks.io/account/usdt.alcor",
-      "https://wax.bloks.io/account/ibc.alcor"
+      "https://waxblock.io/account/usdt.alcor",
+      "https://waxblock.io/account/ibc.alcor"
     ],
     "description": "Native USDT on EOS, Bridged to WAX Chain by Alcor team, using secure IBC technology. IBC are based on merkle root proof cryptography, it does not use any centralized point of management, or any back-end and third-party services. It's audited, secure solution for bridging tokens on Antelope chains. Bridge fee are 0% both ways, and process takes only ~2 minute."
   },
