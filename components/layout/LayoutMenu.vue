@@ -22,6 +22,9 @@
             span {{ item.name }}
             i.el-icon-caret-bottom
             .new-badge(v-if="item.isNew") New
+          a.menu-item(v-else-if="item.href" :href="item.href" target="_blank")
+            span {{ item.name }}
+            .new-badge(v-if="item.isNew") New
           nuxt-link.menu-item(v-else :to="localePath(item.to)")
             span {{ item.name }}
     .end
@@ -184,13 +187,11 @@ export default {
 
       // TODO: make symbol based on network
       if (this.$store.state.network.name === 'wax') {
-        earn.isNew = true
         earn.content[0].push({
           title: 'Staking',
           description: 'Stake your WAX to earn interest and rewards',
           to: '/staking',
           icon: 'Treasure',
-          isNew: true,
         })
       }
 
@@ -270,9 +271,12 @@ export default {
         ],
       }
 
+      const perpetuals = { name: 'Perpetuals', contentKey: null, href: 'https://perp.alcor.exchange/', isNew: true }
+
       this.cachedItems = [
         swap,
         trade,
+        perpetuals,
         earn,
         { name: 'Analytics', contentKey: null, to: '/analytics' },
         { name: 'Wallet', contentKey: null, to: '/wallet' },

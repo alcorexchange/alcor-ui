@@ -15,8 +15,17 @@ LayoutMenu(v-if="!isMobile")
         alt=''
       )
     ul.nav-items
-      li(v-for='item in menuItems', :key='item.index')
+      li(v-for='item in menuItems', :key='item.index || item.href')
+        a.item(
+          v-if='item.external'
+          :href='item.href'
+          target='_blank'
+          :class='{ active: isActive(item.index) }'
+        )
+          span {{ $t(item.name) }}
+          new-badge.badge(v-if='item.new', width='44', height='32')
         AlcorLink.item(
+          v-else
           :to='localePath(item.index, $i18n.locale)',
           flat,
           :class='{ active: isActive(item.index) }'
@@ -66,9 +75,13 @@ LayoutMenu(v-if="!isMobile")
           alt=''
         )
       ul.menu-items
-        li(v-for='item in menuItems', :key='item.index')
-          AlcorLink.item(:to='item.index', flat='')
+        li(v-for='item in menuItems', :key='item.index || item.href')
+          a.item(v-if='item.external' :href='item.href' target='_blank')
             | {{ item.name }}
+            new-badge.badge(v-if='item.new', width='44', height='32')
+          AlcorLink.item(v-else :to='item.index', flat='')
+            | {{ item.name }}
+            new-badge.badge(v-if='item.new', width='44', height='32')
     .menu-underlay(@click='closeMenu', v-if='menuActive')
   .fixed-menu
     ConnectNav
@@ -109,10 +122,11 @@ export default {
       items.push({ index: '/positions', name: 'Pool' })
 
       items.push({ index: '/markets', name: 'Spot' })
+      items.push({ href: 'https://perp.alcor.exchange/', name: 'Perpetuals', external: true, new: true })
       // items.push({ index: '/bridge', name: 'Bridge' })
 
       if (['wax', 'eos', 'proton'].includes(this.$store.state.network.name)) {
-        items.push({ index: '/farm', name: 'Farm', new: true })
+        items.push({ index: '/farm', name: 'Farm' })
       }
 
       items.push({ index: '/otc', name: 'OTC' })
@@ -318,6 +332,19 @@ export default {
     padding: 4px 14px;
     margin: 2px 8px;
     display: flex;
+    position: relative;
+    color: var(--text-disable);
+
+    &:hover {
+      color: var(--text-default);
+    }
+
+    .badge {
+      position: absolute;
+      bottom: 8px;
+      left: 70px;
+      z-index: 1;
+    }
 
     &.active {
       background: var(--btn-active);
