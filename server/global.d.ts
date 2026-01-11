@@ -43,6 +43,7 @@ declare global {
     PINNED_MARKETS: string[]
     BANNER_MARKETS: string[]
     SCAM_CONTRACTS: string[]
+    SCAM_TOKENS: string[]
     CEX_CONTRACTS: string[]
     nftMarket: {
       contract: string
