@@ -55,20 +55,32 @@ export const actions = {
     const { incentives } = state
     const poolsPlainWithStatsAndUserData = rootGetters['amm/poolsPlainWithStatsAndUserData']
 
+    // Early return если данных нет или poolsStats ещё не загружены
+    if (!poolsPlainWithStatsAndUserData.length || !incentives.length || !rootState.amm.poolsStats.length) {
+      commit('setFarmPoolsWithAPR', [])
+      return
+    }
+
+    // Создаём Map токенов один раз для O(1) поиска вместо O(n)
+    const tokensMap = new Map()
+    for (const token of rootState.tokens) {
+      tokensMap.set(token.id, token)
+    }
+
     // Группируем инсентивы по poolId один раз
     const incentivesByPool = new Map()
-    incentives.forEach((incentive) => {
+    for (const incentive of incentives) {
       const poolId = incentive.poolId
       if (!incentivesByPool.has(poolId)) {
         incentivesByPool.set(poolId, [])
       }
       incentivesByPool.get(poolId).push(incentive)
-    })
+    }
 
     // Обрабатываем пулы с использованием сгруппированных инсентивов
     const r = poolsPlainWithStatsAndUserData.map((pool) => {
       const poolIncentives = (incentivesByPool.get(pool.id) || []).map((incentive) => {
-        return { ...incentive, apr: getAPR(incentive, pool.poolStats, rootState.tokens) }
+        return { ...incentive, apr: getAPR(incentive, pool.poolStats, tokensMap) }
       })
 
       return {
@@ -172,17 +184,17 @@ export const actions = {
   },
 }
 
-function tokenToUSD(amount, symbol, contract, tokens) {
+function tokenToUSD(amount, symbol, contract, tokensMap) {
   const parsed = parseFloat(amount)
   amount = (!amount || isNaN(parsed)) ? 0 : parsed
   const id = symbol.toLowerCase() + '-' + contract
 
-  const price = tokens.find(t => t.id == id)
+  const price = tokensMap.get(id)
   return (parseFloat(amount) * (price ? price.usd_price : 0)).toLocaleString('en', { maximumFractionDigits: 2 })
 }
 
 // TODO: This function is being duplicated in FarmItemNew and here. Need to reuse.
-function getAPR(incentive, poolStats, tokens) {
+function getAPR(incentive, poolStats, tokensMap) {
   if (!poolStats) return null
 
   const tokenA = Asset.fromFloat(poolStats.tokenA.quantity, Asset.Symbol.fromParts(poolStats.tokenA.symbol, poolStats.tokenA.decimals))
@@ -195,7 +207,7 @@ function getAPR(incentive, poolStats, tokens) {
 
   const tvlUSD = poolStats.tvlUSD * (stakedPercent / 100)
   const dayRewardInUSD = parseFloat(
-    tokenToUSD(parseFloat(incentive.rewardPerDay), incentive.reward.symbol.symbol, incentive.reward.contract, tokens)
+    tokenToUSD(parseFloat(incentive.rewardPerDay), incentive.reward.symbol.symbol, incentive.reward.contract, tokensMap)
   )
 
   const r = ((dayRewardInUSD / tvlUSD) * 365 * 100)
