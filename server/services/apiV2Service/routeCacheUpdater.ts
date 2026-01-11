@@ -165,7 +165,7 @@ async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
   // (мусорные пулы с liquidity=0 могут иметь неправильные decimals)
   const tokenDecimals = new Map<string, number>()
   for (const mp of mongoPools) {
-    if (BigInt(mp.liquidity || 0) > 0n) {
+    if (BigInt(mp.liquidity || 0) > BigInt(0)) {
       const tokenAId = mp.tokenA.symbol.toLowerCase() + '-' + mp.tokenA.contract
       const tokenBId = mp.tokenB.symbol.toLowerCase() + '-' + mp.tokenB.contract
       if (!tokenDecimals.has(tokenAId)) tokenDecimals.set(tokenAId, mp.tokenA.decimals)
@@ -355,7 +355,7 @@ async function updateCache(chain, poolIds, input, output, maxHops, cacheKey) {
 function findToken(pools, tokenID) {
   // Сначала ищем в пулах с ликвидностью
   const poolWithLiquidity = pools.find((p) =>
-    BigInt(p.liquidity || 0) > 0n && (p.tokenA.id === tokenID || p.tokenB.id === tokenID)
+    BigInt(p.liquidity || 0) > BigInt(0) && (p.tokenA.id === tokenID || p.tokenB.id === tokenID)
   )
   if (poolWithLiquidity) {
     return poolWithLiquidity.tokenA.id === tokenID ? poolWithLiquidity.tokenA : poolWithLiquidity.tokenB

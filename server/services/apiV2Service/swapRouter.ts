@@ -91,7 +91,7 @@ async function getAllPools(chain) {
         // Берём токен только из пулов с ликвидностью, чтобы избежать мусорных пулов с неправильными decimals
         TOKEN_INDEX[chain] = new Map()
         for (const pool of pools) {
-          if (BigInt(pool.liquidity || 0) > 0n) {
+          if (BigInt(pool.liquidity || 0) > BigInt(0)) {
             if (!TOKEN_INDEX[chain].has(pool.tokenA.id)) {
               TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
             }
