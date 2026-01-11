@@ -137,8 +137,10 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   const routes = []
   const parsedRoutes = JSON.parse(redisRoutes)
 
-  // Если кеш пустой, возвращаем сразу
+  // Если кеш пустой, помечаем как expired для пересчёта и возвращаем
   if (!parsedRoutes || parsedRoutes.length === 0) {
+    // Устанавливаем время истечения в прошлое чтобы updater пересчитал
+    await getRedis().set('routes_expiration_' + cacheKey, (Date.now() - 60 * 60 * 1000).toString())
     return routes
   }
 
