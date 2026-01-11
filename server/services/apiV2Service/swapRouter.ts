@@ -88,10 +88,26 @@ async function getAllPools(chain) {
         POOLS[chain] = new Map(pools.map((p) => [p.id, p]))
 
         // Создаем индекс токенов для быстрого поиска
+        // Берём токен только из пулов с ликвидностью, чтобы избежать мусорных пулов с неправильными decimals
         TOKEN_INDEX[chain] = new Map()
         for (const pool of pools) {
-          TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
-          TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
+          if (BigInt(pool.liquidity || 0) > 0n) {
+            if (!TOKEN_INDEX[chain].has(pool.tokenA.id)) {
+              TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
+            }
+            if (!TOKEN_INDEX[chain].has(pool.tokenB.id)) {
+              TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
+            }
+          }
+        }
+        // Fallback для токенов которые есть только в пулах без ликвидности
+        for (const pool of pools) {
+          if (!TOKEN_INDEX[chain].has(pool.tokenA.id)) {
+            TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
+          }
+          if (!TOKEN_INDEX[chain].has(pool.tokenB.id)) {
+            TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
+          }
         }
 
         console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')

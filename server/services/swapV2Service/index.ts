@@ -308,6 +308,7 @@ export async function updatePools(chain) {
   const to_create = []
   const current_pools = await SwapPool.distinct('id', { chain })
 
+  // 1. Сначала собираем все новые пулы
   for (const pool of pools) {
     if (!current_pools.includes(pool.id)) {
       const parsed_pool = parsePool(pool)
@@ -331,11 +332,21 @@ export async function updatePools(chain) {
 
       to_create.push(p)
     }
-    await updatePool(chain, pool.id)
+  }
+
+  // 2. Записываем новые пулы в MongoDB
+  if (to_create.length > 0) {
+    await SwapPool.insertMany(to_create)
+    console.log(`inserted ${to_create.length} new pools for ${chain}`)
+  }
+
+  // 3. Обновляем тики только для новых пулов
+  console.log(`updating ticks for ${to_create.length} new pools...`)
+  for (const p of to_create) {
+    await updatePool(chain, p.id)
   }
 
   console.log('updated pools for ', chain)
-  await SwapPool.insertMany(to_create)
 }
 
 export async function initialUpdate(chain: string, poolId?: number) {

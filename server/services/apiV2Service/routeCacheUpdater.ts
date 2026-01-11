@@ -161,13 +161,32 @@ async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
 
   if (mongoPools.length === 0) return []
 
+  // Строим карту правильных decimals из пулов с ликвидностью
+  // (мусорные пулы с liquidity=0 могут иметь неправильные decimals)
+  const tokenDecimals = new Map<string, number>()
+  for (const mp of mongoPools) {
+    if (BigInt(mp.liquidity || 0) > 0n) {
+      const tokenAId = mp.tokenA.symbol.toLowerCase() + '-' + mp.tokenA.contract
+      const tokenBId = mp.tokenB.symbol.toLowerCase() + '-' + mp.tokenB.contract
+      if (!tokenDecimals.has(tokenAId)) tokenDecimals.set(tokenAId, mp.tokenA.decimals)
+      if (!tokenDecimals.has(tokenBId)) tokenDecimals.set(tokenBId, mp.tokenB.decimals)
+    }
+  }
+  // Fallback для токенов только в пулах без ликвидности
+  for (const mp of mongoPools) {
+    const tokenAId = mp.tokenA.symbol.toLowerCase() + '-' + mp.tokenA.contract
+    const tokenBId = mp.tokenB.symbol.toLowerCase() + '-' + mp.tokenB.contract
+    if (!tokenDecimals.has(tokenAId)) tokenDecimals.set(tokenAId, mp.tokenA.decimals)
+    if (!tokenDecimals.has(tokenBId)) tokenDecimals.set(tokenBId, mp.tokenB.decimals)
+  }
+
   // Batch загрузка всех тиков через pipeline (вместо N последовательных запросов)
   const tickKeys = mongoPools.map(p => `ticks_${chain}_${p.id}`)
   const pipeline = getRedis().multi()
   tickKeys.forEach(key => pipeline.get(key))
   const ticksData = await pipeline.exec()
 
-  // Параллельная конвертация пулов в SDK объекты
+  // Параллельная конвертация пулов в SDK объекты с нормализованными decimals
   const pools: Pool[] = []
   for (let i = 0; i < mongoPools.length; i++) {
     try {
@@ -179,11 +198,15 @@ async function loadPoolsFromMongo(chain: string): Promise<Pool[]> {
       const ticks = ticksArray.map(([id, tick]) => ({ id, ...tick }))
 
       const { tokenA, tokenB } = mongoPool
+      const tokenAId = tokenA.symbol.toLowerCase() + '-' + tokenA.contract
+      const tokenBId = tokenB.symbol.toLowerCase() + '-' + tokenB.contract
+
+      // Используем нормализованные decimals
       const poolInstance = new Pool({
         id: mongoPool.id,
         active: mongoPool.active,
-        tokenA: new Token(tokenA.contract, tokenA.decimals, tokenA.symbol),
-        tokenB: new Token(tokenB.contract, tokenB.decimals, tokenB.symbol),
+        tokenA: new Token(tokenA.contract, tokenDecimals.get(tokenAId) ?? tokenA.decimals, tokenA.symbol),
+        tokenB: new Token(tokenB.contract, tokenDecimals.get(tokenBId) ?? tokenB.decimals, tokenB.symbol),
         fee: mongoPool.fee,
         sqrtPriceX64: mongoPool.sqrtPriceX64,
         liquidity: mongoPool.liquidity,
@@ -328,8 +351,16 @@ async function updateCache(chain, poolIds, input, output, maxHops, cacheKey) {
   }
 }
 
-// Поиск токена в пулах
+// Поиск токена в пулах (предпочитает пулы с ликвидностью чтобы избежать мусорных пулов с неправильными decimals)
 function findToken(pools, tokenID) {
+  // Сначала ищем в пулах с ликвидностью
+  const poolWithLiquidity = pools.find((p) =>
+    BigInt(p.liquidity || 0) > 0n && (p.tokenA.id === tokenID || p.tokenB.id === tokenID)
+  )
+  if (poolWithLiquidity) {
+    return poolWithLiquidity.tokenA.id === tokenID ? poolWithLiquidity.tokenA : poolWithLiquidity.tokenB
+  }
+  // Fallback - любой пул
   return pools.find((p) => p.tokenA.id === tokenID)?.tokenA || pools.find((p) => p.tokenB.id === tokenID)?.tokenB
 }
 
