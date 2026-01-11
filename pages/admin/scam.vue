@@ -81,7 +81,8 @@ export default {
         await this.loadScamLists()
         this.authenticated = true
       } catch (e) {
-        this.$notify.error({ title: 'Authentication failed', message: 'Invalid password' })
+        const message = e.response?.data?.error || 'Invalid password'
+        this.$notify.error({ title: 'Authentication failed', message })
         delete this.$axios.defaults.headers.common['x-admin-password']
       } finally {
         this.authLoading = false
@@ -164,6 +165,8 @@ export default {
   max-width: 800px;
   margin: 0 auto;
   padding: 40px 20px;
+  background: var(--background-color-base);
+  min-height: 100vh;
 }
 
 .auth-form {
@@ -179,5 +182,16 @@ export default {
 
 .add-form .el-input {
   flex: 1;
+}
+</style>
+
+<style>
+.admin-scam-page .el-input__inner {
+  border: 1px solid #606266 !important;
+  background: var(--background-color-secondary) !important;
+}
+
+.admin-scam-page .el-input__inner:focus {
+  border-color: #409eff !important;
 }
 </style>
