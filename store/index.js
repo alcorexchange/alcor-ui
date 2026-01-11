@@ -541,6 +541,20 @@ export const actions = {
     const { data: deals } = await this.$axios.get(`/account/${state.user.name}/deals`)
     commit('setUserDeals', deals)
   },
+
+  async loadScamLists({ state, commit }) {
+    try {
+      const { data } = await this.$axios.get('/v2/config/scam-lists')
+      commit('setNetwork', {
+        ...state.network,
+        SCAM_CONTRACTS: data.scam_contracts,
+        SCAM_TOKENS: data.scam_tokens
+      })
+    } catch (e) {
+      console.error('Failed to load scam lists:', e)
+      // Fallback - используем статические списки из config
+    }
+  },
 }
 
 export const getters = {

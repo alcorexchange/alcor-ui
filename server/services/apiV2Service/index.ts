@@ -21,6 +21,8 @@ import { account } from './account'
 import { swapRouter, initSwapRouterSubscriptions } from './swapRouter'
 import { analytics } from './analytics'
 import { farms } from './farms'
+import { admin } from './admin'
+import { configRouter } from './config'
 
 const app = express()
 
@@ -60,6 +62,8 @@ async function start () {
   app.use('/api/v2/swapRouter', swapRouter)
   app.use('/api/v2/account/', account)
   app.use('/api/v2/farms/', farms)
+  app.use('/api/v2/admin', admin)
+  app.use('/api/v2/config', configRouter)
 
   // Listen the server
   const PORT = process.env.PORT || 8000

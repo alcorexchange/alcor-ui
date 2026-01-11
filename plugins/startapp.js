@@ -41,6 +41,8 @@ export default ({ app: { store, $axios } }, inject) => {
     store.dispatch('amm/init')
     store.dispatch('amm/swap/init')
 
+    store.dispatch('loadScamLists')
+
     // if (process.env.isDev) {
     //   const VConsole = require('vconsole')
     //   Vue.prototype.$vConsole = new VConsole()
