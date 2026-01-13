@@ -77,6 +77,10 @@ export const actions = {
 
   afterLoginHook({ state, dispatch, rootState }) {
     this._vm.$gtag.event('login', { wallet: state.lastWallet })
+    posthog.identify(rootState.user.name, {
+      wallet: state.lastWallet,
+      chain: rootState.network.name
+    })
     posthog.capture('login', { wallet: state.lastWallet })
     dispatch('amm/afterLogin', {}, { root: true })
     dispatch('loadAccountData', {}, { root: true })
