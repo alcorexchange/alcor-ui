@@ -1,4 +1,5 @@
 import { Api } from 'enf-eosjs'
+import posthog from 'posthog-js'
 import { getChainRpc, getMultyEndRpc } from '../utils/eosjs'
 
 
@@ -76,6 +77,7 @@ export const actions = {
 
   afterLoginHook({ state, dispatch, rootState }) {
     this._vm.$gtag.event('login', { wallet: state.lastWallet })
+    posthog.capture('login', { wallet: state.lastWallet })
     dispatch('amm/afterLogin', {}, { root: true })
     dispatch('loadAccountData', {}, { root: true })
 

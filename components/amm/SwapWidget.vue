@@ -139,6 +139,7 @@
 // https://stackoverflow.com/questions/42199956/how-to-implement-debounce-in-vue2
 
 import { Price } from '@alcorexchange/alcor-swap-sdk'
+import posthog from 'posthog-js'
 
 import { debounce } from 'lodash'
 import VueSkeletonLoader from 'skeleton-loader-vue'
@@ -490,6 +491,7 @@ export default {
       const r = await this.$store.dispatch('chain/sendTransaction', actions)
 
       this.$gtag.event('swap', { chain: this.network.name })
+      posthog.capture('swap', { chain: this.network.name })
 
       console.log('SWAP: ', r)
     },

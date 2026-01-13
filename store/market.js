@@ -1,4 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep'
+import posthog from 'posthog-js'
 
 import { captureException } from '@sentry/browser'
 import { Big } from 'big.js'
@@ -596,6 +597,7 @@ export const actions = {
         })
 
       this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name, ticker: state.symbol })
+      posthog.capture('orderbook_trade', { chain: rootState.network.name, ticker: state.symbol })
 
       return { err: false, desc: res }
     } catch (e) {
@@ -660,6 +662,7 @@ export const actions = {
         })
 
       this._vm.$gtag.event('orderbook_trade', { chain: rootState.network.name, ticker: state.symbol })
+      posthog.capture('orderbook_trade', { chain: rootState.network.name, ticker: state.symbol })
 
       return { err: false, desc: res }
     } catch (e) {
