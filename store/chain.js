@@ -62,13 +62,12 @@ export const actions = {
   },
 
   async autoLogin({ state, rootState, dispatch, commit, getters }) {
-    console.log('try autoLogin..')
     const loginned = await state.wallet.checkLogin()
     if (!loginned) return false
 
-    console.log('YES. autoLogining...')
     const { name, authorization, chainId } = loginned
-    if (chainId !== rootState.network.chainId) return console.log('autoLogin chain mismatch')
+    if (chainId !== rootState.network.chainId) return false
+
     commit('setUser', { name, authorization }, { root: true })
     commit('setLastWallet', state.wallet.name)
     dispatch('afterLoginHook')

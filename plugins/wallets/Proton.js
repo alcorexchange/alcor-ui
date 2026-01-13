@@ -17,7 +17,6 @@ export default class AnchoWallet extends WalletBase {
   session = null
 
   async checkLogin() {
-    console.log('check login')
     const { link, session } = await ProtonWebSDK({
       linkOptions: {
         chainId: this.network.chainId,
@@ -26,7 +25,6 @@ export default class AnchoWallet extends WalletBase {
       },
 
       transportOptions: {
-        //requestAccount: this.network.contract,
         requestAccount: 'swap.alcor',
       },
 
@@ -56,7 +54,7 @@ export default class AnchoWallet extends WalletBase {
       return {
         name: actor.toString(),
         authorization: { actor: actor.toString(), permission: permission.toString() },
-        chainId: session.chainId
+        chainId: session.chainId.toString()
       }
     } else {
       return null
