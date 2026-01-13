@@ -152,6 +152,7 @@ module.exports = {
     { ssr: false, src: '~/plugins/mo-js.js', mode: 'client' },
     { ssr: false, src: '~/plugins/intercom.js' },
     { ssr: false, src: '~/plugins/turnstile.client.js' },
+    { ssr: false, src: '~/plugins/posthog.js' },
   ],
 
   /*

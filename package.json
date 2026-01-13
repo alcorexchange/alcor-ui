@@ -67,6 +67,7 @@
     "nuxt-highcharts": "^2.0.3",
     "p-limit": "3.1.0",
     "ping.js": "^0.3.0",
+    "posthog-js": "^1.319.0",
     "prompt-confirm": "^2.0.4",
     "punycode": "^2.3.1",
     "redis": "^4.0.0-rc.3",
