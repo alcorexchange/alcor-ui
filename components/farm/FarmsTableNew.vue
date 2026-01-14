@@ -14,7 +14,7 @@
     .header-item
     .header-item
   client-only
-    DynamicScroller(ref="scroller" :pageMode="true" class="recycle-scroller table-items" :minItemSize="isMobile ? 410 : 82" listTag="div" :items="sortedItems")
+    DynamicScroller(ref="scroller" :key="sortedItems.length" :pageMode="true" class="recycle-scroller table-items" :minItemSize="isMobile ? 410 : 82" listTag="div" :items="sortedItems")
       template(#default="{ item: farm, index, active }")
         DynamicScrollerItem(
           :item="farm"

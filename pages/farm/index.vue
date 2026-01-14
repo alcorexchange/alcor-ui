@@ -17,7 +17,9 @@ export default {
   data: () => {
     return {
       search: '',
+      debouncedSearch: '',
       finished: false,
+      searchTimeout: null,
     }
   },
 
@@ -29,7 +31,7 @@ export default {
     farmPools() {
       const { hideZeroAPR } = this.$store.state.farms
       const onlyContracts = this.$route.query?.contracts?.split(',') || []
-      const search = this.search.toLowerCase()
+      const search = this.debouncedSearch.toLowerCase()
       const searchContracts = new Set(onlyContracts)
 
       return this.$store.getters['farms/farmPools']
@@ -70,6 +72,19 @@ export default {
         }, [])
         .sort((a, b) => (b?.poolStats?.tvlUSD || 0) - (a?.poolStats?.tvlUSD || 0))
     }
+  },
+
+  watch: {
+    search(val) {
+      clearTimeout(this.searchTimeout)
+      this.searchTimeout = setTimeout(() => {
+        this.debouncedSearch = val
+      }, 300)
+    },
+  },
+
+  beforeDestroy() {
+    clearTimeout(this.searchTimeout)
   },
 
   methods: {},
