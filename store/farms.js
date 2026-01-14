@@ -95,7 +95,7 @@ export const actions = {
     commit('setFarmPoolsWithAPR', r)
   },
 
-  async loadIncentives({ rootState, commit }) {
+  async loadIncentives({ rootState, commit, dispatch }) {
     if (!['eos', 'wax', 'proton', 'ultra'].includes(rootState.network.name)) return
 
     const incentives = await fetchAllRows(this.$rpc, {
@@ -108,6 +108,9 @@ export const actions = {
       'setIncentives',
       incentives.map((i) => formatIncentive(i))
     )
+
+    // Обновляем farmPoolsWithAPR после загрузки incentives
+    dispatch('setFarmPoolsWithAPR')
   },
 
   async stakeAction({ dispatch, rootState }, { stakes, action }) {

@@ -13,26 +13,27 @@
       Sorter(sortBy="time" :activeSort="{ key: sortKey, route: sortDirection }" @change="handleSort")
     .header-item
     .header-item
-  DynamicScroller(ref="scroller" :pageMode="true" class="recycle-scroller table-items" :minItemSize="isMobile ? 410 : 82" listTag="div" :items="sortedItems")
-    template(#default="{ item: farm, index, active }")
-      DynamicScrollerItem(
-        :item="farm"
-        :active="active"
-        :data-index="index"
-        :size-dependencies="[farm.incentives.length, farm.expanded]"
-      )
-        FarmItemNew(
-          :farm="farm"
-          :finished="finished"
-          @claimAll="claimAll"
-          @stakeAll="stakeAll"
-          @unstakeAll="unstakeAll"
-          @claim="claim"
-          @stake="stake"
-          @unstake="unstake"
-          @expandChange="handleExpandChange"
-          :expanded="farm.expanded"
-      )
+  client-only
+    DynamicScroller(ref="scroller" :pageMode="true" class="recycle-scroller table-items" :minItemSize="isMobile ? 410 : 82" listTag="div" :items="sortedItems")
+      template(#default="{ item: farm, index, active }")
+        DynamicScrollerItem(
+          :item="farm"
+          :active="active"
+          :data-index="index"
+          :size-dependencies="[farm.incentives.length, farm.expanded]"
+        )
+          FarmItemNew(
+            :farm="farm"
+            :finished="finished"
+            @claimAll="claimAll"
+            @stakeAll="stakeAll"
+            @unstakeAll="unstakeAll"
+            @claim="claim"
+            @stake="stake"
+            @unstake="unstake"
+            @expandChange="handleExpandChange"
+            :expanded="farm.expanded"
+        )
   //- .table-items
   //-   FarmItemNew(
   //-     v-for="farm in sortedItems"

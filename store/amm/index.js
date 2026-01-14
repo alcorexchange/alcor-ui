@@ -226,7 +226,7 @@ export const actions = {
 
     dispatch('setMarketsRelatedPool', {}, { root: true })
     dispatch('setAllTokens')
-    // setFarmPoolsWithAPR вызывается из fetchPoolsStats после загрузки stats
+    dispatch('farms/setFarmPoolsWithAPR', {}, { root: true })
   },
 
   setAllTokens({ state, commit, rootState }) {
