@@ -216,6 +216,11 @@ module.exports = {
     '@nuxtjs/color-mode',
     '@nuxtjs/device',
   ],
+
+  serverMiddleware: [
+    '~/serverMiddleware/redirect'
+  ],
+
   /*
    ** Build configuration
    */

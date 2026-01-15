@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Alcor Exchange - We've Moved</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="canonical" href="https://wax.alcor.exchange">
+  <meta http-equiv="refresh" content="5;url=https://wax.alcor.exchange">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #161522 0%, #1a1a2e 100%);
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 600px;
+    }
+    .logo {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 40px;
+    }
+    h1 {
+      font-size: 42px;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    .subtitle {
+      font-size: 20px;
+      color: #a0a0b0;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .new-url {
+      font-size: 24px;
+      color: #67c23a;
+      font-weight: 500;
+      margin-bottom: 40px;
+    }
+    .countdown {
+      font-size: 16px;
+      color: #888;
+      margin-bottom: 24px;
+    }
+    .countdown span {
+      color: #409eff;
+      font-weight: 600;
+      font-size: 20px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 16px 48px;
+      background: linear-gradient(135deg, #409eff 0%, #67c23a 100%);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 500;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(64, 158, 255, 0.3);
+    }
+    .info {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+    @media (max-width: 480px) {
+      h1 { font-size: 32px; }
+      .subtitle { font-size: 16px; }
+      .new-url { font-size: 18px; }
+      .logo { width: 80px; height: 80px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="/android-chrome-256x256.png" alt="Alcor Exchange" class="logo">
+    <h1>We've Moved!</h1>
+    <p class="subtitle">WAX Alcor Exchange is now at</p>
+    <p class="new-url">wax.alcor.exchange</p>
+    <p class="countdown">Redirecting in <span id="countdown">5</span> seconds...</p>
+    <a href="https://wax.alcor.exchange" class="btn" id="redirect-btn">
+      Go to WAX Alcor Exchange
+    </a>
+    <p class="info">
+      Bookmark the new URL for quick access.<br>
+      All your data and settings are preserved.
+    </p>
+  </div>
+
+  <script>
+    (function() {
+      var path = window.location.pathname;
+      var search = window.location.search;
+      var targetUrl = 'https://wax.alcor.exchange' + path + search;
+
+      document.getElementById('redirect-btn').href = targetUrl;
+
+      var seconds = 5;
+      var countdownEl = document.getElementById('countdown');
+      var interval = setInterval(function() {
+        seconds--;
+        countdownEl.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(interval);
+          window.location.href = targetUrl;
+        }
+      }, 1000);
+    })();
+  </script>
+</body>
+</html>
