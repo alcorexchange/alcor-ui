@@ -60,7 +60,7 @@ export default {
       this.show = !this.show
     },
     changeChain(to) {
-      const location = to == 'wax' ? 'https://alcor.exchange/' : `https://${to}.alcor.exchange/`
+      const location = `https://${to}.alcor.exchange/`
 
       this.loading = true
       window.location = location + window.location.pathname.split('/')[1] || ''
