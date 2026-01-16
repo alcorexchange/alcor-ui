@@ -20,6 +20,8 @@ tokens.get('/tokens/:id/logo', async (req, res) => {
   )
 
   if (existsSync(iconPath)) {
+    // Cache for 24 hours (browser + CDN)
+    res.set('Cache-Control', 'public, max-age=86400')
     res.sendFile(iconPath)
   } else {
     res.status(404).send('Icon not found')
