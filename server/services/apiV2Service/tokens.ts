@@ -1,9 +1,30 @@
 import { cacheSeconds } from 'route-cache'
 import { Router } from 'express'
+import { existsSync } from 'fs'
+import { join } from 'path'
 import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
 
 export const tokens = Router()
+
+tokens.get('/tokens/:id/logo', async (req, res) => {
+  const network: Network = req.app.get('network')
+  const id = req.params.id.toLowerCase()
+  const [symbol, contract] = id.split('-')
+
+  const iconPath = join(
+    process.cwd(),
+    'assets/tokens',
+    network.name,
+    `${symbol}_${contract}.png`
+  )
+
+  if (existsSync(iconPath)) {
+    res.sendFile(iconPath)
+  } else {
+    res.status(404).send('Icon not found')
+  }
+})
 
 tokens.get('/tokens/:id', cacheSeconds(2, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.id
