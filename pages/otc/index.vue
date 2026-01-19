@@ -137,13 +137,29 @@ export default {
     ...mapState('otc', ['orders']),
     ...mapState({
       contract: state => state.network.otc.contract,
-      divContract: state => state.network.otc.divs
+      divContract: state => state.network.otc.divs,
+      scamContracts: state => state.network.SCAM_CONTRACTS,
+      scamTokens: state => state.network.SCAM_TOKENS
     }),
+
+    nonScamOrders() {
+      return this.orders.filter(order => {
+        const buyId = `${order.buy.symbol.toLowerCase()}-${order.buy.contract}`
+        const sellId = `${order.sell.symbol.toLowerCase()}-${order.sell.contract}`
+
+        if (this.scamContracts.includes(order.buy.contract)) return false
+        if (this.scamContracts.includes(order.sell.contract)) return false
+        if (this.scamTokens.includes(buyId)) return false
+        if (this.scamTokens.includes(sellId)) return false
+
+        return true
+      })
+    },
 
     tokens() {
       const tokens = []
 
-      this.orders.map(order => {
+      this.nonScamOrders.map(order => {
         if (!tokens.includes(order.sell.str)) tokens.push(order.sell.str)
         if (!tokens.includes(order.buy.str)) tokens.push(order.buy.str)
       })
@@ -152,7 +168,7 @@ export default {
     },
 
     filteredItems() {
-      return this.orders.filter(i => {
+      return this.nonScamOrders.filter(i => {
         if (i.buy.str.toLowerCase().includes(this.search.toLowerCase()))
           return true
 
