@@ -1,5 +1,15 @@
 <template lang="pug">
 
+el-alert(
+  v-if="isPotentialScam"
+  type="error"
+  :closable="false"
+  show-icon
+).mt-3.mb-2
+  template(slot="title")
+    span {{ $t('Warning: This order may contain a scam token!') }}
+  | {{ $t('One or more tokens in this order are flagged as potentially fraudulent. Proceed with extreme caution.') }}
+
 el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
   .clearfix(slot='header')
     el-page-header(@back="goBack")
@@ -94,7 +104,32 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['user'])
+    ...mapGetters(['user']),
+
+    scamContracts() {
+      return this.$store.state.network.SCAM_CONTRACTS || []
+    },
+
+    scamTokens() {
+      return this.$store.state.network.SCAM_TOKENS || []
+    },
+
+    isPotentialScam() {
+      if (!this.order || !this.order.sell) return false
+
+      const buySymbol = this.order.buy.quantity.split(' ')[1].toLowerCase()
+      const sellSymbol = this.order.sell.quantity.split(' ')[1].toLowerCase()
+
+      const buyId = `${buySymbol}-${this.order.buy.contract}`
+      const sellId = `${sellSymbol}-${this.order.sell.contract}`
+
+      if (this.scamContracts.includes(this.order.buy.contract)) return true
+      if (this.scamContracts.includes(this.order.sell.contract)) return true
+      if (this.scamTokens.includes(buyId)) return true
+      if (this.scamTokens.includes(sellId)) return true
+
+      return false
+    }
   },
 
   methods: {
