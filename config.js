@@ -367,6 +367,7 @@ const networks = {
     name: 'wax',
     desc: 'WAX',
     contract: 'alcordexmain',
+    cpuPayer: 'https://wax.alcor.exchange/api/v2/cpu',
 
     baseToken: {
       contract: 'eosio.token',
