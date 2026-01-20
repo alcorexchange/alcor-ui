@@ -726,7 +726,8 @@ export const actions = {
       // Whitelist of contracts that CPU payer can sign (must match cpu-payer service)
       const cpuPayerWhitelist = ['alcordexmain', 'swap.alcor', 'otc.alcor', 'alcorotcswap', 'liquid.alcor']
 
-      const canUseCpuPayer = state.lastWallet !== 'wcw' && actions.every(a => {
+      // CPU payer only available on WAX
+      const canUseCpuPayer = rootState.network.name === 'wax' && state.lastWallet !== 'wcw' && actions.every(a => {
         if (cpuPayerBlacklist.includes(a.account)) return false
         if (cpuPayerWhitelist.includes(a.account)) return true
         if (a.name === 'transfer' && a.data?.to && cpuPayerWhitelist.includes(a.data.to)) return true
