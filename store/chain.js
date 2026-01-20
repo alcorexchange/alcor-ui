@@ -721,8 +721,26 @@ export const actions = {
     )
 
     try {
-      // Check if CPU payer is available BEFORE signing (skip for WCW - it has free resources)
-      const cpuPayerStatus = state.lastWallet !== 'wcw' ? await dispatch('checkCpuPayerStatus') : null
+      // Contracts that CPU payer cannot sign (system contracts, NFT, etc.)
+      const cpuPayerBlacklist = ['eosio', 'atomicassets', 'atomicmarket', 'atomictoolsx', 'simpleassets']
+      // Whitelist of contracts that CPU payer can sign (must match cpu-payer service)
+      const cpuPayerWhitelist = ['alcordexmain', 'swap.alcor', 'otc.alcor', 'alcorotcswap', 'liquid.alcor']
+
+      const canUseCpuPayer = actions.every(a => {
+        // Blacklisted contracts - never use cpu payer
+        if (cpuPayerBlacklist.includes(a.account)) return false
+        // Whitelisted contracts - ok
+        if (cpuPayerWhitelist.includes(a.account)) return true
+        // Transfers - check recipient is in whitelist
+        if (a.name === 'transfer' && a.data?.to && cpuPayerWhitelist.includes(a.data.to)) return true
+        // Unknown contract/action - don't use cpu payer
+        return false
+      })
+
+      // Check if CPU payer is available BEFORE signing (skip for WCW, unsupported actions)
+      const cpuPayerStatus = state.lastWallet !== 'wcw' && canUseCpuPayer
+        ? await dispatch('checkCpuPayerStatus')
+        : null
       const useCpuPayer = !!cpuPayerStatus
 
       let actionsToSign = actions
