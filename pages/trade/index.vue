@@ -8,8 +8,10 @@ div
     .col(v-if='scam')
       .row.mb-2
         .col
-          el-alert(type='error', show-icon)
-            .lead {{ $t('Potential SCAM token') }}!
+          el-alert(type='error', show-icon, :closable="false")
+            template(slot="title")
+              span {{ $t('Warning: This market may contain a scam token!') }}
+            | {{ $t('This token is flagged as potentially fraudulent. Proceed with extreme caution.') }}
 
     .col(v-if='$store.state.market.quote_token.str == "DMT@shmothership"')
       .row.mb-2
