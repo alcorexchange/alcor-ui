@@ -721,8 +721,8 @@ export const actions = {
     )
 
     try {
-      // Check if CPU payer is available BEFORE signing
-      const cpuPayerStatus = await dispatch('checkCpuPayerStatus')
+      // Check if CPU payer is available BEFORE signing (skip for WCW - it has free resources)
+      const cpuPayerStatus = state.lastWallet !== 'wcw' ? await dispatch('checkCpuPayerStatus') : null
       const useCpuPayer = !!cpuPayerStatus
 
       let actionsToSign = actions
