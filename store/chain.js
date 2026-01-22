@@ -721,56 +721,64 @@ export const actions = {
     )
 
     try {
-      // Check if CPU payer is available BEFORE signing (skip for WCW - it has free resources)
-      const cpuPayerStatus = state.lastWallet !== 'wcw' ? await dispatch('checkCpuPayerStatus') : null
-      const useCpuPayer = !!cpuPayerStatus
+      // Contracts that CPU payer cannot sign (system contracts, NFT, etc.)
+      const cpuPayerBlacklist = ['eosio', 'atomicassets', 'atomicmarket', 'atomictoolsx', 'simpleassets']
+      // Whitelist of contracts that CPU payer can sign (must match cpu-payer service)
+      const cpuPayerWhitelist = ['alcordexmain', 'swap.alcor', 'otc.alcor', 'alcorotcswap', 'liquid.alcor']
 
-      let actionsToSign = actions
-      if (useCpuPayer) {
-        // Prepend noop action for CPU payer
-        const noopAction = {
-          account: 'liquid.alcor',
-          name: 'noop',
-          authorization: [{ actor: 'liquid.alcor', permission: 'bw' }],
-          data: {}
-        }
-        actionsToSign = [noopAction, ...actions]
-      }
+      // CPU payer only available on WAX
+      const canUseCpuPayer = rootState.network.name === 'wax' && state.lastWallet !== 'wcw' && actions.every(a => {
+        if (cpuPayerBlacklist.includes(a.account)) return false
+        if (cpuPayerWhitelist.includes(a.account)) return true
+        if (a.name === 'transfer' && a.data?.to && cpuPayerWhitelist.includes(a.data.to)) return true
+        return false
+      })
 
-      // User signs ONCE
-      const signedTx = await state.wallet.transact(
-        { actions: actionsToSign },
-        { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
-      )
-
-      // If using CPU payer, request cosign
-      if (useCpuPayer) {
-        const serializedTx = signedTx.resolved
-          ? signedTx.resolved.serializedTransaction
-          : signedTx.serializedTransaction
-
-        const serializedHex = Array.from(
-          serializedTx instanceof Uint8Array ? serializedTx : new Uint8Array(serializedTx)
-        ).map(b => b.toString(16).padStart(2, '0')).join('')
-
-        const cosignResult = await dispatch('requestCosign', { serializedTransaction: serializedHex })
-
-        if (cosignResult && cosignResult.signature) {
-          // Combine payer signature + user signatures
-          const allSignatures = [cosignResult.signature, ...signedTx.signatures]
-
-          const packedTx = {
-            signatures: allSignatures,
-            serializedTransaction: serializedTx
+      // Try CPU payer first if eligible
+      if (canUseCpuPayer) {
+        try {
+          const noopAction = {
+            account: 'liquid.alcor',
+            name: 'noop',
+            authorization: [{ actor: 'liquid.alcor', permission: 'bw' }],
+            data: {}
           }
 
-          return await this.$rpc.send_transaction(packedTx)
+          const signedTx = await state.wallet.transact(
+            { actions: [noopAction, ...actions] },
+            { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
+          )
+
+          const serializedTx = signedTx.resolved
+            ? signedTx.resolved.serializedTransaction
+            : signedTx.serializedTransaction
+
+          const serializedHex = Array.from(
+            serializedTx instanceof Uint8Array ? serializedTx : new Uint8Array(serializedTx)
+          ).map(b => b.toString(16).padStart(2, '0')).join('')
+
+          const cosignResult = await dispatch('requestCosign', { serializedTransaction: serializedHex })
+
+          if (cosignResult && cosignResult.signature) {
+            const packedTx = {
+              signatures: [cosignResult.signature, ...signedTx.signatures],
+              serializedTransaction: serializedTx
+            }
+            return await this.$rpc.send_transaction(packedTx)
+          }
+        } catch (e) {
+          console.warn('CPU payer failed, falling back to user resources:', e.message)
         }
 
-        // Cosign failed after user already signed with noop - this tx won't work
-        // We need to throw and let user retry
-        throw new Error('CPU payer unavailable, please try again')
+        // Cosign failed - ask user to sign again without noop (fallback)
+        console.log('Falling back to regular transaction...')
       }
+
+      // Regular transaction (no CPU payer)
+      const signedTx = await state.wallet.transact(
+        { actions },
+        { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
+      )
 
       // TODO Make one standart for success tx response
       if (state.wallet.name == 'ultra') {
