@@ -82,7 +82,7 @@ spot.get('/pairs', cacheSeconds(60, (req, res) => {
   res.json(pairs)
 })
 
-function formatMarket(m, pools) {
+function formatMarket(m, pools, tokens = []) {
   const market_pools = pools.filter(p => {
     return (
       (p.tokenA.id == m.target_currency) && (p.tokenB.id == m.base_currency)
@@ -93,6 +93,9 @@ function formatMarket(m, pools) {
 
   m.target_amm_liquidity = 0
   m.base_amm_liquidity = 0
+
+  let amm_volume_usd = 0
+
   market_pools.forEach(p => {
     if (p.tokenA.id == m.target_currency && p.tokenB.id == m.base_currency) {
       m.target_amm_liquidity += p.tokenA.quantity
@@ -109,7 +112,15 @@ function formatMarket(m, pools) {
       m.base_volume += p.volumeA24
       m.target_volume += p.volumeB24
     }
+
+    amm_volume_usd += p.volumeUSD24 || 0
   })
+
+  // Calculate 24h volume in USD (use target token as it's usually the system token with reliable USD price)
+  const target_token = tokens.find(t => t.id == m.target_currency)
+  const spot_volume_usd = m.target_volume * (target_token?.usd_price || 0)
+
+  m.volumeUSD24 = spot_volume_usd + amm_volume_usd
 }
 
 // Tickers with merged volumes from pools
@@ -130,12 +141,7 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
 
   markets.forEach(m => {
     formatTicker(m, tokens, network.GLOBAL_TOKENS)
-    formatMarket(m, pools)
-
-    // FIXME If we will need volumes in USD
-    // const target_token = tokens.find(t => t.id == m.target_currency)
-    // const base_token = tokens.find(t => t.id == m.base_currency)
-    // m.volumeInUSD
+    formatMarket(m, pools, tokens)
   })
 
   res.json(markets)
@@ -155,7 +161,7 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   if (!m) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
 
   formatTicker(m, tokens, network.GLOBAL_TOKENS)
-  formatMarket(m, pools)
+  formatMarket(m, pools, tokens)
 
   res.json(m)
 })

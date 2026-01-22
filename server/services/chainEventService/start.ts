@@ -70,6 +70,9 @@ async function eventStreamer(chain: string, callback?) {
           if (transaction.status === 'executed' || chain === 'ultra') {
             for (const action of transaction.actions) {
               if (ACCOUNTS.includes(action.account) && (ACTIONS.includes(action.name) || ACTIONS.includes('*'))) {
+                const isHex = typeof action.data === 'string' && /^[0-9a-fA-F]+$/.test(action.data)
+                console.log(`[${chain}] decoding action: ${action.account}::${action.action}, isHex: ${isHex}`)
+
                 const data = await decodeActionData(
                   action.data,
                   await getCachedAbi(chain, rpc, action.account),
