@@ -50,7 +50,7 @@ export async function makeSpotBar(timeframe, match) {
       timeframe,
       chain: match.chain,
       market: match.market,
-      time: match.time,
+      time: currentBarStart,
       open: match.unit_price,
       high: match.unit_price,
       low: match.unit_price,
