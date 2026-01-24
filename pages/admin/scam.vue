@@ -11,66 +11,144 @@
     el-button(type="primary" @click="authenticate" :loading="authLoading") Login
 
   .scam-manager(v-else)
-    h1.mb-4 Scam Token Manager - {{ network.name }}
+    h1.mb-4 ☠️ Scam Hunter - {{ network.name }}
 
-    .section.mb-5
-      h3.mb-3 Scam Contracts
-      .add-form.mb-3
-        el-input(v-model="newContract" placeholder="contract name" @keyup.enter.native="addContract").mr-2
-        el-button(type="primary" @click="addContract" :loading="addingContract") Add
+    el-tabs(:value="activeTab" @tab-click="onTabClick")
+      el-tab-pane(label="UI Bans" name="ui")
+        .section.mb-5
+          h3.mb-3 Scam Contracts
+          .add-form.mb-3
+            el-input(v-model="newContract" placeholder="contract name" @keyup.enter.native="addContract").mr-2
+            el-button(type="primary" @click="addContract" :loading="addingContract") Add
 
-      el-table(:data="scamContracts" border style="width: 100%")
-        el-table-column(prop="value" label="Contract")
-        el-table-column(label="Actions" width="120")
-          template(slot-scope="scope")
-            el-button(
-              type="danger"
-              size="mini"
-              @click="removeContract(scope.row.value)"
-            ) Remove
+          el-table(:data="scamContracts" border style="width: 100%")
+            el-table-column(prop="value" label="Contract")
+            el-table-column(label="Actions" width="120")
+              template(slot-scope="scope")
+                el-button(
+                  type="danger"
+                  size="mini"
+                  @click="removeContract(scope.row.value)"
+                ) Remove
 
-    .section
-      h3.mb-3 Scam Tokens
-      .add-form.mb-3
-        el-input(v-model="newToken" placeholder="symbol-contract" @keyup.enter.native="addToken").mr-2
-        el-button(type="primary" @click="addToken" :loading="addingToken") Add
+        .section
+          h3.mb-3 Scam Tokens
+          .add-form.mb-3
+            el-input(v-model="newToken" placeholder="symbol-contract" @keyup.enter.native="addToken").mr-2
+            el-button(type="primary" @click="addToken" :loading="addingToken") Add
 
-      el-table(:data="scamTokens" border style="width: 100%")
-        el-table-column(prop="value" label="Token ID (symbol-contract)")
-        el-table-column(label="Actions" width="120")
-          template(slot-scope="scope")
-            el-button(
-              type="danger"
-              size="mini"
-              @click="removeToken(scope.row.value)"
-            ) Remove
+          el-table(:data="scamTokens" border style="width: 100%")
+            el-table-column(prop="value" label="Token ID (symbol-contract)")
+            el-table-column(label="Actions" width="120")
+              template(slot-scope="scope")
+                el-button(
+                  type="danger"
+                  size="mini"
+                  @click="removeToken(scope.row.value)"
+                ) Remove
+
+      el-tab-pane(label="Contract Bans (DEX)" name="dex")
+        .section
+          .info-text.mb-2 Accounts banned on-chain in {{ network.contract }} ({{ filteredDexBans.length }} accounts)
+          .add-form.mb-3
+            el-input(v-model="newBannedAccount" placeholder="account name" @keyup.enter.native="addBannedAccount").mr-2
+            el-button(type="primary" @click="addBannedAccount" :loading="addingBannedAccount" :disabled="!user") Ban Account
+          .warning-text.mb-3(v-if="!user") Connect wallet with contract authority to add bans
+
+          el-input.mb-3(v-model="dexSearch" placeholder="Search accounts..." prefix-icon="el-icon-search" clearable)
+
+          el-table(:data="filteredDexBans" border style="width: 100%" v-loading="loadingContractBans")
+            el-table-column(prop="value" label="Banned Account")
+            el-table-column(label="Actions" width="120")
+              template(slot-scope="scope")
+                el-button.unban-btn(
+                  size="mini"
+                  @click="removeDexBan(scope.row.value)"
+                  :disabled="!user"
+                ) Unban
+
+      el-tab-pane(label="Contract Bans (Swap)" name="swap")
+        .section
+          .info-text.mb-2 Accounts banned on-chain in {{ network.amm.contract }} ({{ filteredSwapBans.length }} accounts)
+          .add-form.mb-3
+            el-input(v-model="newSwapBannedAccount" placeholder="account name" @keyup.enter.native="addSwapBannedAccount").mr-2
+            el-button(type="primary" @click="addSwapBannedAccount" :loading="addingSwapBannedAccount" :disabled="!user") Ban Account
+          .warning-text.mb-3(v-if="!user") Connect wallet with contract authority to add bans
+
+          el-input.mb-3(v-model="swapSearch" placeholder="Search accounts..." prefix-icon="el-icon-search" clearable)
+
+          el-table(:data="filteredSwapBans" border style="width: 100%" v-loading="loadingSwapBans")
+            el-table-column(prop="value" label="Banned Account")
+            el-table-column(label="Actions" width="120")
+              template(slot-scope="scope")
+                el-button.unban-btn(
+                  size="mini"
+                  @click="removeSwapBan(scope.row.value)"
+                  :disabled="!user"
+                ) Unban
 </template>
 
 <script>
 export default {
-  layout: 'empty',
+  layout: 'admin',
 
   data() {
     return {
-      authenticated: false,
+      authenticated: process.env.NODE_ENV === 'development',
       password: '',
       authLoading: false,
       newContract: '',
       newToken: '',
+      newBannedAccount: '',
+      newSwapBannedAccount: '',
       addingContract: false,
       addingToken: false,
+      addingBannedAccount: false,
+      addingSwapBannedAccount: false,
+      loadingContractBans: false,
+      loadingSwapBans: false,
       scamContracts: [],
-      scamTokens: []
+      scamTokens: [],
+      contractBannedAccounts: [],
+      swapBannedAccounts: [],
+      dexSearch: '',
+      swapSearch: ''
     }
   },
 
   computed: {
     network() {
       return this.$store.state.network
+    },
+    user() {
+      return this.$store.state.user
+    },
+    activeTab() {
+      const tab = this.$route.query.tab
+      return ['ui', 'dex', 'swap'].includes(tab) ? tab : 'ui'
+    },
+    filteredDexBans() {
+      if (!this.dexSearch) return this.contractBannedAccounts
+      const search = this.dexSearch.toLowerCase()
+      return this.contractBannedAccounts.filter(acc => acc.value.toLowerCase().includes(search))
+    },
+    filteredSwapBans() {
+      if (!this.swapSearch) return this.swapBannedAccounts
+      const search = this.swapSearch.toLowerCase()
+      return this.swapBannedAccounts.filter(acc => acc.value.toLowerCase().includes(search))
     }
   },
 
+  mounted() {
+    this.loadContractBans()
+    this.loadSwapBans()
+  },
+
   methods: {
+    onTabClick(tab) {
+      this.$router.push({ query: { tab: tab.name } })
+    },
+
     async authenticate() {
       if (!this.password) return
 
@@ -155,6 +233,154 @@ export default {
       } catch (e) {
         this.$notify.error({ title: 'Failed to remove token' })
       }
+    },
+
+    async loadContractBans() {
+      this.loadingContractBans = true
+      try {
+        const { rows } = await this.$rpc.get_table_rows({
+          code: this.network.contract,
+          scope: this.network.contract,
+          table: 'ban',
+          limit: 1,
+          json: true
+        })
+
+        if (rows.length > 0 && rows[0].accounts) {
+          this.contractBannedAccounts = rows[0].accounts.map(acc => ({ value: acc }))
+        } else {
+          this.contractBannedAccounts = []
+        }
+      } catch (e) {
+        console.error('Failed to load contract bans:', e)
+        this.contractBannedAccounts = []
+      } finally {
+        this.loadingContractBans = false
+      }
+    },
+
+    async addBannedAccount() {
+      const account = this.newBannedAccount.trim().toLowerCase()
+      if (!account) return
+      if (!this.user) {
+        this.$notify.error({ title: 'Wallet not connected' })
+        return
+      }
+
+      this.addingBannedAccount = true
+      try {
+        const actions = [{
+          account: this.network.contract,
+          name: 'ban',
+          authorization: [{ actor: this.user.name, permission: 'active' }],
+          data: { acc: account }
+        }]
+
+        await this.$store.dispatch('chain/sendTransaction', actions)
+        this.newBannedAccount = ''
+        await this.loadContractBans()
+        this.$notify.success({ title: 'Account banned on contract' })
+      } catch (e) {
+        const message = e.message || 'Transaction failed'
+        this.$notify.error({ title: 'Failed to ban account', message })
+      } finally {
+        this.addingBannedAccount = false
+      }
+    },
+
+    async removeDexBan(account) {
+      if (!this.user) {
+        this.$notify.error({ title: 'Wallet not connected' })
+        return
+      }
+
+      try {
+        const actions = [{
+          account: this.network.contract,
+          name: 'unban',
+          authorization: [{ actor: this.user.name, permission: 'active' }],
+          data: { acc: account }
+        }]
+
+        await this.$store.dispatch('chain/sendTransaction', actions)
+        await this.loadContractBans()
+        this.$notify.success({ title: 'Account unbanned from DEX contract' })
+      } catch (e) {
+        const message = e.message || 'Transaction failed'
+        this.$notify.error({ title: 'Failed to unban account', message })
+      }
+    },
+
+    async loadSwapBans() {
+      this.loadingSwapBans = true
+      try {
+        const { rows } = await this.$rpc.get_table_rows({
+          code: this.network.amm.contract,
+          scope: this.network.amm.contract,
+          table: 'banlist',
+          limit: 1000,
+          json: true
+        })
+
+        this.swapBannedAccounts = rows.map(row => ({ value: row.account }))
+      } catch (e) {
+        console.error('Failed to load swap bans:', e)
+        this.swapBannedAccounts = []
+      } finally {
+        this.loadingSwapBans = false
+      }
+    },
+
+    async addSwapBannedAccount() {
+      const account = this.newSwapBannedAccount.trim().toLowerCase()
+      if (!account) return
+      if (!this.user) {
+        this.$notify.error({ title: 'Wallet not connected' })
+        return
+      }
+
+      this.addingSwapBannedAccount = true
+      try {
+        const actions = [{
+          account: this.network.amm.contract,
+          name: 'banacc',
+          authorization: [{ actor: this.user.name, permission: 'active' }],
+          data: { acc: account, isBan: true }
+        }]
+
+        await this.$store.dispatch('chain/sendTransaction', actions)
+        this.newSwapBannedAccount = ''
+        await this.loadSwapBans()
+        this.$notify.success({ title: 'Account banned on swap contract' })
+      } catch (e) {
+        const message = e.message || 'Transaction failed'
+        this.$notify.error({ title: 'Failed to ban account', message })
+      } finally {
+        this.addingSwapBannedAccount = false
+      }
+    },
+
+    async removeSwapBan(account) {
+      if (!this.user) {
+        this.$notify.error({ title: 'Wallet not connected' })
+        return
+      }
+
+      try {
+        const actions = [{
+          account: this.network.amm.contract,
+          name: 'banacc',
+          authorization: [{ actor: this.user.name, permission: 'active' }],
+          data: { acc: account, isBan: false }
+        }]
+
+        await this.$store.dispatch('chain/sendTransaction', actions)
+        await this.loadSwapBans()
+        this.$notify.success({ title: 'Account unbanned from swap contract' })
+      } catch (e) {
+        const message = e.message || 'Transaction failed'
+        this.$notify.error({ title: 'Failed to unban account', message })
+      }
     }
   }
 }
@@ -164,10 +390,8 @@ export default {
 .admin-scam-page {
   max-width: 800px;
   margin: 0 auto;
-  padding: 40px 20px;
-  background: var(--background-color-base);
-  min-height: 100vh;
 }
+
 
 .auth-form {
   max-width: 300px;
@@ -182,6 +406,27 @@ export default {
 
 .add-form .el-input {
   flex: 1;
+}
+
+.info-text {
+  color: #909399;
+  font-size: 13px;
+}
+
+.warning-text {
+  color: #e6a23c;
+  font-size: 13px;
+}
+
+.unban-btn {
+  background: transparent !important;
+  border-color: #606266 !important;
+  color: #909399 !important;
+}
+
+.unban-btn:hover {
+  border-color: #909399 !important;
+  color: #c0c4cc !important;
 }
 </style>
 
