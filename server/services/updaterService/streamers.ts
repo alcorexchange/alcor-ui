@@ -436,27 +436,25 @@ export async function streamByTrace(network: any, account: string, callback: Fun
 
       // Check if block not found
       if (passErrors.some((err) => errorMessage.includes(err))) {
-        // Check if we're ahead of head (block doesn't exist yet) or behind (node doesn't have old blocks)
         try {
           const info = await rpc.get_info()
           const headBlock = info.head_block_num
+          const blocksFromHead = headBlock - currentBlock
 
-          if (currentBlock > headBlock) {
-            // We're ahead - block doesn't exist yet, wait
-            averageBlockTime = averageBlockTime * 1.1
-            await sleep(100)
+          if (blocksFromHead < 100) {
+            // Near head - just retry immediately, block will appear
+            await sleep(50)
             continue
           } else {
-            // We're behind - node doesn't have this old block, switch
-            console.log(`[${network.name}] ${currentUrl} missing block ${currentBlock}`)
+            // Far behind head but block missing - node has gaps, switch
+            console.log(`[${network.name}] ${currentUrl} missing block ${currentBlock} (${blocksFromHead} behind head)`)
             failoverManager.markFailed()
-            await sleep(100)
             continue
           }
         } catch (infoError: any) {
           console.log(`[${network.name}] ${currentUrl} error: ${infoError.message}`)
           failoverManager.markFailed()
-          await sleep(1000)
+          await sleep(500)
           continue
         }
       }

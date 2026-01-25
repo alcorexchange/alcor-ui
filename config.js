@@ -174,19 +174,22 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      'https://proton-api.alcor.exchange': 'Alcor Proton node',
+      'https://proton-api.alcor.exchange': 'Alcor',
       'https://proton.eosusa.io': 'EOS USA',
-
-      //'https://nodeproton.alcor.exchange': 'Alcor Proton node',
       'https://proton.greymass.com': 'Greymass',
       'https://proton.pink.gg': 'Pink GG',
       'https://proton.eu.eosamsterdam.net': 'EOS Amsterdam',
       'https://api.protonnz.com': 'Protonnz',
       'https://proton.eoscafeblock.com': 'EOS Cafe',
       'https://proton.protonuk.io': 'Protonuk',
-      'https://api.proton.eossweden.org': 'EOS Sweden',
-      'https://proton.genereos.io': 'Generos',
-      'https://api.eostribe.io': 'EOS Tribe',
+      'https://proton.genereos.io': 'Genereos',
+      'https://proton.cryptolions.io': 'Crypto Lions',
+      'https://proton.edenia.cloud': 'Edenia',
+      'https://xpr.eosdublin.io': 'EOS Dublin',
+      'https://proton.eoseoul.io': 'EOS Seoul',
+      'https://api.protonmt.com': 'Proton MT',
+      'https://mainnet.brotonbp.com': 'Broton BP',
+      'https://api.proton.bountyblok.io': 'Bountyblok',
     },
 
     otc: {
@@ -558,9 +561,16 @@ const networks = {
     backEnd: 'https://alcor.exchange/api/',
 
     client_nodes: {
-      'https://telos-api.alcor.exchange': 'Alcor - Finland',
-      'https://telos.greymass.com': 'Greymass - Canada',
-      //'https://telos-api-1.alcor.exchange': 'Alcor - Finland',
+      'https://telos-api.alcor.exchange': 'Alcor',
+      'https://telos.greymass.com': 'Greymass',
+      'https://mainnet.telos.net': 'Telos Net',
+      'https://telos.eosusa.io': 'EOS USA',
+      'https://telos.caleos.io': 'Caleos',
+      'https://telos.eosphere.io': 'EOSphere',
+      'https://telos.eu.eosamsterdam.net': 'EOS Amsterdam',
+      'https://api.telos.kitchen': 'Telos Kitchen',
+      'https://telos.eosrio.io': 'EOS Rio',
+      'https://telos.cryptolions.io': 'Crypto Lions',
     },
 
     otc: {
