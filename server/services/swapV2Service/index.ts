@@ -4,18 +4,234 @@ import { isEqual, throttle } from 'lodash'
 
 import { Price, Q128, Pool } from '@alcorexchange/alcor-swap-sdk'
 import { parseAssetPlain, littleEndianToDesimalString } from '../../../utils'
-import { SwapPool, Position, PositionHistory, Swap, SwapChartPoint } from '../../models'
+import { SwapPool, Position, PositionHistory, Swap, SwapChartPoint, SwapBar } from '../../models'
 import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
-import { makeSwapBars } from '../updaterService/charts'
+import { makeSwapBars, resolutions, getBarTimes } from '../updaterService/charts'
 import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
 import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, getTokens, initRedis, mongoConnect } from './../../utils'
 import { getRedis, getPublisher } from '../redis'
 
 // Used to wait for pool creation and fetching prices
 let poolCreationLock = null
+
+// Batching state per chain
+type SwapBatchItem = {
+  chain: string
+  trx_id: string
+  data: any
+  block_time: string
+  block_num: number
+}
+
+type SwapBatch = {
+  block_num: number
+  block_time: string
+  swaps: SwapBatchItem[]
+}
+
+const chainBatches: Map<string, SwapBatch> = new Map()
+
+// Flush all pending batches (for graceful shutdown)
+export async function flushAllSwapBatches() {
+  for (const [chain, batch] of chainBatches) {
+    if (batch.swaps.length > 0) {
+      console.log(`[FLUSH] Flushing pending batch for ${chain} block ${batch.block_num}`)
+      await flushSwapBatch(chain, batch)
+    }
+  }
+  chainBatches.clear()
+}
+
+// Flush swap batch - process all swaps for a block at once
+async function flushSwapBatch(chain: string, batch: SwapBatch) {
+  if (batch.swaps.length === 0) return
+
+  const t0 = Date.now()
+
+  // 1. Collect unique pool IDs (ensure numbers)
+  const uniquePoolIds = [...new Set(batch.swaps.map(s => Number(s.data.poolId)))]
+
+  // 2. Fetch all pools at once
+  const pools = await SwapPool.find({ chain, id: { $in: uniquePoolIds } }).lean()
+  const poolsMap = new Map(pools.map((p: any) => [Number(p.id), p]))
+
+  if (pools.length === 0) {
+    console.log(`[BATCH WARNING] No pools found for IDs: ${uniquePoolIds.slice(0, 5).join(', ')}...`)
+  }
+
+  // 3. Get all tokens (already cached in redis by getTokens)
+  const tokenCache: any[] = await getTokens(chain)
+  const tokensMap = new Map<string, any>(tokenCache.map(t => [t.id, t]))
+
+  // Group swaps by pool for OHLC aggregation
+  const poolSwaps = new Map<number, SwapBatchItem[]>()
+  const swapDocs: any[] = []
+
+  for (const s of batch.swaps) {
+    const { data, trx_id, block_time, block_num } = s
+    const { poolId, recipient, sender, sqrtPriceX64 } = data
+
+    const tokenAamount = parseFloat(data.tokenA)
+    const tokenBamount = parseFloat(data.tokenB)
+
+    if (tokenAamount === 0 && tokenBamount === 0) continue
+
+    const pool = poolsMap.get(Number(poolId))
+    if (!pool) continue
+
+    const tokenA = tokensMap.get(pool.tokenA.id)
+    const tokenB = tokensMap.get(pool.tokenB.id)
+
+    const tokenAUSDPrice = tokenA?.usd_price || 0
+    const tokenBUSDPrice = tokenB?.usd_price || 0
+
+    const totalUSDVolume = (Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)) / 2
+
+    const swapDoc = {
+      chain,
+      pool: Number(poolId),
+      recipient,
+      trx_id,
+      sender,
+      sqrtPriceX64: littleEndianToDesimalString(sqrtPriceX64),
+      totalUSDVolume,
+      tokenA: tokenAamount,
+      tokenB: tokenBamount,
+      time: block_time,
+      block_num,
+    }
+
+    swapDocs.push(swapDoc)
+
+    // Group for OHLC
+    const numPoolId = Number(poolId)
+    if (!poolSwaps.has(numPoolId)) {
+      poolSwaps.set(numPoolId, [])
+    }
+    poolSwaps.get(numPoolId)!.push(s)
+  }
+
+  const t1 = Date.now()
+
+  // 1. Bulk insert all swap documents
+  if (swapDocs.length > 0) {
+    await Swap.insertMany(swapDocs, { ordered: true })
+  }
+
+  const t2 = Date.now()
+
+  // 2. Update OHLC bars per pool (aggregated)
+  for (const [poolId, swaps] of poolSwaps) {
+    await updateSwapBarsForPool(chain, poolId, swaps, swapDocs.filter(d => d.pool === poolId))
+  }
+
+  const t3 = Date.now()
+
+  // 3. Update pool chart with last swap data per pool
+  for (const [poolId, swaps] of poolSwaps) {
+    const lastSwap = swaps[swaps.length - 1]
+    const { data, block_time } = lastSwap
+
+    await handlePoolChart(
+      chain,
+      poolId,
+      block_time,
+      littleEndianToDesimalString(data.sqrtPriceX64),
+      parseAssetPlain(data.reserveA).amount,
+      parseAssetPlain(data.reserveB).amount,
+      // Sum volumes for the pool in this block
+      swaps.reduce((sum, s) => sum + Math.abs(parseAssetPlain(s.data.tokenA).amount), 0),
+      swaps.reduce((sum, s) => sum + Math.abs(parseAssetPlain(s.data.tokenB).amount), 0)
+    )
+  }
+
+  const t4 = Date.now()
+
+  // Publish events
+  for (const s of batch.swaps) {
+    const message = JSON.stringify({
+      chain,
+      name: 'logswap',
+      trx_id: s.trx_id,
+      block_time: s.block_time,
+      block_num: s.block_num,
+      data: s.data
+    })
+    const account = networks[chain].amm.contract
+    getPublisher().publish(`chainAction:${chain}:${account}:logswap`, message)
+  }
+
+  const total = t4 - t0
+  // Only log if slow (>500ms) or every 10th block for progress
+  if (total > 500 || batch.block_num % 10 === 0) {
+    console.log(`[${chain}:swap] #${batch.block_num} ${batch.swaps.length} swaps ${total}ms`)
+  }
+}
+
+// Update OHLC bars for a pool with aggregated data from batch
+async function updateSwapBarsForPool(chain: string, poolId: number, swaps: SwapBatchItem[], swapDocs: any[]) {
+  if (swapDocs.length === 0) return
+
+  // Calculate aggregated OHLC values
+  const prices = swapDocs.map(d => d.sqrtPriceX64)
+  const openPrice = prices[0]
+  const closePrice = prices[prices.length - 1]
+  const highPrice = prices.reduce((max, p) => BigInt(p) > BigInt(max) ? p : max, prices[0])
+  const lowPrice = prices.reduce((min, p) => BigInt(p) < BigInt(min) ? p : min, prices[0])
+
+  const totalVolumeA = swapDocs.reduce((sum, d) => sum + Math.abs(d.tokenA), 0)
+  const totalVolumeB = swapDocs.reduce((sum, d) => sum + Math.abs(d.tokenB), 0)
+  const totalVolumeUSD = swapDocs.reduce((sum, d) => sum + d.totalUSDVolume, 0)
+
+  const swapTime = new Date(swaps[0].block_time)
+
+  // Update all timeframes
+  const timeframes = Object.keys(resolutions)
+
+  await Promise.all(timeframes.map(async (timeframe) => {
+    const frame = resolutions[timeframe]
+    const { currentBarStart, nextBarStart } = getBarTimes(swapTime, frame)
+
+    const bar = await SwapBar.findOne({
+      chain,
+      pool: poolId,
+      timeframe,
+      time: { $gte: currentBarStart, $lt: nextBarStart }
+    })
+
+    if (!bar) {
+      await SwapBar.create({
+        timeframe,
+        chain,
+        pool: poolId,
+        time: currentBarStart,
+        open: openPrice,
+        high: highPrice,
+        low: lowPrice,
+        close: closePrice,
+        volumeA: totalVolumeA,
+        volumeB: totalVolumeB,
+        volumeUSD: totalVolumeUSD,
+      })
+    } else {
+      // Update existing bar
+      if (BigInt(bar.high) < BigInt(highPrice)) {
+        bar.high = highPrice
+      }
+      if (BigInt(bar.low) > BigInt(lowPrice)) {
+        bar.low = lowPrice
+      }
+      bar.close = closePrice
+      bar.volumeA += totalVolumeA
+      bar.volumeB += totalVolumeB
+      bar.volumeUSD += totalVolumeUSD
+      await bar.save()
+    }
+  }))
+}
 
 type Tick = {
   id: number,
@@ -408,7 +624,6 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
 }
 
 export async function handleSwap({ chain, data, trx_id, block_time, block_num }) {
-  console.log('handleSwap', chain, block_time)
   const { poolId, recipient, sender, sqrtPriceX64 } = data
 
   const tokenAamount = parseFloat(data.tokenA)
@@ -446,6 +661,13 @@ export async function onSwapAction(message: string) {
 
   const { chain, name, trx_id, block_time, block_num, data } = JSON.parse(message)
 
+  // Flush pending swap batch if block changed (for any action type)
+  const existingBatch = chainBatches.get(chain)
+  if (existingBatch && existingBatch.block_num !== block_num) {
+    await flushSwapBatch(chain, existingBatch)
+    chainBatches.delete(chain)
+  }
+
   if (name == 'logpool') {
     await throttledPoolUpdate(chain, data.poolId)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
@@ -470,22 +692,18 @@ export async function onSwapAction(message: string) {
   }
 
   if (name == 'logswap') {
-    const swap = await handleSwap({ chain, trx_id, data, block_time, block_num })
-    await makeSwapBars(swap)
+    // Get or create batch for current block (flush already happened above if needed)
+    let batch = chainBatches.get(chain)
+    if (!batch) {
+      batch = { block_num, block_time, swaps: [] }
+      chainBatches.set(chain, batch)
+    }
 
-    handlePoolChart(
-      chain,
-      data.poolId,
-      block_time,
-      littleEndianToDesimalString(data.sqrtPriceX64),
-      parseAssetPlain(data.reserveA).amount,
-      parseAssetPlain(data.reserveB).amount,
+    // Add swap to batch
+    batch.swaps.push({ chain, trx_id, data, block_time, block_num })
 
-      // Providing volume, that only available in swap action
-      // (should be positive for both values)
-      Math.abs(parseAssetPlain(data.tokenA).amount),
-      Math.abs(parseAssetPlain(data.tokenB).amount)
-    )
+    // Don't process immediately - will be flushed on next block
+    return
   }
 
   if (name == 'logmint') {

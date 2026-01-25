@@ -12,7 +12,7 @@ export const resolutions = {
   '1M': 60 * 60 * 24 * 30
 }
 
-function getBarTimes(matchTime, resolutionInSeconds) {
+export function getBarTimes(matchTime, resolutionInSeconds) {
   const resolutionMilliseconds = resolutionInSeconds * 1000 // Преобразование секунд в миллисекунды
   const matchTimeMilliseconds = matchTime.getTime() // Получаем время сделки в миллисекундах
   const barStartTime = Math.floor(matchTimeMilliseconds / resolutionMilliseconds) * resolutionMilliseconds

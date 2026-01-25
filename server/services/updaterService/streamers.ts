@@ -10,18 +10,49 @@ function getAccountAsKey(account: string) {
   return account.replace('.', '-')
 }
 
+// Get all public nodes for a network (no direct nodes - they may not have full API)
+function getPublicNodes(network: any): string[] {
+  return [
+    `${network.protocol}://${network.host}:${network.port}`,
+    ...Object.keys(network.client_nodes)
+  ]
+}
+
+// Try an async operation across all nodes until one succeeds
+async function tryAllNodes<T>(
+  network: any,
+  operation: (rpc: any, nodeUrl: string) => Promise<T>,
+  operationName: string
+): Promise<T> {
+  const nodes = getPublicNodes(network)
+
+  for (const nodeUrl of nodes) {
+    try {
+      const rpc = new JsonRpc(nodeUrl, { fetch })
+      return await operation(rpc, nodeUrl)
+    } catch (e: any) {
+      console.log(`[${network.name}] ${operationName} failed from ${nodeUrl}: ${e.message}`)
+    }
+  }
+
+  throw new Error(`[${network.name}] ${operationName} failed on all nodes`)
+}
+
 // ABI Cache - invalidate only on decode failure
 const abiCache: Map<string, any> = new Map()
 
-async function getCachedAbi(rpc: any, chain: string, account: string): Promise<any> {
-  const key = `${chain}:${account}`
+async function getCachedAbi(network: any, account: string): Promise<any> {
+  const key = `${network.name}:${account}`
 
   if (abiCache.has(key)) {
     return abiCache.get(key)
   }
 
-  console.log(`[${chain}] Fetching ABI for ${account}`)
-  const abi = await rpc.getRawAbi(account)
+  const abi = await tryAllNodes(network, async (rpc, nodeUrl) => {
+    console.log(`[${network.name}] Fetching ABI for ${account} from ${nodeUrl}`)
+    return await rpc.getRawAbi(account)
+  }, `ABI fetch for ${account}`)
+
   abiCache.set(key, abi)
   return abi
 }
@@ -297,9 +328,9 @@ export async function streamByTrace(network: any, account: string, callback: Fun
     try {
       const block = await rpc.get_trace_block(currentBlock)
 
-      // Log progress every 10 blocks
-      if (currentBlock % 10 === 0) {
-        console.log(`[trace:${network.name}:${account}] block ${currentBlock} via ${failoverManager.getCurrentNodeUrl()}`)
+      // Log progress every 100 blocks
+      if (currentBlock % 100 === 0) {
+        console.log(`[${network.name}:${account}] block ${currentBlock}`)
       }
 
       if (block && block.transactions) {
@@ -317,7 +348,7 @@ export async function streamByTrace(network: any, account: string, callback: Fun
 
                 while (abiRetries < MAX_ABI_RETRIES) {
                   try {
-                    const abi = await getCachedAbi(rpc, network.name, action.account)
+                    const abi = await getCachedAbi(network, action.account)
                     data = await decodeActionData(action.data, abi, actionName)
                     break
                   } catch (e: any) {
