@@ -150,6 +150,9 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
 
   const t4 = Date.now()
 
+  const total = t4 - t0
+  const account = networks[chain].amm.contract
+
   // Publish events
   for (const s of batch.swaps) {
     const message = JSON.stringify({
@@ -160,14 +163,12 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
       block_num: s.block_num,
       data: s.data
     })
-    const account = networks[chain].amm.contract
     getPublisher().publish(`chainAction:${chain}:${account}:logswap`, message)
   }
 
-  const total = t4 - t0
   // Only log if slow (>500ms) or every 10th block for progress
   if (total > 500 || batch.block_num % 10 === 0) {
-    console.log(`[${chain}:swap] #${batch.block_num} ${batch.swaps.length} swaps ${total}ms`)
+    console.log(`[${chain}:${account}] #${batch.block_num} ${batch.swaps.length} swaps ${total}ms`)
   }
 }
 

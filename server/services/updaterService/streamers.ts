@@ -330,7 +330,7 @@ export async function streamByTrace(network: any, account: string, callback: Fun
 
       // Log progress every 100 blocks
       if (currentBlock % 100 === 0) {
-        console.log(`[${network.name}:${account}] block ${currentBlock}`)
+        console.log(`[${network.name}:${account}] #${currentBlock} via ${failoverManager.getCurrentNodeUrl()}`)
       }
 
       if (block && block.transactions) {
