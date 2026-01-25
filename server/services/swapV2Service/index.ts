@@ -123,30 +123,29 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
 
   const t2 = Date.now()
 
-  // 2. Update OHLC bars per pool (aggregated)
-  for (const [poolId, swaps] of poolSwaps) {
-    await updateSwapBarsForPool(chain, poolId, swaps, swapDocs.filter(d => d.pool === poolId))
-  }
+  // 2. Update OHLC bars per pool (aggregated) - parallel
+  await Promise.all([...poolSwaps.entries()].map(([poolId, swaps]) =>
+    updateSwapBarsForPool(chain, poolId, swaps, swapDocs.filter(d => d.pool === poolId))
+  ))
 
   const t3 = Date.now()
 
-  // 3. Update pool chart with last swap data per pool
-  for (const [poolId, swaps] of poolSwaps) {
+  // 3. Update pool chart with last swap data per pool - parallel
+  await Promise.all([...poolSwaps.entries()].map(([poolId, swaps]) => {
     const lastSwap = swaps[swaps.length - 1]
     const { data, block_time } = lastSwap
 
-    await handlePoolChart(
+    return handlePoolChart(
       chain,
       poolId,
       block_time,
       littleEndianToDesimalString(data.sqrtPriceX64),
       parseAssetPlain(data.reserveA).amount,
       parseAssetPlain(data.reserveB).amount,
-      // Sum volumes for the pool in this block
       swaps.reduce((sum, s) => sum + Math.abs(parseAssetPlain(s.data.tokenA).amount), 0),
       swaps.reduce((sum, s) => sum + Math.abs(parseAssetPlain(s.data.tokenB).amount), 0)
     )
-  }
+  }))
 
   const t4 = Date.now()
 
@@ -188,50 +187,78 @@ async function updateSwapBarsForPool(chain: string, poolId: number, swaps: SwapB
   const totalVolumeUSD = swapDocs.reduce((sum, d) => sum + d.totalUSDVolume, 0)
 
   const swapTime = new Date(swaps[0].block_time)
-
-  // Update all timeframes
   const timeframes = Object.keys(resolutions)
 
-  await Promise.all(timeframes.map(async (timeframe) => {
+  // Build bar times for all timeframes
+  const barQueries = timeframes.map(timeframe => {
     const frame = resolutions[timeframe]
     const { currentBarStart, nextBarStart } = getBarTimes(swapTime, frame)
+    return { timeframe, currentBarStart, nextBarStart }
+  })
 
-    const bar = await SwapBar.findOne({
-      chain,
-      pool: poolId,
-      timeframe,
-      time: { $gte: currentBarStart, $lt: nextBarStart }
-    })
+  // Single query to get all existing bars
+  const existingBars = await SwapBar.find({
+    chain,
+    pool: poolId,
+    $or: barQueries.map(q => ({
+      timeframe: q.timeframe,
+      time: { $gte: q.currentBarStart, $lt: q.nextBarStart }
+    }))
+  }).lean()
 
-    if (!bar) {
-      await SwapBar.create({
-        timeframe,
-        chain,
-        pool: poolId,
-        time: currentBarStart,
-        open: openPrice,
-        high: highPrice,
-        low: lowPrice,
-        close: closePrice,
-        volumeA: totalVolumeA,
-        volumeB: totalVolumeB,
-        volumeUSD: totalVolumeUSD,
-      })
+  const existingBarsMap = new Map(existingBars.map((b: any) => [b.timeframe, b]))
+
+  // Build bulk operations
+  const bulkOps = barQueries.map(({ timeframe, currentBarStart }) => {
+    const existingBar = existingBarsMap.get(timeframe)
+
+    if (!existingBar) {
+      // Insert new bar
+      return {
+        insertOne: {
+          document: {
+            timeframe,
+            chain,
+            pool: poolId,
+            time: currentBarStart,
+            open: openPrice,
+            high: highPrice,
+            low: lowPrice,
+            close: closePrice,
+            volumeA: totalVolumeA,
+            volumeB: totalVolumeB,
+            volumeUSD: totalVolumeUSD,
+          }
+        }
+      }
     } else {
-      // Update existing bar
-      if (BigInt(bar.high) < BigInt(highPrice)) {
-        bar.high = highPrice
+      // Update existing bar with BigInt comparison for high/low
+      const newHigh = BigInt(existingBar.high) < BigInt(highPrice) ? highPrice : existingBar.high
+      const newLow = BigInt(existingBar.low) > BigInt(lowPrice) ? lowPrice : existingBar.low
+
+      return {
+        updateOne: {
+          filter: { _id: existingBar._id },
+          update: {
+            $set: {
+              high: newHigh,
+              low: newLow,
+              close: closePrice,
+            },
+            $inc: {
+              volumeA: totalVolumeA,
+              volumeB: totalVolumeB,
+              volumeUSD: totalVolumeUSD,
+            }
+          }
+        }
       }
-      if (BigInt(bar.low) > BigInt(lowPrice)) {
-        bar.low = lowPrice
-      }
-      bar.close = closePrice
-      bar.volumeA += totalVolumeA
-      bar.volumeB += totalVolumeB
-      bar.volumeUSD += totalVolumeUSD
-      await bar.save()
     }
-  }))
+  })
+
+  if (bulkOps.length > 0) {
+    await SwapBar.bulkWrite(bulkOps, { ordered: false })
+  }
 }
 
 type Tick = {
