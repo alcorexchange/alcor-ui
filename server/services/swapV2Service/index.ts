@@ -749,16 +749,17 @@ export async function onSwapAction(message: string) {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
   }
 
-  if (['logpool', 'logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
+  // Only publish realtime events (skip during catch-up to avoid flooding swap-service)
+  const eventAge = Date.now() - new Date(block_time).getTime()
+  const isRealtime = eventAge < 5 * 60 * 1000 // 5 minutes
+
+  if (isRealtime && ['logpool', 'logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
     const account = networks[chain].amm.contract
     getPublisher().publish(`chainAction:${chain}:${account}:${name}`, message)
-
-    // Might not enough because we stop propoting events when
-    // await throttledPoolUpdate(chain, Number(data.poolId))
   }
 
-  // Send push to update user position
-  if (['logmint', 'logburn', 'logcollect'].includes(name)) {
+  // Send push to update user position (only realtime)
+  if (isRealtime && ['logmint', 'logburn', 'logcollect'].includes(name)) {
     const { posId, owner } = data
     const push = { chain, account: owner, positions: [posId] }
 

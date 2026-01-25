@@ -19,15 +19,12 @@ export async function main() {
   // if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
 
     if (['logmint', 'logburn', 'logswap', 'logcollect', 'transferpos', 'logpool'].includes(name)) {
-      console.log('subscribe pool update', { chain, name, poolId: data.poolId })
       throttledPoolUpdate(chain, Number(data.poolId))
     }
 
     if (['logmint', 'logburn', 'logcollect'].includes(name)) {
       const { posId, owner } = data
       const push = { chain, account: owner, positions: [posId] }
-      console.log('subscribe posigions update', push)
-
       getPublisher().publish('account:update-positions', JSON.stringify(push))
     }
   })
