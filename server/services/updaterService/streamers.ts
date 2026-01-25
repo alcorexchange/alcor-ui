@@ -212,37 +212,44 @@ async function getStartingBlock(network: any, account: string, rpc: any): Promis
     return savedBlockNum
   }
 
-  // 2. For orderbook contract - get from Match model
+  // 2. For orderbook contract - get from Match model (use time index, not block_num)
   if (account === network.contract) {
-    const lastMatch: any = await Match.findOne({ chain: network.name }).sort({ block_num: -1 }).select('block_num').lean()
+    console.log(`[${network.name}:${account}] Querying Match model by time...`)
+    const lastMatch: any = await Match.findOne({ chain: network.name })
+      .sort({ time: -1 })
+      .select('block_num trx_id')
+      .lean()
+
     if (lastMatch?.block_num && lastMatch.block_num > 0) {
       console.log(`[${network.name}:${account}] Starting from block ${lastMatch.block_num} (last Match)`)
       return lastMatch.block_num
     }
+
+    // Fallback: resolve block_num via trx_id
+    if (lastMatch?.trx_id) {
+      console.log(`[${network.name}:${account}] Resolving block_num via trx_id...`)
+      const blockNum = await getBlockNumByTrxId(network, lastMatch.trx_id)
+      if (blockNum && blockNum > 0) {
+        console.log(`[${network.name}:${account}] Starting from block ${blockNum} (from trx_id)`)
+        return blockNum
+      }
+    }
   }
 
-  // 3. For AMM contract - get from Swap model
+  // 3. For AMM contract - get from Swap model (use time index)
   if (account === network.amm?.contract) {
-    // First try to find swap with block_num
-    const lastSwapWithBlock: any = await Swap.findOne({
-      chain: network.name,
-      block_num: { $exists: true, $ne: null, $gt: 0 }
-    })
-      .sort({ block_num: -1 })
-      .select('block_num')
-      .lean()
-
-    if (lastSwapWithBlock?.block_num && lastSwapWithBlock.block_num > 0) {
-      console.log(`[${network.name}:${account}] Starting from block ${lastSwapWithBlock.block_num} (last Swap)`)
-      return lastSwapWithBlock.block_num
-    }
-
-    // Fallback: get last swap by time and fetch block_num via trx_id
+    console.log(`[${network.name}:${account}] Querying Swap model by time...`)
     const lastSwap: any = await Swap.findOne({ chain: network.name })
       .sort({ time: -1 })
-      .select('trx_id')
+      .select('block_num trx_id')
       .lean()
 
+    if (lastSwap?.block_num && lastSwap.block_num > 0) {
+      console.log(`[${network.name}:${account}] Starting from block ${lastSwap.block_num} (last Swap)`)
+      return lastSwap.block_num
+    }
+
+    // Fallback: resolve block_num via trx_id
     if (lastSwap?.trx_id) {
       console.log(`[${network.name}:${account}] Resolving block_num via trx_id...`)
       const blockNum = await getBlockNumByTrxId(network, lastSwap.trx_id)
