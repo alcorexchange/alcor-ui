@@ -749,6 +749,14 @@ export async function onSwapAction(message: string) {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
   }
 
+  // Update pool directly for position changes (don't rely on swap-service)
+  // Fire and forget - don't block updater
+  if (['logmint', 'logburn', 'logcollect'].includes(name)) {
+    throttledPoolUpdate(chain, Number(data.poolId)).catch(e =>
+      console.error(`[${chain}] pool update error:`, e.message)
+    )
+  }
+
   // Only publish realtime events (skip during catch-up to avoid flooding swap-service)
   const eventAge = Date.now() - new Date(block_time).getTime()
   const isRealtime = eventAge < 5 * 60 * 1000 // 5 minutes
