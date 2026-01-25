@@ -397,11 +397,71 @@ async function updatePositions(chain: string, poolId: number) {
   // Mapping pool id to position
   positions.forEach(p => p.pool = poolId)
 
-  const current = JSON.parse(await getRedis().get(`positions_${chain}`) || '[]')
-  const keep = current.filter(p => p.pool != poolId)
+  // Store positions per pool (not all in one giant key)
+  await getRedis().set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
+}
 
-  const to_set = [...keep, ...positions]
-  await getRedis().set(`positions_${chain}`, JSON.stringify(to_set))
+// Initialize all positions for a chain (run once on startup or after deploy)
+export async function initializeAllPositions(chain: string) {
+  const network = networks[chain]
+  const rpc = getFailOverAlcorOnlyRpc(network)
+  const redis = getRedis()
+
+  const pools = await SwapPool.find({ chain }).select('id').lean()
+  const poolIds = pools.map((p: any) => p.id)
+
+  console.log(`[${chain}] initializing positions for ${poolIds.length} pools...`)
+
+  let totalPositions = 0
+  const batchSize = 10
+
+  for (let i = 0; i < poolIds.length; i += batchSize) {
+    const batch = poolIds.slice(i, i + batchSize)
+
+    await Promise.all(batch.map(async (poolId) => {
+      try {
+        const positions = await fetchAllRows(rpc, {
+          code: network.amm.contract,
+          scope: poolId,
+          table: 'positions'
+        })
+
+        positions.forEach(p => p.pool = poolId)
+        await redis.set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
+        totalPositions += positions.length
+      } catch (e) {
+        console.error(`[${chain}] failed to init positions for pool ${poolId}:`, e.message)
+      }
+    }))
+  }
+
+  console.log(`[${chain}] initialized ${totalPositions} positions`)
+  return totalPositions
+}
+
+// Aggregate all per-pool positions into one key for API reads
+// Called periodically to keep the aggregated data fresh
+export async function aggregatePositions(chain: string) {
+  const redis = getRedis()
+
+  // Get all pool IDs from MongoDB
+  const pools = await SwapPool.find({ chain }).select('id').lean()
+  const poolIds = pools.map((p: any) => p.id)
+
+  // Fetch positions from all pools in parallel
+  const positionPromises = poolIds.map(async (poolId) => {
+    const data = await redis.get(`positions_${chain}_${poolId}`)
+    return data ? JSON.parse(data) : []
+  })
+
+  const allPositionsArrays = await Promise.all(positionPromises)
+  const allPositions = allPositionsArrays.flat()
+
+  // Store aggregated positions in the old format for API compatibility
+  await redis.set(`positions_${chain}`, JSON.stringify(allPositions))
+
+  console.log(`[${chain}] aggregated ${allPositions.length} positions from ${poolIds.length} pools`)
+  return allPositions.length
 }
 
 export async function updatePool(chain: string, poolId: number) {
@@ -423,10 +483,9 @@ export async function updatePool(chain: string, poolId: number) {
   const push = JSON.stringify({ chain, poolId, update: [pool] })
   getPublisher().publish('swap:pool:update', push)
 
-  await Promise.all([
-    updateTicks(chain, poolId),
-    updatePositions(chain, poolId)
-  ])
+  // Note: updatePositions is only called for position-related events (mint/burn/collect)
+  // Not on every pool update to avoid OOM during catch-up
+  await updateTicks(chain, poolId)
 
   // updateTicks(chain, poolId)
   // updatePositions(chain, poolId)
@@ -743,11 +802,16 @@ export async function onSwapAction(message: string) {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
   }
 
-  // Update pool directly for position changes (don't rely on swap-service)
+  // Update pool and positions for position changes
   // Fire and forget - don't block updater
   if (['logmint', 'logburn', 'logcollect'].includes(name)) {
-    throttledPoolUpdate(chain, Number(data.poolId)).catch(e =>
+    const poolId = Number(data.poolId)
+    throttledPoolUpdate(chain, poolId).catch(e =>
       console.error(`[${chain}] pool update error:`, e.message)
+    )
+    // Update positions for this pool (stores per-pool to avoid OOM)
+    updatePositions(chain, poolId).catch(e =>
+      console.error(`[${chain}] position update error:`, e.message)
     )
   }
 

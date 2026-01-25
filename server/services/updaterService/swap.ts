@@ -1,5 +1,5 @@
 import { SwapPool, Swap } from '../../models'
-import { onSwapAction } from '../swapV2Service'
+import { onSwapAction, aggregatePositions } from '../swapV2Service'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
@@ -52,6 +52,15 @@ export async function getChangeFrom(date, pool, chain) {
     return (Number(change) / 100).toFixed(2)
   } else {
     return 0
+  }
+}
+
+// Aggregate positions from per-pool storage into one key for API reads
+export async function updatePositionsAggregation(chain: string) {
+  try {
+    await aggregatePositions(chain)
+  } catch (error) {
+    console.error(`[${chain}] positions aggregation error:`, error)
   }
 }
 
