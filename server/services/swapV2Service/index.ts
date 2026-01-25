@@ -735,14 +735,17 @@ export async function onSwapAction(message: string) {
   }
 
   if (name == 'logmint') {
+    console.log(`[${chain}] mint pos #${data.posId} owner:${data.owner} pool:${data.poolId}`)
     await saveMintOrBurn({ chain, trx_id, data, type: 'mint', block_time })
   }
 
   if (name == 'logburn') {
+    console.log(`[${chain}] burn pos #${data.posId} owner:${data.owner} pool:${data.poolId}`)
     await saveMintOrBurn({ chain, trx_id, data, type: 'burn', block_time })
   }
 
   if (name == 'logcollect') {
+    console.log(`[${chain}] collect pos #${data.posId} owner:${data.owner} pool:${data.poolId}`)
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
   }
 

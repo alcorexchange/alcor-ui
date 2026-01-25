@@ -47,25 +47,21 @@ module.exports = {
     {
       name: 'Alcor-updater-eos',
       script: './lib/server/services/updaterService/index.js',
-      cron_restart: '0 * * * *',
       env: { NETWORK: 'eos' }
     },
     {
       name: 'Alcor-updater-wax',
       script: './lib/server/services/updaterService/index.js',
-      cron_restart: '0 * * * *',
       env: { NETWORK: 'wax' }
     },
     {
       name: 'Alcor-updater-proton',
       script: './lib/server/services/updaterService/index.js',
-      cron_restart: '0 * * * *',
       env: { NETWORK: 'proton' }
     },
     {
       name: 'Alcor-updater-telos',
       script: './lib/server/services/updaterService/index.js',
-      cron_restart: '0 * * * *',
       env: { NETWORK: 'telos' }
     },
 
