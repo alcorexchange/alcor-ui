@@ -11,7 +11,7 @@ import { fetchAllRows } from '../utils/eosjs'
 import { Swap, SwapBar, Match, Market, Bar, GlobalStats } from './models'
 import { initialUpdate as initialOrderbookUpdate } from './services/orderbookService/start'
 import { updateGlobalStats } from './services/updaterService/analytics'
-import { connectAll, initialUpdate as swapInitialUpdate, updatePool } from './services/swapV2Service'
+import { connectAll, initialUpdate as swapInitialUpdate, updatePool, initializeAllPoolsData, aggregatePositions } from './services/swapV2Service'
 import { makeSwapBars, makeSpotBars } from './services/updaterService/charts'
 import { initRedis, mongoConnect } from './utils'
 
@@ -65,15 +65,29 @@ async function main() {
   }
 
   if (command == 'updatePools') {
-    const poolId = process.argv[4]
     const network = config.networks[process.argv[3]]
     if (!network) { console.log('No network provided!'); process.exit() }
 
-    if (poolId) {
-      await updatePool(network.name, poolId)
+    const arg4 = process.argv[4]
+
+    if (arg4 === '--force') {
+      // Force update all ticks and positions
+      await swapInitialUpdate(network.name, undefined, true)
+    } else if (arg4) {
+      // Update specific pool
+      await updatePool(network.name, arg4)
     } else {
+      // Just sync new pools
       await swapInitialUpdate(network.name)
     }
+  }
+
+  if (command == 'initPositions') {
+    const network = config.networks[process.argv[3]]
+    if (!network) { console.log('No network provided!'); process.exit() }
+
+    await initializeAllPoolsData(network.name)
+    await aggregatePositions(network.name)
   }
 
   if (command == 'load_global_analytics') {

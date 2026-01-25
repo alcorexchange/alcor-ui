@@ -401,6 +401,52 @@ async function updatePositions(chain: string, poolId: number) {
   await getRedis().set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
 }
 
+// Initialize all ticks and positions for a chain
+export async function initializeAllPoolsData(chain: string) {
+  const network = networks[chain]
+  const rpc = getFailOverAlcorOnlyRpc(network)
+  const redis = getRedis()
+
+  const pools = await SwapPool.find({ chain }).select('id').lean()
+  const poolIds = pools.map((p: any) => p.id)
+
+  console.log(`[${chain}] initializing ticks and positions for ${poolIds.length} pools...`)
+
+  let totalPositions = 0
+  let totalTicks = 0
+  const batchSize = 5
+
+  for (let i = 0; i < poolIds.length; i += batchSize) {
+    const batch = poolIds.slice(i, i + batchSize)
+
+    await Promise.all(batch.map(async (poolId) => {
+      try {
+        // Update ticks
+        await updateTicks(chain, poolId)
+        const ticksData = await redis.get(`ticks_${chain}_${poolId}`)
+        totalTicks += ticksData ? JSON.parse(ticksData).length : 0
+
+        // Update positions
+        const positions = await fetchAllRows(rpc, {
+          code: network.amm.contract,
+          scope: poolId,
+          table: 'positions'
+        })
+        positions.forEach(p => p.pool = poolId)
+        await redis.set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
+        totalPositions += positions.length
+      } catch (e) {
+        console.error(`[${chain}] failed to init pool ${poolId}:`, e.message)
+      }
+    }))
+
+    console.log(`[${chain}] processed ${Math.min(i + batchSize, poolIds.length)}/${poolIds.length} pools`)
+  }
+
+  console.log(`[${chain}] initialized ${totalTicks} ticks, ${totalPositions} positions`)
+  return { ticks: totalTicks, positions: totalPositions }
+}
+
 // Initialize all positions for a chain (run once on startup or after deploy)
 export async function initializeAllPositions(chain: string) {
   const network = networks[chain]
@@ -646,25 +692,18 @@ export async function updatePools(chain) {
   console.log('updated pools for ', chain)
 }
 
-export async function initialUpdate(chain: string, poolId?: number) {
+export async function initialUpdate(chain: string, poolId?: number, forceAll = false) {
   console.log('swap initialUpdate started: ', chain)
   await connectAll()
   await updatePools(chain)
 
-  if (poolId) {
-    updatePool(chain, poolId)
-    //await updateTicks(chain, poolId)
+  if (forceAll) {
+    // Force update all pools, ticks and positions
+    await initializeAllPoolsData(chain)
+    await aggregatePositions(chain)
+  } else if (poolId) {
+    await updatePool(chain, poolId)
   }
-
-  //const markets = await SwapPool.find({ chain })
-
-  //for (const { chain, id } of markets) {
-  //  //await updateTicks(chain, id)
-  //  await updatePool(chain, id)
-
-  //  // Chain that we have our own nodes
-  //  //if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
-  //}
 }
 
 async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
