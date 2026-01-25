@@ -390,6 +390,7 @@ export async function streamByTrace(network: any, account: string, callback: Fun
         await sleep(dynamicDelay)
       }
     } catch (error: any) {
+      const currentUrl = failoverManager.getCurrentNodeUrl()
       const passErrors = ['Could not find block', 'block trace missing', 'block not found']
       const errorMessage = error.message || ''
 
@@ -407,11 +408,13 @@ export async function streamByTrace(network: any, account: string, callback: Fun
             continue
           } else {
             // We're behind - node doesn't have this old block, switch
+            console.log(`[${network.name}] ${currentUrl} missing block ${currentBlock}`)
             failoverManager.markFailed()
             await sleep(100)
             continue
           }
         } catch (infoError: any) {
+          console.log(`[${network.name}] ${currentUrl} error: ${infoError.message}`)
           failoverManager.markFailed()
           await sleep(1000)
           continue
@@ -419,6 +422,7 @@ export async function streamByTrace(network: any, account: string, callback: Fun
       }
 
       // RPC error - mark failed and switch
+      console.log(`[${network.name}] ${currentUrl} error: ${errorMessage}`)
       failoverManager.markFailed()
       await sleep(1000)
     }
