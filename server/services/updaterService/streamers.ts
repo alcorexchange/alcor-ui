@@ -100,7 +100,7 @@ class RpcFailoverManager {
   private currentRpc: any
   private failedNodes: Set<string> = new Set()
   private lastPrimaryRetry: number = Date.now()
-  private readonly PRIMARY_RETRY_INTERVAL = 60000 // 1 minute
+  private readonly PRIMARY_RETRY_INTERVAL = 600000 // 10 minutes
   private greymassMode: boolean = false
 
   constructor(network: any) {
