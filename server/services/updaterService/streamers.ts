@@ -412,15 +412,17 @@ export async function streamByTrace(network: any, account: string, callback: Fun
         $set[`last_block_num.${getAccountAsKey(account)}`] = currentBlock
         await Settings.updateOne({ chain: network.name }, { $set })
 
-        // Log progress with ETA (every 100 blocks to reduce spam)
+        // Log progress (every 100 blocks to reduce spam)
         if (currentBlock % 100 < PREFETCH_SIZE) {
           const remainingBlocks = blocksFromHead - fetchCount
-          const blocksPerSecond = (fetchCount / fetchTime) * 1000
-          const etaSeconds = Math.round(remainingBlocks / blocksPerSecond)
-          const etaFormatted = etaSeconds >= 60
-            ? `${Math.floor(etaSeconds / 60)}m ${etaSeconds % 60}s`
-            : `${etaSeconds}s`
-          console.log(`[${network.name}:${account}] #${currentBlock} (+${fetchCount}) ${fetchTime}ms, ${remainingBlocks} behind, ETA: ${etaFormatted}`)
+          // 1 block = 0.5 sec in EOS-based chains
+          const lagSeconds = Math.round(remainingBlocks * 0.5)
+          const lagFormatted = lagSeconds >= 3600
+            ? `${Math.floor(lagSeconds / 3600)}h ${Math.floor((lagSeconds % 3600) / 60)}m`
+            : lagSeconds >= 60
+              ? `${Math.floor(lagSeconds / 60)}m ${lagSeconds % 60}s`
+              : `${lagSeconds}s`
+          console.log(`[${network.name}:${account}] #${currentBlock} | ${remainingBlocks} blocks | ${lagFormatted} behind`)
         }
 
       } else {
