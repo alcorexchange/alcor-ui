@@ -402,13 +402,9 @@ async function updatePositions(chain: string, poolId: number) {
 
   const to_set = [...keep, ...positions]
   await getRedis().set(`positions_${chain}`, JSON.stringify(to_set))
-  console.log('updated position: ', poolId)
 }
 
 export async function updatePool(chain: string, poolId: number) {
-  await connectAll()
-  await initRedis()
-
   const network = networks[chain]
   const rpc = getFailOverAlcorOnlyRpc(network)
 
@@ -469,7 +465,6 @@ export async function updatePool(chain: string, poolId: number) {
     })
   )
 
-  console.log('pool updated', poolId)
 
   return r
 }
@@ -501,7 +496,6 @@ async function updateTicks(chain: string, poolId: number) {
 
   const push = JSON.stringify({ chain, poolId, update })
   getPublisher().publish('swap:ticks:update', push)
-  console.log('updated ticks: ', poolId)
 }
 
 export async function connectAll() {
