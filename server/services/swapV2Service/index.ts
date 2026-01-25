@@ -407,7 +407,7 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
   })
 }
 
-export async function handleSwap({ chain, data, trx_id, block_time }) {
+export async function handleSwap({ chain, data, trx_id, block_time, block_num }) {
   console.log('handleSwap', chain, block_time)
   const { poolId, recipient, sender, sqrtPriceX64 } = data
 
@@ -437,13 +437,14 @@ export async function handleSwap({ chain, data, trx_id, block_time }) {
     tokenA: tokenAamount,
     tokenB: tokenBamount,
     time: block_time,
+    block_num,
   })
 }
 
 export async function onSwapAction(message: string) {
   await connectAll()
 
-  const { chain, name, trx_id, block_time, data } = JSON.parse(message)
+  const { chain, name, trx_id, block_time, block_num, data } = JSON.parse(message)
 
   if (name == 'logpool') {
     await throttledPoolUpdate(chain, data.poolId)
@@ -469,7 +470,7 @@ export async function onSwapAction(message: string) {
   }
 
   if (name == 'logswap') {
-    const swap = await handleSwap({ chain, trx_id, data, block_time })
+    const swap = await handleSwap({ chain, trx_id, data, block_time, block_num })
     await makeSwapBars(swap)
 
     handlePoolChart(

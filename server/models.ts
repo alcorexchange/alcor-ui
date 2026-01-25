@@ -199,7 +199,8 @@ PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true }
 
 const SettingsSchema = new mongoose.Schema({
   chain: { type: String, index: true },
-  actions_stream_offset: { type: Object, default: {} }
+  actions_stream_offset: { type: Object, default: {} },
+  last_block_num: { type: Object, default: {} }
 })
 
 const SwapPoolSchema = new mongoose.Schema({
@@ -308,6 +309,7 @@ const SwapSchema = new mongoose.Schema({
   tokenB: { type: Number },
 
   time: { type: Date, index: true },
+  block_num: { type: Number },
 })
 SwapSchema.index({ chain: 1, pool: 1, sender: 1, recipient: 1, time: -1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })

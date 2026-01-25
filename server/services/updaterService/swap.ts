@@ -4,7 +4,7 @@ import { onSwapAction } from '../swapV2Service'
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
 
-export async function newSwapAction(action, network: Network) {
+export async function newSwapAction(action: any, network: any) {
   //console.log('newSwapAction', action.act.name)
 
   const { trx_id, block_time, block_num, act: { name, data } } = action

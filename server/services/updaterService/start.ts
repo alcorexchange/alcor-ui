@@ -9,12 +9,7 @@ import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats } from './swap'
 import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
 
-import { streamByHyperion, streamByGreymass } from './streamers'
-
-const providers = {
-  hyperion: streamByHyperion,
-  node: streamByGreymass
-}
+import { streamByTrace, streamByGreymass } from './streamers'
 
 const pLimit = require('p-limit')
 const limit = pLimit(2)
@@ -25,16 +20,14 @@ export function startUpdaters() {
     : ['eos', 'wax', 'proton', 'telos', 'ultra', 'waxtest']
 
   chains.forEach(chain => {
-    const provider = ['ultra', 'waxtest'].includes(chain) ? 'hyperion' : 'node'
-    limit(() => updater(chain, provider, ['markets', 'prices', 'swap']))
+    limit(() => updater(chain, ['markets', 'prices', 'swap']))
       .catch(e => console.error(`Updater for ${chain} failed:`, e))
   })
 }
 
-export async function updater(chain, provider, services) {
+export async function updater(chain: string, services: string[]) {
   console.log('run updater for', chain)
   const network = config.networks[chain]
-  const streamer = providers[provider]
 
   const command = process.argv[2]
   if (command == 'initial') {
@@ -46,7 +39,7 @@ export async function updater(chain, provider, services) {
 
   // TODO Remove after test
   try {
-    await updateGlobalStats(network, null, provider)
+    await updateGlobalStats(network, null, 'trace')
   } catch (e) {
     console.log('GlobalStats err', e)
   }
@@ -65,7 +58,7 @@ export async function updater(chain, provider, services) {
   }
 
   if (services.includes('markets')) {
-    console.log('Start market updater for 11', chain)
+    console.log('Start market updater for', chain)
 
     console.time('update markets for ' + network.name)
     await updateMarkets(network)
@@ -73,8 +66,8 @@ export async function updater(chain, provider, services) {
 
     setInterval(() => updateMarkets(network), 3 * 60 * 1000)
 
-    streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
-      // Production PM2 should restart updater after it
+    // Use trace-based streaming with automatic Greymass fallback
+    streamByTrace(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
       .catch(e => { console.log(`${network.name} (${network.contract}) Updater Error!`, e); process.exit(1) })
   }
 
@@ -84,7 +77,8 @@ export async function updater(chain, provider, services) {
     await updatePoolsStats(chain)
     setInterval(() => updatePoolsStats(chain), 10 * 60 * 1000)
 
-    streamer(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'], 300)
+    // Use trace-based streaming with automatic Greymass fallback
+    streamByTrace(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'], 300)
       .catch(e => { console.log(`${network.name} (${network.amm.contract}) Updater Error!`, e); process.exit(1) })
   }
 }
