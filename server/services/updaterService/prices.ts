@@ -13,8 +13,8 @@ export async function updateCMSucid() {
 
     await getRedis().set('CMC_UCIDS', JSON.stringify(data))
     console.log('Updated CMC_UCIDS')
-  } catch (e) {
-    console.error('CMS ucid PRICE UPDATE FAILED!', e)
+  } catch (e: any) {
+    console.error('CMS ucid PRICE UPDATE FAILED!', e.message || e)
   }
 }
 
@@ -37,8 +37,12 @@ export async function updateSystemPrice(network: Network) {
     const price = data[network_name].usd
     await getRedis().set(`${network.name}_price`, String(price))
     console.log(`Updated ${network.name} price: `, price)
-  } catch (e) {
-    console.error('SYSTEM PRICE UPDATE FAILED!', network.name, e)
+  } catch (e: any) {
+    if (e.response?.status === 429) {
+      console.log(`[${network.name}] CoinGecko rate limit (429)`)
+    } else {
+      console.error('SYSTEM PRICE UPDATE FAILED!', network.name, e.message || e)
+    }
   }
 }
 

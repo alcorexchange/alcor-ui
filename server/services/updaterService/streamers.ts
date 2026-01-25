@@ -200,8 +200,10 @@ async function getBlockNumByTrxId(network: any, trxId: string): Promise<number |
 }
 
 async function getStartingBlock(network: any, account: string, rpc: any): Promise<number> {
+  console.log(`[${network.name}:${account}] Getting starting block...`)
   const settings = await getSettings(network)
   const key = getAccountAsKey(account)
+  console.log(`[${network.name}:${account}] Settings key: ${key}, last_block_num: ${settings.last_block_num?.[key]}`)
 
   // 1. Check Settings for saved last_block_num
   const savedBlockNum = settings.last_block_num?.[key]

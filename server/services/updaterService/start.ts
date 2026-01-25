@@ -26,7 +26,7 @@ export function startUpdaters() {
 }
 
 export async function updater(chain: string, services: string[]) {
-  console.log('run updater for', chain)
+  console.log(`[${chain}] Starting updater...`)
   const network = config.networks[chain]
 
   const command = process.argv[2]
@@ -35,50 +35,47 @@ export async function updater(chain: string, services: string[]) {
   }
 
   // If no setting, create them..
+  console.log(`[${chain}] Getting settings...`)
   await getSettings(network)
+  console.log(`[${chain}] Settings loaded`)
 
   // TODO Remove after test
   try {
+    console.log(`[${chain}] Updating global stats...`)
     await updateGlobalStats(network, null, 'trace')
+    console.log(`[${chain}] Global stats updated`)
   } catch (e) {
-    console.log('GlobalStats err', e)
+    console.log(`[${chain}] GlobalStats err`, e)
   }
 
   schedule.scheduleJob('58 23 * * *', () => updateGlobalStats(network))
 
   if (services.includes('prices')) {
-    console.log('Start price updater for', chain)
-
+    console.log(`[${chain}] Starting price updater...`)
     await Promise.all([updateSystemPrice(network), updateCMSucid()])
-
+    console.log(`[${chain}] Initial prices fetched, updating token prices...`)
     updateTokensPrices(network)
-
     setInterval(() => updateSystemPrice(network), 5 * 60 * 1000)
     setInterval(() => updateTokensPrices(network), 5 * 60 * 1000)
   }
 
   if (services.includes('markets')) {
-    console.log('Start market updater for', chain)
-
-    console.time('update markets for ' + network.name)
+    console.log(`[${chain}] Starting market updater...`)
     await updateMarkets(network)
-    console.timeEnd('update markets for ' + network.name)
-
+    console.log(`[${chain}] Markets updated, starting streamer for ${network.contract}...`)
     setInterval(() => updateMarkets(network), 3 * 60 * 1000)
 
-    // Use trace-based streaming with automatic Greymass fallback
     streamByTrace(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
-      .catch(e => { console.log(`${network.name} (${network.contract}) Updater Error!`, e); process.exit(1) })
+      .catch(e => { console.log(`[${chain}:${network.contract}] Streamer error:`, e.message); process.exit(1) })
   }
 
   if (services.includes('swap')) {
-    console.log('start swap updater for', chain)
-
+    console.log(`[${chain}] Starting swap updater...`)
     await updatePoolsStats(chain)
+    console.log(`[${chain}] Pool stats updated, starting streamer for ${network.amm.contract}...`)
     setInterval(() => updatePoolsStats(chain), 10 * 60 * 1000)
 
-    // Use trace-based streaming with automatic Greymass fallback
     streamByTrace(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'], 300)
-      .catch(e => { console.log(`${network.name} (${network.amm.contract}) Updater Error!`, e); process.exit(1) })
+      .catch(e => { console.log(`[${chain}:${network.amm.contract}] Streamer error:`, e.message); process.exit(1) })
   }
 }
