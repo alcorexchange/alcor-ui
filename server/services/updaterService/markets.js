@@ -161,6 +161,7 @@ export async function getMarketStats(network, market_id) {
 export async function updateMarkets(network) {
   const rpc = getChainRpc(network.name)
 
+  console.log(`[${network.name}] fetching markets from chain...`)
   let rows
   try {
     rows = await fetchAllRows(rpc, {
@@ -170,6 +171,7 @@ export async function updateMarkets(network) {
       reverse: true,
       limit: 1000
     })
+    console.log(`[${network.name}] fetched ${rows.length} markets`)
   } catch (e) {
     console.log('failed update markets for ', network.name, e, ' retry..')
     // Retry
@@ -191,8 +193,10 @@ export async function updateMarkets(network) {
     return { market: d, stats: getMarketStats(network, d.id) }
   })
 
+  console.log(`[${network.name}] calculating stats for ${requests.length} markets...`)
   try {
     await Promise.all(requests.map(r => r.stats))
+    console.log(`[${network.name}] stats calculated`)
 
     const markets_for_create = []
     const current_markets = new Set(await Market.distinct('id', { chain: network.name }))
