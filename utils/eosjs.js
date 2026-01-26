@@ -1,4 +1,4 @@
-const MAX_PAGINATION_FETCHES = 10
+const MAX_PAGINATION_FETCHES = 100
 
 import fetch from 'cross-fetch'
 import { JsonRpc as JsonRpcMultiEnds } from '../assets/libs/eosjs-jsonrpc'
@@ -42,7 +42,7 @@ export const fetchAllRows = async (
 
     rows = rows.concat(result.rows)
 
-    if (!result.more || result.rows.length === 0 || rows.length >= mergedOptions.limit) break
+    if (!result.more || result.rows.length === 0) break
 
     // EOS 2.0 api
     // TODO Add 'more' key

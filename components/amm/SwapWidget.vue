@@ -295,6 +295,10 @@ export default {
     },
     ...mapState(['user', 'network']),
     ...mapState('amm', ['maxHops', 'pools', 'recalculateOnPriceChange']),
+
+    poolsMap() {
+      return new Map(this.pools.map(p => [p.id, p]))
+    },
     ...mapGetters('amm', ['slippage']),
     ...mapGetters('amm/swap', [
       'tokenA',
@@ -574,7 +578,11 @@ export default {
           this.expectedInput = input
           this.expectedOutput = output
           this.priceImpact = priceImpact
-          this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
+          this.route = {
+            pools: route.map(poolId => constructPoolInstance(this.poolsMap.get(poolId))),
+            input: tokenA,
+            output: tokenB
+          }
           this.maximumSend = maxSent
 
           this.loading = false
@@ -651,7 +659,11 @@ export default {
           this.expectedOutput = output
           this.priceImpact = priceImpact
           this.minReceived = minReceived
-          this.route = { pools: route.map(poolId => constructPoolInstance(this.pools.find(p => p.id == poolId))), input: tokenA, output: tokenB }
+          this.route = {
+            pools: route.map(poolId => constructPoolInstance(this.poolsMap.get(poolId))),
+            input: tokenA,
+            output: tokenB
+          }
 
           this.loading = false
           resolve()
