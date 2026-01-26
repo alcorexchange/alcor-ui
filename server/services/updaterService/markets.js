@@ -168,7 +168,6 @@ export async function updateMarkets(network) {
       code: network.contract,
       scope: network.contract,
       table: 'markets',
-      reverse: true,
       limit: 1000
     })
     console.log(`[${network.name}] fetched ${rows.length} markets`)
