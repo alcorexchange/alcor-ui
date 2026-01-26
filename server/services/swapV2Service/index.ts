@@ -387,6 +387,11 @@ export async function throttledPoolUpdate(chain: string, poolId: number) {
 async function updatePositions(chain: string, poolId: number) {
   const network = networks[chain]
   const rpc = getFailOverAlcorOnlyRpc(network)
+  const redis = getRedis()
+
+  // Get old positions for this pool (to update owner indexes)
+  const oldData = await redis.get(`positions_${chain}_${poolId}`)
+  const oldPositions = oldData ? JSON.parse(oldData) : []
 
   const positions = await fetchAllRows(rpc, {
     code: network.amm.contract,
@@ -397,8 +402,38 @@ async function updatePositions(chain: string, poolId: number) {
   // Mapping pool id to position
   positions.forEach(p => p.pool = poolId)
 
-  // Store positions per pool (not all in one giant key)
-  await getRedis().set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
+  // Store positions per pool
+  await redis.set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
+
+  // Update owner indexes
+  const oldOwners = new Set(oldPositions.map(p => p.owner))
+  const newOwners = new Set(positions.map(p => p.owner))
+  const allOwners = new Set([...oldOwners, ...newOwners])
+
+  // Update owner indexes
+  await Promise.all([...allOwners].map(async (owner) => {
+    const ownerKey = `positions_${chain}_owner_${owner}`
+    const ownerData = await redis.get(ownerKey)
+    const ownerPositions = ownerData ? JSON.parse(ownerData) : []
+
+    // Remove old positions from this pool, add new ones
+    const filtered = ownerPositions.filter(p => p.pool !== poolId)
+    const newForOwner = positions.filter(p => p.owner === owner)
+    const updated = [...filtered, ...newForOwner]
+
+    if (updated.length > 0) {
+      await redis.set(ownerKey, JSON.stringify(updated))
+    } else {
+      await redis.del(ownerKey)
+    }
+  }))
+
+  // Update aggregated key (for getRedisPosition and other lookups)
+  const aggregatedData = await redis.get(`positions_${chain}`)
+  const allPositions = aggregatedData ? JSON.parse(aggregatedData) : []
+  const filtered = allPositions.filter(p => p.pool !== poolId)
+  const updated = [...filtered, ...positions]
+  await redis.set(`positions_${chain}`, JSON.stringify(updated))
 }
 
 // Initialize all ticks and positions for a chain
@@ -485,8 +520,8 @@ export async function initializeAllPositions(chain: string) {
   return totalPositions
 }
 
-// Aggregate all per-pool positions into one key for API reads
-// Called periodically to keep the aggregated data fresh
+// Aggregate all per-pool positions and build owner indexes
+// Called on startup or for periodic sync
 export async function aggregatePositions(chain: string) {
   const redis = getRedis()
 
@@ -503,10 +538,26 @@ export async function aggregatePositions(chain: string) {
   const allPositionsArrays = await Promise.all(positionPromises)
   const allPositions = allPositionsArrays.flat()
 
-  // Store aggregated positions in the old format for API compatibility
-  await redis.set(`positions_${chain}`, JSON.stringify(allPositions))
+  // Build owner indexes
+  const ownerMap = new Map<string, any[]>()
+  for (const pos of allPositions) {
+    if (!ownerMap.has(pos.owner)) {
+      ownerMap.set(pos.owner, [])
+    }
+    ownerMap.get(pos.owner).push(pos)
+  }
 
-  console.log(`[${chain}] aggregated ${allPositions.length} positions from ${poolIds.length} pools`)
+  // Save owner indexes and aggregated key (for backward compatibility)
+  await Promise.all([
+    // Owner indexes for fast user lookup
+    ...[...ownerMap.entries()].map(([owner, positions]) =>
+      redis.set(`positions_${chain}_owner_${owner}`, JSON.stringify(positions))
+    ),
+    // Aggregated key for getRedisPosition and other lookups
+    redis.set(`positions_${chain}`, JSON.stringify(allPositions))
+  ])
+
+  console.log(`[${chain}] aggregated ${allPositions.length} positions, ${ownerMap.size} owners`)
   return allPositions.length
 }
 
@@ -841,6 +892,10 @@ export async function onSwapAction(message: string) {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
   }
 
+  // Only publish realtime events (skip during catch-up to avoid flooding swap-service)
+  const eventAge = Date.now() - new Date(block_time).getTime()
+  const isRealtime = eventAge < 5 * 60 * 1000 // 5 minutes
+
   // Update pool and positions for position changes
   // Fire and forget - don't block updater
   if (['logmint', 'logburn', 'logcollect'].includes(name)) {
@@ -848,27 +903,22 @@ export async function onSwapAction(message: string) {
     throttledPoolUpdate(chain, poolId).catch(e =>
       console.error(`[${chain}] pool update error:`, e.message)
     )
-    // Update positions for this pool (stores per-pool to avoid OOM)
-    updatePositions(chain, poolId).catch(e =>
-      console.error(`[${chain}] position update error:`, e.message)
-    )
-  }
 
-  // Only publish realtime events (skip during catch-up to avoid flooding swap-service)
-  const eventAge = Date.now() - new Date(block_time).getTime()
-  const isRealtime = eventAge < 5 * 60 * 1000 // 5 minutes
+    // Update positions, then send push to user (so API has fresh data when user fetches)
+    updatePositions(chain, poolId)
+      .then(() => {
+        if (isRealtime) {
+          const { posId, owner } = data
+          const push = { chain, account: owner, positions: [posId] }
+          getPublisher().publish('account:update-positions', JSON.stringify(push))
+        }
+      })
+      .catch(e => console.error(`[${chain}] position update error:`, e.message))
+  }
 
   if (isRealtime && ['logpool', 'logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
     const account = networks[chain].amm.contract
     getPublisher().publish(`chainAction:${chain}:${account}:${name}`, message)
-  }
-
-  // Send push to update user position (only realtime)
-  if (isRealtime && ['logmint', 'logburn', 'logcollect'].includes(name)) {
-    const { posId, owner } = data
-    const push = { chain, account: owner, positions: [posId] }
-
-    getPublisher().publish('account:update-positions', JSON.stringify(push))
   }
 
   if (['logmint', 'logburn', 'logcollect'].includes(name)) {

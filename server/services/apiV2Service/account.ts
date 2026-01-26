@@ -18,14 +18,10 @@ const PrecisionMultiplier = bigInt('1000000000000000000')
 export async function getAccountPoolPositions(chain: string, account: string) {
   const startTime = performance.now()
 
-  const allPositions = JSON.parse(await redis().get(`positions_${chain}`)) || []
+  // Use owner index for fast lookup
+  const accountPositions = JSON.parse(await redis().get(`positions_${chain}_owner_${account}`)) || []
 
-  // Оставляем только нужные
-  const accountPositions = allPositions.filter(p => p.owner === account)
-
-  // Загружаем цены один раз
   const tokenPrices = JSON.parse(await redis().get(`${chain}_token_prices`))
-
   const historyCache = new Map()
 
   const result = await Promise.all(accountPositions.map(async (position) => {
@@ -389,8 +385,8 @@ account.get('/:account/positions', cacheSeconds(2, (req, res) => {
     const historyCache = new Map()
     const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`))
 
-    const allPositions = JSON.parse(await redis().get(`positions_${network.name}`)) || []
-    const accountPositions = allPositions.filter(p => p.owner === account)
+    // Use owner index for fast lookup
+    const accountPositions = JSON.parse(await redis().get(`positions_${network.name}_owner_${account}`)) || []
 
     const result = await Promise.all(accountPositions.map(async (position) => {
       try {
