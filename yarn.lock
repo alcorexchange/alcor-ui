@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@alcorexchange/alcor-swap-sdk@^1.0.402":
-  version "1.0.402"
-  resolved "https://registry.yarnpkg.com/@alcorexchange/alcor-swap-sdk/-/alcor-swap-sdk-1.0.402.tgz#b2063946ac1caad5b07f214e64ea6912d06b1761"
-  integrity sha512-84NY+Z9nL8BrZB5CIij8279rVWUB9Lxa4qAgLumoAfh7D1efaKSVrWWWJ9oya82glVn2uQt33/yYe0UtR/4CiA==
+"@alcorexchange/alcor-swap-sdk@1.0.403":
+  version "1.0.403"
+  resolved "https://registry.yarnpkg.com/@alcorexchange/alcor-swap-sdk/-/alcor-swap-sdk-1.0.403.tgz#c9a6b95d1847d635cd394d2e05f2ca1450798f6e"
+  integrity sha512-x2IgrP0zkRQ3HnO2I3YX7x6hJKPzMG4ZnmT+iVpZ0MUF8KRaA9c3fZjLorjqYP6Hte4+S/gAnbg5qwqMKjJ/gA==
   dependencies:
     big.js "^5.2.2"
     decimal.js-light "^2.5.0"
