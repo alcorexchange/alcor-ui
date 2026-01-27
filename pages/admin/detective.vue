@@ -56,6 +56,11 @@
               placeholder="CEX deposit memo (e.g., 00443a4b1950cb26)"
               @keyup.enter.native="searchCex"
             ).mr-2
+            el-input(
+              v-model="cexAccount"
+              placeholder="From account (optional)"
+              @keyup.enter.native="searchCex"
+            ).account-input.mr-2
             el-input-number(
               v-model="cexLimit"
               :min="1"
@@ -115,6 +120,7 @@ export default {
 
       // CEX Lookup
       memo: '',
+      cexAccount: '',
       cexLimit: 100,
       dateRange: null,
       cexResults: [],
@@ -183,6 +189,9 @@ export default {
           memo,
           limit: this.cexLimit
         }
+        if (this.cexAccount.trim()) {
+          params.account = this.cexAccount.trim().toLowerCase()
+        }
         if (this.dateRange && this.dateRange[0]) {
           params.after = this.dateRange[0]
         }
@@ -234,6 +243,10 @@ export default {
 
 .limit-input {
   width: 100px !important;
+}
+
+.account-input {
+  max-width: 180px;
 }
 
 .result-section h4 {

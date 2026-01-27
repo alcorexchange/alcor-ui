@@ -1,9 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { getRedis } from '../redis'
 
-const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 
 export const admin = Router()
 
@@ -139,8 +139,9 @@ admin.post('/detective/account-report', authMiddleware, async (req: Request, res
   }
 
   try {
-    const { stdout } = await execAsync(
-      `node /root/scripts/account-report.js ${account.toLowerCase().trim()} --json`,
+    const { stdout } = await execFileAsync(
+      'node',
+      ['/opt/alcor-tools/account-report.js', account.toLowerCase().trim(), '--json'],
       { timeout: 30000 }
     )
     const report = JSON.parse(stdout)
@@ -154,10 +155,17 @@ admin.post('/detective/account-report', authMiddleware, async (req: Request, res
 // GET - CEX deposit lookup via Hyperion
 admin.get('/detective/cex-lookup', authMiddleware, async (req: Request, res: Response) => {
   const network: Network = req.app.get('network')
-  const { memo, limit, after, before } = req.query
+  const { memo, account, limit, after, before } = req.query
 
   if (!memo || typeof memo !== 'string') {
     return res.status(400).json({ error: 'Memo is required' })
+  }
+
+  // Validate account if provided
+  if (account) {
+    if (typeof account !== 'string' || !validateContract(account.toLowerCase().trim())) {
+      return res.status(400).json({ error: 'Invalid account format' })
+    }
   }
 
   const hyperionUrl = network.hyperion
@@ -169,6 +177,7 @@ admin.get('/detective/cex-lookup', authMiddleware, async (req: Request, res: Res
     'transfer.memo': memo,
     limit: String(limit || 100)
   })
+  if (account) params.set('transfer.from', (account as string).toLowerCase().trim())
   if (after) params.set('after', String(after))
   if (before) params.set('before', String(before))
 
