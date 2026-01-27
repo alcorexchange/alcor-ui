@@ -128,6 +128,7 @@ admin.delete('/scam', authMiddleware, async (req: Request, res: Response) => {
 
 // POST - account report via script
 admin.post('/detective/account-report', authMiddleware, async (req: Request, res: Response) => {
+  const network: Network = req.app.get('network')
   const { account } = req.body
 
   if (!account || typeof account !== 'string') {
@@ -141,8 +142,8 @@ admin.post('/detective/account-report', authMiddleware, async (req: Request, res
   try {
     const { stdout } = await execFileAsync(
       'node',
-      ['/opt/alcor-tools/account-report.js', account.toLowerCase().trim(), '--json'],
-      { timeout: 30000 }
+      ['/opt/alcor-tools/account-report.js', account.toLowerCase().trim(), '--json', '--network', network.name],
+      { timeout: 180000 }
     )
     const report = JSON.parse(stdout)
     res.json(report)

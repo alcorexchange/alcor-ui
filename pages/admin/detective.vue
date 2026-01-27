@@ -115,6 +115,9 @@
 
             h4.section-title Transactions
             el-table(:data="cexResults" border style="width: 100%")
+              el-table-column(label="TX" width="60")
+                template(slot-scope="scope")
+                  a.tx-link(:href="scope.row.trx_id | monitorTx" target="_blank") TX
               el-table-column(prop="timestamp" label="Time" width="180")
                 template(slot-scope="scope")
                   | {{ formatDate(scope.row.timestamp) }}
@@ -218,10 +221,10 @@ export default {
       this.accountReport = null
 
       try {
-        const { data } = await this.$axios.post('/v2/admin/detective/account-report', { account })
+        const { data } = await this.$axios.post('/v2/admin/detective/account-report', { account }, { timeout: 180000 })
         this.accountReport = data
       } catch (e) {
-        const message = e.response?.data?.error || 'Search failed'
+        const message = e.response?.data?.error || e.message || 'Search failed'
         this.$notify.error({ title: 'Account Report Error', message })
       } finally {
         this.searchingAccount = false
@@ -383,6 +386,16 @@ export default {
 .ip-tag {
   margin: 2px 4px 2px 0;
   font-family: monospace;
+}
+
+.tx-link {
+  color: #409eff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.tx-link:hover {
+  text-decoration: underline;
 }
 
 .info-text {
