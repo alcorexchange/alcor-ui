@@ -19,7 +19,10 @@ docker build -f Dockerfile.apiV2.bots -t alcor-api-bots:v2 .
 echo "Restarting Docker container for bots..."
 docker stop alcor-api-v2-bots || true
 docker rm alcor-api-v2-bots || true
-docker run -d --name alcor-api-v2-bots --network=host --restart always alcor-api-bots:v2
+docker run -d --name alcor-api-v2-bots --network=host --restart always \
+  -v /opt/alcor-tools:/opt/alcor-tools:ro \
+  -v /var/log/nginx:/var/log/nginx:ro \
+  alcor-api-bots:v2
 
 # Перезапускать контейнеры для людей
 echo "Building Docker container for humans..."
@@ -28,7 +31,10 @@ docker build -f Dockerfile.apiV2.humans -t alcor-api-humans:v2 .
 echo "Restarting Docker container for humans..."
 docker stop alcor-api-v2-humans || true
 docker rm alcor-api-v2-humans || true
-docker run -d --name alcor-api-v2-humans --network=host --restart always alcor-api-humans:v2
+docker run -d --name alcor-api-v2-humans --network=host --restart always \
+  -v /opt/alcor-tools:/opt/alcor-tools:ro \
+  -v /var/log/nginx:/var/log/nginx:ro \
+  alcor-api-humans:v2
 
 # Обновить Route Cache Updater
 echo "Building Route Cache Updater Docker container..."

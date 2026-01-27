@@ -58,7 +58,7 @@
             ).mr-2
             el-input(
               v-model="cexAccount"
-              placeholder="From account (optional)"
+              placeholder="CEX account (e.g., binancecleos)"
               @keyup.enter.native="searchCex"
             ).account-input.mr-2
             el-input-number(

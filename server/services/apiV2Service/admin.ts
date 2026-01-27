@@ -177,7 +177,7 @@ admin.get('/detective/cex-lookup', authMiddleware, async (req: Request, res: Res
     'transfer.memo': memo,
     limit: String(limit || 100)
   })
-  if (account) params.set('transfer.from', (account as string).toLowerCase().trim())
+  if (account) params.set('transfer.to', (account as string).toLowerCase().trim())
   if (after) params.set('after', String(after))
   if (before) params.set('before', String(before))
 
