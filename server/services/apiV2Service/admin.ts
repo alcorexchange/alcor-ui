@@ -174,6 +174,7 @@ admin.get('/detective/cex-lookup', authMiddleware, async (req: Request, res: Res
   }
 
   const params = new URLSearchParams({
+    'act.name': 'transfer',
     'transfer.memo': memo,
     limit: String(limit || 100)
   })
@@ -181,18 +182,38 @@ admin.get('/detective/cex-lookup', authMiddleware, async (req: Request, res: Res
   if (after) params.set('after', String(after))
   if (before) params.set('before', String(before))
 
-  try {
-    const response = await fetch(`${hyperionUrl}/v2/history/get_actions?${params}`)
-    if (!response.ok) {
-      throw new Error(`Hyperion error: ${response.status}`)
+  const url = `${hyperionUrl}/v2/history/get_actions?${params}`
+  console.log('CEX Lookup URL:', url)
+
+  // Retry logic
+  const maxRetries = 3
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url)
+      if (!response.ok) {
+        const text = await response.text()
+        console.error(`Hyperion attempt ${attempt}/${maxRetries}:`, response.status, text)
+        if (attempt === maxRetries) {
+          throw new Error(`Hyperion error: ${response.status}`)
+        }
+        await new Promise(r => setTimeout(r, 1000 * attempt))
+        continue
+      }
+      const data = await response.json()
+      return res.json({
+        total: data.total?.value || data.actions?.length || 0,
+        actions: data.actions || []
+      })
+    } catch (e: any) {
+      lastError = e
+      console.error(`CEX lookup attempt ${attempt}/${maxRetries} failed:`, e.message)
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, 1000 * attempt))
+      }
     }
-    const data = await response.json()
-    res.json({
-      total: data.total?.value || data.actions?.length || 0,
-      actions: data.actions || []
-    })
-  } catch (e: any) {
-    console.error('CEX lookup failed:', e)
-    res.status(500).json({ error: e.message || 'Failed to fetch from Hyperion' })
   }
+
+  res.status(500).json({ error: lastError?.message || 'Failed to fetch from Hyperion' })
 })
