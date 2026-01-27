@@ -1,5 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express'
+import { exec } from 'child_process'
+import { promisify } from 'util'
 import { getRedis } from '../redis'
+
+const execAsync = promisify(exec)
 
 export const admin = Router()
 
@@ -117,5 +121,69 @@ admin.delete('/scam', authMiddleware, async (req: Request, res: Response) => {
   } catch (e) {
     console.error('Failed to remove scam entry:', e)
     res.status(500).json({ error: 'Failed to remove entry' })
+  }
+})
+
+// ==================== DETECTIVE ====================
+
+// POST - account report via script
+admin.post('/detective/account-report', authMiddleware, async (req: Request, res: Response) => {
+  const { account } = req.body
+
+  if (!account || typeof account !== 'string') {
+    return res.status(400).json({ error: 'Account is required' })
+  }
+
+  if (!validateContract(account.toLowerCase().trim())) {
+    return res.status(400).json({ error: 'Invalid account format' })
+  }
+
+  try {
+    const { stdout } = await execAsync(
+      `node /root/scripts/account-report.js ${account.toLowerCase().trim()} --json`,
+      { timeout: 30000 }
+    )
+    const report = JSON.parse(stdout)
+    res.json(report)
+  } catch (e: any) {
+    console.error('Account report failed:', e)
+    res.status(500).json({ error: e.message || 'Failed to generate report' })
+  }
+})
+
+// GET - CEX deposit lookup via Hyperion
+admin.get('/detective/cex-lookup', authMiddleware, async (req: Request, res: Response) => {
+  const network: Network = req.app.get('network')
+  const { memo, limit, after, before } = req.query
+
+  if (!memo || typeof memo !== 'string') {
+    return res.status(400).json({ error: 'Memo is required' })
+  }
+
+  const hyperionUrl = network.hyperion
+  if (!hyperionUrl) {
+    return res.status(500).json({ error: 'Hyperion not configured for this network' })
+  }
+
+  const params = new URLSearchParams({
+    'transfer.memo': memo,
+    limit: String(limit || 100)
+  })
+  if (after) params.set('after', String(after))
+  if (before) params.set('before', String(before))
+
+  try {
+    const response = await fetch(`${hyperionUrl}/v2/history/get_actions?${params}`)
+    if (!response.ok) {
+      throw new Error(`Hyperion error: ${response.status}`)
+    }
+    const data = await response.json()
+    res.json({
+      total: data.total?.value || data.actions?.length || 0,
+      actions: data.actions || []
+    })
+  } catch (e: any) {
+    console.error('CEX lookup failed:', e)
+    res.status(500).json({ error: e.message || 'Failed to fetch from Hyperion' })
   }
 })
