@@ -2,10 +2,54 @@ import { cacheSeconds } from 'route-cache'
 import { Router } from 'express'
 import { existsSync } from 'fs'
 import { join } from 'path'
+import axios from 'axios'
 import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
 
 export const tokens = Router()
+
+// Eos-airdrops token logo cache
+interface EosAirdropToken {
+  chain: string
+  account: string
+  symbol: string
+  logo: string
+}
+
+// Map: "chain:symbol:contract" -> logo URL
+let eosAirdropLogosMap: Map<string, string> = new Map()
+let lastFetchTime = 0
+const CACHE_TTL = 1000 * 60 * 60 // 1 hour
+
+async function getEosAirdropLogo(chain: string, symbol: string, contract: string): Promise<string | null> {
+  const now = Date.now()
+
+  // Refresh cache if expired or empty
+  if (eosAirdropLogosMap.size === 0 || now - lastFetchTime > CACHE_TTL) {
+    try {
+      const { data } = await axios.get<EosAirdropToken[]>(
+        'https://raw.githubusercontent.com/eoscafe/eos-airdrops/master/tokens.json',
+        { timeout: 10000 }
+      )
+
+      if (Array.isArray(data)) {
+        eosAirdropLogosMap = new Map()
+        for (const token of data) {
+          if (token.chain && token.symbol && token.account && token.logo) {
+            const key = `${token.chain}:${token.symbol}:${token.account}`
+            eosAirdropLogosMap.set(key, token.logo)
+          }
+        }
+        lastFetchTime = now
+      }
+    } catch (e) {
+      console.error('Failed to fetch eos-airdrops tokens:', e)
+    }
+  }
+
+  const key = `${chain}:${symbol.toUpperCase()}:${contract}`
+  return eosAirdropLogosMap.get(key) || null
+}
 
 tokens.get('/tokens/:id/logo', async (req, res) => {
   const network: Network = req.app.get('network')
@@ -20,12 +64,20 @@ tokens.get('/tokens/:id/logo', async (req, res) => {
   )
 
   if (existsSync(iconPath)) {
-    // Cache for 24 hours (browser + CDN)
     res.set('Cache-Control', 'public, max-age=86400')
     res.sendFile(iconPath)
-  } else {
-    res.status(404).send('Icon not found')
+    return
   }
+
+  // Fallback to eos-airdrops
+  const externalLogo = await getEosAirdropLogo(network.name, symbol, contract)
+  if (externalLogo) {
+    res.set('Cache-Control', 'public, max-age=86400')
+    res.redirect(301, externalLogo)
+    return
+  }
+
+  res.status(404).send('Icon not found')
 })
 
 tokens.get('/tokens/:id', cacheSeconds(2, (req, res) => {

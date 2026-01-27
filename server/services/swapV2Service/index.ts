@@ -689,7 +689,7 @@ function parsePool(pool: { [key: string]: any }) {
   return { ...pool, tokenA, tokenB, sqrtPriceX64, tick }
 }
 
-export async function updatePools(chain) {
+export async function updatePools(chain: string, forceAll = false) {
   const network = networks[chain]
   const rpc = getFailOverAlcorOnlyRpc(network)
 
@@ -699,12 +699,13 @@ export async function updatePools(chain) {
     table: 'pools'
   })
 
-  const to_create = []
   const current_pools = await SwapPool.distinct('id', { chain })
 
-  // 1. Сначала собираем все новые пулы
-  for (const pool of pools) {
-    if (!current_pools.includes(pool.id)) {
+  if (forceAll) {
+    // Force update ALL pools in MongoDB
+    console.log(`[${chain}] force updating ${pools.length} pools...`)
+
+    const bulkOps = pools.map(pool => {
       const parsed_pool = parsePool(pool)
 
       const price = new Price(
@@ -717,39 +718,60 @@ export async function updatePools(chain) {
       const priceA = price.toSignificant()
       const priceB = price.invert().toSignificant()
 
-      const p = {
-        ...parsed_pool,
-        priceA,
-        priceB,
-        chain
+      return {
+        updateOne: {
+          filter: { chain, id: pool.id },
+          update: { $set: { ...parsed_pool, priceA, priceB, chain } },
+          upsert: true
+        }
       }
+    })
 
-      to_create.push(p)
+    const result = await SwapPool.bulkWrite(bulkOps)
+    console.log(`[${chain}] pools updated: ${result.modifiedCount} modified, ${result.upsertedCount} created`)
+  } else {
+    // Only create new pools
+    const to_create = []
+
+    for (const pool of pools) {
+      if (!current_pools.includes(pool.id)) {
+        const parsed_pool = parsePool(pool)
+
+        const price = new Price(
+          parseToken(pool.tokenA),
+          parseToken(pool.tokenB),
+          Q128,
+          parsed_pool.sqrtPriceX64 * parsed_pool.sqrtPriceX64
+        )
+
+        const priceA = price.toSignificant()
+        const priceB = price.invert().toSignificant()
+
+        to_create.push({ ...parsed_pool, priceA, priceB, chain })
+      }
+    }
+
+    if (to_create.length > 0) {
+      await SwapPool.insertMany(to_create)
+      console.log(`[${chain}] inserted ${to_create.length} new pools`)
+
+      // Update ticks only for new pools
+      for (const p of to_create) {
+        await updatePool(chain, p.id)
+      }
     }
   }
 
-  // 2. Записываем новые пулы в MongoDB
-  if (to_create.length > 0) {
-    await SwapPool.insertMany(to_create)
-    console.log(`inserted ${to_create.length} new pools for ${chain}`)
-  }
-
-  // 3. Обновляем тики только для новых пулов
-  console.log(`updating ticks for ${to_create.length} new pools...`)
-  for (const p of to_create) {
-    await updatePool(chain, p.id)
-  }
-
-  console.log('updated pools for ', chain)
+  console.log(`[${chain}] updatePools done`)
 }
 
 export async function initialUpdate(chain: string, poolId?: number, forceAll = false) {
   console.log('swap initialUpdate started: ', chain)
   await connectAll()
-  await updatePools(chain)
+  await updatePools(chain, forceAll)
 
   if (forceAll) {
-    // Force update all pools, ticks and positions
+    // Force update all ticks and positions
     await initializeAllPoolsData(chain)
     await aggregatePositions(chain)
   } else if (poolId) {

@@ -53,7 +53,7 @@
               el-table(:data="accountReport.relatedAccounts" border size="small" style="width: 100%")
                 el-table-column(prop="account" label="Account" width="140")
                   template(slot-scope="scope")
-                    span.account-link {{ scope.row.account }}
+                    a.account-link(:href="getAccountLink(scope.row.account)" target="_blank") {{ scope.row.account }}
                 el-table-column(label="Matching IPs")
                   template(slot-scope="scope")
                     el-tag(
@@ -106,7 +106,7 @@
               el-table(:data="cexSummary" border size="small" style="width: 100%").mb-4
                 el-table-column(prop="account" label="Account" width="150")
                   template(slot-scope="scope")
-                    span.account-link {{ scope.row.account }}
+                    a.account-link(:href="getAccountLink(scope.row.account)" target="_blank") {{ scope.row.account }}
                 el-table-column(prop="count" label="Transfers" width="100")
                 el-table-column(label="Total Amount")
                   template(slot-scope="scope")
@@ -117,19 +117,21 @@
             el-table(:data="cexResults" border style="width: 100%")
               el-table-column(label="TX" width="60")
                 template(slot-scope="scope")
-                  a.tx-link(:href="scope.row.trx_id | monitorTx" target="_blank") TX
+                  a.tx-link(:href="getTxLink(scope.row.trx_id)" target="_blank") TX
               el-table-column(prop="timestamp" label="Time" width="180")
                 template(slot-scope="scope")
                   | {{ formatDate(scope.row.timestamp) }}
               el-table-column(prop="from" label="From" width="140")
                 template(slot-scope="scope")
-                  | {{ scope.row.act?.data?.from || '-' }}
+                  a.account-link(v-if="scope.row.act?.data?.from" :href="getAccountLink(scope.row.act.data.from)" target="_blank") {{ scope.row.act.data.from }}
+                  span(v-else) -
               el-table-column(prop="to" label="To" width="140")
                 template(slot-scope="scope")
-                  | {{ scope.row.act?.data?.to || '-' }}
+                  a.account-link(v-if="scope.row.act?.data?.to" :href="getAccountLink(scope.row.act.data.to)" target="_blank") {{ scope.row.act.data.to }}
+                  span(v-else) -
               el-table-column(prop="quantity" label="Quantity" width="160")
                 template(slot-scope="scope")
-                  | {{ scope.row.act?.data?.quantity || '-' }}
+                  | {{ scope.row.act?.data?.quantity | commaFloat }}
               el-table-column(prop="memo" label="Memo")
                 template(slot-scope="scope")
                   | {{ scope.row.act?.data?.memo || '-' }}
@@ -304,6 +306,16 @@ export default {
       if (!countryCode || countryCode === '??' || countryCode === 'XX') return ''
       const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0))
       return String.fromCodePoint(...codePoints)
+    },
+
+    getTxLink(txId) {
+      if (!txId) return '#'
+      return `${this.network.monitor}/transaction/${txId}?tab=traces&${this.network.monitor_params || ''}`
+    },
+
+    getAccountLink(account) {
+      if (!account) return '#'
+      return `${this.network.monitor}/account/${account}`
     }
   }
 }

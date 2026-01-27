@@ -35,6 +35,7 @@ export const state = () => ({
   tokens: [],
   tokenLogos: [],
   eosAirdropTokens: [],
+  eosAirdropLogosMap: {}, // "chain:SYMBOL:contract" -> logo URL
   ibcTokens: ['eth.token'],
   lihgHistoryBlock: null,
   blockNum: null
@@ -90,7 +91,17 @@ export const mutations = {
   setBaseUrl: (state, url) => state.baseUrl = url,
   setLoading: (state, loading) => state.loading = loading,
   setTokens: (state, tokens) => state.tokens = tokens,
-  setEosAirdropTokens: (state, tokens) => state.eosAirdropTokens = tokens,
+  setEosAirdropTokens: (state, tokens) => {
+    state.eosAirdropTokens = tokens
+    // Build lookup map for O(1) access
+    const map = {}
+    for (const t of tokens) {
+      if (t.chain && t.symbol && t.account && t.logo) {
+        map[`${t.chain}:${t.symbol}:${t.account}`] = t.logo
+      }
+    }
+    state.eosAirdropLogosMap = map
+  },
   setAccount: (state, account) => state.account = account,
   setAccountLimits: (state, limits) => state.accountLimits = limits,
   setUserOrders: (state, orders) => state.userOrders = orders,

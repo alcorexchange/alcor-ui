@@ -130,15 +130,9 @@ Vue.prototype.$tokenLogo = function(symbol, contract, chain = null) {
   try {
     return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
   } catch {
-    const tokens = this.$store.state.eosAirdropTokens
-
-    const token = tokens.find(t => t.chain == network && t.account == contract && t.symbol == symbol)
-
-    if (token) {
-      return token.logo
-    } else {
-      return null
-    }
+    // O(1) lookup via pre-built map
+    const key = `${network}:${symbol}:${contract}`
+    return this.$store.state.eosAirdropLogosMap[key] || null
   }
 }
 
