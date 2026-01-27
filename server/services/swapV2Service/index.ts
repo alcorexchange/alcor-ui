@@ -617,7 +617,7 @@ export async function updatePool(chain: string, poolId: number) {
     'swap:pool:instanceUpdated',
     JSON.stringify({
       chain,
-      buffer: Pool.toBuffer(updatedPool).toString('hex')
+      pool: Pool.toJSON(updatedPool)
     })
   )
 

@@ -59,8 +59,8 @@ function recordRequestStats(origin, route) {
 // Subscribe после инициализации Redis (вызывается из index.ts)
 export function initSwapRouterSubscriptions() {
   getSubscriber().subscribe('swap:pool:instanceUpdated', async msg => {
-    const { chain, buffer } = JSON.parse(msg)
-    const pool = Pool.fromBuffer(Buffer.from(buffer, 'hex'))
+    const { chain, pool: poolJson } = JSON.parse(msg)
+    const pool = Pool.fromJSON(poolJson)
 
     if (!POOLS[chain]) return getAllPools(chain)
 

@@ -25,25 +25,46 @@
             el-button(type="primary" @click="searchAccount" :loading="searchingAccount") Search
 
           .report-results(v-if="accountReport")
-            h3.mb-3 Account: {{ accountReport.account }}
+            .report-header
+              h3 {{ accountReport.account }}
+              .summary-badges
+                el-tag(type="info") {{ accountReport.summary.ipv4Count }} IPv4
+                el-tag(type="warning") {{ accountReport.summary.ipv6Count }} IPv6
+                el-tag(type="danger" v-if="accountReport.summary.relatedCount") {{ accountReport.summary.relatedCount }} Related
 
-            .result-section.mb-3(v-if="accountReport.ips && accountReport.ips.length")
-              h4 IPs ({{ accountReport.ips.length }})
-              el-collapse
-                el-collapse-item(title="Show IPs")
-                  ul
-                    li(v-for="ip in accountReport.ips" :key="ip") {{ ip }}
+            .result-section.mb-4(v-if="accountReport.ips && accountReport.ips.length")
+              h4.section-title IP Addresses
+              el-table(:data="accountReport.ips" border size="small" style="width: 100%")
+                el-table-column(prop="ip" label="IP" width="140")
+                el-table-column(label="Location" width="180")
+                  template(slot-scope="scope")
+                    span.flag {{ getFlag(scope.row.countryCode) }}
+                    |  {{ scope.row.city }}, {{ scope.row.country }}
+                el-table-column(prop="isp" label="ISP")
+                el-table-column(label="Device" width="200")
+                  template(slot-scope="scope")
+                    | {{ scope.row.device }} / {{ scope.row.browser }}
+                el-table-column(prop="requests" label="Req" width="60")
 
-            .result-section.mb-3(v-if="accountReport.relatedAccounts && accountReport.relatedAccounts.length")
-              h4 Related Accounts ({{ accountReport.relatedAccounts.length }})
-              el-collapse
-                el-collapse-item(title="Show Accounts")
-                  ul
-                    li(v-for="acc in accountReport.relatedAccounts" :key="acc") {{ acc }}
-
-            .result-section(v-if="accountReport.summary")
-              h4 Summary
-              pre.summary-text {{ accountReport.summary }}
+            .result-section(v-if="accountReport.relatedAccounts && accountReport.relatedAccounts.length")
+              h4.section-title
+                i.el-icon-warning-outline.text-danger
+                |  Related Accounts
+              el-table(:data="accountReport.relatedAccounts" border size="small" style="width: 100%")
+                el-table-column(prop="account" label="Account" width="140")
+                  template(slot-scope="scope")
+                    span.account-link {{ scope.row.account }}
+                el-table-column(label="Matching IPs")
+                  template(slot-scope="scope")
+                    el-tag(
+                      v-for="ip in scope.row.matchingIPs"
+                      :key="ip"
+                      size="mini"
+                      type="danger"
+                    ).ip-tag {{ ip }}
+                el-table-column(label="Device" width="200")
+                  template(slot-scope="scope")
+                    | {{ scope.row.device }} / {{ scope.row.browser }}
 
           .no-results(v-else-if="searchedAccount && !searchingAccount")
             | No results found
@@ -79,7 +100,20 @@
             el-button(type="primary" @click="searchCex" :loading="searchingCex") Search
 
           .cex-results(v-if="cexResults.length")
-            .info-text.mb-2 Found {{ cexTotal }} transfers
+            .cex-summary.mb-4
+              .summary-header
+                span.info-text Found {{ cexTotal }} transfers from {{ cexSummary.length }} accounts
+              el-table(:data="cexSummary" border size="small" style="width: 100%").mb-4
+                el-table-column(prop="account" label="Account" width="150")
+                  template(slot-scope="scope")
+                    span.account-link {{ scope.row.account }}
+                el-table-column(prop="count" label="Transfers" width="100")
+                el-table-column(label="Total Amount")
+                  template(slot-scope="scope")
+                    div(v-for="(amount, symbol) in scope.row.totals" :key="symbol")
+                      | {{ (amount.toFixed(4) + ' ' + symbol) | commaFloat }}
+
+            h4.section-title Transactions
             el-table(:data="cexResults" border style="width: 100%")
               el-table-column(prop="timestamp" label="Time" width="180")
                 template(slot-scope="scope")
@@ -133,6 +167,25 @@ export default {
   computed: {
     network() {
       return this.$store.state.network
+    },
+
+    cexSummary() {
+      const grouped = {}
+      for (const action of this.cexResults) {
+        const from = action.act?.data?.from || 'unknown'
+        const quantity = action.act?.data?.quantity || ''
+        const [amountStr, symbol] = quantity.split(' ')
+        const amount = parseFloat(amountStr) || 0
+
+        if (!grouped[from]) {
+          grouped[from] = { account: from, count: 0, totals: {} }
+        }
+        grouped[from].count++
+        if (symbol) {
+          grouped[from].totals[symbol] = (grouped[from].totals[symbol] || 0) + amount
+        }
+      }
+      return Object.values(grouped).sort((a, b) => b.count - a.count)
     }
   },
 
@@ -184,35 +237,70 @@ export default {
       this.cexResults = []
       this.cexTotal = 0
 
-      try {
-        const params = {
-          memo,
-          limit: this.cexLimit
-        }
-        if (this.cexAccount.trim()) {
-          params.account = this.cexAccount.trim().toLowerCase()
-        }
-        if (this.dateRange && this.dateRange[0]) {
-          params.after = this.dateRange[0]
-        }
-        if (this.dateRange && this.dateRange[1]) {
-          params.before = this.dateRange[1]
-        }
-
-        const { data } = await this.$axios.get('/v2/admin/detective/cex-lookup', { params })
-        this.cexResults = data.actions || []
-        this.cexTotal = data.total || 0
-      } catch (e) {
-        const message = e.response?.data?.error || 'Search failed'
-        this.$notify.error({ title: 'CEX Lookup Error', message })
-      } finally {
+      const hyperionUrl = this.network.hyperion
+      if (!hyperionUrl) {
+        this.$notify.error({ title: 'CEX Lookup Error', message: 'Hyperion not configured for this network' })
         this.searchingCex = false
+        return
       }
+
+      const params = new URLSearchParams({
+        'act.name': 'transfer',
+        'transfer.memo': memo,
+        limit: String(this.cexLimit)
+      })
+
+      if (this.cexAccount.trim()) {
+        params.set('transfer.to', this.cexAccount.trim().toLowerCase())
+      }
+      if (this.dateRange && this.dateRange[0]) {
+        params.set('after', this.dateRange[0])
+      }
+      if (this.dateRange && this.dateRange[1]) {
+        params.set('before', this.dateRange[1])
+      }
+
+      const url = `${hyperionUrl}/v2/history/get_actions?${params}`
+
+      const maxRetries = 3
+      let lastError = null
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetch(url)
+          if (!response.ok) {
+            if (attempt === maxRetries) {
+              throw new Error(`Hyperion error: ${response.status}`)
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+            continue
+          }
+          const data = await response.json()
+          this.cexResults = data.actions || []
+          this.cexTotal = data.total?.value || data.actions?.length || 0
+          this.searchingCex = false
+          return
+        } catch (e) {
+          lastError = e
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+          }
+        }
+      }
+
+      this.$notify.error({ title: 'CEX Lookup Error', message: lastError?.message || 'Failed to fetch from Hyperion' })
+      this.searchingCex = false
     },
 
     formatDate(timestamp) {
       if (!timestamp) return '-'
       return new Date(timestamp).toLocaleString()
+    },
+
+    getFlag(countryCode) {
+      if (!countryCode || countryCode === '??' || countryCode === 'XX') return ''
+      const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0))
+      return String.fromCodePoint(...codePoints)
     }
   }
 }
@@ -249,26 +337,52 @@ export default {
   max-width: 180px;
 }
 
-.result-section h4 {
-  color: #909399;
-  margin-bottom: 8px;
+.report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.result-section ul {
+.report-header h3 {
   margin: 0;
-  padding-left: 20px;
-}
-
-.result-section li {
   font-family: monospace;
+  font-size: 18px;
 }
 
-.summary-text {
-  background: var(--background-color-secondary);
-  padding: 12px;
-  border-radius: 4px;
-  white-space: pre-wrap;
-  font-size: 13px;
+.summary-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.section-title {
+  color: #909399;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.section-title i {
+  margin-right: 4px;
+}
+
+.text-danger {
+  color: #f56c6c;
+}
+
+.flag {
+  font-size: 16px;
+}
+
+.account-link {
+  font-family: monospace;
+  color: #409eff;
+}
+
+.ip-tag {
+  margin: 2px 4px 2px 0;
+  font-family: monospace;
 }
 
 .info-text {
