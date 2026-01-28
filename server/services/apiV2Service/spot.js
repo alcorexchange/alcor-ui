@@ -5,6 +5,7 @@ import { write_decimal } from 'eos-common'
 import { resolutions } from '../updaterService/charts'
 import { SwapPool, Bar, Match, Market } from '../../models'
 import { getTokens } from '../../utils'
+import { getScamLists } from './config'
 
 const depthHandler = (req, res, next) => {
   if (req.query.depth && isNaN(parseInt(req.query.depth))) return res.status(403).send('Invalid depth')
@@ -128,11 +129,12 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
   const network = req.app.get('network')
+  const hide_scam = req.query.hide_scam === 'true'
   const tokens = await getTokens(network.name)
 
   const pools = await SwapPool.find({ chain: network.name }).select('-_id -__v').lean()
 
-  const markets = await Market.find({ chain: network.name })
+  let markets = await Market.find({ chain: network.name })
     .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
 
   // Depth 2/-2%
@@ -143,6 +145,18 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
     formatTicker(m, tokens, network.GLOBAL_TOKENS)
     formatMarket(m, pools, tokens)
   })
+
+  if (hide_scam) {
+    const { scam_contracts, scam_tokens } = await getScamLists(network)
+    markets = markets.filter(m => {
+      const baseContract = m.base_currency.split('-')[1]
+      const targetContract = m.target_currency.split('-')[1]
+      return !scam_contracts.has(baseContract) &&
+             !scam_contracts.has(targetContract) &&
+             !scam_tokens.has(m.base_currency) &&
+             !scam_tokens.has(m.target_currency)
+    })
+  }
 
   res.json(markets)
 })

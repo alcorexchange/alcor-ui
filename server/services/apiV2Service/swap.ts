@@ -5,6 +5,7 @@ import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils
 import { getSwapBarPriceAsString, getLiquidityRangeChart } from '../../../utils/amm.js'
 import { resolutions } from '../updaterService/charts'
 import { getPositionStats } from './account'
+import { getScamLists } from './config'
 
 function formatCandle(candle, volumeField, tokenA, tokenB, reverse) {
   candle.volume = candle[volumeField]
@@ -40,15 +41,27 @@ swap.get('/pools', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
   const network: Network = req.app.get('network')
+  const hide_scam = req.query.hide_scam === 'true'
 
-  const query = { chain: network.name }
+  const query: any = { chain: network.name }
 
   const { tokenA, tokenB } = req.query
 
   if (tokenA) query['tokenA.id'] = tokenA
   if (tokenB) query['tokenB.id'] = tokenB
 
-  const pools = await SwapPool.find(query).select('-_id -__v').lean()
+  let pools = await SwapPool.find(query).select('-_id -__v').lean()
+
+  if (hide_scam) {
+    const { scam_contracts, scam_tokens } = await getScamLists(network)
+    pools = pools.filter(p =>
+      !scam_contracts.has(p.tokenA.contract) &&
+      !scam_contracts.has(p.tokenB.contract) &&
+      !scam_tokens.has(p.tokenA.id) &&
+      !scam_tokens.has(p.tokenB.id)
+    )
+  }
+
   res.json(pools)
 })
 

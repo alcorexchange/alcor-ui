@@ -5,6 +5,7 @@ import { join } from 'path'
 import axios from 'axios'
 import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
+import { getScamLists } from './config'
 
 export const tokens = Router()
 
@@ -100,7 +101,14 @@ tokens.get('/tokens', cacheSeconds(2, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
   const network: Network = req.app.get('network')
+  const hide_scam = req.query.hide_scam === 'true'
 
-  const tokens = await getTokens(network.name)
+  let tokens = await getTokens(network.name)
+
+  if (hide_scam) {
+    const { scam_contracts, scam_tokens } = await getScamLists(network)
+    tokens = tokens.filter(t => !scam_contracts.has(t.contract) && !scam_tokens.has(t.id))
+  }
+
   res.json(tokens)
 })
