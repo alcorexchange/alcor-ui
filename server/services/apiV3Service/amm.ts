@@ -29,6 +29,16 @@ function formatAssetAmount(assetString) {
   return formatAmount(amount, decimals)
 }
 
+function parseAssetAmount(assetString) {
+  if (!assetString || typeof assetString !== 'string') return null
+  const [amountStr, symbol] = assetString.split(' ')
+  if (!amountStr || !symbol) return null
+  const amount = Number(amountStr.replace(/,/g, ''))
+  if (!Number.isFinite(amount)) return null
+  const precision = amountStr.includes('.') ? amountStr.split('.')[1].length : 0
+  return { amount, symbol, precision }
+}
+
 function getLogoUrl(networkName, tokenId) {
   if (!tokenId) return null
   return `https://${networkName}.alcor.exchange/api/v2/tokens/${tokenId}/logo`
@@ -298,6 +308,24 @@ amm.get('/account/:account/positions', cacheSeconds(2, (req, res) => {
 
       const amountA = typeof pos.amountA === 'string' ? parseAssetPlain(pos.amountA).amount : pos.amountA
       const amountB = typeof pos.amountB === 'string' ? parseAssetPlain(pos.amountB).amount : pos.amountB
+      const amountAUsd = Number(amountA || 0) * (tokensMap.get(tokenA.id)?.usd_price ?? 0)
+      const amountBUsd = Number(amountB || 0) * (tokensMap.get(tokenB.id)?.usd_price ?? 0)
+      const totalAmountsUsd = amountAUsd + amountBUsd
+      const percentA = totalAmountsUsd > 0 ? (amountAUsd / totalAmountsUsd) * 100 : 0
+      const percentB = totalAmountsUsd > 0 ? (amountBUsd / totalAmountsUsd) * 100 : 0
+
+      const feesAParsed = parseAssetAmount(pos.feesA)
+      const feesBParsed = parseAssetAmount(pos.feesB)
+      const feesAUsd = feesAParsed
+        ? feesAParsed.amount * (tokensMap.get(tokenA.id)?.usd_price ?? 0)
+        : 0
+      const feesBUsd = feesBParsed
+        ? feesBParsed.amount * (tokensMap.get(tokenB.id)?.usd_price ?? 0)
+        : 0
+
+      const poolLiquidity = Number(pool.liquidity ?? 0)
+      const posLiquidity = Number(pos.liquidity ?? 0)
+      const poolSharePct = poolLiquidity > 0 && posLiquidity > 0 ? (posLiquidity / poolLiquidity) * 100 : null
 
       return {
         id: String(pos.id),
@@ -313,6 +341,17 @@ amm.get('/account/:account/positions', cacheSeconds(2, (req, res) => {
         totalFeesUSD: Number(pos.totalFeesUSD ?? 0),
         feesA: formatAssetAmount(pos.feesA),
         feesB: formatAssetAmount(pos.feesB),
+        feesAUsd,
+        feesBUsd,
+        amountAUsd,
+        amountBUsd,
+        percentA: Number(percentA.toFixed(2)),
+        percentB: Number(percentB.toFixed(2)),
+        pnlUSD: Number(pos.pNl ?? 0),
+        poolSharePct,
+        estimatedFees24hUSD: null,
+        currentPriceA: pool.priceA ?? null,
+        currentPriceB: pool.priceB ?? null,
         tokenA: {
           symbol: tokenA.symbol,
           contract: tokenA.contract,
