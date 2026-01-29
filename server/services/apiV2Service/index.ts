@@ -23,6 +23,7 @@ import { analytics } from './analytics'
 import { farms } from './farms'
 import { admin } from './admin'
 import { configRouter } from './config'
+import { amm as ammV3 } from '../apiV3Service/amm'
 
 const app = express()
 
@@ -64,6 +65,7 @@ async function start () {
   app.use('/api/v2/farms/', farms)
   app.use('/api/v2/admin', admin)
   app.use('/api/v2/config', configRouter)
+  app.use('/api/v3/amm', ammV3)
 
   // Listen the server
   const PORT = process.env.PORT || 8000
