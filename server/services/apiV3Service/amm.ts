@@ -190,7 +190,9 @@ amm.get('/account/:account/positions', cacheSeconds(2, (req, res) => {
     }
 
     const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`)) || []
-    const tokensMap = new Map(tokenPrices.map((t) => [t.id, t]))
+    const tokensMap = new Map<string, { usd_price?: number }>(
+      tokenPrices.map((t) => [t.id, t])
+    )
 
     const userStakes = await loadUserStakes(network, positionIds)
     const stakesByPos = new Map()
