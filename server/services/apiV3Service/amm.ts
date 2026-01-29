@@ -39,6 +39,15 @@ function parseAssetAmount(assetString) {
   return { amount, symbol, precision }
 }
 
+function getPositionPoolId(pos) {
+  const candidates = [pos?.pool, pos?.poolId, pos?.pool_id]
+  for (const value of candidates) {
+    const num = Number(value)
+    if (Number.isFinite(num)) return num
+  }
+  return NaN
+}
+
 function getLogoUrl(networkName, tokenId) {
   if (!tokenId) return null
   return `https://${networkName}.alcor.exchange/api/v2/tokens/${tokenId}/logo`
@@ -178,7 +187,7 @@ amm.get('/account/:account/positions', cacheSeconds(2, (req, res) => {
     const positions = await getAccountPoolPositions(network.name, account)
     const positionIds = positions.map((p) => Number(p.id)).filter((id) => Number.isFinite(id))
 
-    const poolIds = positions.map((p) => Number(p.pool)).filter((id) => Number.isFinite(id))
+    const poolIds = positions.map(getPositionPoolId).filter((id) => Number.isFinite(id))
     const pools = await SwapPool.find({ chain: network.name, id: { $in: poolIds } }).lean()
     const poolMap = new Map(pools.map((p) => [Number(p.id), p]))
 
@@ -202,7 +211,10 @@ amm.get('/account/:account/positions', cacheSeconds(2, (req, res) => {
     }
 
     const response = positions.map((pos) => {
-      const pool = poolMap.get(Number(pos.pool))
+      const poolId = getPositionPoolId(pos)
+      if (!Number.isFinite(poolId)) return null
+
+      const pool = poolMap.get(poolId)
       if (!pool) return null
 
       const tokenA = pool.tokenA
@@ -332,7 +344,7 @@ amm.get('/account/:account/positions', cacheSeconds(2, (req, res) => {
       return {
         id: String(pos.id),
         owner: pos.owner,
-        poolId: pool.id,
+        poolId,
         feePct: pool.fee / 10000,
         inRange: Boolean(pos.inRange),
         priceLower,
