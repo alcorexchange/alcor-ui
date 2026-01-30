@@ -7,7 +7,8 @@ import { Token, TickMath, TICK_SPACINGS, nearestUsableTick, tickToPrice } from '
 import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
 import { parseAssetPlain } from '../../../utils'
 import { getIncentives } from '../apiV2Service/farms'
-import { getAccountPoolPositions } from '../apiV2Service/account'
+import { getAccountPoolPositions, getPositionStats } from '../apiV2Service/account'
+import { getRedisPosition } from '../swapV2Service/utils'
 import { SwapPool } from '../../models'
 import { redis } from '../../utils'
 
@@ -37,15 +38,6 @@ function parseAssetAmount(assetString) {
   if (!Number.isFinite(amount)) return null
   const precision = amountStr.includes('.') ? amountStr.split('.')[1].length : 0
   return { amount, symbol, precision }
-}
-
-function getPositionPoolId(pos) {
-  const candidates = [pos?.pool, pos?.poolId, pos?.pool_id]
-  for (const value of candidates) {
-    const num = Number(value)
-    if (Number.isFinite(num)) return num
-  }
-  return NaN
 }
 
 function getLogoUrl(networkName, tokenId) {
@@ -176,6 +168,209 @@ async function loadUserStakes(network, positionIds) {
   return (await Promise.all(stakeRequests)).flat()
 }
 
+async function buildPositionsResponse(network, positions, incentivesFilter) {
+  const positionIds = positions.map((p) => Number(p.id)).filter((id) => Number.isFinite(id))
+  const poolIds = positions.map((p) => Number(p.pool)).filter((id) => Number.isFinite(id))
+
+  const pools = await SwapPool.find({ chain: network.name, id: { $in: poolIds } }).lean()
+  const poolMap = new Map(pools.map((p) => [Number(p.id), p]))
+
+  const incentives = await getIncentives(network)
+  const incentivesByPool = new Map()
+  for (const incentive of incentives) {
+    if (!incentivesByPool.has(incentive.poolId)) incentivesByPool.set(incentive.poolId, [])
+    incentivesByPool.get(incentive.poolId).push(incentive)
+  }
+
+  const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`)) || []
+  const tokensMap = new Map<string, { usd_price?: number }>(
+    tokenPrices.map((t) => [t.id, t])
+  )
+
+  const userStakes = await loadUserStakes(network, positionIds)
+  const stakesByPos = new Map()
+  for (const stake of userStakes) {
+    if (!stakesByPos.has(stake.posId)) stakesByPos.set(stake.posId, [])
+    stakesByPos.get(stake.posId).push(stake)
+  }
+
+  const response = positions.map((pos) => {
+    const pool = poolMap.get(Number(pos.pool))
+    if (!pool) return null
+
+    const tokenA = pool.tokenA
+    const tokenB = pool.tokenB
+    const tokenAForSdk = new Token(tokenA.contract, tokenA.decimals, tokenA.symbol)
+    const tokenBForSdk = new Token(tokenB.contract, tokenB.decimals, tokenB.symbol)
+
+    const tickLower = Number(pos.tickLower)
+    const tickUpper = Number(pos.tickUpper)
+    const hasTicks = Number.isFinite(tickLower) && Number.isFinite(tickUpper)
+    const limits = hasTicks ? isTicksAtLimit(pool.fee, tickLower, tickUpper) : { LOWER: false, UPPER: false }
+
+    const priceLower = !hasTicks
+      ? '-'
+      : limits.LOWER
+          ? '0'
+          : tickToPrice(tokenAForSdk, tokenBForSdk, tickLower).toSignificant(5)
+    const priceUpper = !hasTicks
+      ? '-'
+      : limits.UPPER
+          ? 'INF'
+          : tickToPrice(tokenAForSdk, tokenBForSdk, tickUpper).toSignificant(5)
+
+    const stakeRows = stakesByPos.get(Number(pos.id)) || []
+    const stakedIncentiveIds = new Set(stakeRows.map((s) => s.incentiveId))
+
+    let poolIncentives = (incentivesByPool.get(pool.id) || []).map((inc) => {
+      const stake = stakeRows.find((s) => s.incentiveId === inc.id)
+      const apr = calcIncentiveApr(inc, pool, tokensMap)
+      const staked = stakedIncentiveIds.has(inc.id)
+
+      let userSharePercent = null
+      let dailyRewards = null
+      let farmedReward = null
+
+      if (stake) {
+        const totalStakingWeight = bigInt(inc.totalStakingWeight)
+        const stakingWeight = bigInt(stake.stakingWeight)
+        const userRewardPerTokenPaid = bigInt(stake.userRewardPerTokenPaid)
+        const rewards = bigInt(stake.rewards)
+
+        const reward = stakingWeight
+          .multiply(getRewardPerToken(inc).subtract(userRewardPerTokenPaid))
+          .divide(PrecisionMultiplier)
+          .add(rewards)
+
+        if (!totalStakingWeight.eq(0)) {
+          userSharePercent =
+            Math.round(parseFloat(stakingWeight.toString()) * 100 /
+              totalStakingWeight.toJSNumber() * 10000) / 10000
+        } else {
+          userSharePercent = 0
+        }
+
+        const rewardSymbol = inc.reward?.symbol?.symbol ?? inc.reward?.symbol
+        const rewardPrecision = inc.reward?.symbol?.precision ?? 0
+
+        const rewardAsset = Asset.fromUnits(
+          reward.toString(),
+          Asset.Symbol.fromParts(rewardSymbol, rewardPrecision)
+        )
+        farmedReward = rewardAsset.toString()
+
+        const daily = inc.isFinished
+          ? 0
+          : (inc.rewardPerDay * userSharePercent / 100)
+        dailyRewards = `${Number(daily).toFixed(rewardPrecision)} ${rewardSymbol}`
+      }
+
+      const rewardSymbol = inc.reward?.symbol?.symbol ?? inc.reward?.symbol
+      const rewardContract = inc.reward?.contract
+      const rewardTokenId = rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
+
+      return {
+        id: inc.id,
+        rewardPerDay: inc.rewardPerDay,
+        reward: inc.reward?.quantity,
+        rewardSymbol,
+        rewardTokenId,
+        daysRemain: inc.daysRemain,
+        isFinished: inc.isFinished,
+        apr,
+        staked,
+        userSharePercent,
+        dailyRewards,
+        farmedReward,
+      }
+    })
+
+    if (incentivesFilter === 'active') {
+      poolIncentives = poolIncentives.filter((i) => !i.isFinished)
+    } else if (incentivesFilter === 'finished') {
+      poolIncentives = poolIncentives.filter((i) => i.isFinished)
+    }
+
+    const stakeStatus = poolIncentives.length === 0
+      ? null
+      : poolIncentives.every((i) => i.staked)
+          ? 'staked'
+          : poolIncentives.some((i) => i.staked)
+              ? 'partiallyStaked'
+              : 'notStaked'
+
+    const availableIncentives = poolIncentives.filter((i) => !i.isFinished && !i.staked)
+
+    const amountA = typeof pos.amountA === 'string' ? parseAssetPlain(pos.amountA).amount : pos.amountA
+    const amountB = typeof pos.amountB === 'string' ? parseAssetPlain(pos.amountB).amount : pos.amountB
+    const amountAUsd = Number(amountA || 0) * (tokensMap.get(tokenA.id)?.usd_price ?? 0)
+    const amountBUsd = Number(amountB || 0) * (tokensMap.get(tokenB.id)?.usd_price ?? 0)
+    const totalAmountsUsd = amountAUsd + amountBUsd
+    const percentA = totalAmountsUsd > 0 ? (amountAUsd / totalAmountsUsd) * 100 : 0
+    const percentB = totalAmountsUsd > 0 ? (amountBUsd / totalAmountsUsd) * 100 : 0
+
+    const feesAParsed = parseAssetAmount(pos.feesA)
+    const feesBParsed = parseAssetAmount(pos.feesB)
+    const feesAUsd = feesAParsed
+      ? feesAParsed.amount * (tokensMap.get(tokenA.id)?.usd_price ?? 0)
+      : 0
+    const feesBUsd = feesBParsed
+      ? feesBParsed.amount * (tokensMap.get(tokenB.id)?.usd_price ?? 0)
+      : 0
+
+    const poolLiquidity = Number(pool.liquidity ?? 0)
+    const posLiquidity = Number(pos.liquidity ?? 0)
+    const poolSharePct = poolLiquidity > 0 && posLiquidity > 0 ? (posLiquidity / poolLiquidity) * 100 : null
+
+    return {
+      id: String(pos.id),
+      owner: pos.owner,
+      poolId: pool.id,
+      feePct: pool.fee / 10000,
+      inRange: Boolean(pos.inRange),
+      priceLower,
+      priceUpper,
+      amountA: formatAmount(amountA, tokenA.decimals),
+      amountB: formatAmount(amountB, tokenB.decimals),
+      totalValueUSD: Number(pos.totalValue ?? 0),
+      totalFeesUSD: Number(pos.totalFeesUSD ?? 0),
+      feesA: formatAssetAmount(pos.feesA),
+      feesB: formatAssetAmount(pos.feesB),
+      feesAUsd,
+      feesBUsd,
+      amountAUsd,
+      amountBUsd,
+      percentA: Number(percentA.toFixed(2)),
+      percentB: Number(percentB.toFixed(2)),
+      pnlUSD: Number(pos.pNl ?? 0),
+      poolSharePct,
+      estimatedFees24hUSD: null,
+      currentPriceA: pool.priceA ?? null,
+      currentPriceB: pool.priceB ?? null,
+      tokenA: {
+        symbol: tokenA.symbol,
+        contract: tokenA.contract,
+        decimals: tokenA.decimals,
+        id: tokenA.id,
+      },
+      tokenB: {
+        symbol: tokenB.symbol,
+        contract: tokenB.contract,
+        decimals: tokenB.decimals,
+        id: tokenB.id,
+      },
+      farm: {
+        stakeStatus,
+        activeIncentives: poolIncentives.filter((i) => !i.isFinished).length,
+        incentives: poolIncentives,
+        availableIncentives,
+      },
+    }
+  }).filter(Boolean)
+
+  return response
+}
+
 amm.get('/account/:account/positions', cacheSeconds(2, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.account
 }), async (req, res) => {
@@ -185,211 +380,42 @@ amm.get('/account/:account/positions', cacheSeconds(2, (req, res) => {
 
   try {
     const positions = await getAccountPoolPositions(network.name, account)
-    const positionIds = positions.map((p) => Number(p.id)).filter((id) => Number.isFinite(id))
-
-    const poolIds = positions.map(getPositionPoolId).filter((id) => Number.isFinite(id))
-    const pools = await SwapPool.find({ chain: network.name, id: { $in: poolIds } }).lean()
-    const poolMap = new Map(pools.map((p) => [Number(p.id), p]))
-
-    const incentives = await getIncentives(network)
-    const incentivesByPool = new Map()
-    for (const incentive of incentives) {
-      if (!incentivesByPool.has(incentive.poolId)) incentivesByPool.set(incentive.poolId, [])
-      incentivesByPool.get(incentive.poolId).push(incentive)
-    }
-
-    const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`)) || []
-    const tokensMap = new Map<string, { usd_price?: number }>(
-      tokenPrices.map((t) => [t.id, t])
-    )
-
-    const userStakes = await loadUserStakes(network, positionIds)
-    const stakesByPos = new Map()
-    for (const stake of userStakes) {
-      if (!stakesByPos.has(stake.posId)) stakesByPos.set(stake.posId, [])
-      stakesByPos.get(stake.posId).push(stake)
-    }
-
-    const response = positions.map((pos) => {
-      const poolId = getPositionPoolId(pos)
-      if (!Number.isFinite(poolId)) return null
-
-      const pool = poolMap.get(poolId)
-      if (!pool) return null
-
-      const tokenA = pool.tokenA
-      const tokenB = pool.tokenB
-      const tokenAForSdk = new Token(tokenA.contract, tokenA.decimals, tokenA.symbol)
-      const tokenBForSdk = new Token(tokenB.contract, tokenB.decimals, tokenB.symbol)
-
-      const tickLower = Number(pos.tickLower)
-      const tickUpper = Number(pos.tickUpper)
-      const hasTicks = Number.isFinite(tickLower) && Number.isFinite(tickUpper)
-      const limits = hasTicks ? isTicksAtLimit(pool.fee, tickLower, tickUpper) : { LOWER: false, UPPER: false }
-
-      const priceLower = !hasTicks
-        ? '-'
-        : limits.LOWER
-            ? '0'
-            : tickToPrice(tokenAForSdk, tokenBForSdk, tickLower).toSignificant(5)
-      const priceUpper = !hasTicks
-        ? '-'
-        : limits.UPPER
-            ? 'INF'
-            : tickToPrice(tokenAForSdk, tokenBForSdk, tickUpper).toSignificant(5)
-
-      const stakeRows = stakesByPos.get(Number(pos.id)) || []
-      const stakedIncentiveIds = new Set(stakeRows.map((s) => s.incentiveId))
-
-      let poolIncentives = (incentivesByPool.get(pool.id) || []).map((inc) => {
-        const stake = stakeRows.find((s) => s.incentiveId === inc.id)
-        const apr = calcIncentiveApr(inc, pool, tokensMap)
-        const staked = stakedIncentiveIds.has(inc.id)
-
-        let userSharePercent = null
-        let dailyRewards = null
-        let farmedReward = null
-
-        if (stake) {
-          const totalStakingWeight = bigInt(inc.totalStakingWeight)
-          const stakingWeight = bigInt(stake.stakingWeight)
-          const userRewardPerTokenPaid = bigInt(stake.userRewardPerTokenPaid)
-          const rewards = bigInt(stake.rewards)
-
-          const reward = stakingWeight
-            .multiply(getRewardPerToken(inc).subtract(userRewardPerTokenPaid))
-            .divide(PrecisionMultiplier)
-            .add(rewards)
-
-          if (!totalStakingWeight.eq(0)) {
-            userSharePercent =
-              Math.round(parseFloat(stakingWeight.toString()) * 100 /
-                totalStakingWeight.toJSNumber() * 10000) / 10000
-          } else {
-            userSharePercent = 0
-          }
-
-          const rewardSymbol = inc.reward?.symbol?.symbol ?? inc.reward?.symbol
-          const rewardPrecision = inc.reward?.symbol?.precision ?? 0
-
-          const rewardAsset = Asset.fromUnits(
-            reward.toString(),
-            Asset.Symbol.fromParts(rewardSymbol, rewardPrecision)
-          )
-          farmedReward = rewardAsset.toString()
-
-          const daily = inc.isFinished
-            ? 0
-            : (inc.rewardPerDay * userSharePercent / 100)
-          dailyRewards = `${Number(daily).toFixed(rewardPrecision)} ${rewardSymbol}`
-        }
-
-        const rewardSymbol = inc.reward?.symbol?.symbol ?? inc.reward?.symbol
-        const rewardContract = inc.reward?.contract
-        const rewardTokenId = rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
-
-        return {
-          id: inc.id,
-          rewardPerDay: inc.rewardPerDay,
-          reward: inc.reward?.quantity,
-          rewardSymbol,
-          rewardTokenId,
-          daysRemain: inc.daysRemain,
-          isFinished: inc.isFinished,
-          apr,
-          staked,
-          userSharePercent,
-          dailyRewards,
-          farmedReward,
-        }
-      })
-
-      if (incentivesFilter === 'active') {
-        poolIncentives = poolIncentives.filter((i) => !i.isFinished)
-      } else if (incentivesFilter === 'finished') {
-        poolIncentives = poolIncentives.filter((i) => i.isFinished)
-      }
-
-      const stakeStatus = poolIncentives.length === 0
-        ? null
-        : poolIncentives.every((i) => i.staked)
-            ? 'staked'
-            : poolIncentives.some((i) => i.staked)
-                ? 'partiallyStaked'
-                : 'notStaked'
-
-      const availableIncentives = poolIncentives.filter((i) => !i.isFinished && !i.staked)
-
-      const amountA = typeof pos.amountA === 'string' ? parseAssetPlain(pos.amountA).amount : pos.amountA
-      const amountB = typeof pos.amountB === 'string' ? parseAssetPlain(pos.amountB).amount : pos.amountB
-      const amountAUsd = Number(amountA || 0) * (tokensMap.get(tokenA.id)?.usd_price ?? 0)
-      const amountBUsd = Number(amountB || 0) * (tokensMap.get(tokenB.id)?.usd_price ?? 0)
-      const totalAmountsUsd = amountAUsd + amountBUsd
-      const percentA = totalAmountsUsd > 0 ? (amountAUsd / totalAmountsUsd) * 100 : 0
-      const percentB = totalAmountsUsd > 0 ? (amountBUsd / totalAmountsUsd) * 100 : 0
-
-      const feesAParsed = parseAssetAmount(pos.feesA)
-      const feesBParsed = parseAssetAmount(pos.feesB)
-      const feesAUsd = feesAParsed
-        ? feesAParsed.amount * (tokensMap.get(tokenA.id)?.usd_price ?? 0)
-        : 0
-      const feesBUsd = feesBParsed
-        ? feesBParsed.amount * (tokensMap.get(tokenB.id)?.usd_price ?? 0)
-        : 0
-
-      const poolLiquidity = Number(pool.liquidity ?? 0)
-      const posLiquidity = Number(pos.liquidity ?? 0)
-      const poolSharePct = poolLiquidity > 0 && posLiquidity > 0 ? (posLiquidity / poolLiquidity) * 100 : null
-
-      return {
-        id: String(pos.id),
-        owner: pos.owner,
-        poolId,
-        feePct: pool.fee / 10000,
-        inRange: Boolean(pos.inRange),
-        priceLower,
-        priceUpper,
-        amountA: formatAmount(amountA, tokenA.decimals),
-        amountB: formatAmount(amountB, tokenB.decimals),
-        totalValueUSD: Number(pos.totalValue ?? 0),
-        totalFeesUSD: Number(pos.totalFeesUSD ?? 0),
-        feesA: formatAssetAmount(pos.feesA),
-        feesB: formatAssetAmount(pos.feesB),
-        feesAUsd,
-        feesBUsd,
-        amountAUsd,
-        amountBUsd,
-        percentA: Number(percentA.toFixed(2)),
-        percentB: Number(percentB.toFixed(2)),
-        pnlUSD: Number(pos.pNl ?? 0),
-        poolSharePct,
-        estimatedFees24hUSD: null,
-        currentPriceA: pool.priceA ?? null,
-        currentPriceB: pool.priceB ?? null,
-        tokenA: {
-          symbol: tokenA.symbol,
-          contract: tokenA.contract,
-          decimals: tokenA.decimals,
-          id: tokenA.id,
-        },
-        tokenB: {
-          symbol: tokenB.symbol,
-          contract: tokenB.contract,
-          decimals: tokenB.decimals,
-          id: tokenB.id,
-        },
-        farm: {
-          stakeStatus,
-          activeIncentives: poolIncentives.filter((i) => !i.isFinished).length,
-          incentives: poolIncentives,
-          availableIncentives,
-        },
-      }
-    }).filter(Boolean)
+    const response = await buildPositionsResponse(network, positions, incentivesFilter)
 
     res.json(response)
   } catch (err) {
     console.error('Error in v3 positions:', err)
     res.status(500).json({ error: 'Failed to load positions' })
+  }
+})
+
+amm.get('/positions/:id', cacheSeconds(2, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.id
+}), async (req, res) => {
+  const network = req.app.get('network')
+  const incentivesFilter = String(req.query?.incentives || 'active').toLowerCase()
+  const id = Number(req.params.id)
+
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: 'Invalid position id' })
+    return
+  }
+
+  try {
+    const redisPosition = await getRedisPosition(network.name, id)
+    if (!redisPosition) {
+      res.status(404).json({ error: 'Position not found' })
+      return
+    }
+
+    const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`))
+    const stats = await getPositionStats(network.name, redisPosition, tokenPrices, new Map())
+    const positions = [{ ...redisPosition, ...stats }]
+
+    const response = await buildPositionsResponse(network, positions, incentivesFilter)
+    res.json(response[0] ?? null)
+  } catch (err) {
+    console.error('Error in v3 position:', err)
+    res.status(500).json({ error: 'Failed to load position' })
   }
 })
