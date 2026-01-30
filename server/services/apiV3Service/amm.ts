@@ -371,9 +371,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
   return response
 }
 
-amm.get('/account/:account/positions', cacheSeconds(2, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.account
-}), async (req, res) => {
+amm.get('/account/:account/positions', async (req, res) => {
   const network = req.app.get('network')
   const account = req.params.account
   const incentivesFilter = String(req.query?.incentives || 'active').toLowerCase()
@@ -389,9 +387,7 @@ amm.get('/account/:account/positions', cacheSeconds(2, (req, res) => {
   }
 })
 
-amm.get('/positions/:id', cacheSeconds(2, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.id
-}), async (req, res) => {
+amm.get('/positions/:id', async (req, res) => {
   const network = req.app.get('network')
   const incentivesFilter = String(req.query?.incentives || 'active').toLowerCase()
   const id = Number(req.params.id)
