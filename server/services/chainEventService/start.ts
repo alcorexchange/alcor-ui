@@ -6,7 +6,11 @@ import { decodeActionData } from './utils'
 // HOTFIX SOMETHING WITH CONNECTION
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
-const ACCOUNTS = ['swap.alcor', 'alcordexmain', 'alcor', 'book.alcor']
+const ACCOUNTS = new Set(
+  Object.values(config.networks || {})
+    .flatMap((n: any) => [n?.contract, n?.amm?.contract])
+    .filter(Boolean)
+)
 const ACTIONS = ['*']
 
 async function handleAction(chain: string, action) {
@@ -69,7 +73,7 @@ async function eventStreamer(chain: string, callback?) {
         for (const transaction of block.transactions) {
           if (transaction.status === 'executed' || chain === 'ultra') {
             for (const action of transaction.actions) {
-              if (ACCOUNTS.includes(action.account) && (ACTIONS.includes(action.name) || ACTIONS.includes('*'))) {
+              if (ACCOUNTS.has(action.account) && (ACTIONS.includes(action.name) || ACTIONS.includes('*'))) {
                 const isHex = typeof action.data === 'string' && /^[0-9a-fA-F]+$/.test(action.data)
 
                 const data = await decodeActionData(

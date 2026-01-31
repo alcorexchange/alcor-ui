@@ -146,6 +146,10 @@ export const actions = {
     })
 
     // TODO Move push notifications to other place
+    this.$socket.on('account:update-v2', (payload) => {
+      dispatch('handleAccountUpdateV2', payload)
+    })
+
     this.$socket.on('match', (match) => {
       if (loadOrdersDebounce[match.market_id]) clearTimeout(loadOrdersDebounce[match.market_id])
 
@@ -180,6 +184,38 @@ export const actions = {
       // Play sound
       playOrderMatchSound()
     })
+  },
+
+  async handleAccountUpdateV2({ state, dispatch, rootState }, payload) {
+    if (!state.user || !payload) return
+    if (payload.account && payload.account !== state.user.name) return
+    if (payload.chain && payload.chain !== rootState.network.name) return
+
+    if (payload.balancesAll) {
+      dispatch('loadUserBalances')
+    } else if (Array.isArray(payload.balances) && payload.balances.length > 0) {
+      await Promise.all(
+        payload.balances.map((b) =>
+          dispatch('updateBalance', { contract: b.contract, symbol: b.symbol })
+        )
+      )
+    }
+
+    if (payload.accountLimits) {
+      dispatch('loadAccountLimits')
+    }
+
+    if (Array.isArray(payload.orders) && payload.orders.length > 0) {
+      const uniqueMarkets = [...new Set(payload.orders)]
+      for (const marketId of uniqueMarkets) {
+        dispatch('loadOrders', marketId)
+      }
+    }
+
+    if (Array.isArray(payload.positions) && payload.positions.length > 0) {
+      dispatch('amm/fetchPositions', {}, { root: true })
+      dispatch('amm/fetchPositionsHistory', {}, { root: true })
+    }
   },
 
   toggleTheme({ state, commit }) {

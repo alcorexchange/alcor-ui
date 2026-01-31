@@ -10,6 +10,7 @@ import { Match, Bar, SwapBar } from '../../models'
 
 import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
+import { initAccountUpdates } from './accountUpdates'
 
 const httpServer = createServer()
 const io = new Server(httpServer, { cors: { origin: '*' } })
@@ -104,6 +105,9 @@ async function main() {
     // Push to room with all swap events
     io.to(`swap:${chain}`).emit('swap:pool:update', update)
   })
+
+  // ChainAction-based account updates (v2)
+  initAccountUpdates(io)
 }
 
 main()
