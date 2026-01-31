@@ -8,9 +8,10 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const ACCOUNTS = new Set(
   Object.values(config.networks || {})
-    .flatMap((n: any) => [n?.contract, n?.amm?.contract])
+    .flatMap((n: any) => [n?.contract, n?.amm?.contract, n?.staking?.contract])
     .filter(Boolean)
 )
+ACCOUNTS.add('alcor-staking-contract')
 const ACTIONS = ['*']
 
 async function handleAction(chain: string, action) {

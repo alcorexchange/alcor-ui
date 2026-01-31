@@ -60,6 +60,9 @@ Dex (alcordexmain / eostokensdex / book.alcor)
 - cancelbuy, cancelsell -> balances + orders + accountLimits
 - buymatch, sellmatch -> balances + orders + accountLimits (bidder + asker)
 
+Staking (liquid.alcor / alcor-staking-contract)
+- any action with account fields -> balancesAll for involved accounts
+
 ## Notes
 - If market/pool not found in DB, payload uses balancesAll: true
 - Old events remain for now: "match", "account:update-positions"

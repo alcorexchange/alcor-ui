@@ -11,6 +11,7 @@ type AccountUpdate = {
 }
 
 const CACHE_TTL_MS = 5 * 60 * 1000
+const EOS_NAME_REGEX = /^[a-z1-5.]{1,12}$/
 const marketCache = new Map<string, { value: any, expires: number }>()
 const poolCache = new Map<string, { value: any, expires: number }>()
 
@@ -81,6 +82,17 @@ function addPoolBalances(update: AccountUpdate, pool?: any) {
   addBalance(update, pool.tokenB?.contract, pool.tokenB?.symbol)
 }
 
+function extractAccountsFromData(data: any): string[] {
+  if (!data || typeof data !== 'object') return []
+  const keys = ['owner', 'from', 'to', 'account', 'recipient', 'payer', 'user', 'staker', 'beneficiary']
+  const accounts = new Set<string>()
+  for (const key of keys) {
+    const value = data[key]
+    if (typeof value === 'string' && EOS_NAME_REGEX.test(value)) accounts.add(value)
+  }
+  return Array.from(accounts)
+}
+
 function toPayload(chain: string, account: string, update: AccountUpdate, meta: any) {
   const balances = update.balancesAll
     ? null
@@ -119,6 +131,7 @@ export function initAccountUpdates(io) {
 
       const spotContract = network.contract
       const swapContract = network.amm?.contract
+      const stakingContract = network.staking?.contract
       const updates = new Map<string, AccountUpdate>()
 
       const meta = { contract, action: name, trx_id, block_num, block_time }
@@ -176,6 +189,15 @@ export function initAccountUpdates(io) {
               if (!Number.isNaN(toPosId)) update.positions.add(toPosId)
             }
           }
+        }
+      }
+
+      if (contract === stakingContract || contract === 'alcor-staking-contract') {
+        const accounts = extractAccountsFromData(data)
+        for (const acc of accounts) {
+          const update = getUpdate(updates, acc)
+          update.balancesAll = true
+          update.balances.clear()
         }
       }
 
