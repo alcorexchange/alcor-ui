@@ -1,4 +1,4 @@
-const MAX_PAGINATION_FETCHES = 100
+const MAX_PAGINATION_FETCHES = 500
 
 import fetch from 'cross-fetch'
 import { JsonRpc as JsonRpcMultiEnds } from '../assets/libs/eosjs-jsonrpc'
