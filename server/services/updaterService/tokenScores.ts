@@ -92,15 +92,8 @@ async function getTokenHoldersCount(chain: string, token: { contract: string, sy
 
   let holders = 0
   try {
-    const symbols = await fetchAllScopes(rpc, token.contract, 'stat')
-    const isSingleSymbol = symbols.length === 1 && symbols[0].toUpperCase() === token.symbol.toUpperCase()
-
-    if (isSingleSymbol) {
-      const scopes = await fetchAllScopes(rpc, token.contract, 'accounts')
-      holders = scopes.length
-    } else {
-      holders = 0
-    }
+    const scopes = await fetchAllScopes(rpc, token.contract, 'accounts')
+    holders = scopes.length
   } catch (e) {
     console.error(`[${chain}] holders fetch failed for ${token.id}`, e)
     holders = 0
@@ -144,7 +137,7 @@ export async function updateTokenScores(network: Network) {
       markets.map(m => [m.id, { base: m.base_token.id, quote: m.quote_token.id }])
     )
 
-    // Swap volume/trades per pool
+    // Swap volume/trades per pool (last 7 days)
     const swapByPool = await Swap.aggregate([
       { $match: { chain, time: { $gte: since } } },
       {
@@ -152,7 +145,6 @@ export async function updateTokenScores(network: Network) {
           _id: '$pool',
           volumeUsd: { $sum: { $abs: { $ifNull: ['$totalUSDVolume', 0] } } },
           trades: { $sum: 1 },
-          firstSeen: { $min: '$time' },
         }
       }
     ])
@@ -166,6 +158,22 @@ export async function updateTokenScores(network: Network) {
         const stat = ensureStat(stats, tokenId)
         stat.volumeUsd7d += Number(p.volumeUsd || 0)
         stat.trades7d += Number(p.trades || 0)
+      }
+    }
+
+    // First seen date per pool (all time)
+    const swapFirstSeenByPool = await Swap.aggregate([
+      { $match: { chain } },
+      { $group: { _id: '$pool', firstSeen: { $min: '$time' } } }
+    ])
+
+    for (const p of swapFirstSeenByPool) {
+      const tokensPair = poolTokens.get(p._id)
+      if (!tokensPair) continue
+
+      for (const tokenId of [tokensPair.tokenA, tokensPair.tokenB]) {
+        if (!tokenIds.has(tokenId)) continue
+        const stat = ensureStat(stats, tokenId)
         stat.firstSeenAt = minDate(stat.firstSeenAt, p.firstSeen || null)
       }
     }
@@ -192,7 +200,7 @@ export async function updateTokenScores(network: Network) {
       }
     }
 
-    // Spot volume/trades per market
+    // Spot volume/trades per market (last 7 days)
     const matchByMarket = await Match.aggregate([
       { $match: { chain, time: { $gte: since } } },
       {
@@ -201,7 +209,6 @@ export async function updateTokenScores(network: Network) {
           baseVolume: { $sum: { $ifNull: ['$ask', 0] } },
           quoteVolume: { $sum: { $ifNull: ['$bid', 0] } },
           trades: { $sum: 1 },
-          firstSeen: { $min: '$time' },
         }
       }
     ])
@@ -220,13 +227,32 @@ export async function updateTokenScores(network: Network) {
         const stat = ensureStat(stats, tokensPair.base)
         stat.volumeUsd7d += baseVolumeUsd
         stat.trades7d += Number(m.trades || 0)
-        stat.firstSeenAt = minDate(stat.firstSeenAt, m.firstSeen || null)
       }
 
       if (tokenIds.has(tokensPair.quote)) {
         const stat = ensureStat(stats, tokensPair.quote)
         stat.volumeUsd7d += quoteVolumeUsd
         stat.trades7d += Number(m.trades || 0)
+      }
+    }
+
+    // First seen date per market (all time)
+    const matchFirstSeenByMarket = await Match.aggregate([
+      { $match: { chain } },
+      { $group: { _id: '$market', firstSeen: { $min: '$time' } } }
+    ])
+
+    for (const m of matchFirstSeenByMarket) {
+      const tokensPair = marketTokens.get(m._id)
+      if (!tokensPair) continue
+
+      if (tokenIds.has(tokensPair.base)) {
+        const stat = ensureStat(stats, tokensPair.base)
+        stat.firstSeenAt = minDate(stat.firstSeenAt, m.firstSeen || null)
+      }
+
+      if (tokenIds.has(tokensPair.quote)) {
+        const stat = ensureStat(stats, tokensPair.quote)
         stat.firstSeenAt = minDate(stat.firstSeenAt, m.firstSeen || null)
       }
     }
@@ -253,7 +279,8 @@ export async function updateTokenScores(network: Network) {
       }
     }
 
-    // Holders (contract scopes count, single-symbol contracts only)
+    // Holders (contract accounts scopes count)
+    // TODO: Add token distribution metrics (top 10 concentration, gini coefficient)
     const rpc = getChainRpc(chain)
     const holdersCache = new Map<string, number>()
     const limit = pLimit(HOLDERS_CONCURRENCY)
