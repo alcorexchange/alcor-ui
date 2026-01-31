@@ -78,7 +78,7 @@ export async function makeAllTokensWithPrices(network: Network) {
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
   const systemPrice = parseFloat(await getRedis().get(`${network.name}_price`)) || 0
 
-  const minimumUSDAmount = 1 // 1 USD
+  const minimumUSDAmount = 100 // $100 minimum liquidity to avoid absurd prices
   const minimumSystemAmount = (1 / systemPrice) * minimumUSDAmount
 
   const filterOutPoolsWithLowLiquidity = (p) => {
@@ -149,10 +149,17 @@ export async function makeAllTokensWithPrices(network: Network) {
 
       if (isUsdtPool) {
         t.usd_price = parseFloat((pool.tokenA.id == USD_TOKEN ? pool.tokenBPrice : pool.tokenAPrice).toSignificant(6))
-        t.systemPrice = (1 / systemPrice) * t.usd_price
+        t.system_price = (1 / systemPrice) * t.usd_price
       } else {
         t.system_price = parseFloat((pool.tokenA.id == system_token ? pool.tokenBPrice : pool.tokenAPrice).toSignificant(6))
         t.usd_price = t.system_price * systemPrice
+      }
+
+      // Cap unrealistic prices (likely from low liquidity pools)
+      const MAX_SANE_PRICE = 100000
+      if (t.usd_price > MAX_SANE_PRICE) {
+        t.usd_price = 0
+        t.system_price = 0
       }
     }
 

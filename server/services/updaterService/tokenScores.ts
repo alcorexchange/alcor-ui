@@ -10,9 +10,9 @@ const HOLDERS_CACHE_TTL_MS = 24 * 60 * 60 * 1000
 const HOLDERS_CONCURRENCY = 3
 
 // Tunables for MVP scoring (can be overridden by env)
-const VOLUME_SMALL_USD = Number(process.env.TOKEN_SCORE_VOLUME_SMALL_USD || 100)
-const VOLUME_NORMAL_USD = Number(process.env.TOKEN_SCORE_VOLUME_NORMAL_USD || 1000)
-const VOLUME_BIG_USD = Number(process.env.TOKEN_SCORE_VOLUME_BIG_USD || 10000)
+const VOLUME_SMALL_USD = Number(process.env.TOKEN_SCORE_VOLUME_SMALL_USD || 1000)
+const VOLUME_NORMAL_USD = Number(process.env.TOKEN_SCORE_VOLUME_NORMAL_USD || 10000)
+const VOLUME_BIG_USD = Number(process.env.TOKEN_SCORE_VOLUME_BIG_USD || 100000)
 const AGE_DAYS_MIN = Number(process.env.TOKEN_SCORE_AGE_MIN_DAYS || 3)
 const HOLDERS_MIN = Number(process.env.TOKEN_SCORE_HOLDERS_MIN || 5)
 const UNIQUE_TRADERS_MIN = Number(process.env.TOKEN_SCORE_UNIQUE_TRADERS_MIN || 3)
@@ -118,8 +118,9 @@ export async function updateTokenScores(network: Network) {
 
     console.time(`[${chain}] token scores updated`)
 
+    const MAX_SANE_PRICE = 100000 // Ignore tokens with unrealistic prices
     const tokenIds = new Set(tokens.map(t => t.id))
-    const tokenPriceMap = new Map(tokens.map(t => [t.id, t.usd_price || 0]))
+    const tokenPriceMap = new Map(tokens.map(t => [t.id, (t.usd_price && t.usd_price < MAX_SANE_PRICE) ? t.usd_price : 0]))
 
     const stats = new Map<string, TokenStat>()
 
@@ -293,14 +294,16 @@ export async function updateTokenScores(network: Network) {
     // Score computation
     const holdersPoints = [
       { x: 0, y: 0 },
-      { x: 10, y: 12 },
-      { x: 100, y: 30 },
+      { x: 100, y: 10 },
+      { x: 1000, y: 20 },
+      { x: 10000, y: 30 },
     ]
 
     const tradersPoints = [
       { x: 0, y: 0 },
-      { x: 5, y: 10 },
-      { x: 20, y: 30 },
+      { x: 10, y: 10 },
+      { x: 100, y: 20 },
+      { x: 1000, y: 30 },
     ]
 
     const volumePoints = [
