@@ -85,8 +85,9 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
     const tokenA = tokensMap.get(pool.tokenA.id)
     const tokenB = tokensMap.get(pool.tokenB.id)
 
-    const tokenAUSDPrice = tokenA?.usd_price || 0
-    const tokenBUSDPrice = tokenB?.usd_price || 0
+    const MAX_SANE_PRICE = 100000
+    const tokenAUSDPrice = (tokenA?.usd_price && tokenA.usd_price < MAX_SANE_PRICE) ? tokenA.usd_price : 0
+    const tokenBUSDPrice = (tokenB?.usd_price && tokenB.usd_price < MAX_SANE_PRICE) ? tokenB.usd_price : 0
 
     const totalUSDVolume = (Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)) / 2
 
@@ -829,8 +830,9 @@ export async function handleSwap({ chain, data, trx_id, block_time, block_num })
   const tokenA = await getToken(chain, pool.tokenA.id)
   const tokenB = await getToken(chain, pool.tokenB.id)
 
-  const tokenAUSDPrice = tokenA?.usd_price || 0
-  const tokenBUSDPrice = tokenB?.usd_price || 0
+  const MAX_SANE_PRICE = 100000
+  const tokenAUSDPrice = (tokenA?.usd_price && tokenA.usd_price < MAX_SANE_PRICE) ? tokenA.usd_price : 0
+  const tokenBUSDPrice = (tokenB?.usd_price && tokenB.usd_price < MAX_SANE_PRICE) ? tokenB.usd_price : 0
 
   const totalUSDVolume = (Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)) / 2
 

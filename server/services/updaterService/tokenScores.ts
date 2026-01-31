@@ -322,14 +322,17 @@ export async function updateTokenScores(network: Network) {
     const now = Date.now()
     const scores = {}
 
+    const MAX_SANE_VOLUME = 1_000_000_000 // $1B max to filter bad price data
+
     for (const t of tokens) {
       const stat = ensureStat(stats, t.id)
       const uniqueTraders7d = stat.uniqueTraders.size
       const ageDays = stat.firstSeenAt ? Math.floor((now - stat.firstSeenAt.getTime()) / (24 * 60 * 60 * 1000)) : 0
+      const cappedVolumeUsd7d = Math.min(stat.volumeUsd7d, MAX_SANE_VOLUME)
 
       const holdersScore = clamp(scoreByPoints(stat.holders, holdersPoints), 0, 30)
       const tradersScore = clamp(scoreByPoints(uniqueTraders7d, tradersPoints), 0, 30)
-      const volumeScore = clamp(scoreByPoints(stat.volumeUsd7d, volumePoints), 0, 30)
+      const volumeScore = clamp(scoreByPoints(cappedVolumeUsd7d, volumePoints), 0, 30)
       const ageBonus = clamp(scoreByPoints(ageDays, agePoints), 0, 10)
 
       let score = holdersScore + tradersScore + volumeScore + ageBonus
@@ -344,7 +347,7 @@ export async function updateTokenScores(network: Network) {
       scores[t.id] = {
         score,
         holders: stat.holders,
-        volumeUsd7d: Number(stat.volumeUsd7d.toFixed(2)),
+        volumeUsd7d: Number(cappedVolumeUsd7d.toFixed(2)),
         trades7d: stat.trades7d,
         uniqueTraders7d,
         ageDays,
