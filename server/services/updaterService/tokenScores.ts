@@ -79,7 +79,6 @@ async function getTokenHoldersCount(chain: string, token: { contract: string, sy
     try {
       const cached = JSON.parse(cachedRaw)
       if (cached && typeof cached.holders === 'number' && (Date.now() - cached.updatedAt) < HOLDERS_CACHE_TTL_MS) {
-        console.log(`[${chain}] holders CACHED for ${token.id}: ${cached.holders}`)
         return cached.holders
       }
     } catch (e) {
@@ -95,7 +94,6 @@ async function getTokenHoldersCount(chain: string, token: { contract: string, sy
   try {
     const scopes = await fetchAllScopes(rpc, token.contract, 'accounts')
     holders = scopes.length
-    console.log(`[${chain}] holders for ${token.id}: ${holders} (contract: ${token.contract})`)
   } catch (e) {
     console.error(`[${chain}] holders fetch failed for ${token.id}`, e)
     holders = 0
