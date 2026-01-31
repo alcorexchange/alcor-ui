@@ -128,7 +128,9 @@ tokens.get('/tokens', cacheSeconds(2, (req, res) => {
   }
 
   const scores = JSON.parse(await getRedis().get(`${network.name}_token_scores`) || '{}')
-  const tokensWithScore = tokens.map(t => ({ ...t, score: scores?.[t.id]?.score ?? 0 }))
+  const tokensWithScore = tokens
+    .map(t => ({ ...t, score: scores?.[t.id]?.score ?? 0 }))
+    .sort((a, b) => b.score - a.score)
 
   res.json(tokensWithScore)
 })
