@@ -78,7 +78,7 @@ export async function makeAllTokensWithPrices(network: Network) {
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
   const systemPrice = parseFloat(await getRedis().get(`${network.name}_price`)) || 0
 
-  const minimumUSDAmount = 100 // $100 minimum liquidity to avoid absurd prices
+  const minimumUSDAmount = 10 // $10 minimum liquidity to avoid absurd prices
   const minimumSystemAmount = (1 / systemPrice) * minimumUSDAmount
 
   const filterOutPoolsWithLowLiquidity = (p) => {

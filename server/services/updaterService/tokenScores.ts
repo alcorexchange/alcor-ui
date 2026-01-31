@@ -292,25 +292,26 @@ export async function updateTokenScores(network: Network) {
     })))
 
     // Score computation
+    // Weights: holders 35%, traders 35%, volume 20%, age 10%
     const holdersPoints = [
       { x: 0, y: 0 },
-      { x: 100, y: 10 },
-      { x: 1000, y: 20 },
-      { x: 10000, y: 30 },
+      { x: 100, y: 12 },
+      { x: 1000, y: 24 },
+      { x: 10000, y: 35 },
     ]
 
     const tradersPoints = [
       { x: 0, y: 0 },
-      { x: 10, y: 10 },
-      { x: 100, y: 20 },
-      { x: 1000, y: 30 },
+      { x: 10, y: 12 },
+      { x: 100, y: 24 },
+      { x: 1000, y: 35 },
     ]
 
     const volumePoints = [
       { x: 0, y: 0 },
-      { x: VOLUME_SMALL_USD, y: 8 },
-      { x: VOLUME_NORMAL_USD, y: 20 },
-      { x: VOLUME_BIG_USD, y: 30 },
+      { x: VOLUME_SMALL_USD, y: 5 },
+      { x: VOLUME_NORMAL_USD, y: 12 },
+      { x: VOLUME_BIG_USD, y: 20 },
     ].sort((a, b) => a.x - b.x)
 
     const agePoints = [
@@ -330,9 +331,9 @@ export async function updateTokenScores(network: Network) {
       const ageDays = stat.firstSeenAt ? Math.floor((now - stat.firstSeenAt.getTime()) / (24 * 60 * 60 * 1000)) : 0
       const cappedVolumeUsd7d = Math.min(stat.volumeUsd7d, MAX_SANE_VOLUME)
 
-      const holdersScore = clamp(scoreByPoints(stat.holders, holdersPoints), 0, 30)
-      const tradersScore = clamp(scoreByPoints(uniqueTraders7d, tradersPoints), 0, 30)
-      const volumeScore = clamp(scoreByPoints(cappedVolumeUsd7d, volumePoints), 0, 30)
+      const holdersScore = clamp(scoreByPoints(stat.holders, holdersPoints), 0, 35)
+      const tradersScore = clamp(scoreByPoints(uniqueTraders7d, tradersPoints), 0, 35)
+      const volumeScore = clamp(scoreByPoints(cappedVolumeUsd7d, volumePoints), 0, 20)
       const ageBonus = clamp(scoreByPoints(ageDays, agePoints), 0, 10)
 
       let score = holdersScore + tradersScore + volumeScore + ageBonus
