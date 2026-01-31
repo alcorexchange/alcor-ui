@@ -1,6 +1,6 @@
 import { performance } from 'perf_hooks'
 
-import { TradeType, Trade, Percent, Token, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
+import { TradeType, Trade, Percent, Token, Pool, Route, computeAllRoutes } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 import { tryParseCurrencyAmount } from '../../../utils/amm'
 import { getPools } from '../swapV2Service/utils'
@@ -10,6 +10,7 @@ import { getRedis, getSubscriber } from '../redis'
 export const swapRouter = Router()
 
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
+const ROUTES_CACHE_TIMEOUT_SECONDS = 60 * 60 * 24 * 20 // 20 дней
 const POOLS = {}
 const POOLS_LOADING_PROMISES = {}
 const TOKEN_INDEX = {} // { chain: Map<tokenId, Token> }
@@ -130,7 +131,7 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
     await getRedis().set('routes_' + cacheKey, JSON.stringify([]))
     // Устанавливаем время истечения в прошлое (1 час назад)
     await getRedis().set('routes_expiration_' + cacheKey, (Date.now() - 60 * 60 * 1000).toString())
-    return [] // Возвращаем пустой массив вместо ошибки
+    return { routes: [], cacheKey, cacheMiss: true, cacheEmpty: true }
   }
 
   const allPools = await getAllPools(chain)
@@ -141,7 +142,7 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
   if (!parsedRoutes || parsedRoutes.length === 0) {
     // Устанавливаем время истечения в прошлое чтобы updater пересчитал
     await getRedis().set('routes_expiration_' + cacheKey, (Date.now() - 60 * 60 * 1000).toString())
-    return routes
+    return { routes, cacheKey, cacheMiss: false, cacheEmpty: true }
   }
 
   for (const route of parsedRoutes) {
@@ -155,7 +156,7 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
     }
   }
 
-  return routes
+  return { routes, cacheKey, cacheMiss: false, cacheEmpty: false }
 }
 
 // Оптимизированный поиск токенов через индекс O(1)
@@ -171,6 +172,41 @@ function cleanTradeCache() {
       TRADE_CACHE.delete(key)
     }
   }
+}
+
+async function computeRoutesOnDemand(
+  chain,
+  inputToken,
+  outputToken,
+  maxHops,
+  allPools: Map<any, Pool>,
+  cacheKey
+) {
+  const startTime = performance.now()
+
+  const pools = (Array.from(allPools.values()) as any[]).filter(
+    (p) => Boolean(p && p.active && p.tickDataProvider?.ticks?.length > 0)
+  )
+  const poolsForRoutes = pools as Pool[]
+
+  let routes: Route<Token, Token>[] = []
+  try {
+    routes = computeAllRoutes(inputToken, outputToken, poolsForRoutes, maxHops) as Route<Token, Token>[]
+  } catch (e) {
+    console.error(`[ROUTES] On-demand compute failed for ${cacheKey}:`, e.message)
+    return []
+  }
+
+  if (routes.length > 0) {
+    const redisRoutes = routes.map(({ pools }) => pools.map(p => p.id))
+    await getRedis().set('routes_' + cacheKey, JSON.stringify(redisRoutes))
+    await getRedis().set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT_SECONDS * 1000).toString())
+  }
+
+  const endTime = performance.now()
+  console.log(`[ROUTES] On-demand compute: ${cacheKey} -> ${routes.length} routes in ${Math.round(endTime - startTime)}ms`)
+
+  return routes
 }
 
 // Эндпоинт для просмотра статистики
@@ -224,10 +260,10 @@ swapRouter.get('/getRoute', async (req, res) => {
   const exactIn = trade_type === 'EXACT_INPUT'
 
   // Создаем ключ для кеша
-  const cacheKey = `${network.name}-${input}-${output}-${amount}-${trade_type}-${maxHops}-${slippage.toSignificant()}-${v2}`
+  const tradeCacheKey = `${network.name}-${input}-${output}-${amount}-${trade_type}-${maxHops}-${slippage.toSignificant()}-${v2}`
 
   // Проверяем кеш
-  const cached = TRADE_CACHE.get(cacheKey)
+  const cached = TRADE_CACHE.get(tradeCacheKey)
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
     const routeInfo = `${input}->${output}`
@@ -258,16 +294,35 @@ swapRouter.get('/getRoute', async (req, res) => {
   }
 
   let cachedRoutes = []
+  let cacheKey = ''
   try {
-    cachedRoutes = await getCachedRoutes(
+    const cachedRoutesInfo = await getCachedRoutes(
       network.name,
       inputToken,
       outputToken,
       maxHops
     )
+    cachedRoutes = cachedRoutesInfo.routes
+    cacheKey = cachedRoutesInfo.cacheKey
   } catch (e) {
     console.error('Error getting cached routes:', e.message)
     return res.status(500).send('Service temporarily unavailable')
+  }
+
+  if (cachedRoutes.length == 0) {
+    console.log(`[ROUTES] Cache empty: ${network.name} ${inputToken.symbol}(${inputToken.id}) -> ${outputToken.symbol}(${outputToken.id}) maxHops:${maxHops}`)
+    try {
+      cachedRoutes = await computeRoutesOnDemand(
+        network.name,
+        inputToken,
+        outputToken,
+        maxHops,
+        allPools,
+        cacheKey || `${network.name}-${inputToken.id}-${outputToken.id}-${maxHops}`
+      )
+    } catch (e) {
+      console.error('Error computing routes on-demand:', e.message)
+    }
   }
 
   if (cachedRoutes.length == 0) {
@@ -330,7 +385,7 @@ swapRouter.get('/getRoute', async (req, res) => {
   const parsedTrade = parseTrade(trade, slippage, receiver)
 
   // Сохраняем результат в кеш
-  TRADE_CACHE.set(cacheKey, {
+  TRADE_CACHE.set(tradeCacheKey, {
     data: parsedTrade,
     timestamp: Date.now()
   })
