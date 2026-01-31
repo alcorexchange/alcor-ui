@@ -70,6 +70,26 @@ export const fetchAllScopes = async (rpc, contract, table) => {
     table
   }
 
-  const rows = (await rpc.get_table_by_scope(mergedOptions)).rows
-  return rows.map((row) => row.scope)
+  const scopes = []
+  let lowerBound = mergedOptions.lower_bound
+
+  for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
+    const result = await rpc.get_table_by_scope({
+      ...mergedOptions,
+      lower_bound: lowerBound,
+    })
+
+    if (Array.isArray(result.rows) && result.rows.length > 0) {
+      scopes.push(...result.rows.map((row) => row.scope))
+    }
+
+    const nextKey = (typeof result.more === 'string' && result.more.length > 0)
+      ? result.more
+      : (typeof result.next_key === 'string' && result.next_key.length > 0 ? result.next_key : null)
+
+    if (!nextKey || result.rows.length === 0) break
+    lowerBound = nextKey
+  }
+
+  return scopes
 }

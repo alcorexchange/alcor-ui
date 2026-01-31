@@ -94,7 +94,24 @@ tokens.get('/tokens/:id', cacheSeconds(2, (req, res) => {
 
   if (!token) return res.status(403).send('Token with this ID is not found')
 
-  res.json(token)
+  const scores = JSON.parse(await getRedis().get(`${network.name}_token_scores`) || '{}')
+  const score = scores?.[token.id]?.score ?? 0
+
+  res.json({ ...token, score })
+})
+
+tokens.get('/tokens/:id/score', cacheSeconds(2, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.id
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+  const tokenId = req.params.id.toLowerCase()
+
+  const scores = JSON.parse(await getRedis().get(`${network.name}_token_scores`) || '{}')
+  const scoreInfo = scores?.[tokenId]
+
+  if (!scoreInfo) return res.json({ score: 0 })
+
+  res.json(scoreInfo)
 })
 
 tokens.get('/tokens', cacheSeconds(2, (req, res) => {
@@ -110,5 +127,8 @@ tokens.get('/tokens', cacheSeconds(2, (req, res) => {
     tokens = tokens.filter(t => !scam_contracts.has(t.contract) && !scam_tokens.has(t.id))
   }
 
-  res.json(tokens)
+  const scores = JSON.parse(await getRedis().get(`${network.name}_token_scores`) || '{}')
+  const tokensWithScore = tokens.map(t => ({ ...t, score: scores?.[t.id]?.score ?? 0 }))
+
+  res.json(tokensWithScore)
 })

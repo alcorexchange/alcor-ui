@@ -8,6 +8,7 @@ import { updateGlobalStats } from './analytics'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats, updatePositionsAggregation } from './swap'
 import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
+import { updateTokenScores } from './tokenScores'
 
 import { streamByTrace, streamByGreymass } from './streamers'
 
@@ -80,4 +81,8 @@ export async function updater(chain: string, services: string[]) {
     streamByTrace(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'], 300)
       .catch(e => { console.log(`[${chain}:${network.amm.contract}] Streamer error:`, e.message); process.exit(1) })
   }
+
+  console.log(`[${chain}] Starting token score updater...`)
+  await updateTokenScores(network)
+  setInterval(() => updateTokenScores(network), 15 * 60 * 1000)
 }
