@@ -3,7 +3,7 @@ import { cacheSeconds } from 'route-cache'
 import { SwapBar, Swap, SwapPool, SwapChartPoint } from '../../models'
 import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
 import { getSwapBarPriceAsString, getLiquidityRangeChart } from '../../../utils/amm.js'
-import { resolutions } from '../updaterService/charts'
+import { resolutions, normalizeResolution } from '../updaterService/charts'
 import { getPositionStats } from './account'
 import { getScamLists } from './config'
 
@@ -253,14 +253,15 @@ swap.get('/pools/:id/candles', async (req, res) => {
     const reverse = req.query.reverse === 'true'
 
     if (!resolution) return res.status(400).send('Resolution is required.')
-    const frame = resolutions[resolution] * 1000
+    const normalizedResolution = normalizeResolution(resolution)
+    const frame = resolutions[normalizedResolution] * 1000
 
     if (limit && isNaN(parseInt(limit))) return res.status(400).send('Invalid limit.')
 
     const pool = await SwapPool.findOne({ id, chain: network.name })
     if (!pool) return res.status(404).send(`Pool ${id} is not found`)
 
-    const where: any = { chain: network.name, timeframe: resolution.toString(), pool: parseInt(pool.id) }
+    const where: any = { chain: network.name, timeframe: normalizedResolution.toString(), pool: parseInt(pool.id) }
     if (from && to) {
       where.time = {
         $gte: new Date(parseInt(from)),
@@ -293,7 +294,7 @@ swap.get('/pools/:id/candles', async (req, res) => {
       const lastPriceQuery = await SwapBar.findOne({
         chain: network.name,
         pool: parseInt(pool.id),
-        timeframe: resolution.toString(),
+        timeframe: normalizedResolution.toString(),
         time: { $lt: new Date(parseInt(from)) },
       }).sort({ time: -1 })
 

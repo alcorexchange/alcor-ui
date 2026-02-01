@@ -12,6 +12,15 @@ export const resolutions = {
   '1M': 60 * 60 * 24 * 30
 }
 
+export function normalizeResolution(resolution) {
+  if (!resolution) return resolution
+  const value = String(resolution).toUpperCase()
+  if (value === 'D') return '1D'
+  if (value === 'W') return '1W'
+  if (value === 'M') return '1M'
+  return String(resolution)
+}
+
 export function getBarTimes(matchTime, resolutionInSeconds) {
   const resolutionMilliseconds = resolutionInSeconds * 1000 // Преобразование секунд в миллисекунды
   const matchTimeMilliseconds = matchTime.getTime() // Получаем время сделки в миллисекундах

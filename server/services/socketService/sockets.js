@@ -13,6 +13,15 @@ export const resolutions = {
   '1M': 60 * 60 * 24 * 30
 }
 
+function normalizeResolution(resolution) {
+  if (!resolution) return resolution
+  const value = String(resolution).toUpperCase()
+  if (value === 'D') return '1D'
+  if (value === 'W') return '1W'
+  if (value === 'M') return '1M'
+  return String(resolution)
+}
+
 export function subscribe(io, socket) {
   socket.on('subscribe', async ({ room, params }) => {
     if (room == 'deals') {
@@ -27,11 +36,13 @@ export function subscribe(io, socket) {
     }
 
     if (room == 'ticker') {
-      socket.join(`ticker:${params.chain}.${params.market}.${params.resolution}`)
+      const resolution = normalizeResolution(params.resolution)
+      socket.join(`ticker:${params.chain}.${params.market}.${resolution}`)
     }
 
     if (room == 'swap-ticker') {
-      socket.join(`swap-ticker:${params.chain}.${params.pool}.${params.resolution}`)
+      const resolution = normalizeResolution(params.resolution)
+      socket.join(`swap-ticker:${params.chain}.${params.pool}.${resolution}`)
     }
 
     if (room == 'orders') {
@@ -94,15 +105,25 @@ export function unsubscribe(io, socket) {
     }
 
     if (room == 'ticker') {
-      Object.keys(resolutions).map(resolution => {
+      if (params?.resolution) {
+        const resolution = normalizeResolution(params.resolution)
         socket.leave(`ticker:${params.chain}.${params.market}.${resolution}`)
-      })
+      } else {
+        Object.keys(resolutions).map(resolution => {
+          socket.leave(`ticker:${params.chain}.${params.market}.${resolution}`)
+        })
+      }
     }
 
     if (room == 'swap-ticker') {
-      Object.keys(resolutions).map(resolution => {
+      if (params?.resolution) {
+        const resolution = normalizeResolution(params.resolution)
         socket.leave(`swap-ticker:${params.chain}.${params.pool}.${resolution}`)
-      })
+      } else {
+        Object.keys(resolutions).map(resolution => {
+          socket.leave(`swap-ticker:${params.chain}.${params.pool}.${resolution}`)
+        })
+      }
     }
 
     if (room == 'orders') {

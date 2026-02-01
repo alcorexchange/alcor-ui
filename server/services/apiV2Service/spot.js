@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 import { write_decimal } from 'eos-common'
 
-import { resolutions } from '../updaterService/charts'
+import { resolutions, normalizeResolution } from '../updaterService/charts'
 import { SwapPool, Bar, Match, Market } from '../../models'
 import { getTokens } from '../../utils'
 import { getScamLists } from './config'
@@ -299,11 +299,12 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
 
   const { from, to, resolution, limit } = req.query
   if (!resolution) return res.status(404).send('Incorrect resolution..')
-  const frame = resolutions[resolution] * 1000
+  const normalizedResolution = normalizeResolution(resolution)
+  const frame = resolutions[normalizedResolution] * 1000
 
   const where = {
     chain: network.name,
-    timeframe: resolution.toString(),
+    timeframe: normalizedResolution.toString(),
     market: parseInt(market.id),
     time: {},
   }
@@ -335,7 +336,7 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
     const lastPriceQuery = await Bar.findOne({
       chain: network.name,
       market: parseInt(market.id),
-      timeframe: resolution.toString(),
+      timeframe: normalizedResolution.toString(),
       time: { $lt: new Date(parseInt(from)) },
     }).sort({ time: -1 })
 
