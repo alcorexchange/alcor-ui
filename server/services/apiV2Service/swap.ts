@@ -255,6 +255,10 @@ swap.get('/pools/:id/candles', async (req, res) => {
     if (!resolution) return res.status(400).send('Resolution is required.')
     const normalizedResolution = normalizeResolution(resolution)
     const frame = resolutions[normalizedResolution] * 1000
+    const fromMs = from ? parseInt(from) : null
+    const toMs = to ? parseInt(to) : null
+    const alignedFrom = Number.isFinite(fromMs) ? Math.floor(fromMs / frame) * frame : null
+    const alignedTo = Number.isFinite(toMs) ? Math.floor(toMs / frame) * frame : null
 
     if (limit && isNaN(parseInt(limit))) return res.status(400).send('Invalid limit.')
 
@@ -264,8 +268,8 @@ swap.get('/pools/:id/candles', async (req, res) => {
     const where: any = { chain: network.name, timeframe: normalizedResolution.toString(), pool: parseInt(pool.id) }
     if (from && to) {
       where.time = {
-        $gte: new Date(parseInt(from)),
-        $lte: new Date(parseInt(to))
+        $gte: new Date(alignedFrom ?? parseInt(from)),
+        $lte: new Date(alignedTo ?? parseInt(to))
       }
     }
 
@@ -295,7 +299,7 @@ swap.get('/pools/:id/candles', async (req, res) => {
         chain: network.name,
         pool: parseInt(pool.id),
         timeframe: normalizedResolution.toString(),
-        time: { $lt: new Date(parseInt(from)) },
+        time: { $lt: new Date(alignedFrom ?? parseInt(from)) },
       }).sort({ time: -1 })
 
       lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
@@ -307,13 +311,33 @@ swap.get('/pools/:id/candles', async (req, res) => {
     lastKnownPrice = getSwapBarPriceAsString(lastKnownPrice, pool.tokenA, pool.tokenB, reverse)
 
     const filledCandles = []
-    let expectedTime = parseInt(from)
+    let expectedTime = alignedFrom ?? (Number.isFinite(fromMs) ? fromMs : null)
 
     candles.forEach((candle, index) => {
       formatCandle(candle, volumeField, pool.tokenA, pool.tokenB, reverse)
       candle.open = lastKnownPrice
+      if (expectedTime != null) {
+        while (candle.time > expectedTime) {
+          filledCandles.push({
+            time: expectedTime,
+            open: lastKnownPrice,
+            high: lastKnownPrice,
+            low: lastKnownPrice,
+            close: lastKnownPrice,
+            volume: 0,
+          })
+          expectedTime += frame
+        }
+      }
 
-      while (candle.time > expectedTime) {
+      filledCandles.push(candle)
+      lastKnownPrice = candle.close
+      if (expectedTime != null) expectedTime += frame
+    })
+
+    // Handle trailing empty candles if necessary
+    if (expectedTime != null && Number.isFinite(alignedTo)) {
+      while (expectedTime <= (alignedTo as number)) {
         filledCandles.push({
           time: expectedTime,
           open: lastKnownPrice,
@@ -324,23 +348,6 @@ swap.get('/pools/:id/candles', async (req, res) => {
         })
         expectedTime += frame
       }
-
-      filledCandles.push(candle)
-      lastKnownPrice = candle.close
-      expectedTime += frame
-    })
-
-    // Handle trailing empty candles if necessary
-    while (expectedTime <= parseInt(to)) {
-      filledCandles.push({
-        time: expectedTime,
-        open: lastKnownPrice,
-        high: lastKnownPrice,
-        low: lastKnownPrice,
-        close: lastKnownPrice,
-        volume: 0,
-      })
-      expectedTime += frame
     }
 
     res.json(filledCandles)
