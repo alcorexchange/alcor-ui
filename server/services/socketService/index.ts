@@ -6,8 +6,12 @@ import mongoose from 'mongoose'
 
 import { initRedis, mongoConnect } from '../../utils'
 import { getSubscriber } from '../redis'
+import { getRedis } from '../redis'
 import { Match, Bar, SwapBar, SwapPool } from '../../models'
 import { getSwapBarPriceAsString } from '../../../utils/amm.js'
+import { littleEndianToDesimalString } from '../../../utils'
+import { getPoolPriceA, getPoolPriceB } from '../swapV2Service/utils'
+import { resolutions, getBarTimes } from '../updaterService/charts'
 
 import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
@@ -18,6 +22,20 @@ const io = new Server(httpServer, { cors: { origin: '*' } })
 
 const POOL_CACHE_TTL_MS = 5 * 60 * 1000
 const poolCache = new Map<string, { value: any, expires: number }>()
+const TOKEN_CACHE_TTL_MS = 60 * 1000
+const tokenPriceCache = new Map<string, { value: Map<string, number>, expires: number }>()
+const processedSwapTrx = new Map<string, number>()
+const SWAP_DEDUPE_TTL_MS = 60 * 1000
+
+type RealtimeSwapBar = {
+  time: number
+  volumeUSD: number
+  aPerB: { open: number, high: number, low: number, close: number }
+  bPerA: { open: number, high: number, low: number, close: number }
+  sqrtPriceX64: { open: string, high: string, low: string, close: string }
+}
+
+const realtimeBars = new Map<string, RealtimeSwapBar>()
 
 async function getPoolCached(chain: string, poolId: number) {
   const key = `${chain}:${poolId}`
@@ -27,6 +45,81 @@ async function getPoolCached(chain: string, poolId: number) {
   const pool = await SwapPool.findOne({ chain, id: poolId }).lean()
   if (pool) poolCache.set(key, { value: pool, expires: Date.now() + POOL_CACHE_TTL_MS })
   return pool
+}
+
+async function getTokenPricesCached(chain: string) {
+  const cached = tokenPriceCache.get(chain)
+  if (cached && cached.expires > Date.now()) return cached.value
+
+  const raw = await getRedis().get(`${chain}_token_prices`)
+  const tokens = raw ? JSON.parse(raw) : []
+  const map = new Map<string, number>()
+  for (const t of tokens) {
+    if (t?.id && typeof t?.usd_price === 'number') {
+      map.set(t.id, t.usd_price)
+    }
+  }
+  tokenPriceCache.set(chain, { value: map, expires: Date.now() + TOKEN_CACHE_TTL_MS })
+  return map
+}
+
+function isDuplicateSwap(trx_id?: string) {
+  if (!trx_id) return false
+  const now = Date.now()
+  const last = processedSwapTrx.get(trx_id)
+  if (last && now - last < SWAP_DEDUPE_TTL_MS) return true
+  processedSwapTrx.set(trx_id, now)
+  return false
+}
+
+function updateRealtimeBar(
+  key: string,
+  time: number,
+  priceA: number,
+  priceB: number,
+  sqrtPriceX64: string,
+  volumeUSD: number
+) {
+  const existing = realtimeBars.get(key)
+
+  if (!existing || existing.time !== time) {
+    const next = {
+      time,
+      volumeUSD,
+      aPerB: { open: priceA, high: priceA, low: priceA, close: priceA },
+      bPerA: { open: priceB, high: priceB, low: priceB, close: priceB },
+      sqrtPriceX64: {
+        open: sqrtPriceX64,
+        high: sqrtPriceX64,
+        low: sqrtPriceX64,
+        close: sqrtPriceX64
+      }
+    }
+    realtimeBars.set(key, next)
+    return next
+  }
+
+  existing.aPerB.high = Math.max(existing.aPerB.high, priceA)
+  existing.aPerB.low = Math.min(existing.aPerB.low, priceA)
+  existing.aPerB.close = priceA
+
+  existing.bPerA.high = Math.max(existing.bPerA.high, priceB)
+  existing.bPerA.low = Math.min(existing.bPerA.low, priceB)
+  existing.bPerA.close = priceB
+
+  try {
+    const sqrt = BigInt(sqrtPriceX64)
+    const high = BigInt(existing.sqrtPriceX64.high)
+    const low = BigInt(existing.sqrtPriceX64.low)
+    if (sqrt > high) existing.sqrtPriceX64.high = sqrtPriceX64
+    if (sqrt < low) existing.sqrtPriceX64.low = sqrtPriceX64
+    existing.sqrtPriceX64.close = sqrtPriceX64
+  } catch {
+    existing.sqrtPriceX64.close = sqrtPriceX64
+  }
+
+  existing.volumeUSD += volumeUSD
+  return existing
 }
 
 //io.adapter(createAdapter())
@@ -143,9 +236,108 @@ async function main() {
       },
       pair,
       serverTime: Date.now(),
+      source: 'db'
     }
 
     io.to(`swap-ticker-v2:${chain}.${pool}.${timeframe}`).emit('swap-tick-v2', tickV2)
+  })
+
+  getSubscriber().pSubscribe('chainAction:*:*:logswap', async (message) => {
+    let action
+    try {
+      action = JSON.parse(message)
+    } catch (e) {
+      console.error('swap-tick-v2: bad message', e)
+      return
+    }
+
+    const { chain, trx_id, block_time, data } = action
+    if (isDuplicateSwap(trx_id)) return
+
+    const poolId = Number(data?.poolId)
+    if (!Number.isFinite(poolId)) return
+
+    const poolInfo = await getPoolCached(chain, poolId)
+    if (!poolInfo) return
+
+    const sqrtPriceX64 = littleEndianToDesimalString(data?.sqrtPriceX64)
+    const priceAString = getPoolPriceA(sqrtPriceX64, poolInfo.tokenA.decimals, poolInfo.tokenB.decimals)
+    const priceBString = getPoolPriceB(sqrtPriceX64, poolInfo.tokenA.decimals, poolInfo.tokenB.decimals)
+    const priceA = Number(priceAString)
+    const priceB = Number(priceBString)
+
+    const tokenPrices = await getTokenPricesCached(chain)
+    const tokenAUsd = tokenPrices.get(poolInfo.tokenA.id) || 0
+    const tokenBUsd = tokenPrices.get(poolInfo.tokenB.id) || 0
+
+    const tokenAAmount = parseFloat(String(data?.tokenA || '0').split(' ')[0]) || 0
+    const tokenBAmount = parseFloat(String(data?.tokenB || '0').split(' ')[0]) || 0
+    const volumeUSD = (Math.abs(tokenAAmount * tokenAUsd) + Math.abs(tokenBAmount * tokenBUsd)) / 2
+
+    const pair = {
+      tokenA: {
+        id: poolInfo.tokenA.id,
+        contract: poolInfo.tokenA.contract,
+        symbol: poolInfo.tokenA.symbol,
+        decimals: poolInfo.tokenA.decimals,
+      },
+      tokenB: {
+        id: poolInfo.tokenB.id,
+        contract: poolInfo.tokenB.contract,
+        symbol: poolInfo.tokenB.symbol,
+        decimals: poolInfo.tokenB.decimals,
+      },
+    }
+
+    const swapTime = new Date(block_time)
+    const timeframes = Object.keys(resolutions)
+
+    for (const timeframe of timeframes) {
+      const frame = resolutions[timeframe]
+      const { currentBarStart } = getBarTimes(swapTime, frame)
+      const barTime = currentBarStart.getTime()
+      const key = `${chain}:${poolId}:${timeframe}`
+
+      const barState = updateRealtimeBar(
+        key,
+        barTime,
+        priceA,
+        priceB,
+        sqrtPriceX64,
+        Number.isFinite(volumeUSD) ? volumeUSD : 0
+      )
+
+      const tickV2 = {
+        v: 2,
+        chain,
+        poolId,
+        resolution: timeframe,
+        time: barState.time,
+        bar: {
+          volumeUSD: barState.volumeUSD,
+          sqrtPriceX64: barState.sqrtPriceX64,
+          price: {
+            aPerB: {
+              open: barState.aPerB.open.toString(),
+              high: barState.aPerB.high.toString(),
+              low: barState.aPerB.low.toString(),
+              close: barState.aPerB.close.toString()
+            },
+            bPerA: {
+              open: barState.bPerA.open.toString(),
+              high: barState.bPerA.high.toString(),
+              low: barState.bPerA.low.toString(),
+              close: barState.bPerA.close.toString()
+            }
+          }
+        },
+        pair,
+        serverTime: Date.now(),
+        source: 'chain'
+      }
+
+      io.to(`swap-ticker-v2:${chain}.${poolId}.${timeframe}`).emit('swap-tick-v2', tickV2)
+    }
   })
 
   getSubscriber().subscribe('orderbook_update', msg => {

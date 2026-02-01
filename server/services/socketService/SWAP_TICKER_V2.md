@@ -24,6 +24,7 @@ type SwapTickV2 = {
   resolution: string
   time: number        // bar timestamp (ms)
   serverTime: number  // server emit time (ms)
+  source?: 'chain' | 'db'
 
   bar: {
     volumeUSD: number
@@ -47,3 +48,5 @@ type SwapTickV2 = {
 
 ## Notes
 - Resolution normalization: `D/W/M` are accepted and normalized to `1D/1W/1M` on subscribe
+- `source: 'chain'` = immediate logswap tick (low latency)
+- `source: 'db'` = SwapBar change-stream tick (authoritative)
