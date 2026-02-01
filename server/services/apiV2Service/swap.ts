@@ -290,28 +290,35 @@ swap.get('/pools/:id/candles', async (req, res) => {
     let lastKnownPrice = null
     const candles = await SwapBar.aggregate(q)
 
-    if (candles.length === 0 && from) {
+    const fromTs = parseInt(from)
+    if (!isNaN(fromTs)) {
       const lastPriceQuery = await SwapBar.findOne({
         chain: network.name,
         pool: parseInt(pool.id),
         timeframe: normalizedResolution.toString(),
-        time: { $lt: new Date(parseInt(from)) },
+        time: { $lt: new Date(fromTs) },
       }).sort({ time: -1 })
 
-      lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
-      if (!lastPriceQuery) return res.json([])
-    } else {
-      lastKnownPrice = candles[0].close
+      if (lastPriceQuery) {
+        lastKnownPrice = getSwapBarPriceAsString(lastPriceQuery.close, pool.tokenA, pool.tokenB, reverse)
+      }
     }
 
-    lastKnownPrice = getSwapBarPriceAsString(lastKnownPrice, pool.tokenA, pool.tokenB, reverse)
+    if (candles.length === 0) {
+      if (lastKnownPrice == null) return res.json([])
+    } else if (lastKnownPrice == null) {
+      // Use first real bar open if no previous close available
+      lastKnownPrice = getSwapBarPriceAsString(candles[0].open, pool.tokenA, pool.tokenB, reverse)
+    }
 
     const filledCandles = []
-    let expectedTime = parseInt(from)
+    let expectedTime = fromTs
+    if (isNaN(expectedTime) && candles.length > 0) {
+      expectedTime = candles[0].time
+    }
 
     candles.forEach((candle, index) => {
       formatCandle(candle, volumeField, pool.tokenA, pool.tokenB, reverse)
-      candle.open = lastKnownPrice
 
       while (candle.time > expectedTime) {
         filledCandles.push({
