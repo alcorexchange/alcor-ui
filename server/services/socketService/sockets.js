@@ -44,6 +44,10 @@ export function subscribe(io, socket) {
       const resolution = normalizeResolution(params.resolution)
       socket.join(`swap-ticker:${params.chain}.${params.pool}.${resolution}`)
     }
+    if (room == 'swap-ticker-v2') {
+      const resolution = normalizeResolution(params.resolution)
+      socket.join(`swap-ticker-v2:${params.chain}.${params.pool}.${resolution}`)
+    }
 
     if (room == 'orders') {
       socket.join(`orders:${params.chain}.${params.market}`)
@@ -122,6 +126,16 @@ export function unsubscribe(io, socket) {
       } else {
         Object.keys(resolutions).map(resolution => {
           socket.leave(`swap-ticker:${params.chain}.${params.pool}.${resolution}`)
+        })
+      }
+    }
+    if (room == 'swap-ticker-v2') {
+      if (params?.resolution) {
+        const resolution = normalizeResolution(params.resolution)
+        socket.leave(`swap-ticker-v2:${params.chain}.${params.pool}.${resolution}`)
+      } else {
+        Object.keys(resolutions).map(resolution => {
+          socket.leave(`swap-ticker-v2:${params.chain}.${params.pool}.${resolution}`)
         })
       }
     }
