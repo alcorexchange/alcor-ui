@@ -26,6 +26,8 @@ const TOKEN_CACHE_TTL_MS = 60 * 1000
 const tokenPriceCache = new Map<string, { value: Map<string, number>, expires: number }>()
 const processedSwapTrx = new Map<string, number>()
 const SWAP_DEDUPE_TTL_MS = 60 * 1000
+const prevCloseByKey = new Map<string, { a: number, b: number, sqrt: string }>()
+const prevClosePending = new Map<string, Promise<void>>()
 
 type RealtimeSwapBar = {
   time: number
@@ -72,6 +74,43 @@ function isDuplicateSwap(trx_id?: string) {
   return false
 }
 
+function initRealtimeBar(
+  key: string,
+  time: number,
+  priceA: number,
+  priceB: number,
+  sqrtPriceX64: string,
+  volumeUSD: number
+) {
+  const prev = prevCloseByKey.get(key)
+  const openA = prev?.a ?? priceA
+  const openB = prev?.b ?? priceB
+  const openSqrt = prev?.sqrt ?? sqrtPriceX64
+
+  const next = {
+    time,
+    volumeUSD,
+    aPerB: { open: openA, high: priceA, low: priceA, close: priceA },
+    bPerA: { open: openB, high: priceB, low: priceB, close: priceB },
+    sqrtPriceX64: {
+      open: openSqrt,
+      high: sqrtPriceX64,
+      low: sqrtPriceX64,
+      close: sqrtPriceX64
+    }
+  }
+  realtimeBars.set(key, next)
+  return next
+}
+
+function storePrevClose(key: string, bar: RealtimeSwapBar) {
+  prevCloseByKey.set(key, {
+    a: bar.aPerB.close,
+    b: bar.bPerA.close,
+    sqrt: bar.sqrtPriceX64.close
+  })
+}
+
 function updateRealtimeBar(
   key: string,
   time: number,
@@ -83,20 +122,8 @@ function updateRealtimeBar(
   const existing = realtimeBars.get(key)
 
   if (!existing || existing.time !== time) {
-    const next = {
-      time,
-      volumeUSD,
-      aPerB: { open: priceA, high: priceA, low: priceA, close: priceA },
-      bPerA: { open: priceB, high: priceB, low: priceB, close: priceB },
-      sqrtPriceX64: {
-        open: sqrtPriceX64,
-        high: sqrtPriceX64,
-        low: sqrtPriceX64,
-        close: sqrtPriceX64
-      }
-    }
-    realtimeBars.set(key, next)
-    return next
+    if (existing) storePrevClose(key, existing)
+    return initRealtimeBar(key, time, priceA, priceB, sqrtPriceX64, volumeUSD)
   }
 
   existing.aPerB.high = Math.max(existing.aPerB.high, priceA)
@@ -120,6 +147,93 @@ function updateRealtimeBar(
 
   existing.volumeUSD += volumeUSD
   return existing
+}
+
+function applyDbBar(
+  key: string,
+  time: number,
+  priceA: { open: number, high: number, low: number, close: number },
+  priceB: { open: number, high: number, low: number, close: number },
+  sqrt: { open: string, high: string, low: string, close: string },
+  volumeUSD: number
+) {
+  const existing = realtimeBars.get(key)
+  let bar: RealtimeSwapBar
+
+  if (!existing || existing.time !== time) {
+    if (existing) storePrevClose(key, existing)
+    const init = initRealtimeBar(key, time, priceA.open, priceB.open, sqrt.open, volumeUSD)
+    bar = init
+  } else {
+    bar = existing
+    bar.volumeUSD = volumeUSD
+  }
+
+  bar.aPerB.high = priceA.high
+  bar.aPerB.low = priceA.low
+  bar.aPerB.close = priceA.close
+
+  bar.bPerA.high = priceB.high
+  bar.bPerA.low = priceB.low
+  bar.bPerA.close = priceB.close
+
+  bar.sqrtPriceX64.high = sqrt.high
+  bar.sqrtPriceX64.low = sqrt.low
+  bar.sqrtPriceX64.close = sqrt.close
+
+  realtimeBars.set(key, bar)
+  return bar
+}
+
+async function ensurePrevClose(
+  key: string,
+  chain: string,
+  poolId: number,
+  timeframe: string,
+  barTime: number,
+  tokenA: any,
+  tokenB: any,
+  fallback: { priceA: number, priceB: number, sqrt: string }
+) {
+  if (prevCloseByKey.has(key)) return
+  const pending = prevClosePending.get(key)
+  if (pending) {
+    await pending
+    return
+  }
+
+  const task = (async () => {
+    const prevBar = await SwapBar.findOne(
+      {
+        chain,
+        pool: poolId,
+        timeframe,
+        time: { $lt: new Date(barTime) }
+      },
+      { close: 1 },
+      { sort: { time: -1 } }
+    ).lean()
+
+    if (prevBar?.close) {
+      const priceA = Number(getSwapBarPriceAsString(prevBar.close, tokenA, tokenB, false))
+      const priceB = Number(getSwapBarPriceAsString(prevBar.close, tokenA, tokenB, true))
+      prevCloseByKey.set(key, { a: priceA, b: priceB, sqrt: prevBar.close })
+      return
+    }
+
+    prevCloseByKey.set(key, {
+      a: fallback.priceA,
+      b: fallback.priceB,
+      sqrt: fallback.sqrt
+    })
+  })()
+
+  prevClosePending.set(key, task)
+  try {
+    await task
+  } finally {
+    prevClosePending.delete(key)
+  }
 }
 
 //io.adapter(createAdapter())
@@ -223,16 +337,71 @@ async function main() {
           }
         : null
 
+    const barTime = new Date(time).getTime()
+    const barKey = `${chain}:${pool}:${timeframe}`
+    if (priceA && priceB && tokenA && tokenB) {
+      await ensurePrevClose(
+        barKey,
+        chain,
+        pool,
+        timeframe,
+        barTime,
+        tokenA,
+        tokenB,
+        {
+          priceA: Number(priceA.open),
+          priceB: Number(priceB.open),
+          sqrt: open
+        }
+      )
+    }
+
+    const dbBarState = (priceA && priceB)
+      ? applyDbBar(
+          barKey,
+          barTime,
+          {
+            open: Number(priceA.open),
+            high: Number(priceA.high),
+            low: Number(priceA.low),
+            close: Number(priceA.close),
+          },
+          {
+            open: Number(priceB.open),
+            high: Number(priceB.high),
+            low: Number(priceB.low),
+            close: Number(priceB.close),
+          },
+          { open, high, low, close },
+          Number(volumeUSD) || 0
+        )
+      : null
+
     const tickV2 = {
       v: 2,
       chain,
       poolId: pool,
       resolution: timeframe,
-      time: new Date(time).getTime(),
+      time: barTime,
       bar: {
-        volumeUSD,
-        sqrtPriceX64: { open, high, low, close },
-        price: { aPerB: priceA, bPerA: priceB },
+        volumeUSD: dbBarState?.volumeUSD ?? volumeUSD,
+        sqrtPriceX64: dbBarState?.sqrtPriceX64 ?? { open, high, low, close },
+        price: dbBarState
+          ? {
+              aPerB: {
+                open: dbBarState.aPerB.open.toString(),
+                high: dbBarState.aPerB.high.toString(),
+                low: dbBarState.aPerB.low.toString(),
+                close: dbBarState.aPerB.close.toString(),
+              },
+              bPerA: {
+                open: dbBarState.bPerA.open.toString(),
+                high: dbBarState.bPerA.high.toString(),
+                low: dbBarState.bPerA.low.toString(),
+                close: dbBarState.bPerA.close.toString(),
+              },
+            }
+          : { aPerB: priceA, bPerA: priceB },
       },
       pair,
       serverTime: Date.now(),
@@ -297,6 +466,21 @@ async function main() {
       const { currentBarStart } = getBarTimes(swapTime, frame)
       const barTime = currentBarStart.getTime()
       const key = `${chain}:${poolId}:${timeframe}`
+
+      await ensurePrevClose(
+        key,
+        chain,
+        poolId,
+        timeframe,
+        barTime,
+        poolInfo.tokenA,
+        poolInfo.tokenB,
+        {
+          priceA,
+          priceB,
+          sqrt: sqrtPriceX64
+        }
+      )
 
       const barState = updateRealtimeBar(
         key,
