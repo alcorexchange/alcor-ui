@@ -16,6 +16,7 @@ import { resolutions, getBarTimes } from '../updaterService/charts'
 import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
 import { initAccountUpdates } from './accountUpdates'
+import { makeSwapTickerV2Key, setSwapTickerV2Snapshot } from './swapTickerV2State'
 
 const httpServer = createServer()
 const io = new Server(httpServer, { cors: { origin: '*' } })
@@ -408,6 +409,7 @@ async function main() {
       source: 'db'
     }
 
+    setSwapTickerV2Snapshot(makeSwapTickerV2Key(chain, pool, timeframe), tickV2)
     io.to(`swap-ticker-v2:${chain}.${pool}.${timeframe}`).emit('swap-tick-v2', tickV2)
   })
 
@@ -520,6 +522,7 @@ async function main() {
         source: 'chain'
       }
 
+      setSwapTickerV2Snapshot(makeSwapTickerV2Key(chain, poolId, timeframe), tickV2)
       io.to(`swap-ticker-v2:${chain}.${poolId}.${timeframe}`).emit('swap-tick-v2', tickV2)
     }
   })

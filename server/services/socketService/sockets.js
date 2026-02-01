@@ -1,5 +1,7 @@
-import { Match } from '../../models'
+import { Match, SwapBar, SwapPool } from '../../models'
 import { getRedis } from '../redis'
+import { getSwapBarPriceAsString } from '../../../utils/amm.js'
+import { getSwapTickerV2Snapshot, makeSwapTickerV2Key } from './swapTickerV2State'
 
 export const resolutions = {
   1: 1 * 60,
@@ -20,6 +22,106 @@ function normalizeResolution(resolution) {
   if (value === 'W') return '1W'
   if (value === 'M') return '1M'
   return String(resolution)
+}
+
+async function emitSwapTickerV2Snapshot(socket, chain, poolId, resolution) {
+  const key = makeSwapTickerV2Key(chain, poolId, resolution)
+  const cached = getSwapTickerV2Snapshot(key)
+  if (cached) {
+    socket.emit('swap-tick-v2', cached)
+    return
+  }
+
+  const frameSeconds = resolutions[resolution]
+  if (!frameSeconds) return
+
+  const poolInfo = await SwapPool.findOne({ chain, id: poolId }).lean()
+  if (!poolInfo) return
+
+  const lastBar = await SwapBar.findOne(
+    { chain, pool: poolId, timeframe: resolution },
+    { time: 1, open: 1, high: 1, low: 1, close: 1, volumeUSD: 1 }
+  )
+    .sort({ time: -1 })
+    .lean()
+
+  if (!lastBar?.close) return
+
+  const frameMs = frameSeconds * 1000
+  const nowAligned = Math.floor(Date.now() / frameMs) * frameMs
+  const lastBarTime = new Date(lastBar.time).getTime()
+
+  let barTime = nowAligned
+  let openSqrt = lastBar.close
+  let highSqrt = lastBar.close
+  let lowSqrt = lastBar.close
+  let closeSqrt = lastBar.close
+  let volumeUSD = 0
+
+  if (lastBarTime === nowAligned) {
+    barTime = lastBarTime
+    highSqrt = lastBar.high
+    lowSqrt = lastBar.low
+    closeSqrt = lastBar.close
+    volumeUSD = Number(lastBar.volumeUSD) || 0
+
+    const prevBar = await SwapBar.findOne(
+      { chain, pool: poolId, timeframe: resolution, time: { $lt: lastBar.time } },
+      { close: 1 }
+    )
+      .sort({ time: -1 })
+      .lean()
+
+    if (prevBar?.close) {
+      openSqrt = prevBar.close
+    } else if (lastBar.open) {
+      openSqrt = lastBar.open
+    }
+  }
+
+  const tokenA = poolInfo.tokenA
+  const tokenB = poolInfo.tokenB
+  const priceA = {
+    open: getSwapBarPriceAsString(openSqrt, tokenA, tokenB, false),
+    high: getSwapBarPriceAsString(highSqrt, tokenA, tokenB, false),
+    low: getSwapBarPriceAsString(lowSqrt, tokenA, tokenB, false),
+    close: getSwapBarPriceAsString(closeSqrt, tokenA, tokenB, false),
+  }
+  const priceB = {
+    open: getSwapBarPriceAsString(openSqrt, tokenA, tokenB, true),
+    high: getSwapBarPriceAsString(highSqrt, tokenA, tokenB, true),
+    low: getSwapBarPriceAsString(lowSqrt, tokenA, tokenB, true),
+    close: getSwapBarPriceAsString(closeSqrt, tokenA, tokenB, true),
+  }
+
+  socket.emit('swap-tick-v2', {
+    v: 2,
+    chain,
+    poolId,
+    resolution,
+    time: barTime,
+    bar: {
+      volumeUSD,
+      sqrtPriceX64: { open: String(openSqrt), high: String(highSqrt), low: String(lowSqrt), close: String(closeSqrt) },
+      price: { aPerB: priceA, bPerA: priceB }
+    },
+    pair: {
+      tokenA: {
+        id: tokenA.id,
+        contract: tokenA.contract,
+        symbol: tokenA.symbol,
+        decimals: tokenA.decimals,
+      },
+      tokenB: {
+        id: tokenB.id,
+        contract: tokenB.contract,
+        symbol: tokenB.symbol,
+        decimals: tokenB.decimals,
+      },
+    },
+    serverTime: Date.now(),
+    source: 'chain'
+  })
 }
 
 export function subscribe(io, socket) {
@@ -47,6 +149,11 @@ export function subscribe(io, socket) {
     if (room == 'swap-ticker-v2') {
       const resolution = normalizeResolution(params.resolution)
       socket.join(`swap-ticker-v2:${params.chain}.${params.pool}.${resolution}`)
+      try {
+        await emitSwapTickerV2Snapshot(socket, params.chain, Number(params.pool), resolution)
+      } catch (e) {
+        console.error('swap-ticker-v2 snapshot failed', e)
+      }
     }
 
     if (room == 'orders') {

@@ -301,6 +301,10 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
   if (!resolution) return res.status(404).send('Incorrect resolution..')
   const normalizedResolution = normalizeResolution(resolution)
   const frame = resolutions[normalizedResolution] * 1000
+  const fromMs = from && !isNaN(from) ? parseInt(from) : null
+  const toMs = to && !isNaN(to) ? parseInt(to) : null
+  const alignedFrom = Number.isFinite(fromMs) ? Math.floor(fromMs / frame) * frame : null
+  const alignedTo = Number.isFinite(toMs) ? Math.floor(toMs / frame) * frame : null
 
   const where = {
     chain: network.name,
@@ -309,8 +313,8 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
     time: {},
   }
 
-  if (from && !isNaN(from)) where.time.$gte = new Date(parseInt(from))
-  if (to && !isNaN(to)) where.time.$lte = new Date(parseInt(to))
+  if (from && !isNaN(from)) where.time.$gte = new Date(alignedFrom ?? parseInt(from))
+  if (to && !isNaN(to)) where.time.$lte = new Date(alignedTo ?? parseInt(to))
 
   const q = [
     { $match: where },
@@ -337,7 +341,7 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
       chain: network.name,
       market: parseInt(market.id),
       timeframe: normalizedResolution.toString(),
-      time: { $lt: new Date(parseInt(from)) },
+      time: { $lt: new Date(alignedFrom ?? parseInt(from)) },
     }).sort({ time: -1 })
 
     lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
@@ -350,12 +354,36 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
 
   // Заполнение пустых свечей между данными
   const filledCharts = []
-  let expectedTime = parseInt(from)
+  let expectedTime = alignedFrom ?? (Number.isFinite(fromMs) ? fromMs : null)
 
   charts.forEach((chart, index) => {
     chart.open = lastKnownPrice
+    if (expectedTime != null) {
+      while (chart.time > expectedTime) {
+        filledCharts.push({
+          time: expectedTime,
+          open: lastKnownPrice,
+          high: lastKnownPrice,
+          low: lastKnownPrice,
+          close: lastKnownPrice,
+          volume: 0,
+        })
+        expectedTime += parseInt(frame)
+      }
+    }
+    filledCharts.push(chart)
+    lastKnownPrice = chart.close
+    if (expectedTime != null) expectedTime += parseInt(frame)
+  })
 
-    while (chart.time > expectedTime) {
+  // Добавление пустых свечей после последней полученной свечи до конца периода (до последней закрытой)
+  if (expectedTime != null && Number.isFinite(alignedTo)) {
+    const nowMs = Date.now()
+    const nowAligned = Math.floor(nowMs / frame) * frame
+    const lastComplete = nowAligned - frame
+    const fillTo = Math.min(alignedTo, lastComplete)
+
+    while (expectedTime <= fillTo) {
       filledCharts.push({
         time: expectedTime,
         open: lastKnownPrice,
@@ -366,22 +394,6 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
       })
       expectedTime += parseInt(frame)
     }
-    filledCharts.push(chart)
-    lastKnownPrice = chart.close
-    expectedTime += parseInt(frame)
-  })
-
-  // Добавление пустых свечей после последней полученной свечи до конца периода
-  while (expectedTime <= parseInt(to)) {
-    filledCharts.push({
-      time: expectedTime,
-      open: lastKnownPrice,
-      high: lastKnownPrice,
-      low: lastKnownPrice,
-      close: lastKnownPrice,
-      volume: 0,
-    })
-    expectedTime += parseInt(frame)
   }
 
   res.json(filledCharts)

@@ -335,9 +335,14 @@ swap.get('/pools/:id/candles', async (req, res) => {
       if (expectedTime != null) expectedTime += frame
     })
 
-    // Handle trailing empty candles if necessary
+    // Handle trailing empty candles if necessary (stop at last completed bar)
     if (expectedTime != null && Number.isFinite(alignedTo)) {
-      while (expectedTime <= (alignedTo as number)) {
+      const nowMs = Date.now()
+      const nowAligned = Math.floor(nowMs / frame) * frame
+      const lastComplete = nowAligned - frame
+      const fillTo = Math.min(alignedTo as number, lastComplete)
+
+      while (expectedTime <= fillTo) {
         filledCandles.push({
           time: expectedTime,
           open: lastKnownPrice,
