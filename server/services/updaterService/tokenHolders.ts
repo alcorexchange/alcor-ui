@@ -9,7 +9,8 @@ const HOLDERS_CONCURRENCY = 3
 const HOLDERS_INTERVAL_MS = 60 * 60 * 1000
 const SCOPES_LIMIT_PER_CALL = 9999
 const HOLDERS_CAP = 1_000_000
-const MAX_PAGES = Math.ceil(HOLDERS_CAP / SCOPES_LIMIT_PER_CALL) + 1
+// Some RPC nodes cap scope rows ~1000, so allow enough pages to reach HOLDERS_CAP.
+const MAX_PAGES = Math.ceil(HOLDERS_CAP / 1000) + 10
 
 async function fetchHoldersCountLimited(rpc, contract: string) {
   let holders = 0
@@ -37,6 +38,9 @@ async function fetchHoldersCountLimited(rpc, contract: string) {
       : (typeof result.next_key === 'string' && result.next_key.length > 0 ? result.next_key : null)
 
     if (!nextKey || result.rows.length === 0) break
+    if (i === MAX_PAGES - 1) {
+      return { holders, truncated: true }
+    }
     lowerBound = nextKey
   }
 
