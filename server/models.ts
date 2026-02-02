@@ -362,6 +362,15 @@ PositionHistorySchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: 1 }, { b
 PositionHistorySchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: -1, type: 1 }, { background: true })
 PositionHistorySchema.index({ chain: 1, owner: 1, time: -1 }, { background: true })
 
+const TokenHoldersHistorySchema = new mongoose.Schema({
+  chain: { type: String, index: true },
+  tokenId: { type: String, index: true },
+  holders: { type: Number, default: 0 },
+  truncated: { type: Boolean, default: false },
+  time: { type: Date, index: true },
+})
+TokenHoldersHistorySchema.index({ chain: 1, tokenId: 1, time: -1 }, { background: true })
+
 export const Market = mongoose.model('Market', MarketSchema)
 export const PoolPair = mongoose.model('PoolPair', PoolPairSchema)
 export const Liquidity = mongoose.model('Liquidity', LiquiditySchema)
@@ -377,3 +386,4 @@ export const SwapChartPoint = mongoose.model('SwapChartPoint', SwapChartPointSch
 export const PositionHistory = mongoose.model('PositionHistory', PositionHistorySchema)
 export const Position = mongoose.model('Position', PositionSchema)
 export const GlobalStats = mongoose.model('GlobalStats', GlobalStatsSchema)
+export const TokenHoldersHistory = mongoose.model('TokenHoldersHistory', TokenHoldersHistorySchema)

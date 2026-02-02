@@ -9,6 +9,7 @@ import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats, updatePositionsAggregation } from './swap'
 import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
 import { updateTokenScores } from './tokenScores'
+import { startTokenHoldersUpdater } from './tokenHolders'
 
 import { streamByTrace, streamByGreymass } from './streamers'
 
@@ -85,4 +86,7 @@ export async function updater(chain: string, services: string[]) {
   console.log(`[${chain}] Starting token score updater...`)
   await updateTokenScores(network)
   setInterval(() => updateTokenScores(network), 15 * 60 * 1000)
+
+  console.log(`[${chain}] Starting token holders updater...`)
+  startTokenHoldersUpdater(network)
 }

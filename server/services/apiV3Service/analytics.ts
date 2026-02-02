@@ -3,7 +3,7 @@ import { Asset } from '@wharfkit/antelope'
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 
-import { SwapPool, Market, GlobalStats, SwapBar, Bar } from '../../models'
+import { SwapPool, Market, GlobalStats, SwapBar, Bar, Swap, Match } from '../../models'
 import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
 import { getScamLists } from '../apiV2Service/config'
@@ -91,6 +91,26 @@ async function loadTokenScores(chain: string) {
   }
 }
 
+async function loadTokenHoldersStats(chain: string, tokenIds: string[]) {
+  const redis = getRedis()
+  if (!tokenIds.length) return new Map<string, any>()
+
+  const values = await redis.hmGet(`${chain}_token_holders_stats`, tokenIds)
+  const result = new Map<string, any>()
+
+  for (let i = 0; i < tokenIds.length; i += 1) {
+    const raw = values[i]
+    if (!raw) continue
+    try {
+      result.set(tokenIds[i], JSON.parse(raw))
+    } catch (e) {
+      // ignore bad data
+    }
+  }
+
+  return result
+}
+
 function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: string) {
   const tokenStats = new Map<string, any>()
   const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
@@ -147,6 +167,63 @@ function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: st
       const stats = tokenStats.get(quoteId)
       stats.spotVolumeUSD += volumeUSD
       stats.spotPairsCount += 1
+    }
+  }
+
+  return tokenStats
+}
+
+async function buildTokenTxStats(chain: string, tokens: any[], pools: any[], markets: any[], since?: Date | null) {
+  const tokenStats = new Map<string, { swapTx: number, spotTx: number }>()
+  const tokenIds = new Set(tokens.map((t) => t.id))
+
+  for (const t of tokens) {
+    tokenStats.set(t.id, { swapTx: 0, spotTx: 0 })
+  }
+
+  const poolTokens = new Map<number, { tokenA: string, tokenB: string }>(
+    pools.map((p) => [p.id, { tokenA: p.tokenA.id, tokenB: p.tokenB.id }])
+  )
+
+  const marketTokens = new Map<number, { base: string, quote: string }>(
+    markets.map((m) => [m.id, { base: m.base_token.id, quote: m.quote_token.id }])
+  )
+
+  const swapMatch: any = { chain }
+  if (since) swapMatch.time = { $gte: since }
+
+  const swapByPool = await Swap.aggregate([
+    { $match: swapMatch },
+    { $group: { _id: '$pool', trades: { $sum: 1 } } },
+  ])
+
+  for (const row of swapByPool) {
+    const tokensPair = poolTokens.get(row._id)
+    if (!tokensPair) continue
+
+    for (const tokenId of [tokensPair.tokenA, tokensPair.tokenB]) {
+      if (!tokenIds.has(tokenId)) continue
+      const stat = tokenStats.get(tokenId)
+      if (stat) stat.swapTx += Number(row.trades || 0)
+    }
+  }
+
+  const spotMatch: any = { chain }
+  if (since) spotMatch.time = { $gte: since }
+
+  const matchByMarket = await Match.aggregate([
+    { $match: spotMatch },
+    { $group: { _id: '$market', trades: { $sum: 1 } } },
+  ])
+
+  for (const row of matchByMarket) {
+    const tokensPair = marketTokens.get(row._id)
+    if (!tokensPair) continue
+
+    for (const tokenId of [tokensPair.base, tokensPair.quote]) {
+      if (!tokenIds.has(tokenId)) continue
+      const stat = tokenStats.get(tokenId)
+      if (stat) stat.spotTx += Number(row.trades || 0)
     }
   }
 
@@ -309,12 +386,14 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
   const includeIncentives = includes.has('incentives')
 
   const tokens = (await getTokens(network.name)) || []
+  const holdersStats = await loadTokenHoldersStats(network.name, tokens.map((t) => t.id))
   const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
 
   const pools = await SwapPool.find({ chain: network.name }).lean()
   const markets = await Market.find({ chain: network.name }).lean()
 
   const tokenStats = buildTokenStats(tokens, pools, markets, window.label)
+  const tokenTxStats = await buildTokenTxStats(network.name, tokens, pools, markets, window.since)
   const tokenScores = await loadTokenScores(network.name)
 
   const topPoolsRaw = [...pools]
@@ -340,6 +419,8 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
     .map((t) => {
       const stats = tokenStats.get(t.id) || {}
       const score = tokenScores?.[t.id]?.score ?? null
+      const holders = holdersStats.get(t.id) || null
+      const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
       const volumeSwap = safeNumber(stats.swapVolumeUSD)
       const volumeSpot = safeNumber(stats.spotVolumeUSD)
 
@@ -354,6 +435,14 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
         liquidity: { tvl: safeNumber(stats.tvlUSD) },
         volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
         pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
+        tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
+        holders: holders ? {
+          count: holders.holders ?? null,
+          change1h: holders.change1h ?? null,
+          change6h: holders.change6h ?? null,
+          change24h: holders.change24h ?? null,
+          truncated: holders.truncated ?? false,
+        } : null,
         scores: { total: score },
       }
     })
@@ -450,11 +539,15 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
   const markets = await Market.find({ chain: network.name }).lean()
 
   const tokenStats = buildTokenStats(tokens, pools, markets, window.label)
+  const tokenTxStats = await buildTokenTxStats(network.name, tokens, pools, markets, window.since)
   const tokenScores = await loadTokenScores(network.name)
+  const holdersStats = await loadTokenHoldersStats(network.name, tokens.map((t) => t.id))
 
   const result = tokens.map((t) => {
     const stats = tokenStats.get(t.id) || {}
     const score = tokenScores?.[t.id]?.score ?? null
+    const holders = holdersStats.get(t.id) || null
+    const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
     const volumeSwap = safeNumber(stats.swapVolumeUSD)
     const volumeSpot = safeNumber(stats.spotVolumeUSD)
 
@@ -469,6 +562,14 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
       liquidity: { tvl: safeNumber(stats.tvlUSD) },
       volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
       pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
+      tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
+      holders: holders ? {
+        count: holders.holders ?? null,
+        change1h: holders.change1h ?? null,
+        change6h: holders.change6h ?? null,
+        change24h: holders.change24h ?? null,
+        truncated: holders.truncated ?? false,
+      } : null,
       scores: { total: score },
     }
   })
@@ -526,7 +627,11 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
 
   const tokenStats = buildTokenStats([token], pools, markets, window.label).get(token.id)
   const tokenScores = await loadTokenScores(network.name)
+  const tokenTxStats = await buildTokenTxStats(network.name, [token], pools, markets, window.since)
+  const holdersStats = await loadTokenHoldersStats(network.name, [token.id])
   const score = tokenScores?.[token.id] || null
+  const holders = holdersStats.get(token.id) || null
+  const tx = tokenTxStats.get(token.id) || { swapTx: 0, spotTx: 0 }
 
   res.json({
     meta: buildMeta(network, window.label),
@@ -545,6 +650,14 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
         total: safeNumber(tokenStats?.swapVolumeUSD) + safeNumber(tokenStats?.spotVolumeUSD),
       },
       pairs: { pools: tokenStats?.poolsCount || 0, spots: tokenStats?.spotPairsCount || 0 },
+      tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
+      holders: holders ? {
+        count: holders.holders ?? null,
+        change1h: holders.change1h ?? null,
+        change6h: holders.change6h ?? null,
+        change24h: holders.change24h ?? null,
+        truncated: holders.truncated ?? false,
+      } : null,
       scores: score ? { total: score.score, details: score } : { total: null, details: null },
     },
     pools: pools.map((p) => toPoolCard(p, window.label)),
