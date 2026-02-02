@@ -10,6 +10,7 @@ import { getScamLists } from '../apiV2Service/config'
 import { getSwapBarPriceAsString } from '../../../utils/amm'
 import { resolutions as candleResolutions, normalizeResolution } from '../updaterService/charts'
 import { getIncentives } from '../apiV2Service/farms'
+import { getOrderbook } from '../orderbookService/start'
 
 export const analytics = Router()
 
@@ -26,6 +27,9 @@ const RESOLUTION_MS: Record<string, number> = {
   '1d': 24 * 60 * 60 * 1000,
   '1w': 7 * 24 * 60 * 60 * 1000,
 }
+
+const PRICE_SCALE = 100000000
+const DEFAULT_ORDERBOOK_DEPTH = 100
 
 function getWindow(queryWindow: any) {
   const raw = String(queryWindow || '30d').toLowerCase()
@@ -79,6 +83,41 @@ function pickMarketVolume(market: any, window: string) {
   if (window === '30d') return safeNumber(market.volumeMonth)
   if (window === '90d') return safeNumber(market.volumeMonth)
   return safeNumber(market.volumeMonth)
+}
+
+function computeInverseChangePercent(changePercent: number) {
+  const changeDec = changePercent / 100
+  const denom = 1 + changeDec
+  if (denom === 0) return null
+  const inverted = (-changeDec / denom) * 100
+  return Number.isFinite(inverted) ? Number(inverted.toFixed(2)) : null
+}
+
+function pickPoolForToken(poolsByToken: Map<string, any[]>, tokenId: string, baseTokenId: string | null, usdTokenId: string | null) {
+  const pools = poolsByToken.get(tokenId) || []
+  if (pools.length === 0) return null
+
+  if (baseTokenId) {
+    const pool = pools.find((p) => p.tokenA.id === baseTokenId || p.tokenB.id === baseTokenId)
+    if (pool) return pool
+  }
+
+  if (usdTokenId) {
+    const pool = pools.find((p) => p.tokenA.id === usdTokenId || p.tokenB.id === usdTokenId)
+    if (pool) return pool
+  }
+
+  return pools.slice().sort((a, b) => safeNumber(b.tvlUSD) - safeNumber(a.tvlUSD))[0] || null
+}
+
+function computeTokenPriceChange24(pool: any, tokenId: string) {
+  if (!pool) return null
+  const changePercent = safeNumber(pool.change24, null as any)
+  if (changePercent === null) return null
+
+  if (pool.tokenA?.id === tokenId) return Number(changePercent.toFixed(2))
+  if (pool.tokenB?.id === tokenId) return computeInverseChangePercent(changePercent)
+  return Number(changePercent.toFixed(2))
 }
 
 async function loadTokenScores(chain: string) {
@@ -171,6 +210,73 @@ function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: st
   }
 
   return tokenStats
+}
+
+async function buildPoolTxStats(chain: string, poolIds: number[], since?: Date | null) {
+  if (!poolIds.length) return new Map<number, number>()
+  const match: any = { chain, pool: { $in: poolIds } }
+  if (since) match.time = { $gte: since }
+
+  const rows = await Swap.aggregate([
+    { $match: match },
+    { $group: { _id: '$pool', swaps: { $sum: 1 } } },
+  ])
+
+  const map = new Map<number, number>()
+  for (const row of rows) {
+    map.set(Number(row._id), Number(row.swaps || 0))
+  }
+  return map
+}
+
+async function buildMarketTxStats(chain: string, marketIds: number[], since?: Date | null) {
+  if (!marketIds.length) return new Map<number, number>()
+  const match: any = { chain, market: { $in: marketIds } }
+  if (since) match.time = { $gte: since }
+
+  const rows = await Match.aggregate([
+    { $match: match },
+    { $group: { _id: '$market', matches: { $sum: 1 } } },
+  ])
+
+  const map = new Map<number, number>()
+  for (const row of rows) {
+    map.set(Number(row._id), Number(row.matches || 0))
+  }
+  return map
+}
+
+async function buildOrderbookDepth(chain: string, market: any, priceMap: Map<string, number>, depthLimit = DEFAULT_ORDERBOOK_DEPTH) {
+  const quotePrecision = market?.quote_token?.symbol?.precision ?? 0
+  const basePrecision = market?.base_token?.symbol?.precision ?? 0
+  const quoteId = market?.quote_token?.id
+  const quotePrice = priceMap.get(quoteId) || 0
+
+  const buyBook = await getOrderbook(chain, 'buy', market.id)
+  const sellBook = await getOrderbook(chain, 'sell', market.id)
+
+  const buyRows = Array.from(buyBook.values()).slice(0, depthLimit)
+  const sellRows = Array.from(sellBook.values()).slice(0, depthLimit)
+
+  let bidDepthQuote = 0
+  for (const row of buyRows) {
+    const bidAmount = Number(row?.[1] || 0)
+    bidDepthQuote += bidAmount / Math.pow(10, quotePrecision)
+  }
+
+  let askDepthQuote = 0
+  for (const row of sellRows) {
+    const unitPrice = Number(row?.[0] || 0) / PRICE_SCALE
+    const askAmountBase = Number(row?.[2] || 0) / Math.pow(10, basePrecision)
+    askDepthQuote += askAmountBase * unitPrice
+  }
+
+  return {
+    bidDepthQuote: Number(bidDepthQuote.toFixed(6)),
+    askDepthQuote: Number(askDepthQuote.toFixed(6)),
+    bidDepthUsd: Number((bidDepthQuote * quotePrice).toFixed(6)),
+    askDepthUsd: Number((askDepthQuote * quotePrice).toFixed(6)),
+  }
 }
 
 async function buildTokenTxStats(chain: string, tokens: any[], pools: any[], markets: any[], since?: Date | null) {
@@ -344,6 +450,28 @@ function toMarketCard(market: any, window: string, priceMap: Map<string, number>
   }
 }
 
+function attachPoolTx(card: any, swaps?: number | null) {
+  if (swaps === null || swaps === undefined) return card
+  return {
+    ...card,
+    tx: { swaps },
+  }
+}
+
+function attachMarketTxAndDepth(card: any, matches?: number | null, depth?: any | null) {
+  const next = { ...card }
+  if (matches !== null && matches !== undefined) {
+    next.tx = { matches }
+  }
+  if (depth) {
+    next.orders = {
+      bidDepthUsd: depth.bidDepthUsd,
+      askDepthUsd: depth.askDepthUsd,
+    }
+  }
+  return next
+}
+
 function attachIncentives(poolCard: any, pool: any, incentivesByPool: Map<number, any[]>, tokensMap: Map<string, { usd_price?: number }>) {
   const incentives = incentivesByPool.get(pool.id) || []
   const mapped = incentives.map((i) => {
@@ -384,6 +512,8 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
   const window = getWindow(req.query.window)
   const includes = parseIncludes(req.query.include)
   const includeIncentives = includes.has('incentives')
+  const includeTx = includes.has('tx')
+  const includeDepth = includes.has('depth')
 
   const tokens = (await getTokens(network.name)) || []
   const holdersStats = await loadTokenHoldersStats(network.name, tokens.map((t) => t.id))
@@ -405,15 +535,47 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
     tokens.map((t) => [t.id, t])
   ) : new Map()
 
+  const poolTxStats = includeTx ? await buildPoolTxStats(network.name, topPoolsRaw.map((p) => p.id), window.since) : new Map()
+
   const topPools = topPoolsRaw.map((p) => {
-    const card = toPoolCard(p, window.label)
-    return includeIncentives ? attachIncentives(card, p, incentivesByPool, tokensMap) : card
+    let card = toPoolCard(p, window.label)
+    if (includeIncentives) card = attachIncentives(card, p, incentivesByPool, tokensMap)
+    if (includeTx) card = attachPoolTx(card, poolTxStats.get(p.id) ?? 0)
+    return card
   })
 
-  const topSpotPairs = [...markets]
+  const topSpotPairsRaw = [...markets]
     .sort((a, b) => pickMarketVolume(b, window.label) - pickMarketVolume(a, window.label))
     .slice(0, 10)
-    .map((m) => toMarketCard(m, window.label, priceMap))
+
+  const marketTxStats = includeTx ? await buildMarketTxStats(network.name, topSpotPairsRaw.map((m) => m.id), window.since) : new Map()
+
+  const topSpotPairs = await Promise.all(topSpotPairsRaw.map(async (m) => {
+    let card = toMarketCard(m, window.label, priceMap)
+    if (includeTx) card = attachMarketTxAndDepth(card, marketTxStats.get(m.id) ?? 0, null)
+    if (includeDepth) {
+      const depth = await buildOrderbookDepth(network.name, m, priceMap)
+      card = attachMarketTxAndDepth(card, includeTx ? (marketTxStats.get(m.id) ?? 0) : null, depth)
+    }
+    return card
+  }))
+
+  const baseTokenId = network?.baseToken ? `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase() : null
+  const usdTokenId = network?.USD_TOKEN || null
+
+  const poolsByToken = new Map<string, any[]>()
+  for (const pool of pools) {
+    const tokenAId = pool?.tokenA?.id
+    const tokenBId = pool?.tokenB?.id
+    if (tokenAId) {
+      if (!poolsByToken.has(tokenAId)) poolsByToken.set(tokenAId, [])
+      poolsByToken.get(tokenAId)?.push(pool)
+    }
+    if (tokenBId) {
+      if (!poolsByToken.has(tokenBId)) poolsByToken.set(tokenBId, [])
+      poolsByToken.get(tokenBId)?.push(pool)
+    }
+  }
 
   const topTokens = tokens
     .map((t) => {
@@ -425,6 +587,9 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
       const volumeSwap = safeNumber(stats.swapVolumeUSD)
       const volumeSpot = safeNumber(stats.spotVolumeUSD)
 
+      const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
+      const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
+
       return {
         id: t.id,
         symbol: t.symbol,
@@ -432,7 +597,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
         name: t.name || null,
         decimals: t.decimals,
         logo: getLogoUrl(network.name, t.id),
-        price: { usd: safeNumber(t.usd_price) },
+        price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
         liquidity: { tvl: safeNumber(stats.tvlUSD) },
         volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
         pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
@@ -540,6 +705,23 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
   const pools = await SwapPool.find({ chain: network.name }).lean()
   const markets = await Market.find({ chain: network.name }).lean()
 
+  const baseTokenId = network?.baseToken ? `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase() : null
+  const usdTokenId = network?.USD_TOKEN || null
+
+  const poolsByToken = new Map<string, any[]>()
+  for (const pool of pools) {
+    const tokenAId = pool?.tokenA?.id
+    const tokenBId = pool?.tokenB?.id
+    if (tokenAId) {
+      if (!poolsByToken.has(tokenAId)) poolsByToken.set(tokenAId, [])
+      poolsByToken.get(tokenAId)?.push(pool)
+    }
+    if (tokenBId) {
+      if (!poolsByToken.has(tokenBId)) poolsByToken.set(tokenBId, [])
+      poolsByToken.get(tokenBId)?.push(pool)
+    }
+  }
+
   const tokenStats = buildTokenStats(tokens, pools, markets, window.label)
   const tokenTxStats = await buildTokenTxStats(network.name, tokens, pools, markets, window.since)
   const tokenScores = await loadTokenScores(network.name)
@@ -554,6 +736,9 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
     const volumeSwap = safeNumber(stats.swapVolumeUSD)
     const volumeSpot = safeNumber(stats.spotVolumeUSD)
 
+    const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
+    const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
+
     return {
       id: t.id,
       symbol: t.symbol,
@@ -561,7 +746,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
       name: t.name || null,
       decimals: t.decimals,
       logo: getLogoUrl(network.name, t.id),
-      price: { usd: safeNumber(t.usd_price) },
+      price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
       liquidity: { tvl: safeNumber(stats.tvlUSD) },
       volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
       pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
@@ -647,6 +832,11 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const holders = holdersStats.get(token.id) || null
   const tx = tokenTxStats.get(token.id) || { swapTx: 0, spotTx: 0 }
 
+  const baseTokenId = network?.baseToken ? `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase() : null
+  const usdTokenId = network?.USD_TOKEN || null
+  const tokenPool = pickPoolForToken(new Map([[token.id, pools]]), token.id, baseTokenId, usdTokenId)
+  const priceChange24h = computeTokenPriceChange24(tokenPool, token.id)
+
   res.json({
     meta: buildMeta(network, window.label),
     token: {
@@ -656,7 +846,7 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
       name: token.name || null,
       decimals: token.decimals,
       logo: getLogoUrl(network.name, token.id),
-      price: { usd: safeNumber(token.usd_price) },
+      price: { usd: safeNumber(token.usd_price), change24h: priceChange24h },
       liquidity: { tvl: safeNumber(tokenStats?.tvlUSD) },
       volume: {
         swap: safeNumber(tokenStats?.swapVolumeUSD),
@@ -739,6 +929,7 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
   const window = getWindow(req.query.window)
   const includes = parseIncludes(req.query.include)
   const includeIncentives = includes.has('incentives')
+  const includeTx = includes.has('tx')
   const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
 
   let pools = await SwapPool.find({ chain: network.name }).lean()
@@ -779,15 +970,17 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
     tokens.map((t) => [t.id, t])
   )
   const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
+  const pagePools = pools.slice(start, start + limit)
+  const poolTxStats = includeTx ? await buildPoolTxStats(network.name, pagePools.map((p) => p.id), window.since) : new Map()
 
   res.json({
     meta: buildMeta(network, window.label),
-    items: pools
-      .slice(start, start + limit)
-      .map((p) => {
-        const card = toPoolCard(p, window.label)
-        return includeIncentives ? attachIncentives(card, p, incentivesByPool, tokensMap) : card
-      }),
+    items: pagePools.map((p) => {
+      let card = toPoolCard(p, window.label)
+      if (includeIncentives) card = attachIncentives(card, p, incentivesByPool, tokensMap)
+      if (includeTx) card = attachPoolTx(card, poolTxStats.get(p.id) ?? 0)
+      return card
+    }),
     page,
     limit,
     total: pools.length,
@@ -801,6 +994,7 @@ analytics.get('/pools/:id', cacheSeconds(60, (req, res) => {
   const window = getWindow(req.query.window)
   const includes = parseIncludes(req.query.include)
   const includeIncentives = includes.has('incentives')
+  const includeTx = includes.has('tx')
   const id = parseInt(String(req.params.id || ''), 10)
 
   if (!Number.isFinite(id)) return res.status(400).send('Invalid pool id')
@@ -813,8 +1007,12 @@ analytics.get('/pools/:id', cacheSeconds(60, (req, res) => {
     tokens.map((t) => [t.id, t])
   )
   const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
-  const baseCard = toPoolCard(pool, window.label)
-  const card = includeIncentives ? attachIncentives(baseCard, pool, incentivesByPool, tokensMap) : baseCard
+  let card = toPoolCard(pool, window.label)
+  if (includeIncentives) card = attachIncentives(card, pool, incentivesByPool, tokensMap)
+  if (includeTx) {
+    const poolTxStats = await buildPoolTxStats(network.name, [pool.id], window.since)
+    card = attachPoolTx(card, poolTxStats.get(pool.id) ?? 0)
+  }
 
   res.json({
     meta: buildMeta(network, window.label),
@@ -827,6 +1025,9 @@ analytics.get('/spot-pairs', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network: Network = req.app.get('network')
   const window = getWindow(req.query.window)
+  const includes = parseIncludes(req.query.include)
+  const includeTx = includes.has('tx')
+  const includeDepth = includes.has('depth')
 
   const markets = await Market.find({ chain: network.name }).lean()
   const tokens = (await getTokens(network.name)) || []
@@ -853,9 +1054,22 @@ analytics.get('/spot-pairs', cacheSeconds(60, (req, res) => {
   const page = Math.max(parseInt(String(req.query.page || '1')), 1)
   const start = (page - 1) * limit
 
+  const pageMarkets = markets.slice(start, start + limit)
+  const marketTxStats = includeTx ? await buildMarketTxStats(network.name, pageMarkets.map((m) => m.id), window.since) : new Map()
+
+  const items = await Promise.all(pageMarkets.map(async (m) => {
+    let card = toMarketCard(m, window.label, priceMap)
+    if (includeTx) card = attachMarketTxAndDepth(card, marketTxStats.get(m.id) ?? 0, null)
+    if (includeDepth) {
+      const depth = await buildOrderbookDepth(network.name, m, priceMap)
+      card = attachMarketTxAndDepth(card, includeTx ? (marketTxStats.get(m.id) ?? 0) : null, depth)
+    }
+    return card
+  }))
+
   res.json({
     meta: buildMeta(network, window.label),
-    items: markets.slice(start, start + limit).map((m) => toMarketCard(m, window.label, priceMap)),
+    items,
     page,
     limit,
     total: markets.length,
@@ -867,6 +1081,9 @@ analytics.get('/spot-pairs/:id', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network: Network = req.app.get('network')
   const window = getWindow(req.query.window)
+  const includes = parseIncludes(req.query.include)
+  const includeTx = includes.has('tx')
+  const includeDepth = includes.has('depth')
   const id = parseInt(String(req.params.id || ''), 10)
 
   if (!Number.isFinite(id)) return res.status(400).send('Invalid market id')
@@ -877,9 +1094,19 @@ analytics.get('/spot-pairs/:id', cacheSeconds(60, (req, res) => {
   const tokens = (await getTokens(network.name)) || []
   const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
 
+  let card = toMarketCard(market, window.label, priceMap)
+  if (includeTx) {
+    const marketTxStats = await buildMarketTxStats(network.name, [market.id], window.since)
+    card = attachMarketTxAndDepth(card, marketTxStats.get(market.id) ?? 0, null)
+  }
+  if (includeDepth) {
+    const depth = await buildOrderbookDepth(network.name, market, priceMap)
+    card = attachMarketTxAndDepth(card, includeTx ? card.tx?.matches ?? 0 : null, depth)
+  }
+
   res.json({
     meta: buildMeta(network, window.label),
-    market: toMarketCard(market, window.label, priceMap),
+    market: card,
   })
 })
 
