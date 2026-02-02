@@ -419,6 +419,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
     .map((t) => {
       const stats = tokenStats.get(t.id) || {}
       const score = tokenScores?.[t.id]?.score ?? null
+      const firstSeenAt = tokenScores?.[t.id]?.firstSeenAt ?? null
       const holders = holdersStats.get(t.id) || null
       const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
       const volumeSwap = safeNumber(stats.swapVolumeUSD)
@@ -435,6 +436,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
         liquidity: { tvl: safeNumber(stats.tvlUSD) },
         volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
         pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
+        createdAt: firstSeenAt,
         tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
         holders: holders ? {
           count: holders.holders ?? null,
@@ -546,6 +548,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
   const result = tokens.map((t) => {
     const stats = tokenStats.get(t.id) || {}
     const score = tokenScores?.[t.id]?.score ?? null
+    const firstSeenAt = tokenScores?.[t.id]?.firstSeenAt ?? null
     const holders = holdersStats.get(t.id) || null
     const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
     const volumeSwap = safeNumber(stats.swapVolumeUSD)
@@ -562,6 +565,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
       liquidity: { tvl: safeNumber(stats.tvlUSD) },
       volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
       pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
+      createdAt: firstSeenAt,
       tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
       holders: holders ? {
         count: holders.holders ?? null,
@@ -587,6 +591,15 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
     } else if (sort === 'tvl') {
       av = a.liquidity.tvl
       bv = b.liquidity.tvl
+    } else if (sort === 'holders') {
+      av = a.holders?.count ?? 0
+      bv = b.holders?.count ?? 0
+    } else if (sort === 'created' || sort === 'createdat' || sort === 'age') {
+      av = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      bv = b.createdAt ? new Date(b.createdAt).getTime() : 0
+    } else if (sort === 'tx') {
+      av = a.tx?.total ?? 0
+      bv = b.tx?.total ?? 0
     } else if (sort === 'price') {
       av = a.price.usd
       bv = b.price.usd
@@ -630,6 +643,7 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const tokenTxStats = await buildTokenTxStats(network.name, [token], pools, markets, window.since)
   const holdersStats = await loadTokenHoldersStats(network.name, [token.id])
   const score = tokenScores?.[token.id] || null
+  const firstSeenAt = tokenScores?.[token.id]?.firstSeenAt ?? null
   const holders = holdersStats.get(token.id) || null
   const tx = tokenTxStats.get(token.id) || { swapTx: 0, spotTx: 0 }
 
@@ -650,6 +664,7 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
         total: safeNumber(tokenStats?.swapVolumeUSD) + safeNumber(tokenStats?.spotVolumeUSD),
       },
       pairs: { pools: tokenStats?.poolsCount || 0, spots: tokenStats?.spotPairsCount || 0 },
+      createdAt: firstSeenAt,
       tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
       holders: holders ? {
         count: holders.holders ?? null,
