@@ -2,15 +2,17 @@
 FROM node:22-alpine
 
 # Create destination directory
-RUN mkdir /app
 WORKDIR /app
-
-# Копируем оставшиеся файлы проекта в контейнер
-COPY . .
 
 # Set environment variables
 ENV NODE_ENV=production
+
+# Install deps with cache-friendly layer
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
+
+# Copy the rest of the project and build server
+COPY . .
 RUN yarn build-server
 
 
