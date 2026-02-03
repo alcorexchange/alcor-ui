@@ -327,8 +327,17 @@ export async function streamByGreymass(network: any, account: string, callback: 
 export async function streamByTrace(network: any, account: string, callback: Function, actions: string[], delay = 500) {
   console.info(`[${network.name}] Starting trace streamer for ${account}...`)
 
-  const failoverManager = new RpcFailoverManager(network)
-  let rpc = failoverManager.getCurrentRpc()
+  const directNode = process.env[network.name.toUpperCase() + '_DIRECT_NODE']
+  const fallbackNodes = [
+    `${network.protocol}://${network.host}:${network.port}`,
+    ...Object.keys(network.client_nodes || {})
+  ]
+  const allFallbacks = [...new Set(fallbackNodes)]
+  let fallbackIndex = 0
+  let currentNode = directNode || allFallbacks[0]
+  let rpc = new JsonRpc(currentNode, { fetch })
+  let lastDirectRetry = Date.now()
+  const DIRECT_RETRY_INTERVAL = 60 * 1000
 
   let currentBlock = await getStartingBlock(network, account, rpc)
 
@@ -387,14 +396,6 @@ export async function streamByTrace(network: any, account: string, callback: Fun
   }
 
   while (true) {
-    if (failoverManager.isGreymassMode()) {
-      console.log(`[${network.name}] All RPCs failed, falling back to Greymass for ${account}`)
-      await streamByGreymass(network, account, callback, actions, delay)
-      return
-    }
-
-    rpc = failoverManager.getCurrentRpc()
-
     try {
       // Get head block to determine mode
       const info = await rpc.get_info()
@@ -415,8 +416,7 @@ export async function streamByTrace(network: any, account: string, callback: Fun
         const firstError = blocks.find((b: any) => b.error)
         if (firstError) {
           console.log(`[${network.name}] Prefetch error at block ${(firstError as any).blockNum}: ${(firstError as any).error.message}`)
-          failoverManager.markFailed()
-          await sleep(100)
+          await sleep(5000)
           continue
         }
 
@@ -450,7 +450,7 @@ export async function streamByTrace(network: any, account: string, callback: Fun
           const block = await rpc.get_trace_block(currentBlock)
 
           if (currentBlock % 100 === 0) {
-            console.log(`[${network.name}:${account}] #${currentBlock} via ${failoverManager.getCurrentNodeUrl()}`)
+            console.log(`[${network.name}:${account}] #${currentBlock} via ${currentNode}`)
           }
 
           await processBlock(block)
@@ -486,10 +486,19 @@ export async function streamByTrace(network: any, account: string, callback: Fun
       }
 
     } catch (error: any) {
-      const currentUrl = failoverManager.getCurrentNodeUrl()
-      console.log(`[${network.name}] ${currentUrl} error: ${error.message}`)
-      failoverManager.markFailed()
-      await sleep(500)
+      const now = Date.now()
+      if (directNode && now - lastDirectRetry >= DIRECT_RETRY_INTERVAL) {
+        lastDirectRetry = now
+        currentNode = directNode
+      } else {
+        if (allFallbacks.length > 0) {
+          fallbackIndex = (fallbackIndex + 1) % allFallbacks.length
+          currentNode = allFallbacks[fallbackIndex]
+        }
+      }
+      console.log(`[${network.name}] ${currentNode} error: ${error.message}`)
+      rpc = new JsonRpc(currentNode, { fetch })
+      await sleep(5000)
     }
   }
 }
