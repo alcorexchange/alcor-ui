@@ -415,3 +415,40 @@ amm.get('/positions/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to load position' })
   }
 })
+
+amm.get('/pools/:id/positions', async (req, res) => {
+  const network = req.app.get('network')
+  const incentivesFilter = String(req.query?.incentives || 'active').toLowerCase()
+  const id = Number(req.params.id)
+
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: 'Invalid pool id' })
+    return
+  }
+
+  try {
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit || '200')), 1), 500)
+    const page = Math.max(parseInt(String(req.query.page || '1')), 1)
+    const start = (page - 1) * limit
+
+    const allPositions = JSON.parse(await redis().get(`positions_${network.name}`) || '[]') || []
+    const poolPositions = allPositions.filter((p) => Number(p.pool) === id)
+    const slice = poolPositions.slice(start, start + limit)
+
+    const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`) || '[]')
+    const historyCache = new Map()
+
+    const positionsWithStats = await Promise.all(
+      slice.map(async (pos) => ({
+        ...pos,
+        ...(await getPositionStats(network.name, pos, tokenPrices, historyCache)),
+      }))
+    )
+
+    const response = await buildPositionsResponse(network, positionsWithStats, incentivesFilter)
+    res.json({ items: response, page, limit, total: poolPositions.length })
+  } catch (err) {
+    console.error('Error in v3 pool positions:', err)
+    res.status(500).json({ error: 'Failed to load pool positions' })
+  }
+})
