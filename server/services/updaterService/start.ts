@@ -10,6 +10,7 @@ import { newSwapAction, updatePoolsStats, updatePositionsAggregation } from './s
 import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
 import { updateTokenScores } from './tokenScores'
 import { startTokenHoldersUpdater } from './tokenHolders'
+import { startTokenLogosUpdater } from './tokenLogos'
 
 import { streamByTrace, streamByGreymass } from './streamers'
 
@@ -51,6 +52,7 @@ export async function updater(chain: string, services: string[]) {
   }
 
   schedule.scheduleJob('58 23 * * *', () => updateGlobalStats(network))
+  setInterval(() => updateGlobalStats(network), 60 * 60 * 1000)
 
   if (services.includes('prices')) {
     console.log(`[${chain}] Starting price updater...`)
@@ -89,4 +91,7 @@ export async function updater(chain: string, services: string[]) {
 
   console.log(`[${chain}] Starting token holders updater...`)
   startTokenHoldersUpdater(network)
+
+  console.log(`[${chain}] Starting token logos updater...`)
+  startTokenLogosUpdater()
 }

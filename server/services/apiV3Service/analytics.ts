@@ -66,9 +66,34 @@ function parseIncludes(input: any) {
   return new Set(raw.split(',').map((s) => s.trim()).filter(Boolean))
 }
 
-function getLogoUrl(networkName, tokenId) {
-  if (!tokenId) return null
-  return `https://${networkName}.alcor.exchange/api/v2/tokens/${tokenId}/logo`
+async function getEosAirdropLogo(chain: string, symbol: string, contract: string): Promise<string | null> {
+  const redis = getRedis()
+  const key = `${chain}:${symbol.toUpperCase()}:${contract}`
+  try {
+    return await redis.hGet('eos_airdrops_logos', key)
+  } catch (e) {
+    return null
+  }
+}
+
+function getLocalLogoUrl(networkName: string, tokenId: string, symbol: string, contract: string) {
+  const iconPath = path.join(process.cwd(), 'assets', 'tokens', networkName, `${symbol}_${contract}.png`)
+  if (fs.existsSync(iconPath)) {
+    return `https://${networkName}.alcor.exchange/api/v2/tokens/${tokenId}/logo`
+  }
+  return null
+}
+
+async function getLogoUrl(networkName: string, token: any) {
+  if (!token || !networkName) return null
+  const tokenId = String(token.id || '')
+  const symbol = String(token.symbol || '').toLowerCase()
+  const contract = String(token.contract || '')
+
+  const local = getLocalLogoUrl(networkName, tokenId, symbol, contract)
+  if (local) return local
+
+  return await getEosAirdropLogo(networkName, symbol, contract)
 }
 
 const fundamentalsCache = new Map<string, any>()
@@ -606,8 +631,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
     }
   }
 
-  const topTokens = tokens
-    .map((t) => {
+  const topTokens = await Promise.all(tokens.map(async (t) => {
       const stats = tokenStats.get(t.id) || {}
       const score = tokenScores?.[t.id]?.score ?? null
       const firstSeenAt = tokenScores?.[t.id]?.firstSeenAt ?? null
@@ -615,6 +639,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
       const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
       const volumeSwap = safeNumber(stats.swapVolumeUSD)
       const volumeSpot = safeNumber(stats.spotVolumeUSD)
+      const logoUrl = await getLogoUrl(network.name, t)
 
       const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
       const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
@@ -625,7 +650,8 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
         contract: t.contract,
         name: t.name || null,
         decimals: t.decimals,
-        logo: getLogoUrl(network.name, t.id),
+        logo: logoUrl,
+        logoUrl,
         price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
         liquidity: { tvl: safeNumber(stats.tvlUSD) },
         volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
@@ -641,7 +667,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
         } : null,
         scores: { total: score },
       }
-    })
+    }))
     .sort((a, b) => safeNumber(b.scores.total) - safeNumber(a.scores.total))
     .slice(0, 10)
 
@@ -722,6 +748,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
   const window = getWindow(req.query.window)
   const includes = parseIncludes(req.query.include)
   const includeFundamental = includes.has('fundamental')
+  const hasLogo = String(req.query.hasLogo || '').toLowerCase()
   const search = String(req.query.search || '').toLowerCase()
 
   let tokens = (await getTokens(network.name)) || []
@@ -758,7 +785,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
   const tokenScores = await loadTokenScores(network.name)
   const holdersStats = await loadTokenHoldersStats(network.name, tokens.map((t) => t.id))
 
-  const result = tokens.map((t) => {
+  const result = await Promise.all(tokens.map(async (t) => {
     const stats = tokenStats.get(t.id) || {}
     const score = tokenScores?.[t.id]?.score ?? null
     const firstSeenAt = tokenScores?.[t.id]?.firstSeenAt ?? null
@@ -766,6 +793,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
     const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
     const volumeSwap = safeNumber(stats.swapVolumeUSD)
     const volumeSpot = safeNumber(stats.spotVolumeUSD)
+    const logoUrl = await getLogoUrl(network.name, t)
 
     const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
     const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
@@ -778,7 +806,8 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
       contract: t.contract,
       name: t.name || null,
       decimals: t.decimals,
-      logo: getLogoUrl(network.name, t.id),
+      logo: logoUrl,
+      logoUrl,
       price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
       liquidity: { tvl: safeNumber(stats.tvlUSD) },
       volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
@@ -795,13 +824,20 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
       fundamental,
       scores: { total: score },
     }
-  })
+  }))
+
+  let filtered = result
+  if (hasLogo === 'true') {
+    filtered = filtered.filter((t) => Boolean(t.logoUrl))
+  } else if (hasLogo === 'false') {
+    filtered = filtered.filter((t) => !t.logoUrl)
+  }
 
   const sort = String(req.query.sort || 'score').toLowerCase()
   const order = String(req.query.order || 'desc').toLowerCase()
   const dir = order === 'asc' ? 1 : -1
 
-  result.sort((a, b) => {
+  filtered.sort((a, b) => {
     let av = 0
     let bv = 0
     if (sort === 'volume') {
@@ -839,10 +875,10 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
 
   res.json({
     meta: buildMeta(network, window.label),
-    items: result.slice(start, start + limit),
+    items: filtered.slice(start, start + limit),
     page,
     limit,
-    total: result.length,
+    total: filtered.length,
   })
 })
 
