@@ -631,7 +631,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
     }
   }
 
-  const topTokens = await Promise.all(tokens.map(async (t) => {
+  const topTokens = (await Promise.all(tokens.map(async (t) => {
       const stats = tokenStats.get(t.id) || {}
       const score = tokenScores?.[t.id]?.score ?? null
       const firstSeenAt = tokenScores?.[t.id]?.firstSeenAt ?? null
@@ -667,7 +667,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
         } : null,
         scores: { total: score },
       }
-    }))
+    })))
     .sort((a, b) => safeNumber(b.scores.total) - safeNumber(a.scores.total))
     .slice(0, 10)
 
