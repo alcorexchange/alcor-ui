@@ -11,7 +11,8 @@ import { getSwapBarPriceAsString } from '../../../utils/amm'
 import { resolutions as candleResolutions, normalizeResolution } from '../updaterService/charts'
 import { getIncentives } from '../apiV2Service/farms'
 import { getOrderbook } from '../orderbookService/start'
-import * as fundamentals from '../../../assets/fundamentals'
+import fs from 'fs'
+import path from 'path'
 
 export const analytics = Router()
 
@@ -70,9 +71,26 @@ function getLogoUrl(networkName, tokenId) {
   return `https://${networkName}.alcor.exchange/api/v2/tokens/${tokenId}/logo`
 }
 
+const fundamentalsCache = new Map<string, any>()
+
+function loadFundamentals(networkName: string) {
+  if (fundamentalsCache.has(networkName)) return fundamentalsCache.get(networkName)
+
+  try {
+    const filePath = path.join(process.cwd(), 'assets', 'fundamentals', `${networkName}.json`)
+    const raw = fs.readFileSync(filePath, 'utf8')
+    const parsed = JSON.parse(raw)
+    fundamentalsCache.set(networkName, parsed)
+    return parsed
+  } catch (e) {
+    fundamentalsCache.set(networkName, null)
+    return null
+  }
+}
+
 function getFundamental(networkName: string, token: any) {
   if (!token || !networkName) return null
-  const byChain: any = (fundamentals as any)[networkName]
+  const byChain = loadFundamentals(networkName)
   if (!byChain) return null
   const symbol = String(token.symbol || '').toUpperCase()
   const contract = String(token.contract || '')
