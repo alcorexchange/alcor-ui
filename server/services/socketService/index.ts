@@ -10,7 +10,7 @@ import { getRedis } from '../redis'
 import { Match, Bar, SwapBar, SwapPool } from '../../models'
 import { getSwapBarPriceAsString } from '../../../utils/amm.js'
 import { littleEndianToDesimalString } from '../../../utils'
-import { getPoolPriceA, getPoolPriceB } from '../swapV2Service/utils'
+import { Price, Q128, Token } from '@alcorexchange/alcor-swap-sdk'
 import { resolutions, getBarTimes } from '../updaterService/charts'
 
 import { subscribe, unsubscribe } from './sockets'
@@ -432,17 +432,25 @@ async function main() {
     if (!poolInfo) return
 
     const sqrtPriceX64 = littleEndianToDesimalString(data?.sqrtPriceX64)
-    console.error('[swap-tick-v2] pricing inputs', {
-      chain,
-      poolId,
-      sqrtPriceX64,
-      decimalsA: poolInfo?.tokenA?.decimals,
-      decimalsB: poolInfo?.tokenB?.decimals,
-      tokenA: poolInfo?.tokenA?.symbol,
-      tokenB: poolInfo?.tokenB?.symbol,
-    })
-    const priceAString = getPoolPriceA(sqrtPriceX64, poolInfo.tokenA.decimals, poolInfo.tokenB.decimals)
-    const priceBString = getPoolPriceB(sqrtPriceX64, poolInfo.tokenA.decimals, poolInfo.tokenB.decimals)
+    let priceAString: string
+    let priceBString: string
+    try {
+      const tokenA = new Token(poolInfo.tokenA.contract, poolInfo.tokenA.decimals, poolInfo.tokenA.symbol)
+      const tokenB = new Token(poolInfo.tokenB.contract, poolInfo.tokenB.decimals, poolInfo.tokenB.symbol)
+      const sqrt = BigInt(sqrtPriceX64)
+      const priceA = new Price(tokenA, tokenB, Q128, sqrt * sqrt)
+      const priceB = priceA.invert()
+      priceAString = priceA.toSignificant(12)
+      priceBString = priceB.toSignificant(12)
+    } catch (error) {
+      console.error('[swap-tick-v2] price calc failed', {
+        chain,
+        poolId,
+        sqrtPriceX64,
+        error,
+      })
+      return
+    }
     const priceA = Number(priceAString)
     const priceB = Number(priceBString)
 
