@@ -965,7 +965,7 @@ export async function onSwapAction(message: string) {
     getPublisher().publish(`chainAction:${chain}:${account}:${name}`, message)
   }
 
-  if (['logmint', 'logburn', 'logcollect', 'logtransfer'].includes(name)) {
+  if (['logmint', 'logburn', 'logcollect'].includes(name)) {
     const sqrtPriceX64 = await getClosestSqrtPrice(chain, data.poolId, block_time)
     handlePoolChart(
       chain,
