@@ -432,6 +432,15 @@ async function main() {
     if (!poolInfo) return
 
     const sqrtPriceX64 = littleEndianToDesimalString(data?.sqrtPriceX64)
+    console.error('[swap-tick-v2] pricing inputs', {
+      chain,
+      poolId,
+      sqrtPriceX64,
+      decimalsA: poolInfo?.tokenA?.decimals,
+      decimalsB: poolInfo?.tokenB?.decimals,
+      tokenA: poolInfo?.tokenA?.symbol,
+      tokenB: poolInfo?.tokenB?.symbol,
+    })
     const priceAString = getPoolPriceA(sqrtPriceX64, poolInfo.tokenA.decimals, poolInfo.tokenB.decimals)
     const priceBString = getPoolPriceB(sqrtPriceX64, poolInfo.tokenA.decimals, poolInfo.tokenB.decimals)
     const priceA = Number(priceAString)
