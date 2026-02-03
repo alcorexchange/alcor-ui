@@ -11,6 +11,7 @@ import { getSwapBarPriceAsString } from '../../../utils/amm'
 import { resolutions as candleResolutions, normalizeResolution } from '../updaterService/charts'
 import { getIncentives } from '../apiV2Service/farms'
 import { getOrderbook } from '../orderbookService/start'
+import * as fundamentals from '../../../assets/fundamentals'
 
 export const analytics = Router()
 
@@ -67,6 +68,16 @@ function parseIncludes(input: any) {
 function getLogoUrl(networkName, tokenId) {
   if (!tokenId) return null
   return `https://${networkName}.alcor.exchange/api/v2/tokens/${tokenId}/logo`
+}
+
+function getFundamental(networkName: string, token: any) {
+  if (!token || !networkName) return null
+  const byChain: any = (fundamentals as any)[networkName]
+  if (!byChain) return null
+  const symbol = String(token.symbol || '').toUpperCase()
+  const contract = String(token.contract || '')
+  const key = `${symbol}@${contract}`
+  return byChain[key] || null
 }
 
 function pickPoolVolumes(pool: any, window: string) {
@@ -691,6 +702,8 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network: Network = req.app.get('network')
   const window = getWindow(req.query.window)
+  const includes = parseIncludes(req.query.include)
+  const includeFundamental = includes.has('fundamental')
   const search = String(req.query.search || '').toLowerCase()
 
   let tokens = (await getTokens(network.name)) || []
@@ -739,6 +752,8 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
     const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
     const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
 
+    const fundamental = includeFundamental ? getFundamental(network.name, t) : null
+
     return {
       id: t.id,
       symbol: t.symbol,
@@ -759,6 +774,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
         change24h: holders.change24h ?? null,
         truncated: holders.truncated ?? false,
       } : null,
+      fundamental,
       scores: { total: score },
     }
   })
@@ -841,6 +857,8 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const tokenPool = pickPoolForToken(new Map([[token.id, pools]]), token.id, baseTokenId, usdTokenId)
   const priceChange24h = computeTokenPriceChange24(tokenPool, token.id)
 
+  const fundamental = getFundamental(network.name, token)
+
   res.json({
     meta: buildMeta(network, window.label),
     token: {
@@ -867,6 +885,7 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
         change24h: holders.change24h ?? null,
         truncated: holders.truncated ?? false,
       } : null,
+      fundamental,
       scores: score ? { total: score.score, details: score } : { total: null, details: null },
     },
     pools: pools.map((p) => toPoolCard(p, window.label)),
