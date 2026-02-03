@@ -800,7 +800,7 @@
       "full": "MASTERX - Master Asset Stability Token Exchange"
     },
     "website": {
-      "link": "https://linktr.ee/cilokmaster",
+      "link": "https://taplink.ee/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["Stable", "Reserve", "Treasury", "Staking", "Ecosystem"],
@@ -818,7 +818,7 @@
       "full": "CILFUN - Community Integration & Leadership Functional Unity Network"
     },
     "website": {
-      "link": "https://linktr.ee/cilokmaster",
+      "link": "https://taplink.ee/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["DAO", "Governance", "Community", "Rewards"],
@@ -826,7 +826,8 @@
       "https://x.com/cilokmaster",
       "https://t.me/cilokmaster",
       "https://discord.gg/5ZApzNVZkJ",
-      "https://waxdao.io/v2/daos/democraticmx"
+      "https://waxdao.io/v2/daos/democraticmx",
+      "https://zora.co/@cilfun"
     ],
     "description": "CILFUN is the Community Integration & Leadership Functional Unity Network, the token powering the CILOK MASTER community and DAO. Used for voting, community contribution, event rewards, staking, and access to exclusive ecosystem features."
   },
@@ -837,14 +838,15 @@
       "full": "CILBORN — Conversion-Integrated Limited-Burn Optimized Redistribution Network"
     },
     "website": {
-      "link": "https://linktr.ee/cilokmaster",
+      "link": "https://taplink.ee/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["Burn", "Deflationary", "Conversion", "Economy"],
     "socials": [
       "https://x.com/cilokmaster",
       "https://t.me/cilokmaster",
-      "https://discord.gg/5ZApzNVZkJ"
+      "https://discord.gg/5ZApzNVZkJ",
+      "https://zora.co/@cilokmaster"
     ],
     "description": "CILBORN is the Conversion-Integrated Limited-Burn Optimized Redistribution Network, a deflationary token designed to maintain ecosystem supply balance. Each conversion of CILBORN → CILMAST triggers an automatic burn on CILMAST, creating long-term scarcity and economic stability."
   },
@@ -854,14 +856,15 @@
       "full": " Laugh of Cilok "
     },
     "website": {
-      "link": "https://linktr.ee/cilokmaster",
+      "link": "https://taplink.ee/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["Meme", "Rewards", "Funverse"],
     "socials": [
       "https://x.com/cilokmaster",
       "https://t.me/cilokmaster",
-      "https://discord.gg/5ZApzNVZkJ"
+      "https://discord.gg/5ZApzNVZkJ",
+      "https://zora.co/@cilokmaster"
     ],
     "description": "LOLK — the laugh token of Cilok Master Funverse."
   },
@@ -871,14 +874,15 @@
       "full": " Buzzing Yield "
     },
     "website": {
-      "link": "https://linktr.ee/cilokmaster",
+      "link": "https://taplink.ee/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["Meme", "Rewards", "Funverse"],
     "socials": [
       "https://x.com/cilokmaster",
       "https://t.me/cilokmaster",
-      "https://discord.gg/5ZApzNVZkJ"
+      "https://discord.gg/5ZApzNVZkJ",
+      "https://zora.co/@cilokmaster"
     ],
     "description": "BUZZY — the hyper-fun token that keeps the Funverse buzzing!"
   },
@@ -888,14 +892,15 @@
       "full": " Joking Reality"
     },
     "website": {
-      "link": "https://linktr.ee/cilokmaster",
+      "link": "https://taplink.ee/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["Meme", "Rewards", "Funverse"],
     "socials": [
       "https://x.com/cilokmaster",
       "https://t.me/cilokmaster",
-      "https://discord.gg/5ZApzNVZkJ"
+      "https://discord.gg/5ZApzNVZkJ",
+      "https://zora.co/@cilokmaster"
     ],
     "description": "JOKR — Because the game should never be serious."
   },
@@ -982,5 +987,23 @@
       "https://discord.gg/3Z6ssW2Jx4"
     ],
     "description": "It is a necessary component to mining DMT and DMC. Power your setups. Mined with energy generator NFTs such as Solar Panels, Wind Turbines, Dams, Volcanos. Keep it green, keep it clean!"
+  },
+      "CILMAST@masterxtoken": {
+    "name": {
+      "short": "CILMAST",
+      "full": " Cilok Master"
+    },
+    "website": {
+      "link": "https://taplink.ee/cilokmaster",
+      "name": "CILOK MASTER"
+    },
+    "tags": ["Meme", "Mascot", "NFT"],
+    "socials": [
+      "https://x.com/cilokmaster",
+      "https://t.me/cilokmaster",
+      "https://discord.gg/5ZApzNVZkJ",
+      "https://zora.co/@cilokmaster"
+    ],
+    "description": "Cilok Master Token or CILMAST is the unholy fusion of cold tapioca balls, watery peanut sauce, and questionable life choices. Born from the chaos of Cilok Master, $CILMAST serves as the official currency of a world where logic dies and chewy snacks reign supreme."
   }
 }
