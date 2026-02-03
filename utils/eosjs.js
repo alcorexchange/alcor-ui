@@ -6,7 +6,14 @@ import { JsonRpc as JsonRpcMultiEnds } from '../assets/libs/eosjs-jsonrpc'
 import config from '../config'
 
 export function getChainRpc(chain) {
+  const directEnvKey = `${String(chain).toUpperCase()}_DIRECT_NODE`
+  const directNode = process.env[directEnvKey]
   const nodes = Object.keys(config.networks[chain].client_nodes)
+
+  if (directNode) {
+    nodes.unshift(directNode)
+  }
+
   return getMultyEndRpc(nodes)
 }
 
