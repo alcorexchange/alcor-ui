@@ -780,8 +780,12 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
       av = a.holders?.count ?? 0
       bv = b.holders?.count ?? 0
     } else if (sort === 'created' || sort === 'createdat' || sort === 'age') {
-      av = a.createdAt ? new Date(a.createdAt).getTime() : 0
-      bv = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      const aHas = Boolean(a.createdAt)
+      const bHas = Boolean(b.createdAt)
+      if (!aHas && bHas) return 1
+      if (aHas && !bHas) return -1
+      av = aHas ? new Date(a.createdAt).getTime() : 0
+      bv = bHas ? new Date(b.createdAt).getTime() : 0
     } else if (sort === 'tx') {
       av = a.tx?.total ?? 0
       bv = b.tx?.total ?? 0
