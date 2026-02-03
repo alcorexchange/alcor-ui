@@ -6,12 +6,15 @@ import { decodeActionData } from './utils'
 // HOTFIX SOMETHING WITH CONNECTION
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
-const ACCOUNTS = new Set(
-  Object.values(config.networks || {})
-    .flatMap((n: any) => [n?.contract, n?.amm?.contract, n?.staking?.contract])
-    .filter(Boolean)
-)
-ACCOUNTS.add('alcor-staking-contract')
+function getAccountsForChain(chain: string) {
+  const network = config.networks?.[chain]
+  const accounts = new Set<string>()
+  if (network?.contract) accounts.add(network.contract)
+  if (network?.amm?.contract) accounts.add(network.amm.contract)
+  if (network?.staking?.contract) accounts.add(network.staking.contract)
+  accounts.add('alcor-staking-contract')
+  return accounts
+}
 const ACTIONS = ['*']
 
 async function handleAction(chain: string, action) {
@@ -50,6 +53,7 @@ async function getCachedAbi(chain, rpc, account) {
 async function eventStreamer(chain: string, callback?) {
   console.log('run eventStreamer for', chain)
   const network = config.networks[chain]
+  const ACCOUNTS = getAccountsForChain(chain)
   const rpc = getFailOverAlcorOnlyRpc(network)
 
   async function getCurrentBlockNumber() {

@@ -81,16 +81,24 @@ async function decodeActionData(hexData: any, abi: any, actionName: string): Pro
   })
 
   const buffer = Buffer.from(hexData, 'hex')
-  const data = await api.deserializeActions([
-    {
-      account: '',
-      name: actionName,
-      authorization: [],
-      data: buffer,
-    },
-  ])
+  try {
+    const data = await api.deserializeActions([
+      {
+        account: '',
+        name: actionName,
+        authorization: [],
+        data: buffer,
+      },
+    ])
 
-  return data[0].data
+    return data[0].data
+  } catch (e: any) {
+    const msg = String(e?.message || '')
+    if (msg.includes('Unknown action') || msg.includes('unknown action')) {
+      return null
+    }
+    throw e
+  }
 }
 
 class RpcFailoverManager {
@@ -297,6 +305,13 @@ export async function streamByGreymass(network: any, account: string, callback: 
       if (actions.includes(a.act.name)) {
         await callback(a, network)
       }
+
+      const actionBlockNum = a.block_num || a.block_num?.block_num
+      if (actionBlockNum) {
+        const $set: any = {}
+        $set[`last_block_num.${getAccountAsKey(account)}`] = actionBlockNum
+        await Settings.updateOne({ chain: network.name }, { $set })
+      }
     }
 
     const $set: any = {}
@@ -311,6 +326,12 @@ export async function streamByGreymass(network: any, account: string, callback: 
 
 export async function streamByTrace(network: any, account: string, callback: Function, actions: string[], delay = 500) {
   console.info(`[${network.name}] Starting trace streamer for ${account}...`)
+
+  if (network?.name === 'proton') {
+    console.log(`[${network.name}] Trace streamer disabled temporarily, forcing Greymass for ${account}`)
+    await streamByGreymass(network, account, callback, actions, delay)
+    return
+  }
 
   const failoverManager = new RpcFailoverManager(network)
   let rpc = failoverManager.getCurrentRpc()
@@ -338,6 +359,10 @@ export async function streamByTrace(network: any, account: string, callback: Fun
               try {
                 const abi = await getCachedAbi(network, action.account)
                 data = await decodeActionData(action.data, abi, actionName)
+                if (data === null) {
+                  // Unknown action in ABI, skip without retry
+                  abiRetries = MAX_ABI_RETRIES
+                }
                 break
               } catch (e: any) {
                 abiRetries++
