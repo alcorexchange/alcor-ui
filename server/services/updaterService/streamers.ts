@@ -327,12 +327,6 @@ export async function streamByGreymass(network: any, account: string, callback: 
 export async function streamByTrace(network: any, account: string, callback: Function, actions: string[], delay = 500) {
   console.info(`[${network.name}] Starting trace streamer for ${account}...`)
 
-  if (network?.name === 'proton') {
-    console.log(`[${network.name}] Trace streamer disabled temporarily, forcing Greymass for ${account}`)
-    await streamByGreymass(network, account, callback, actions, delay)
-    return
-  }
-
   const failoverManager = new RpcFailoverManager(network)
   let rpc = failoverManager.getCurrentRpc()
 
