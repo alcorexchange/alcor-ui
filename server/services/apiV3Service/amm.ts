@@ -430,6 +430,9 @@ amm.get('/pools/:id/positions', async (req, res) => {
     const limit = Math.min(Math.max(parseInt(String(req.query.limit || '200')), 1), 500)
     const page = Math.max(parseInt(String(req.query.page || '1')), 1)
     const start = (page - 1) * limit
+    const sort = String(req.query.sort || '').toLowerCase()
+    const order = String(req.query.order || 'desc').toLowerCase()
+    const dir = order === 'asc' ? 1 : -1
 
     const allPositions = JSON.parse(await redis().get(`positions_${network.name}`) || '[]') || []
     const poolPositions = allPositions.filter((p) => Number(p.pool) === id)
@@ -446,6 +449,11 @@ amm.get('/pools/:id/positions', async (req, res) => {
     )
 
     const response = await buildPositionsResponse(network, positionsWithStats, incentivesFilter)
+    if (sort === 'totalvalueusd') {
+      response.sort((a, b) => ((a?.totalValueUSD ?? 0) - (b?.totalValueUSD ?? 0)) * dir)
+    } else if (sort === 'totalfeesusd') {
+      response.sort((a, b) => ((a?.totalFeesUSD ?? 0) - (b?.totalFeesUSD ?? 0)) * dir)
+    }
     res.json({ items: response, page, limit, total: poolPositions.length })
   } catch (err) {
     console.error('Error in v3 pool positions:', err)
