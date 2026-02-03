@@ -916,13 +916,17 @@ export async function onSwapAction(message: string) {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
   }
 
+  if (name == 'logtransfer') {
+    console.log(`[${chain}] transfer pos #${data.fromPosId || data.posId} from:${data.from} to:${data.to} pool:${data.poolId}`)
+  }
+
   // Only publish realtime events (skip during catch-up to avoid flooding swap-service)
   const eventAge = Date.now() - new Date(block_time).getTime()
   const isRealtime = eventAge < 5 * 60 * 1000 // 5 minutes
 
   // Update pool and positions for position changes
   // Fire and forget - don't block updater
-  if (['logmint', 'logburn', 'logcollect'].includes(name)) {
+  if (['logmint', 'logburn', 'logcollect', 'logtransfer'].includes(name)) {
     const poolId = Number(data.poolId)
     throttledPoolUpdate(chain, poolId).catch(e =>
       console.error(`[${chain}] pool update error:`, e.message)
@@ -932,20 +936,36 @@ export async function onSwapAction(message: string) {
     updatePositions(chain, poolId)
       .then(() => {
         if (isRealtime) {
-          const { posId, owner } = data
-          const push = { chain, account: owner, positions: [posId] }
-          getPublisher().publish('account:update-positions', JSON.stringify(push))
+          if (name === 'logtransfer') {
+            const from = data?.from
+            const to = data?.to
+            const fromPosId = Number(data?.fromPosId ?? data?.from_pos_id ?? data?.posId)
+            const toPosId = Number(data?.toPosId ?? data?.to_pos_id ?? data?.posId)
+
+            if (from) {
+              const push = { chain, account: from, positions: [fromPosId] }
+              getPublisher().publish('account:update-positions', JSON.stringify(push))
+            }
+            if (to) {
+              const push = { chain, account: to, positions: [toPosId] }
+              getPublisher().publish('account:update-positions', JSON.stringify(push))
+            }
+          } else {
+            const { posId, owner } = data
+            const push = { chain, account: owner, positions: [posId] }
+            getPublisher().publish('account:update-positions', JSON.stringify(push))
+          }
         }
       })
       .catch(e => console.error(`[${chain}] position update error:`, e.message))
   }
 
-  if (isRealtime && ['logpool', 'logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
+  if (isRealtime && ['logpool', 'logmint', 'logburn', 'logswap', 'logcollect', 'logtransfer'].includes(name)) {
     const account = networks[chain].amm.contract
     getPublisher().publish(`chainAction:${chain}:${account}:${name}`, message)
   }
 
-  if (['logmint', 'logburn', 'logcollect'].includes(name)) {
+  if (['logmint', 'logburn', 'logcollect', 'logtransfer'].includes(name)) {
     const sqrtPriceX64 = await getClosestSqrtPrice(chain, data.poolId, block_time)
     handlePoolChart(
       chain,

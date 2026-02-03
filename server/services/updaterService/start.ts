@@ -81,7 +81,13 @@ export async function updater(chain: string, services: string[]) {
     setInterval(() => updatePoolsStats(chain), 10 * 60 * 1000)
     setInterval(() => updatePositionsAggregation(chain), 2 * 60 * 1000) // Every 2 minutes
 
-    streamByTrace(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'], 300)
+    streamByTrace(
+      network,
+      network.amm.contract,
+      newSwapAction,
+      ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect', 'transferpos', 'logtransfer'],
+      300
+    )
       .catch(e => { console.log(`[${chain}:${network.amm.contract}] Streamer error:`, e.message); process.exit(1) })
   }
 
