@@ -123,88 +123,6 @@ async function decodeActionData(hexData: any, abi: any, actionName: string): Pro
   }
 }
 
-class RpcFailoverManager {
-  private network: any
-  private allNodes: string[] = []
-  private currentNodeIndex: number = 0
-  private currentRpc: any
-  private failedNodes: Set<string> = new Set()
-  private lastPrimaryRetry: number = Date.now()
-  private readonly PRIMARY_RETRY_INTERVAL = 600000 // 10 minutes
-  private greymassMode: boolean = false
-
-  constructor(network: any) {
-    this.network = network
-
-    // Build list of all nodes to try
-    // 1. Direct node (ENV) first
-    const directNode = process.env[network.name.toUpperCase() + '_DIRECT_NODE']
-    if (directNode) {
-      this.allNodes.push(directNode)
-    }
-
-    // 2. Main node from config
-    this.allNodes.push(network.protocol + '://' + network.host + ':' + network.port)
-
-    // 3. All client nodes
-    this.allNodes.push(...Object.keys(network.client_nodes))
-
-    // Remove duplicates (normalize by removing :443 port)
-    this.allNodes = [...new Set(this.allNodes.map(n => n.replace(':443', '')))]
-
-    console.log(`[${network.name}] Initialized ${this.allNodes.length} RPC nodes`)
-
-    this.currentRpc = new JsonRpc(this.allNodes[0], { fetch })
-  }
-
-  getCurrentRpc(): any {
-    // Periodically retry from beginning (clear failed nodes)
-    if (this.failedNodes.size > 0 && Date.now() - this.lastPrimaryRetry > this.PRIMARY_RETRY_INTERVAL) {
-      console.log(`[${this.network.name}] Retrying all nodes from beginning...`)
-      this.failedNodes.clear()
-      this.currentNodeIndex = 0
-      this.greymassMode = false
-      this.lastPrimaryRetry = Date.now()
-      this.currentRpc = new JsonRpc(this.allNodes[0], { fetch })
-    }
-
-    return this.currentRpc
-  }
-
-  markFailed(): void {
-    const currentNode = this.allNodes[this.currentNodeIndex]
-    this.failedNodes.add(currentNode)
-
-    // Find next non-failed node
-    let nextIndex = (this.currentNodeIndex + 1) % this.allNodes.length
-    let attempts = 0
-
-    while (this.failedNodes.has(this.allNodes[nextIndex]) && attempts < this.allNodes.length) {
-      nextIndex = (nextIndex + 1) % this.allNodes.length
-      attempts++
-    }
-
-    if (attempts >= this.allNodes.length || this.failedNodes.size >= this.allNodes.length) {
-      console.log(`[${this.network.name}] All ${this.allNodes.length} RPC nodes failed, falling back to Greymass API`)
-      this.greymassMode = true
-      return
-    }
-
-    this.currentNodeIndex = nextIndex
-    const nextNode = this.allNodes[nextIndex]
-    console.log(`[${this.network.name}] RPC switch: ${nextNode} (${this.failedNodes.size}/${this.allNodes.length} failed)`)
-    this.currentRpc = new JsonRpc(nextNode, { fetch })
-  }
-
-  isGreymassMode(): boolean {
-    return this.greymassMode
-  }
-
-  getCurrentNodeUrl(): string {
-    return this.allNodes[this.currentNodeIndex]
-  }
-}
-
 async function getBlockNumByTrxId(network: any, trxId: string): Promise<number | null> {
   const allNodes: string[] = []
 
@@ -365,15 +283,20 @@ export async function streamByTrace(network: any, account: string, callback: Fun
 
   const MAX_ABI_RETRIES = 3
   const PREFETCH_SIZE = 10
-  const REALTIME_THRESHOLD = 50
 
-  // Process a single block - returns true if successful
+  // Optimistic fetch state
+  const BACKOFF_STEPS = [50, 100, 200, 500]
+  let notFoundRetries = 0
+  let consecutiveSuccess = 0 // Track successful fetches to detect catch-up mode
+
+  // Process a single block
   async function processBlock(block: any): Promise<void> {
     if (!block || !block.transactions) return
 
     for (const transaction of block.transactions) {
       if (!transaction.status || transaction.status === 'executed') {
-        for (const action of transaction.actions) {
+        const actionsList = Array.isArray(transaction.actions) ? transaction.actions : []
+        for (const action of actionsList) {
           if (action.account === account && (actions.includes(action.action) || actions.includes(action.name) || actions.includes('*'))) {
             const actionName = action.action || action.name
 
@@ -385,7 +308,6 @@ export async function streamByTrace(network: any, account: string, callback: Fun
                 const abi = await getCachedAbi(network, action.account)
                 data = await decodeActionData(action.data, abi, actionName)
                 if (data === null) {
-                  // Unknown action in ABI, skip without retry
                   abiRetries = MAX_ABI_RETRIES
                 }
                 break
@@ -419,92 +341,116 @@ export async function streamByTrace(network: any, account: string, callback: Fun
 
   while (true) {
     try {
-      // Get head block to determine mode
-      const info = await rpc.get_info()
-      const headBlock = info.head_block_num
-      const blocksFromHead = headBlock - currentBlock
+      // === OPTIMISTIC FETCH: try to get block directly ===
+      try {
+        const block = await rpc.get_trace_block(currentBlock)
 
-      if (blocksFromHead > REALTIME_THRESHOLD) {
-        // === CATCH-UP MODE: Prefetch blocks in parallel ===
-        const fetchCount = Math.min(PREFETCH_SIZE, blocksFromHead)
-        const blockNumbers = Array.from({ length: fetchCount }, (_, i) => currentBlock + i)
+        // Success - reset backoff, track consecutive successes
+        notFoundRetries = 0
+        consecutiveSuccess++
 
-        const startTime = performance.now()
-        const blockPromises = blockNumbers.map(num => rpc.get_trace_block(num).catch((e: any) => ({ error: e, blockNum: num })))
-        const blocks = await Promise.all(blockPromises)
-        const fetchTime = Math.round(performance.now() - startTime)
-
-        // Check for errors
-        const firstError = blocks.find((b: any) => b.error)
-        if (firstError) {
-          console.log(`[${network.name}] Prefetch error at block ${(firstError as any).blockNum}: ${(firstError as any).error.message}`)
-          await sleep(5000)
-          continue
-        }
-
-        // Process blocks sequentially
-        for (const block of blocks) {
+        // If we're getting blocks fast (no "not found"), try prefetch
+        if (consecutiveSuccess >= PREFETCH_SIZE) {
+          // === CATCH-UP MODE: prefetch blocks in parallel ===
           await processBlock(block)
           currentBlock++
-        }
 
-        // Save progress after batch
-        const $set: any = {}
-        $set[`last_block_num.${getAccountAsKey(account)}`] = currentBlock
-        await Settings.updateOne({ chain: network.name }, { $set })
+          const blockNumbers = Array.from({ length: PREFETCH_SIZE }, (_, i) => currentBlock + i)
+          const blockPromises = blockNumbers.map(num =>
+            rpc.get_trace_block(num).catch((e: any) => ({ error: e, blockNum: num }))
+          )
+          const blocks = await Promise.all(blockPromises)
 
-        // Log progress (every 100 blocks to reduce spam)
-        if (currentBlock % 100 < PREFETCH_SIZE) {
-          const remainingBlocks = blocksFromHead - fetchCount
-          // 1 block = 0.5 sec in EOS-based chains
-          const lagSeconds = Math.round(remainingBlocks * 0.5)
-          const lagFormatted = lagSeconds >= 3600
-            ? `${Math.floor(lagSeconds / 3600)}h ${Math.floor((lagSeconds % 3600) / 60)}m`
-            : lagSeconds >= 60
-              ? `${Math.floor(lagSeconds / 60)}m ${lagSeconds % 60}s`
-              : `${lagSeconds}s`
-          console.log(`[${network.name}:${account}] #${currentBlock} | ${remainingBlocks} blocks | ${lagFormatted} behind`)
-        }
-
-      } else {
-        // === REALTIME MODE: Single block, wait for next ===
-        try {
-          const block = await rpc.get_trace_block(currentBlock)
-
-          if (currentBlock % 100 === 0) {
-            console.log(`[${network.name}:${account}] #${currentBlock} via ${currentNode}`)
+          // Process successful blocks until first error
+          let processed = 0
+          for (const b of blocks) {
+            if ((b as any).error) {
+              const errMsg = String((b as any).error?.message || '').toLowerCase()
+              const isNotFound = ['could not find block', 'block trace missing', 'block not found']
+                .some(s => errMsg.includes(s))
+              consecutiveSuccess = 0
+              if (!isNotFound) {
+                // Network/node error - trigger failover
+                throw (b as any).error
+              }
+              // Hit the head - switch to realtime
+              break
+            }
+            await processBlock(b)
+            currentBlock++
+            processed++
           }
 
-          await processBlock(block)
-          currentBlock++
-
-          // Save progress
+          // Save progress after batch
           const $set: any = {}
           $set[`last_block_num.${getAccountAsKey(account)}`] = currentBlock
           await Settings.updateOne({ chain: network.name }, { $set })
 
-          // Dynamic delay - wait for next block
-          let timestamp = block.timestamp
-          if (!timestamp.includes('Z')) timestamp += 'Z'
-          const blockTime = new Date(timestamp).getTime()
-          const timeSinceBlock = Date.now() - blockTime
-          const waitTime = Math.max(0, 500 - timeSinceBlock)
-
-          if (waitTime > 0) {
-            await sleep(waitTime)
+          // Log progress with lag info (only every ~100 blocks to avoid spamming get_info)
+          if (currentBlock % 100 < PREFETCH_SIZE + 1) {
+            const info = await rpc.get_info()
+            const head = info.head_block_num
+            const remainingBlocks = head - currentBlock
+            const lagSeconds = Math.round(remainingBlocks * 0.5)
+            const lagFormatted = lagSeconds >= 3600
+              ? `${Math.floor(lagSeconds / 3600)}h ${Math.floor((lagSeconds % 3600) / 60)}m`
+              : lagSeconds >= 60
+                ? `${Math.floor(lagSeconds / 60)}m ${lagSeconds % 60}s`
+                : `${lagSeconds}s`
+            console.log(`[${network.name}:${account}] #${currentBlock} | ${remainingBlocks} blocks | ${lagFormatted} behind`)
           }
-
-        } catch (blockError: any) {
-          const errorMessage = blockError.message || ''
-          const passErrors = ['Could not find block', 'block trace missing', 'block not found']
-
-          if (passErrors.some((err) => errorMessage.includes(err))) {
-            // Block doesn't exist yet - wait and retry
-            await sleep(50)
-            continue
-          }
-          throw blockError
+          continue
         }
+
+        // === REALTIME MODE ===
+        if (currentBlock % 100 === 0) {
+          console.log(`[${network.name}:${account}] #${currentBlock} realtime via ${currentNode}`)
+        }
+
+        await processBlock(block)
+        currentBlock++
+
+        // Save progress
+        const $set: any = {}
+        $set[`last_block_num.${getAccountAsKey(account)}`] = currentBlock
+        await Settings.updateOne({ chain: network.name }, { $set })
+
+      } catch (blockError: any) {
+        const errorMessage = blockError.message || ''
+        const isNotFound = ['Could not find block', 'block trace missing', 'block not found']
+          .some(err => errorMessage.toLowerCase().includes(err.toLowerCase()))
+
+        if (isNotFound) {
+          // Block not found - reset catch-up mode, use progressive backoff
+          consecutiveSuccess = 0
+          const backoffIndex = Math.min(notFoundRetries, BACKOFF_STEPS.length - 1)
+          const backoffTime = BACKOFF_STEPS[backoffIndex]
+          notFoundRetries++
+
+          // After several retries, check position relative to head
+          if (notFoundRetries >= 5) {
+            const info = await rpc.get_info()
+            const head = info.head_block_num
+            if (currentBlock > head) {
+              // We're ahead of chain - wait for new blocks
+              await sleep(Math.max(100, (currentBlock - head) * 500))
+              notFoundRetries = 0
+            } else if (head - currentBlock > 100) {
+              // Block should exist but trace is missing - likely pruned, skip it
+              console.log(`[${network.name}:${account}] Block ${currentBlock} trace missing (head: ${head}), skipping`)
+              currentBlock++
+              notFoundRetries = 0
+              // Save progress immediately to avoid restart loop
+              const $set: any = {}
+              $set[`last_block_num.${getAccountAsKey(account)}`] = currentBlock
+              await Settings.updateOne({ chain: network.name }, { $set })
+            }
+          } else {
+            await sleep(backoffTime)
+          }
+          continue
+        }
+        throw blockError
       }
 
     } catch (error: any) {
