@@ -18,6 +18,124 @@ function formatCandle(candle, volumeField, tokenA, tokenB, reverse) {
   delete candle[volumeField]
 }
 
+function pickMainPool(pools) {
+  const candidates = pools.some((p) => p.active) ? pools.filter((p) => p.active) : pools
+  return candidates.sort((a, b) => {
+    const tvlDiff = (Number(b.tvlUSD) || 0) - (Number(a.tvlUSD) || 0)
+    if (tvlDiff !== 0) return tvlDiff
+    const volumeDiff = (Number(b.volumeUSD24) || 0) - (Number(a.volumeUSD24) || 0)
+    if (volumeDiff !== 0) return volumeDiff
+    return (Number(b.id) || 0) - (Number(a.id) || 0)
+  })[0]
+}
+
+async function sendPoolCandles(req, res, pool, reverseOverride) {
+  const { from, to, resolution, limit, volumeField = 'volumeUSD' }: any = req.query
+  const reverse = typeof reverseOverride === 'boolean' ? reverseOverride : req.query.reverse === 'true'
+
+  if (!resolution) return res.status(400).send('Resolution is required.')
+  const normalizedResolution = normalizeResolution(resolution)
+  const frame = resolutions[normalizedResolution] * 1000
+  const fromMs = from ? parseInt(from) : null
+  const toMs = to ? parseInt(to) : null
+  const alignedFrom = Number.isFinite(fromMs) ? Math.floor(fromMs / frame) * frame : null
+  const alignedTo = Number.isFinite(toMs) ? Math.floor(toMs / frame) * frame : null
+
+  if (limit && isNaN(parseInt(limit))) return res.status(400).send('Invalid limit.')
+
+  const where: any = { chain: pool.chain, timeframe: normalizedResolution.toString(), pool: parseInt(pool.id) }
+  if (from && to) {
+    where.time = {
+      $gte: new Date(alignedFrom ?? parseInt(from)),
+      $lte: new Date(alignedTo ?? parseInt(to))
+    }
+  }
+
+  const $project: any = {
+    time: { $toLong: '$time' },
+    open: 1,
+    high: 1,
+    low: 1,
+    close: 1,
+  }
+
+  $project[volumeField] = 1
+
+  const q: any = [
+    { $match: where },
+    { $sort: { time: 1 } },
+    { $project }
+  ]
+
+  if (limit) q.push({ $limit: parseInt(limit) })
+
+  let lastKnownPrice = null
+  const candles = await SwapBar.aggregate(q)
+
+  if (candles.length === 0 && from) {
+    const lastPriceQuery = await SwapBar.findOne({
+      chain: pool.chain,
+      pool: parseInt(pool.id),
+      timeframe: normalizedResolution.toString(),
+      time: { $lt: new Date(alignedFrom ?? parseInt(from)) },
+    }).sort({ time: -1 })
+
+    lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
+    if (!lastPriceQuery) return res.json([])
+  } else {
+    lastKnownPrice = candles[0].close
+  }
+
+  lastKnownPrice = getSwapBarPriceAsString(lastKnownPrice, pool.tokenA, pool.tokenB, reverse)
+
+  const filledCandles = []
+  let expectedTime = alignedFrom ?? (Number.isFinite(fromMs) ? fromMs : null)
+
+  candles.forEach((candle) => {
+    formatCandle(candle, volumeField, pool.tokenA, pool.tokenB, reverse)
+    candle.open = lastKnownPrice
+    if (expectedTime != null) {
+      while (candle.time > expectedTime) {
+        filledCandles.push({
+          time: expectedTime,
+          open: lastKnownPrice,
+          high: lastKnownPrice,
+          low: lastKnownPrice,
+          close: lastKnownPrice,
+          volume: 0,
+        })
+        expectedTime += frame
+      }
+    }
+
+    filledCandles.push(candle)
+    lastKnownPrice = candle.close
+    if (expectedTime != null) expectedTime += frame
+  })
+
+  // Handle trailing empty candles if necessary (stop at last completed bar)
+  if (expectedTime != null && Number.isFinite(alignedTo)) {
+    const nowMs = Date.now()
+    const nowAligned = Math.floor(nowMs / frame) * frame
+    const lastComplete = nowAligned - frame
+    const fillTo = Math.min(alignedTo as number, lastComplete)
+
+    while (expectedTime <= fillTo) {
+      filledCandles.push({
+        time: expectedTime,
+        open: lastKnownPrice,
+        high: lastKnownPrice,
+        low: lastKnownPrice,
+        close: lastKnownPrice,
+        volume: 0,
+      })
+      expectedTime += frame
+    }
+  }
+
+  res.json(filledCandles)
+}
+
 export const swap = Router()
 
 // swap.get('/pools', cacheSeconds(60, (req, res) => {
@@ -47,8 +165,15 @@ swap.get('/pools', cacheSeconds(60, (req, res) => {
 
   const { tokenA, tokenB } = req.query
 
-  if (tokenA) query['tokenA.id'] = tokenA
-  if (tokenB) query['tokenB.id'] = tokenB
+  if (tokenA && tokenB) {
+    query.$or = [
+      { 'tokenA.id': tokenA, 'tokenB.id': tokenB },
+      { 'tokenA.id': tokenB, 'tokenB.id': tokenA },
+    ]
+  } else {
+    if (tokenA) query['tokenA.id'] = tokenA
+    if (tokenB) query['tokenB.id'] = tokenB
+  }
 
   let pools = await SwapPool.find(query).select('-_id -__v').lean()
 
@@ -248,114 +373,41 @@ swap.get('/pools/:id/candles', async (req, res) => {
   try {
     const network: Network = req.app.get('network')
     const { id } = req.params
-    const { from, to, resolution, limit, volumeField = 'volumeUSD' }: any = req.query
-
-    const reverse = req.query.reverse === 'true'
-
-    if (!resolution) return res.status(400).send('Resolution is required.')
-    const normalizedResolution = normalizeResolution(resolution)
-    const frame = resolutions[normalizedResolution] * 1000
-    const fromMs = from ? parseInt(from) : null
-    const toMs = to ? parseInt(to) : null
-    const alignedFrom = Number.isFinite(fromMs) ? Math.floor(fromMs / frame) * frame : null
-    const alignedTo = Number.isFinite(toMs) ? Math.floor(toMs / frame) * frame : null
-
-    if (limit && isNaN(parseInt(limit))) return res.status(400).send('Invalid limit.')
 
     const pool = await SwapPool.findOne({ id, chain: network.name })
     if (!pool) return res.status(404).send(`Pool ${id} is not found`)
 
-    const where: any = { chain: network.name, timeframe: normalizedResolution.toString(), pool: parseInt(pool.id) }
-    if (from && to) {
-      where.time = {
-        $gte: new Date(alignedFrom ?? parseInt(from)),
-        $lte: new Date(alignedTo ?? parseInt(to))
-      }
+    await sendPoolCandles(req, res, pool)
+  } catch (error) {
+    res.status(500).send('An unexpected error occurred.')
+  }
+})
+
+swap.get('/candles', async (req, res) => {
+  try {
+    const network: Network = req.app.get('network')
+    const { tokenA, tokenB } = req.query
+
+    if (typeof tokenA !== 'string' || typeof tokenB !== 'string') {
+      return res.status(400).send('Set tokenA and tokenB')
     }
 
-    const $project: any = {
-      time: { $toLong: '$time' },
-      open: 1,
-      high: 1,
-      low: 1,
-      close: 1,
-    }
+    const pools = await SwapPool.find({
+      chain: network.name,
+      $or: [
+        { 'tokenA.id': tokenA, 'tokenB.id': tokenB },
+        { 'tokenA.id': tokenB, 'tokenB.id': tokenA },
+      ]
+    }).lean()
 
-    $project[volumeField] = 1
+    if (!pools.length) return res.status(404).send('Pools not found for this pair')
 
-    const q: any = [
-      { $match: where },
-      { $sort: { time: 1 } },
-      { $project }
-    ]
+    const pool = pickMainPool(pools)
+    const orderMismatch = pool.tokenA?.id !== tokenA
+    const requestedReverse = req.query.reverse === 'true'
+    const effectiveReverse = orderMismatch !== requestedReverse
 
-    if (limit) q.push({ $limit: parseInt(limit) })
-
-    let lastKnownPrice = null
-    const candles = await SwapBar.aggregate(q)
-
-    if (candles.length === 0 && from) {
-      const lastPriceQuery = await SwapBar.findOne({
-        chain: network.name,
-        pool: parseInt(pool.id),
-        timeframe: normalizedResolution.toString(),
-        time: { $lt: new Date(alignedFrom ?? parseInt(from)) },
-      }).sort({ time: -1 })
-
-      lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
-      if (!lastPriceQuery) return res.json([])
-    } else {
-      lastKnownPrice = candles[0].close
-    }
-
-    lastKnownPrice = getSwapBarPriceAsString(lastKnownPrice, pool.tokenA, pool.tokenB, reverse)
-
-    const filledCandles = []
-    let expectedTime = alignedFrom ?? (Number.isFinite(fromMs) ? fromMs : null)
-
-    candles.forEach((candle, index) => {
-      formatCandle(candle, volumeField, pool.tokenA, pool.tokenB, reverse)
-      candle.open = lastKnownPrice
-      if (expectedTime != null) {
-        while (candle.time > expectedTime) {
-          filledCandles.push({
-            time: expectedTime,
-            open: lastKnownPrice,
-            high: lastKnownPrice,
-            low: lastKnownPrice,
-            close: lastKnownPrice,
-            volume: 0,
-          })
-          expectedTime += frame
-        }
-      }
-
-      filledCandles.push(candle)
-      lastKnownPrice = candle.close
-      if (expectedTime != null) expectedTime += frame
-    })
-
-    // Handle trailing empty candles if necessary (stop at last completed bar)
-    if (expectedTime != null && Number.isFinite(alignedTo)) {
-      const nowMs = Date.now()
-      const nowAligned = Math.floor(nowMs / frame) * frame
-      const lastComplete = nowAligned - frame
-      const fillTo = Math.min(alignedTo as number, lastComplete)
-
-      while (expectedTime <= fillTo) {
-        filledCandles.push({
-          time: expectedTime,
-          open: lastKnownPrice,
-          high: lastKnownPrice,
-          low: lastKnownPrice,
-          close: lastKnownPrice,
-          volume: 0,
-        })
-        expectedTime += frame
-      }
-    }
-
-    res.json(filledCandles)
+    await sendPoolCandles(req, res, pool, effectiveReverse)
   } catch (error) {
     res.status(500).send('An unexpected error occurred.')
   }
