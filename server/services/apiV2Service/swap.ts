@@ -29,11 +29,24 @@ function pickMainPool(pools) {
   })[0]
 }
 
-async function sendPoolCandles(req, res, pool, reverseOverride?: boolean, includePoolId?: number) {
+async function sendPoolCandles(
+  req,
+  res,
+  pool,
+  reverseOverride?: boolean,
+  responseMeta?: { poolId?: number, isReversed?: boolean }
+) {
   const { from, to, resolution, limit, volumeField = 'volumeUSD' }: any = req.query
   const reverse = typeof reverseOverride === 'boolean' ? reverseOverride : req.query.reverse === 'true'
-  const sendCandles = (candles) =>
-    res.json(typeof includePoolId === 'number' ? { poolId: includePoolId, candles } : candles)
+  const sendCandles = (candles) => {
+    if (responseMeta && (typeof responseMeta.poolId === 'number' || typeof responseMeta.isReversed === 'boolean')) {
+      const payload: any = { candles }
+      if (typeof responseMeta.poolId === 'number') payload.poolId = responseMeta.poolId
+      if (typeof responseMeta.isReversed === 'boolean') payload.isReversed = responseMeta.isReversed
+      return res.json(payload)
+    }
+    return res.json(candles)
+  }
 
   if (!resolution) return res.status(400).send('Resolution is required.')
   const normalizedResolution = normalizeResolution(resolution)
@@ -409,7 +422,7 @@ swap.get('/candles', async (req, res) => {
     const requestedReverse = req.query.reverse === 'true'
     const effectiveReverse = orderMismatch !== requestedReverse
 
-    await sendPoolCandles(req, res, pool, effectiveReverse, pool.id)
+    await sendPoolCandles(req, res, pool, effectiveReverse, { poolId: pool.id, isReversed: orderMismatch })
   } catch (error) {
     res.status(500).send('An unexpected error occurred.')
   }
