@@ -6,30 +6,52 @@ const { Api } = require('enf-eosjs')
 import { Match, Swap, Settings } from '../../models'
 import { getSettings, sleep } from '../../utils'
 
+const ABI_TIMEOUT_MS = Number(process.env.ABI_FETCH_TIMEOUT_MS) || 8000
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timeoutId: NodeJS.Timeout | null = null
+
+  const timeoutPromise = new Promise<T>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timeout after ${ms}ms`)), ms)
+  })
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
+}
+
 function getAccountAsKey(account: string) {
   return account.replace('.', '-')
 }
 
-// Get all public nodes for a network (no direct nodes - they may not have full API)
-function getPublicNodes(network: any): string[] {
-  return [
-    `${network.protocol}://${network.host}:${network.port}`,
-    ...Object.keys(network.client_nodes)
-  ]
+// Get nodes for ABI fetch (direct node first, then main + client nodes)
+function getAbiNodes(network: any): string[] {
+  const nodes: string[] = []
+
+  const directNode = process.env[network.name.toUpperCase() + '_DIRECT_NODE']
+  if (directNode) nodes.push(directNode)
+
+  nodes.push(`${network.protocol}://${network.host}:${network.port}`)
+  nodes.push(...Object.keys(network.client_nodes))
+
+  return nodes
 }
 
 // Try an async operation across all nodes until one succeeds
 async function tryAllNodes<T>(
   network: any,
   operation: (rpc: any, nodeUrl: string) => Promise<T>,
-  operationName: string
+  operationName: string,
+  nodesOverride?: string[],
+  timeoutMs?: number
 ): Promise<T> {
-  const nodes = getPublicNodes(network)
+  const nodes = nodesOverride || getAbiNodes(network)
 
   for (const nodeUrl of nodes) {
     try {
       const rpc = new JsonRpc(nodeUrl, { fetch })
-      return await operation(rpc, nodeUrl)
+      const op = operation(rpc, nodeUrl)
+      return await (timeoutMs ? withTimeout(op, timeoutMs, operationName) : op)
     } catch (e: any) {
       console.log(`[${network.name}] ${operationName} failed from ${nodeUrl}: ${e.message}`)
     }
@@ -51,7 +73,7 @@ async function getCachedAbi(network: any, account: string): Promise<any> {
   const abi = await tryAllNodes(network, async (rpc, nodeUrl) => {
     console.log(`[${network.name}] Fetching ABI for ${account} from ${nodeUrl}`)
     return await rpc.getRawAbi(account)
-  }, `ABI fetch for ${account}`)
+  }, `ABI fetch for ${account}`, getAbiNodes(network), ABI_TIMEOUT_MS)
 
   abiCache.set(key, abi)
   return abi
