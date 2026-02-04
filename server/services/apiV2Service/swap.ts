@@ -29,9 +29,11 @@ function pickMainPool(pools) {
   })[0]
 }
 
-async function sendPoolCandles(req, res, pool, reverseOverride) {
+async function sendPoolCandles(req, res, pool, reverseOverride?: boolean, includePoolId?: number) {
   const { from, to, resolution, limit, volumeField = 'volumeUSD' }: any = req.query
   const reverse = typeof reverseOverride === 'boolean' ? reverseOverride : req.query.reverse === 'true'
+  const sendCandles = (candles) =>
+    res.json(typeof includePoolId === 'number' ? { poolId: includePoolId, candles } : candles)
 
   if (!resolution) return res.status(400).send('Resolution is required.')
   const normalizedResolution = normalizeResolution(resolution)
@@ -81,10 +83,10 @@ async function sendPoolCandles(req, res, pool, reverseOverride) {
     }).sort({ time: -1 })
 
     lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
-    if (!lastPriceQuery) return res.json([])
-  } else {
-    lastKnownPrice = candles[0].close
-  }
+      if (!lastPriceQuery) return sendCandles([])
+    } else {
+      lastKnownPrice = candles[0].close
+    }
 
   lastKnownPrice = getSwapBarPriceAsString(lastKnownPrice, pool.tokenA, pool.tokenB, reverse)
 
@@ -133,7 +135,7 @@ async function sendPoolCandles(req, res, pool, reverseOverride) {
     }
   }
 
-  res.json(filledCandles)
+  sendCandles(filledCandles)
 }
 
 export const swap = Router()
@@ -407,7 +409,7 @@ swap.get('/candles', async (req, res) => {
     const requestedReverse = req.query.reverse === 'true'
     const effectiveReverse = orderMismatch !== requestedReverse
 
-    await sendPoolCandles(req, res, pool, effectiveReverse)
+    await sendPoolCandles(req, res, pool, effectiveReverse, pool.id)
   } catch (error) {
     res.status(500).send('An unexpected error occurred.')
   }
