@@ -296,7 +296,12 @@ async function main() {
     }
 
     const { chain, pool, timeframe, time, close, open, high, low, volumeUSD } = bar
-    const tick = { close, open, high, low, volumeUSD, time: new Date(time).getTime() }
+    const barTime = new Date(time).getTime()
+    const barKey = `${chain}:${pool}:${timeframe}`
+    const existing = realtimeBars.get(barKey)
+    if (existing && barTime < existing.time) return
+
+    const tick = { close, open, high, low, volumeUSD, time: barTime }
     io.to(`swap-ticker:${chain}.${pool}.${timeframe}`).emit('swap-tick', tick)
 
     const poolInfo = await getPoolCached(chain, pool)
@@ -339,8 +344,6 @@ async function main() {
           }
         : null
 
-    const barTime = new Date(time).getTime()
-    const barKey = `${chain}:${pool}:${timeframe}`
     if (priceA && priceB && tokenA && tokenB) {
       await ensurePrevClose(
         barKey,
@@ -487,6 +490,8 @@ async function main() {
       const { currentBarStart } = getBarTimes(swapTime, frame)
       const barTime = currentBarStart.getTime()
       const key = `${chain}:${poolId}:${timeframe}`
+      const existing = realtimeBars.get(key)
+      if (existing && barTime < existing.time) continue
 
       await ensurePrevClose(
         key,

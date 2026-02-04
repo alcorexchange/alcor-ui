@@ -24,6 +24,7 @@ type SwapBatchItem = {
   data: any
   block_time: string
   block_num: number
+  global_sequence?: number
 }
 
 type SwapBatch = {
@@ -51,8 +52,32 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
 
   const t0 = Date.now()
 
+  // 0. Deduplicate by global_sequence (skip existing swaps)
+  const seqs = batch.swaps
+    .map(s => s.global_sequence)
+    .filter(s => typeof s === 'number')
+
+  let newSwaps = batch.swaps
+  if (seqs.length > 0) {
+    const existing = await Swap.find({ chain, global_sequence: { $in: seqs } })
+      .select('global_sequence')
+      .lean()
+    const existingSet = new Set(existing.map(s => s.global_sequence))
+    const seen = new Set<number>()
+
+    newSwaps = batch.swaps.filter((s) => {
+      if (typeof s.global_sequence !== 'number') return true
+      if (existingSet.has(s.global_sequence)) return false
+      if (seen.has(s.global_sequence)) return false
+      seen.add(s.global_sequence)
+      return true
+    })
+  }
+
+  if (newSwaps.length === 0) return
+
   // 1. Collect unique pool IDs (ensure numbers)
-  const uniquePoolIds = [...new Set(batch.swaps.map(s => Number(s.data.poolId)))]
+  const uniquePoolIds = [...new Set(newSwaps.map(s => Number(s.data.poolId)))]
 
   // 2. Fetch all pools at once
   const pools = await SwapPool.find({ chain, id: { $in: uniquePoolIds } }).lean()
@@ -70,8 +95,8 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
   const poolSwaps = new Map<number, SwapBatchItem[]>()
   const swapDocs: any[] = []
 
-  for (const s of batch.swaps) {
-    const { data, trx_id, block_time, block_num } = s
+  for (const s of newSwaps) {
+    const { data, trx_id, block_time, block_num, global_sequence } = s
     const { poolId, recipient, sender, sqrtPriceX64 } = data
 
     const tokenAamount = parseFloat(data.tokenA)
@@ -96,6 +121,7 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
       pool: Number(poolId),
       recipient,
       trx_id,
+      global_sequence,
       sender,
       sqrtPriceX64: littleEndianToDesimalString(sqrtPriceX64),
       totalUSDVolume,
@@ -154,7 +180,7 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
   const account = networks[chain].amm.contract
 
   // Publish events
-  for (const s of batch.swaps) {
+  for (const s of newSwaps) {
     const message = JSON.stringify({
       chain,
       name: 'logswap',
@@ -168,7 +194,7 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
 
   // Only log if slow (>500ms) or every 10th block for progress
   if (total > 500 || batch.block_num % 10 === 0) {
-    console.log(`[${chain}:${account}] #${batch.block_num} ${batch.swaps.length} swaps ${total}ms`)
+    console.log(`[${chain}:${account}] #${batch.block_num} ${newSwaps.length} swaps ${total}ms`)
   }
 }
 
@@ -854,7 +880,7 @@ export async function handleSwap({ chain, data, trx_id, block_time, block_num })
 export async function onSwapAction(message: string) {
   await connectAll()
 
-  const { chain, name, trx_id, block_time, block_num, data } = JSON.parse(message)
+  const { chain, name, trx_id, block_time, block_num, data, global_sequence } = JSON.parse(message)
 
   // Flush pending swap batch if block changed (for any action type)
   const existingBatch = chainBatches.get(chain)
@@ -895,7 +921,7 @@ export async function onSwapAction(message: string) {
     }
 
     // Add swap to batch
-    batch.swaps.push({ chain, trx_id, data, block_time, block_num })
+    batch.swaps.push({ chain, trx_id, data, block_time, block_num, global_sequence })
 
     // Don't process immediately - will be flushed on next block
     return
