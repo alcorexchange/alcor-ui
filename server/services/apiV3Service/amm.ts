@@ -230,6 +230,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
       let userSharePercent = null
       let dailyRewards = null
       let farmedReward = null
+      let hasClaimableReward = false
 
       if (stake) {
         const totalStakingWeight = bigInt(inc.totalStakingWeight)
@@ -258,6 +259,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
           Asset.Symbol.fromParts(rewardSymbol, rewardPrecision)
         )
         farmedReward = rewardAsset.toString()
+        hasClaimableReward = reward.gt(0)
 
         const daily = inc.isFinished
           ? 0
@@ -282,14 +284,16 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
         userSharePercent,
         dailyRewards,
         farmedReward,
+        hasClaimableReward,
       }
     })
 
     if (incentivesFilter === 'active') {
-      poolIncentives = poolIncentives.filter((i) => !i.isFinished)
+      poolIncentives = poolIncentives.filter((i) => !i.isFinished || i.hasClaimableReward)
     } else if (incentivesFilter === 'finished') {
       poolIncentives = poolIncentives.filter((i) => i.isFinished)
     }
+    poolIncentives = poolIncentives.map(({ hasClaimableReward, ...rest }) => rest)
 
     const stakeStatus = poolIncentives.length === 0
       ? null
