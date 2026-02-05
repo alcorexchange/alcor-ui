@@ -61,6 +61,7 @@ Token details + pools and spot pairs.
 
 Query:
 - `window` (default: `30d`)
+- `include=tx,depth` (optional, applies to `spotPairs`)
 
 Response:
 ```
@@ -89,6 +90,7 @@ Spot pairs for token.
 
 Query:
 - `window` (default: `30d`)
+- `include=tx,depth` (optional)
 
 Response:
 ```
@@ -104,6 +106,7 @@ Query:
 - `order=asc|desc` (default: `desc`)
 - `limit` (default: `50`, max: `500`)
 - `page` (default: `1`)
+- `search` (optional, token symbol/name/contract/id, supports `A/B` or space-separated terms)
 - `hide_scam=true|false`
 - `include=incentives` (optional)
 
@@ -164,6 +167,7 @@ Query:
 - `order=asc|desc` (default: `desc`)
 - `limit` (default: `50`, max: `500`)
 - `page` (default: `1`)
+- `include=tx,depth` (optional)
 
 Response:
 ```
@@ -175,6 +179,7 @@ Spot pair detail.
 
 Query:
 - `window` (default: `30d`)
+- `include=tx,depth` (optional)
 
 Response:
 ```
