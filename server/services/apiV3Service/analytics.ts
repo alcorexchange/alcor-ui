@@ -1,4 +1,3 @@
-import bigInt from 'big-integer'
 import { Asset } from '@wharfkit/antelope'
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
@@ -11,6 +10,7 @@ import { getSwapBarPriceAsString } from '../../../utils/amm'
 import { resolutions as candleResolutions, normalizeResolution } from '../updaterService/charts'
 import { getIncentives } from '../apiV2Service/farms'
 import { getOrderbook } from '../orderbookService/start'
+import { sqrt } from '../../../utils/bigint'
 import fs from 'fs'
 import path from 'path'
 
@@ -434,15 +434,10 @@ function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, { us
       Asset.Symbol.fromParts(pool.tokenB.symbol, pool.tokenB.decimals)
     )
 
-    const absoluteTotalStaked = bigInt(tokenAQuantity.units.toString()).multiply(
-      bigInt(tokenBQuantity.units.toString())
-    )
-    const denominator = absoluteTotalStaked.equals(0) ? bigInt(1) : absoluteTotalStaked
-    const stakedPercentBn = bigInt(incentive.totalStakingWeight)
-      .multiply(100)
-      .multiply(1000)
-      .divide(denominator)
-    const stakedPercent = stakedPercentBn.toJSNumber() / 1000
+    const product = BigInt(tokenAQuantity.units.toString()) * BigInt(tokenBQuantity.units.toString())
+    const absoluteTotalStaked = sqrt(product) || 1n
+    const stakedPercentBn = (BigInt(incentive.totalStakingWeight || 0) * 100n * 1000n) / absoluteTotalStaked
+    const stakedPercent = Number(stakedPercentBn) / 1000
 
     const tvlUSD = safeNumber(pool.tvlUSD) * (stakedPercent / 100)
     if (!tvlUSD || tvlUSD <= 0) return 0
@@ -475,15 +470,10 @@ function calcIncentiveStakePercent(incentive: any, pool: any) {
       Asset.Symbol.fromParts(pool.tokenB.symbol, pool.tokenB.decimals)
     )
 
-    const absoluteTotalStaked = bigInt(tokenAQuantity.units.toString()).multiply(
-      bigInt(tokenBQuantity.units.toString())
-    )
-    const denominator = absoluteTotalStaked.equals(0) ? bigInt(1) : absoluteTotalStaked
-    const stakedPercentBn = bigInt(incentive.totalStakingWeight)
-      .multiply(100)
-      .multiply(1000)
-      .divide(denominator)
-    const stakedPercent = stakedPercentBn.toJSNumber() / 1000
+    const product = BigInt(tokenAQuantity.units.toString()) * BigInt(tokenBQuantity.units.toString())
+    const absoluteTotalStaked = sqrt(product) || 1n
+    const stakedPercentBn = (BigInt(incentive.totalStakingWeight || 0) * 100n * 1000n) / absoluteTotalStaked
+    const stakedPercent = Number(stakedPercentBn) / 1000
 
     return Number.isFinite(stakedPercent) ? stakedPercent : null
   } catch (e) {

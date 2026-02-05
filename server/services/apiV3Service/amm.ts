@@ -11,6 +11,7 @@ import { getAccountPoolPositions, getPositionStats } from '../apiV2Service/accou
 import { getRedisPosition } from '../swapV2Service/utils'
 import { SwapPool } from '../../models'
 import { redis } from '../../utils'
+import { sqrt } from '../../../utils/bigint'
 
 export const amm = Router()
 const PrecisionMultiplier = bigInt('1000000000000000000')
@@ -99,15 +100,10 @@ function calcIncentiveApr(incentive, pool, tokensMap) {
       Asset.Symbol.fromParts(pool.tokenB.symbol, pool.tokenB.decimals)
     )
 
-    const absoluteTotalStaked = bigInt(tokenAQuantity.units.toString()).multiply(
-      bigInt(tokenBQuantity.units.toString())
-    )
-    const denominator = absoluteTotalStaked.equals(0) ? bigInt(1) : absoluteTotalStaked
-    const stakedPercent_bn = bigInt(incentive.totalStakingWeight)
-      .multiply(100)
-      .multiply(1000)
-      .divide(denominator)
-    const stakedPercent = stakedPercent_bn.toJSNumber() / 1000
+    const product = BigInt(tokenAQuantity.units.toString()) * BigInt(tokenBQuantity.units.toString())
+    const absoluteTotalStaked = sqrt(product) || 1n
+    const stakedPercent_bn = (BigInt(incentive.totalStakingWeight || 0) * 100n * 1000n) / absoluteTotalStaked
+    const stakedPercent = Number(stakedPercent_bn) / 1000
 
     const tvlUSD = pool.tvlUSD * (stakedPercent / 100)
     if (!tvlUSD || tvlUSD <= 0) return 0
