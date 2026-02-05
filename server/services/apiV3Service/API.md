@@ -124,6 +124,27 @@ Response:
 { "meta": { ... }, "pool": PoolCard(+incentives) }
 ```
 
+### GET `/analytics/farms`
+Farms (incentives) list with analytics.
+
+Query:
+- `status=active|finished|all` (default: `active`)
+- `window` (default: `30d`)
+- `sort=apr|rewards|tvl|staked|remaining|utilization|volume` (default: `apr`)
+- `order=asc|desc` (default: `desc`)
+- `limit` (default: `50`, max: `500`)
+- `page` (default: `1`)
+- `hide_scam=true|false`
+
+Response:
+```
+{
+  "meta": { ... },
+  "items": [FarmCard],
+  "page", "limit", "total"
+}
+```
+
 ### GET `/analytics/spot-pairs`
 Spot pairs list.
 
@@ -245,6 +266,29 @@ Pool + incentives + staking summary.
   "volume": { "usd" },
   "orders": { "bidDepthUsd", "askDepthUsd" },
   "tx": { "matches" }
+}
+```
+
+### FarmCard
+```
+{
+  "id",
+  "poolId",
+  "isFinished",
+  "daysRemain",
+  "periodFinish",
+  "reward",
+  "rewardSymbol",
+  "rewardTokenId",
+  "rewardTokenPrice",
+  "rewardPerDay",
+  "rewardPerDayUSD",
+  "apr",
+  "utilizationPct",
+  "stakedTvlUSD",
+  "poolTvlUSD",
+  "poolVolumeUSD",
+  "pool": PoolCard
 }
 ```
 

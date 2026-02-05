@@ -462,6 +462,35 @@ function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, { us
   }
 }
 
+function calcIncentiveStakePercent(incentive: any, pool: any) {
+  if (!pool || !incentive) return null
+
+  try {
+    const tokenAQuantity = Asset.fromFloat(
+      pool.tokenA.quantity,
+      Asset.Symbol.fromParts(pool.tokenA.symbol, pool.tokenA.decimals)
+    )
+    const tokenBQuantity = Asset.fromFloat(
+      pool.tokenB.quantity,
+      Asset.Symbol.fromParts(pool.tokenB.symbol, pool.tokenB.decimals)
+    )
+
+    const absoluteTotalStaked = bigInt(tokenAQuantity.units.toString()).multiply(
+      bigInt(tokenBQuantity.units.toString())
+    )
+    const denominator = absoluteTotalStaked.equals(0) ? bigInt(1) : absoluteTotalStaked
+    const stakedPercentBn = bigInt(incentive.totalStakingWeight)
+      .multiply(100)
+      .multiply(1000)
+      .divide(denominator)
+    const stakedPercent = stakedPercentBn.toJSNumber() / 1000
+
+    return Number.isFinite(stakedPercent) ? stakedPercent : null
+  } catch (e) {
+    return null
+  }
+}
+
 async function loadIncentivesByPool(network: Network) {
   const incentives = await getIncentives(network)
   const incentivesByPool = new Map<number, any[]>()
@@ -1061,6 +1090,125 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
     page,
     limit,
     total: pools.length,
+  })
+})
+
+analytics.get('/farms', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+  const window = getWindow(req.query.window)
+  const status = String(req.query.status || 'active').toLowerCase()
+  const sort = String(req.query.sort || 'apr').toLowerCase()
+  const order = String(req.query.order || 'desc').toLowerCase()
+  const dir = order === 'asc' ? 1 : -1
+  const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
+
+  let pools = await SwapPool.find({ chain: network.name }).lean()
+
+  if (hideScam) {
+    const { scam_contracts, scam_tokens } = await getScamLists(network)
+    pools = pools.filter((p) =>
+      !scam_contracts.has(p.tokenA.contract) &&
+      !scam_contracts.has(p.tokenB.contract) &&
+      !scam_tokens.has(p.tokenA.id) &&
+      !scam_tokens.has(p.tokenB.id)
+    )
+  }
+
+  const poolsById = new Map<number, any>(pools.map((p) => [Number(p.id), p]))
+  const tokens = (await getTokens(network.name)) || []
+  const tokensMap = new Map<string, { usd_price?: number }>(tokens.map((t) => [t.id, t]))
+
+  let incentives = await getIncentives(network)
+  if (status === 'active') {
+    incentives = incentives.filter((i) => !i.isFinished)
+  } else if (status === 'finished') {
+    incentives = incentives.filter((i) => i.isFinished)
+  }
+
+  const items = incentives.map((inc) => {
+    const pool = poolsById.get(Number(inc.poolId))
+    if (!pool) return null
+
+    const rewardSymbol = inc?.reward?.symbol?.symbol ?? inc?.reward?.symbol ?? null
+    const rewardContract = inc?.reward?.contract ?? null
+    const rewardTokenId =
+      rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
+    const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
+    const rewardTokenPrice = safeNumber(rewardToken?.usd_price, 0)
+
+    const rewardPerDay = safeNumber(inc.rewardPerDay, 0)
+    const rewardPerDayUSD = rewardPerDay * rewardTokenPrice
+
+    const apr = calcIncentiveApr(inc, pool, tokensMap)
+    const utilizationPct = calcIncentiveStakePercent(inc, pool)
+    const stakedTvlUSD = utilizationPct === null
+      ? null
+      : safeNumber(pool.tvlUSD) * (utilizationPct / 100)
+
+    const poolTvlUSD = safeNumber(pool.tvlUSD)
+    const poolVolumeUSD = pickPoolVolumes(pool, window.label).usd
+
+    return {
+      id: inc.id,
+      poolId: pool.id,
+      isFinished: Boolean(inc.isFinished),
+      daysRemain: safeNumber(inc.daysRemain),
+      periodFinish: inc.periodFinish ?? null,
+      reward: inc.reward?.quantity ?? null,
+      rewardSymbol,
+      rewardTokenId,
+      rewardTokenPrice,
+      rewardPerDay,
+      rewardPerDayUSD: Number.isFinite(rewardPerDayUSD) ? Number(rewardPerDayUSD.toFixed(2)) : 0,
+      apr,
+      utilizationPct: utilizationPct === null ? null : Number(utilizationPct.toFixed(4)),
+      stakedTvlUSD: stakedTvlUSD === null ? null : Number(stakedTvlUSD.toFixed(2)),
+      poolTvlUSD,
+      poolVolumeUSD,
+      pool: toPoolCard(pool, window.label),
+    }
+  }).filter(Boolean)
+
+  items.sort((a, b) => {
+    let av = 0
+    let bv = 0
+    if (sort === 'rewards') {
+      av = safeNumber(a.rewardPerDayUSD)
+      bv = safeNumber(b.rewardPerDayUSD)
+    } else if (sort === 'tvl') {
+      av = safeNumber(a.poolTvlUSD)
+      bv = safeNumber(b.poolTvlUSD)
+    } else if (sort === 'staked') {
+      av = safeNumber(a.stakedTvlUSD)
+      bv = safeNumber(b.stakedTvlUSD)
+    } else if (sort === 'remaining') {
+      av = safeNumber(a.daysRemain)
+      bv = safeNumber(b.daysRemain)
+    } else if (sort === 'utilization') {
+      av = safeNumber(a.utilizationPct)
+      bv = safeNumber(b.utilizationPct)
+    } else if (sort === 'volume') {
+      av = safeNumber(a.poolVolumeUSD)
+      bv = safeNumber(b.poolVolumeUSD)
+    } else {
+      av = safeNumber(a.apr)
+      bv = safeNumber(b.apr)
+    }
+    return (av - bv) * dir
+  })
+
+  const limit = Math.min(Math.max(parseInt(String(req.query.limit || '50')), 1), 500)
+  const page = Math.max(parseInt(String(req.query.page || '1')), 1)
+  const start = (page - 1) * limit
+
+  res.json({
+    meta: buildMeta(network, window.label),
+    items: items.slice(start, start + limit),
+    page,
+    limit,
+    total: items.length,
   })
 })
 
