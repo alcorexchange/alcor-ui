@@ -1093,6 +1093,9 @@ analytics.get('/farms', cacheSeconds(60, (req, res) => {
   const order = String(req.query.order || 'desc').toLowerCase()
   const dir = order === 'asc' ? 1 : -1
   const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
+  const search = String(req.query.search || '').toLowerCase().trim()
+  const minPoolTvl = Number(req.query.min_pool_tvl ?? req.query.min_tvl ?? 0)
+  const minStakedTvl = Number(req.query.min_staked_tvl ?? 0)
 
   let pools = await SwapPool.find({ chain: network.name }).lean()
 
@@ -1140,6 +1143,22 @@ analytics.get('/farms', cacheSeconds(60, (req, res) => {
     const poolTvlUSD = safeNumber(pool.tvlUSD)
     const poolVolumeUSD = pickPoolVolumes(pool, window.label).usd
 
+    const searchStack = [
+      rewardSymbol,
+      rewardContract,
+      rewardTokenId,
+      pool?.tokenA?.symbol,
+      pool?.tokenA?.contract,
+      pool?.tokenB?.symbol,
+      pool?.tokenB?.contract,
+      String(pool?.id || ''),
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+
+    if (search && !searchStack.includes(search)) return null
+
     return {
       id: inc.id,
       poolId: pool.id,
@@ -1161,7 +1180,16 @@ analytics.get('/farms', cacheSeconds(60, (req, res) => {
     }
   }).filter(Boolean)
 
-  items.sort((a, b) => {
+  const filteredItems = items.filter((item) => {
+    const poolTvl = safeNumber(item.poolTvlUSD)
+    const stakedTvl = safeNumber(item.stakedTvlUSD)
+
+    if (Number.isFinite(minPoolTvl) && minPoolTvl > 0 && poolTvl < minPoolTvl) return false
+    if (Number.isFinite(minStakedTvl) && minStakedTvl > 0 && stakedTvl < minStakedTvl) return false
+    return true
+  })
+
+  filteredItems.sort((a, b) => {
     let av = 0
     let bv = 0
     if (sort === 'rewards') {
@@ -1195,10 +1223,10 @@ analytics.get('/farms', cacheSeconds(60, (req, res) => {
 
   res.json({
     meta: buildMeta(network, window.label),
-    items: items.slice(start, start + limit),
+    items: filteredItems.slice(start, start + limit),
     page,
     limit,
-    total: items.length,
+    total: filteredItems.length,
   })
 })
 

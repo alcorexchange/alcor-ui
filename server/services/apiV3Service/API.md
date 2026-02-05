@@ -130,6 +130,9 @@ Farms (incentives) list with analytics.
 Query:
 - `status=active|finished|all` (default: `active`)
 - `window` (default: `30d`)
+- `search` (token symbol/contract/pool id)
+- `min_pool_tvl` (USD threshold for pool TVL; alias: `min_tvl`)
+- `min_staked_tvl` (USD threshold for staked TVL)
 - `sort=apr|rewards|tvl|staked|remaining|utilization|volume` (default: `apr`)
 - `order=asc|desc` (default: `desc`)
 - `limit` (default: `50`, max: `500`)
