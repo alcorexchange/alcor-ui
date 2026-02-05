@@ -435,8 +435,8 @@ function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, { us
     )
 
     const product = BigInt(tokenAQuantity.units.toString()) * BigInt(tokenBQuantity.units.toString())
-    const absoluteTotalStaked = sqrt(product) || 1n
-    const stakedPercentBn = (BigInt(incentive.totalStakingWeight || 0) * 100n * 1000n) / absoluteTotalStaked
+    const absoluteTotalStaked = sqrt(product) || BigInt(1)
+    const stakedPercentBn = (BigInt(incentive.totalStakingWeight || 0) * BigInt(100) * BigInt(1000)) / absoluteTotalStaked
     const stakedPercent = Number(stakedPercentBn) / 1000
 
     const tvlUSD = safeNumber(pool.tvlUSD) * (stakedPercent / 100)
@@ -471,8 +471,8 @@ function calcIncentiveStakePercent(incentive: any, pool: any) {
     )
 
     const product = BigInt(tokenAQuantity.units.toString()) * BigInt(tokenBQuantity.units.toString())
-    const absoluteTotalStaked = sqrt(product) || 1n
-    const stakedPercentBn = (BigInt(incentive.totalStakingWeight || 0) * 100n * 1000n) / absoluteTotalStaked
+    const absoluteTotalStaked = sqrt(product) || BigInt(1)
+    const stakedPercentBn = (BigInt(incentive.totalStakingWeight || 0) * BigInt(100) * BigInt(1000)) / absoluteTotalStaked
     const stakedPercent = Number(stakedPercentBn) / 1000
 
     return Number.isFinite(stakedPercent) ? stakedPercent : null

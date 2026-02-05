@@ -101,8 +101,8 @@ function calcIncentiveApr(incentive, pool, tokensMap) {
     )
 
     const product = BigInt(tokenAQuantity.units.toString()) * BigInt(tokenBQuantity.units.toString())
-    const absoluteTotalStaked = sqrt(product) || 1n
-    const stakedPercent_bn = (BigInt(incentive.totalStakingWeight || 0) * 100n * 1000n) / absoluteTotalStaked
+    const absoluteTotalStaked = sqrt(product) || BigInt(1)
+    const stakedPercent_bn = (BigInt(incentive.totalStakingWeight || 0) * BigInt(100) * BigInt(1000)) / absoluteTotalStaked
     const stakedPercent = Number(stakedPercent_bn) / 1000
 
     const tvlUSD = pool.tvlUSD * (stakedPercent / 100)
