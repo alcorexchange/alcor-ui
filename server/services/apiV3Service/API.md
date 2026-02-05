@@ -117,11 +117,18 @@ Pool detail.
 
 Query:
 - `window` (default: `30d`)
-- `include=incentives` (optional)
+- `include=incentives` (optional, filtered by `incentives` param)
+- `include=farm_cards` (optional, adds `farms` array in FarmCard format)
+- `incentives=active|finished|all` (default: `active`)
 
 Response:
 ```
 { "meta": { ... }, "pool": PoolCard(+incentives) }
+```
+
+When `include=farm_cards`, response adds:
+```
+{ "pool": { "farms": [FarmCard] } }
 ```
 
 ### GET `/analytics/farms`
@@ -302,9 +309,11 @@ Pool + incentives + staking summary.
   "poolId",
   "reward",
   "rewardPerDay",
+  "rewardPerDayUSD",
   "periodFinish",
   "isFinished",
   "daysRemain",
+  "utilizationPct",
   "rewardTokenId",
   "apr"
 }

@@ -414,6 +414,49 @@ function toPoolCard(pool: any, window: string) {
   }
 }
 
+function toFarmCard(incentive: any, pool: any, tokensMap: Map<string, { usd_price?: number }>, window: string) {
+  if (!incentive || !pool) return null
+
+  const rewardSymbol = incentive?.reward?.symbol?.symbol ?? incentive?.reward?.symbol ?? null
+  const rewardContract = incentive?.reward?.contract ?? null
+  const rewardTokenId =
+    rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
+  const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
+  const rewardTokenPrice = safeNumber(rewardToken?.usd_price, 0)
+
+  const rewardPerDay = safeNumber(incentive.rewardPerDay, 0)
+  const rewardPerDayUSD = rewardPerDay * rewardTokenPrice
+
+  const apr = calcIncentiveApr(incentive, pool, tokensMap)
+  const utilizationPct = calcIncentiveStakePercent(incentive, pool)
+  const stakedTvlUSD = utilizationPct === null
+    ? null
+    : safeNumber(pool.tvlUSD) * (utilizationPct / 100)
+
+  const poolTvlUSD = safeNumber(pool.tvlUSD)
+  const poolVolumeUSD = pickPoolVolumes(pool, window).usd
+
+  return {
+    id: incentive.id,
+    poolId: pool.id,
+    isFinished: Boolean(incentive.isFinished),
+    daysRemain: safeNumber(incentive.daysRemain),
+    periodFinish: incentive.periodFinish ?? null,
+    reward: incentive.reward?.quantity ?? null,
+    rewardSymbol,
+    rewardTokenId,
+    rewardTokenPrice,
+    rewardPerDay,
+    rewardPerDayUSD: Number.isFinite(rewardPerDayUSD) ? Number(rewardPerDayUSD.toFixed(2)) : 0,
+    apr,
+    utilizationPct: utilizationPct === null ? null : Number(utilizationPct.toFixed(4)),
+    stakedTvlUSD: stakedTvlUSD === null ? null : Number(stakedTvlUSD.toFixed(2)),
+    poolTvlUSD,
+    poolVolumeUSD,
+    pool: toPoolCard(pool, window),
+  }
+}
+
 function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, { usd_price?: number }>) {
   if (!pool || !tokensMap) return null
 
@@ -551,16 +594,23 @@ function attachIncentives(poolCard: any, pool: any, incentivesByPool: Map<number
     const rewardSymbol = i?.reward?.symbol?.symbol ?? i?.reward?.symbol
     const rewardContract = i?.reward?.contract
     const rewardTokenId = rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
+    const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
+    const rewardTokenPrice = safeNumber(rewardToken?.usd_price, 0)
+    const rewardPerDay = safeNumber(i?.rewardPerDay)
+    const rewardPerDayUSD = rewardPerDay * rewardTokenPrice
+    const utilizationPct = calcIncentiveStakePercent(i, pool)
 
     return {
       incentiveId: i?.id ?? i?.incentiveId ?? null,
       poolId: i?.poolId ?? pool.id,
       reward: i?.reward ?? null,
-      rewardPerDay: safeNumber(i?.rewardPerDay),
+      rewardPerDay,
+      rewardPerDayUSD: Number.isFinite(rewardPerDayUSD) ? Number(rewardPerDayUSD.toFixed(2)) : 0,
       periodFinish: i?.periodFinish ?? null,
       isFinished: Boolean(i?.isFinished),
       daysRemain: safeNumber(i?.daysRemain),
       rewardTokenId,
+      utilizationPct: utilizationPct === null ? null : Number(utilizationPct.toFixed(4)),
       apr: calcIncentiveApr(i, pool, tokensMap),
     }
   })
@@ -1128,20 +1178,6 @@ analytics.get('/farms', cacheSeconds(60, (req, res) => {
     const rewardContract = inc?.reward?.contract ?? null
     const rewardTokenId =
       rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
-    const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
-    const rewardTokenPrice = safeNumber(rewardToken?.usd_price, 0)
-
-    const rewardPerDay = safeNumber(inc.rewardPerDay, 0)
-    const rewardPerDayUSD = rewardPerDay * rewardTokenPrice
-
-    const apr = calcIncentiveApr(inc, pool, tokensMap)
-    const utilizationPct = calcIncentiveStakePercent(inc, pool)
-    const stakedTvlUSD = utilizationPct === null
-      ? null
-      : safeNumber(pool.tvlUSD) * (utilizationPct / 100)
-
-    const poolTvlUSD = safeNumber(pool.tvlUSD)
-    const poolVolumeUSD = pickPoolVolumes(pool, window.label).usd
 
     const searchStack = [
       rewardSymbol,
@@ -1159,25 +1195,7 @@ analytics.get('/farms', cacheSeconds(60, (req, res) => {
 
     if (search && !searchStack.includes(search)) return null
 
-    return {
-      id: inc.id,
-      poolId: pool.id,
-      isFinished: Boolean(inc.isFinished),
-      daysRemain: safeNumber(inc.daysRemain),
-      periodFinish: inc.periodFinish ?? null,
-      reward: inc.reward?.quantity ?? null,
-      rewardSymbol,
-      rewardTokenId,
-      rewardTokenPrice,
-      rewardPerDay,
-      rewardPerDayUSD: Number.isFinite(rewardPerDayUSD) ? Number(rewardPerDayUSD.toFixed(2)) : 0,
-      apr,
-      utilizationPct: utilizationPct === null ? null : Number(utilizationPct.toFixed(4)),
-      stakedTvlUSD: stakedTvlUSD === null ? null : Number(stakedTvlUSD.toFixed(2)),
-      poolTvlUSD,
-      poolVolumeUSD,
-      pool: toPoolCard(pool, window.label),
-    }
+    return toFarmCard(inc, pool, tokensMap, window.label)
   }).filter(Boolean)
 
   const filteredItems = items.filter((item) => {
@@ -1237,7 +1255,9 @@ analytics.get('/pools/:id', cacheSeconds(60, (req, res) => {
   const window = getWindow(req.query.window)
   const includes = parseIncludes(req.query.include)
   const includeIncentives = includes.has('incentives')
+  const includeFarmCards = includes.has('farm_cards') || includes.has('farms')
   const includeTx = includes.has('tx')
+  const incentivesFilter = String(req.query.incentives || 'active').toLowerCase()
   const id = parseInt(String(req.params.id || ''), 10)
 
   if (!Number.isFinite(id)) return res.status(400).send('Invalid pool id')
@@ -1245,13 +1265,30 @@ analytics.get('/pools/:id', cacheSeconds(60, (req, res) => {
   const pool = await SwapPool.findOne({ chain: network.name, id }).lean()
   if (!pool) return res.status(404).send('Pool is not found')
 
-  const tokens = includeIncentives ? (await getTokens(network.name)) || [] : []
+  const needIncentives = includeIncentives || includeFarmCards
+  const tokens = needIncentives ? (await getTokens(network.name)) || [] : []
   const tokensMap = new Map<string, { usd_price?: number }>(
     tokens.map((t) => [t.id, t])
   )
-  const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
+  const incentivesByPool = needIncentives ? await loadIncentivesByPool(network) : new Map()
   let card = toPoolCard(pool, window.label)
-  if (includeIncentives) card = attachIncentives(card, pool, incentivesByPool, tokensMap)
+  if (includeIncentives) {
+    card = attachIncentives(card, pool, incentivesByPool, tokensMap)
+    if (incentivesFilter === 'active') {
+      card.incentives = card.incentives.filter((i) => !i.isFinished)
+    } else if (incentivesFilter === 'finished') {
+      card.incentives = card.incentives.filter((i) => i.isFinished)
+    }
+  }
+  if (includeFarmCards) {
+    let incs = incentivesByPool.get(pool.id) || []
+    if (incentivesFilter === 'active') {
+      incs = incs.filter((i) => !i.isFinished)
+    } else if (incentivesFilter === 'finished') {
+      incs = incs.filter((i) => i.isFinished)
+    }
+    card = { ...card, farms: incs.map((i) => toFarmCard(i, pool, tokensMap, window.label)).filter(Boolean) }
+  }
   if (includeTx) {
     const poolTxStats = await buildPoolTxStats(network.name, [pool.id], window.since)
     card = attachPoolTx(card, poolTxStats.get(pool.id) ?? 0)
