@@ -1271,7 +1271,7 @@ analytics.get('/pools/:id', cacheSeconds(60, (req, res) => {
     tokens.map((t) => [t.id, t])
   )
   const incentivesByPool = needIncentives ? await loadIncentivesByPool(network) : new Map()
-  let card = toPoolCard(pool, window.label)
+  let card: any = toPoolCard(pool, window.label)
   if (includeIncentives) {
     card = attachIncentives(card, pool, incentivesByPool, tokensMap)
     if (incentivesFilter === 'active') {
