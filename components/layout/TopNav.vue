@@ -122,6 +122,7 @@ export default {
       items.push({ index: '/positions', name: 'Pool' })
 
       items.push({ index: '/markets', name: 'Spot' })
+      items.push({ href: `https://alcor.exchange/v/${this.$store.state.network.name}`, name: 'Alcor V2', external: true, new: true })
       // items.push({ index: '/bridge', name: 'Bridge' })
 
       if (['wax', 'eos', 'proton'].includes(this.$store.state.network.name)) {
