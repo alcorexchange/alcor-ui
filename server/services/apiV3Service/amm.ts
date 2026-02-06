@@ -106,7 +106,7 @@ function calcIncentiveApr(incentive, pool, tokensMap) {
     const stakedPercent = Number(stakedPercent_bn) / 1000
 
     const tvlUSD = pool.tvlUSD * (stakedPercent / 100)
-    if (!tvlUSD || tvlUSD <= 0) return 0
+    const effectiveTvlUSD = tvlUSD > 0 ? tvlUSD : 1
 
     const rewardPerDay = Number(incentive.rewardPerDay ?? 0)
     const rewardSymbol = incentive?.reward?.symbol?.symbol ?? incentive?.reward?.symbol
@@ -116,7 +116,7 @@ function calcIncentiveApr(incentive, pool, tokensMap) {
     const rewardTokenPrice = rewardToken?.usd_price ?? 0
     const dayRewardInUSD = rewardPerDay * rewardTokenPrice
 
-    const apr = (dayRewardInUSD / tvlUSD) * 365 * 100
+    const apr = (dayRewardInUSD / effectiveTvlUSD) * 365 * 100
     return Number.isFinite(apr) ? Number(apr.toFixed(2)) : 0
   } catch (e) {
     return null

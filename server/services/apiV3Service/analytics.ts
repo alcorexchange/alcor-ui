@@ -32,6 +32,15 @@ const RESOLUTION_MS: Record<string, number> = {
 
 const PRICE_SCALE = 100000000
 const DEFAULT_ORDERBOOK_DEPTH = 100
+const MIN_STAKED_TVL_USD = 1
+
+type TokenInfo = {
+  id?: string
+  symbol?: string
+  contract?: string
+  name?: string
+  usd_price?: number
+}
 
 function getWindow(queryWindow: any) {
   const raw = String(queryWindow || '30d').toLowerCase()
@@ -447,7 +456,7 @@ function toPoolCard(pool: any, window: string) {
   }
 }
 
-function toFarmCard(incentive: any, pool: any, tokensMap: Map<string, { usd_price?: number }>, window: string) {
+function toFarmCard(incentive: any, pool: any, tokensMap: Map<string, TokenInfo>, window: string) {
   if (!incentive || !pool) return null
 
   const rewardSymbol = incentive?.reward?.symbol?.symbol ?? incentive?.reward?.symbol ?? null
@@ -490,7 +499,7 @@ function toFarmCard(incentive: any, pool: any, tokensMap: Map<string, { usd_pric
   }
 }
 
-function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, { usd_price?: number }>) {
+function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, TokenInfo>) {
   if (!pool || !tokensMap) return null
 
   try {
@@ -516,7 +525,7 @@ function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, { us
     const stakedPercent = Number(stakedPercentBn) / 1000
 
     const tvlUSD = safeNumber(pool.tvlUSD) * (stakedPercent / 100)
-    if (!tvlUSD || tvlUSD <= 0) return 0
+    const effectiveTvlUSD = tvlUSD > 0 ? tvlUSD : MIN_STAKED_TVL_USD
 
     const rewardPerDay = safeNumber(incentive.rewardPerDay)
     const rewardSymbol = incentive?.reward?.symbol?.symbol ?? incentive?.reward?.symbol
@@ -526,7 +535,7 @@ function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, { us
     const rewardTokenPrice = rewardToken?.usd_price ?? 0
     const dayRewardInUSD = rewardPerDay * rewardTokenPrice
 
-    const apr = (dayRewardInUSD / tvlUSD) * 365 * 100
+    const apr = (dayRewardInUSD / effectiveTvlUSD) * 365 * 100
     return Number.isFinite(apr) ? Number(apr.toFixed(2)) : 0
   } catch (e) {
     return null
@@ -621,7 +630,7 @@ function attachMarketTxAndDepth(card: any, matches?: number | null, depth?: any 
   return next
 }
 
-function attachIncentives(poolCard: any, pool: any, incentivesByPool: Map<number, any[]>, tokensMap: Map<string, { usd_price?: number }>) {
+function attachIncentives(poolCard: any, pool: any, incentivesByPool: Map<number, any[]>, tokensMap: Map<string, TokenInfo>) {
   const incentives = incentivesByPool.get(pool.id) || []
   const mapped = incentives.map((i) => {
     const rewardSymbol = i?.reward?.symbol?.symbol ?? i?.reward?.symbol
@@ -687,7 +696,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
     .slice(0, 10)
 
   const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
-  const tokensMap = includeIncentives ? new Map<string, { usd_price?: number }>(
+  const tokensMap = includeIncentives ? new Map<string, TokenInfo>(
     tokens.map((t) => [t.id, t])
   ) : new Map()
 
@@ -1080,7 +1089,7 @@ analytics.get('/tokens/:id/pools', cacheSeconds(60, (req, res) => {
   }).lean()
 
   const tokens = includeIncentives ? (await getTokens(network.name)) || [] : []
-  const tokensMap = new Map<string, { usd_price?: number }>(
+  const tokensMap = new Map<string, TokenInfo>(
     tokens.map((t) => [t.id, t])
   )
   const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
@@ -1189,7 +1198,7 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
   const page = Math.max(parseInt(String(req.query.page || '1')), 1)
   const start = (page - 1) * limit
 
-  const tokensMap = new Map<string, { usd_price?: number }>(
+  const tokensMap = new Map<string, TokenInfo>(
     tokens.map((t) => [t.id, t])
   )
   const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
@@ -1221,6 +1230,7 @@ analytics.get('/farms', cacheSeconds(60, (req, res) => {
   const dir = order === 'asc' ? 1 : -1
   const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
   const search = String(req.query.search || '').toLowerCase().trim()
+  const searchTerms = parseSearchTerms(search)
   const minPoolTvl = Number(req.query.min_pool_tvl ?? req.query.min_tvl ?? 0)
   const minStakedTvl = Number(req.query.min_staked_tvl ?? 0)
 
@@ -1238,7 +1248,7 @@ analytics.get('/farms', cacheSeconds(60, (req, res) => {
 
   const poolsById = new Map<number, any>(pools.map((p) => [Number(p.id), p]))
   const tokens = (await getTokens(network.name)) || []
-  const tokensMap = new Map<string, { usd_price?: number }>(tokens.map((t) => [t.id, t]))
+  const tokensMap = new Map<string, TokenInfo>(tokens.map((t) => [t.id, t]))
 
   let incentives = await getIncentives(network)
   if (status === 'active') {
@@ -1255,22 +1265,23 @@ analytics.get('/farms', cacheSeconds(60, (req, res) => {
     const rewardContract = inc?.reward?.contract ?? null
     const rewardTokenId =
       rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
+    const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
 
-    const searchStack = [
-      rewardSymbol,
-      rewardContract,
-      rewardTokenId,
-      pool?.tokenA?.symbol,
-      pool?.tokenA?.contract,
-      pool?.tokenB?.symbol,
-      pool?.tokenB?.contract,
-      String(pool?.id || ''),
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase()
+    if (searchTerms.length) {
+      const searchStack = [
+        rewardSymbol,
+        rewardContract,
+        rewardTokenId,
+        rewardToken?.name,
+        buildPoolSearchStack(pool, tokensMap),
+        String(pool?.id || ''),
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
 
-    if (search && !searchStack.includes(search)) return null
+      if (!searchTerms.every((term) => searchStack.includes(term))) return null
+    }
 
     return toFarmCard(inc, pool, tokensMap, window.label)
   }).filter(Boolean)
@@ -1344,7 +1355,7 @@ analytics.get('/pools/:id', cacheSeconds(60, (req, res) => {
 
   const needIncentives = includeIncentives || includeFarmCards
   const tokens = needIncentives ? (await getTokens(network.name)) || [] : []
-  const tokensMap = new Map<string, { usd_price?: number }>(
+  const tokensMap = new Map<string, TokenInfo>(
     tokens.map((t) => [t.id, t])
   )
   const incentivesByPool = needIncentives ? await loadIncentivesByPool(network) : new Map()
