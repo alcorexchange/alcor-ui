@@ -24,7 +24,8 @@ export default {
   computed: {
     newAlcorUrl() {
       const network = this.$store.state.network.name
-      return `https://alcor.exchange/v/${network}`
+      const slug = network === 'proton' ? 'xpr' : network
+      return `https://alcor.exchange/v/${slug}/swap`
     },
   },
 
