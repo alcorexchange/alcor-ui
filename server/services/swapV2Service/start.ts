@@ -20,7 +20,7 @@ export async function main() {
   getSubscriber().pSubscribe('chainAction:*:swap.alcor:*', action => {
     const { chain, name, data } = JSON.parse(action)
 
-    if (['logmint', 'logburn', 'logswap', 'logcollect', 'transferpos', 'logpool'].includes(name)) {
+    if (['logmint', 'logburn', 'logswap', 'logcollect', 'transferpos', 'logtransfer', 'logpool'].includes(name)) {
       throttledPoolUpdate(chain, Number(data.poolId))
 
       // Count updates per chain
@@ -28,12 +28,28 @@ export async function main() {
     }
 
     // Log position changes (rare events - log each one)
-    if (['logmint', 'logburn', 'logcollect'].includes(name)) {
+    if (['logmint', 'logburn', 'logcollect', 'logtransfer'].includes(name)) {
       const { posId, owner } = data
       console.log(`[${chain}] ${name.replace('log', '')} pos #${posId} pool:${data.poolId} owner:${owner}`)
 
-      const push = { chain, account: owner, positions: [posId] }
-      getPublisher().publish('account:update-positions', JSON.stringify(push))
+      if (name === 'logtransfer') {
+        const from = data?.from
+        const to = data?.to
+        const fromPosId = Number(data?.fromPosId ?? data?.from_pos_id ?? data?.posId)
+        const toPosId = Number(data?.toPosId ?? data?.to_pos_id ?? data?.posId)
+
+        if (from) {
+          const push = { chain, account: from, positions: [fromPosId] }
+          getPublisher().publish('account:update-positions', JSON.stringify(push))
+        }
+        if (to) {
+          const push = { chain, account: to, positions: [toPosId] }
+          getPublisher().publish('account:update-positions', JSON.stringify(push))
+        }
+      } else {
+        const push = { chain, account: owner, positions: [posId] }
+        getPublisher().publish('account:update-positions', JSON.stringify(push))
+      }
     }
 
     // Log pool creation

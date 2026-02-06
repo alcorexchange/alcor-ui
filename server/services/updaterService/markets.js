@@ -12,7 +12,8 @@ const WEEK = ONEDAY * 7
 
 export async function newMatch(match, network) {
 
-  const { trx_id, block_num, act: { name, data } } = match
+  const { trx_id, block_num, receipt, act: { name, data } } = match
+  const global_sequence = receipt?.global_sequence
 
   try {
     'data' in data
@@ -27,11 +28,17 @@ export async function newMatch(match, network) {
     console.log('new match', network.name, '@timestamp' in match ? match['@timestamp'] : match.block_time, 'market', market.id)
 
     try {
+      if (global_sequence) {
+        const exists = await Match.findOne({ chain: network.name, global_sequence }).select('_id').lean()
+        if (exists) return
+      }
+
       const m = await Match.create({
         chain: network.name,
         market: parseInt(market.id),
         type: name,
         trx_id,
+        global_sequence,
 
         unit_price: littleEndianToDesimal(unit_price) / config.PRICE_SCALE,
 

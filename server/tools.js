@@ -12,7 +12,7 @@ import { Swap, SwapBar, Match, Market, Bar, GlobalStats } from './models'
 import { initialUpdate as initialOrderbookUpdate } from './services/orderbookService/start'
 import { updateGlobalStats } from './services/updaterService/analytics'
 import { connectAll, initialUpdate as swapInitialUpdate, updatePool, initializeAllPoolsData, aggregatePositions } from './services/swapV2Service'
-import { makeSwapBars, makeSpotBars } from './services/updaterService/charts'
+import { makeSwapBars, makeSpotBars, resolutions, normalizeResolution } from './services/updaterService/charts'
 import { initRedis, mongoConnect } from './utils'
 
 let redisClient
@@ -22,6 +22,230 @@ const WEEK = ONEDAY * 7
 const command = process.argv[2]
 
 if (!command) { console.log('No command provided'); process.exit() }
+
+function parseDateOrExit(value, label) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    console.log(`Invalid ${label} date: ${value}`)
+    process.exit(1)
+  }
+  return date
+}
+
+function parseOptions(args) {
+  const options = { dryRun: false, timeframes: null, pool: null, market: null }
+  for (const arg of args) {
+    if (arg === '--dry-run') options.dryRun = true
+    else if (arg.startsWith('--timeframes=')) options.timeframes = arg.split('=')[1]
+    else if (arg.startsWith('--pool=')) options.pool = Number(arg.split('=')[1])
+    else if (arg.startsWith('--market=')) options.market = Number(arg.split('=')[1])
+  }
+  return options
+}
+
+function parseTimeframes(input) {
+  if (!input) return Object.keys(resolutions)
+  const frames = input
+    .split(',')
+    .map((f) => normalizeResolution(f.trim()))
+    .filter(Boolean)
+
+  for (const frame of frames) {
+    if (!Object.prototype.hasOwnProperty.call(resolutions, frame)) {
+      console.log(`Unknown timeframe: ${frame}`)
+      process.exit(1)
+    }
+  }
+  return frames
+}
+
+function getBarStartMs(date, resolutionSeconds) {
+  const resolutionMs = resolutionSeconds * 1000
+  return Math.floor(date.getTime() / resolutionMs) * resolutionMs
+}
+
+function compareBigIntStrings(a, b) {
+  if (a === b) return 0
+  try {
+    const aBig = BigInt(a)
+    const bBig = BigInt(b)
+    return aBig > bBig ? 1 : -1
+  } catch (e) {
+    if (a.length !== b.length) return a.length > b.length ? 1 : -1
+    return a > b ? 1 : -1
+  }
+}
+
+function initSpotBar(match, barStartMs, timeframe) {
+  const price = match.unit_price
+  const volume = match.type === 'buymatch' ? match.bid : match.ask
+
+  return {
+    timeframe,
+    chain: match.chain,
+    market: match.market,
+    time: new Date(barStartMs),
+    open: price,
+    high: price,
+    low: price,
+    close: price,
+    volume: volume || 0
+  }
+}
+
+function updateSpotBar(bar, match) {
+  const price = match.unit_price
+  if (bar.high < price) bar.high = price
+  if (bar.low > price) bar.low = price
+  bar.close = price
+  bar.volume += match.type === 'buymatch' ? match.bid : match.ask
+}
+
+function initSwapBar(swap, barStartMs, timeframe) {
+  const price = swap.sqrtPriceX64
+
+  return {
+    timeframe,
+    chain: swap.chain,
+    pool: swap.pool,
+    time: new Date(barStartMs),
+    open: price,
+    high: price,
+    low: price,
+    close: price,
+    volumeA: Math.abs(swap.tokenA),
+    volumeB: Math.abs(swap.tokenB),
+    volumeUSD: swap.totalUSDVolume || 0
+  }
+}
+
+function updateSwapBar(bar, swap) {
+  const price = swap.sqrtPriceX64
+  if (compareBigIntStrings(price, bar.high) > 0) bar.high = price
+  if (compareBigIntStrings(price, bar.low) < 0) bar.low = price
+  bar.close = price
+  bar.volumeA += Math.abs(swap.tokenA)
+  bar.volumeB += Math.abs(swap.tokenB)
+  bar.volumeUSD += swap.totalUSDVolume || 0
+}
+
+async function safeBackfillSpotCandles({ chain, from, to, market, timeframes, dryRun }) {
+  const baseQuery = { chain, time: { $gte: from, $lte: to } }
+  if (Number.isFinite(market)) baseQuery.market = market
+
+  const markets = Number.isFinite(market)
+    ? [market]
+    : await Match.distinct('market', baseQuery)
+
+  for (const marketId of markets) {
+    for (const timeframe of timeframes) {
+      const resolutionSeconds = resolutions[timeframe]
+      const fromStartMs = getBarStartMs(from, resolutionSeconds)
+      const toStartMs = getBarStartMs(to, resolutionSeconds)
+
+      const existingBars = await Bar.find({
+        chain,
+        market: marketId,
+        timeframe,
+        time: { $gte: new Date(fromStartMs), $lte: new Date(toStartMs) }
+      }).select('time').lean()
+
+      const existingTimes = new Set(existingBars.map((b) => new Date(b.time).getTime()))
+      const cursor = Match.find({ ...baseQuery, market: marketId }).sort({ time: 1, _id: 1 }).cursor()
+
+      const bars = new Map()
+      for await (const match of cursor) {
+        const matchTime = match.time instanceof Date ? match.time : new Date(match.time)
+        if (Number.isNaN(matchTime.getTime())) continue
+        const barStartMs = getBarStartMs(matchTime, resolutionSeconds)
+        if (barStartMs < fromStartMs || barStartMs > toStartMs) continue
+        if (existingTimes.has(barStartMs)) continue
+
+        const key = barStartMs
+        let bar = bars.get(key)
+        if (!bar) {
+          bar = initSpotBar(match, barStartMs, timeframe)
+          bars.set(key, bar)
+        } else {
+          updateSpotBar(bar, match)
+        }
+      }
+
+      const toInsert = Array.from(bars.values())
+      console.log(`[${chain}] spot market ${marketId} ${timeframe}: new bars ${toInsert.length}`)
+
+      if (!dryRun && toInsert.length > 0) {
+        const ops = toInsert.map((bar) => ({
+          updateOne: {
+            filter: { chain: bar.chain, market: bar.market, timeframe: bar.timeframe, time: bar.time },
+            update: { $setOnInsert: bar },
+            upsert: true
+          }
+        }))
+        await Bar.bulkWrite(ops, { ordered: false })
+      }
+    }
+  }
+}
+
+async function safeBackfillSwapCandles({ chain, from, to, pool, timeframes, dryRun }) {
+  const baseQuery = { chain, time: { $gte: from, $lte: to } }
+  if (Number.isFinite(pool)) baseQuery.pool = pool
+
+  const pools = Number.isFinite(pool)
+    ? [pool]
+    : await Swap.distinct('pool', baseQuery)
+
+  for (const poolId of pools) {
+    for (const timeframe of timeframes) {
+      const resolutionSeconds = resolutions[timeframe]
+      const fromStartMs = getBarStartMs(from, resolutionSeconds)
+      const toStartMs = getBarStartMs(to, resolutionSeconds)
+
+      const existingBars = await SwapBar.find({
+        chain,
+        pool: poolId,
+        timeframe,
+        time: { $gte: new Date(fromStartMs), $lte: new Date(toStartMs) }
+      }).select('time').lean()
+
+      const existingTimes = new Set(existingBars.map((b) => new Date(b.time).getTime()))
+      const cursor = Swap.find({ ...baseQuery, pool: poolId }).sort({ time: 1, _id: 1 }).cursor()
+
+      const bars = new Map()
+      for await (const swap of cursor) {
+        const swapTime = swap.time instanceof Date ? swap.time : new Date(swap.time)
+        if (Number.isNaN(swapTime.getTime())) continue
+        const barStartMs = getBarStartMs(swapTime, resolutionSeconds)
+        if (barStartMs < fromStartMs || barStartMs > toStartMs) continue
+        if (existingTimes.has(barStartMs)) continue
+
+        const key = barStartMs
+        let bar = bars.get(key)
+        if (!bar) {
+          bar = initSwapBar(swap, barStartMs, timeframe)
+          bars.set(key, bar)
+        } else {
+          updateSwapBar(bar, swap)
+        }
+      }
+
+      const toInsert = Array.from(bars.values())
+      console.log(`[${chain}] swap pool ${poolId} ${timeframe}: new bars ${toInsert.length}`)
+
+      if (!dryRun && toInsert.length > 0) {
+        const ops = toInsert.map((bar) => ({
+          updateOne: {
+            filter: { chain: bar.chain, pool: bar.pool, timeframe: bar.timeframe, time: bar.time },
+            update: { $setOnInsert: bar },
+            upsert: true
+          }
+        }))
+        await SwapBar.bulkWrite(ops, { ordered: false })
+      }
+    }
+  }
+}
 
 async function main() {
   await mongoConnect()
@@ -171,6 +395,56 @@ async function main() {
       await glob.save()
       i++
       process.stdout.write(`${i}/${total}\r`)
+    }
+  }
+
+  if (command == 'safe_backfill_candles') {
+    const type = process.argv[3]
+    const chain = process.argv[4]
+    const fromRaw = process.argv[5]
+    const toRaw = process.argv[6]
+
+    if (!type || !chain || !fromRaw || !toRaw) {
+      console.log('Usage: safe_backfill_candles <swap|spot> <chain> <from> <to> [--pool=ID|--market=ID] [--timeframes=1,5,15,1D] [--dry-run]')
+      process.exit(1)
+    }
+
+    const from = parseDateOrExit(fromRaw, 'from')
+    const to = parseDateOrExit(toRaw, 'to')
+    const options = parseOptions(process.argv.slice(7))
+    const timeframes = parseTimeframes(options.timeframes)
+
+    if (type === 'spot' && options.pool) {
+      console.log('Use --market for spot candles')
+      process.exit(1)
+    }
+
+    if (type === 'swap' && options.market) {
+      console.log('Use --pool for swap candles')
+      process.exit(1)
+    }
+
+    if (type === 'spot') {
+      await safeBackfillSpotCandles({
+        chain,
+        from,
+        to,
+        market: options.market,
+        timeframes,
+        dryRun: options.dryRun
+      })
+    } else if (type === 'swap') {
+      await safeBackfillSwapCandles({
+        chain,
+        from,
+        to,
+        pool: options.pool,
+        timeframes,
+        dryRun: options.dryRun
+      })
+    } else {
+      console.log('Type must be swap or spot')
+      process.exit(1)
     }
   }
 }

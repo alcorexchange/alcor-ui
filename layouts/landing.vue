@@ -1,5 +1,6 @@
 <template lang="pug">
 .layout
+  MigrationBanner
   ModalsDialog
   AlcorLoading
 
@@ -11,6 +12,7 @@
 <script>
 import TopNav from '~/components/layout/TopNav'
 import FooterBlock from '~/components/footer/Footer'
+import MigrationBanner from '~/components/layout/MigrationBanner'
 
 import ModalsDialog from '~/components/modals/ModalsDialog'
 import AlcorLoading from '~/components/AlcorLoading.vue'
@@ -20,7 +22,8 @@ export default {
     FooterBlock,
     TopNav,
     ModalsDialog,
-    AlcorLoading
+    AlcorLoading,
+    MigrationBanner,
   }
 }
 </script>

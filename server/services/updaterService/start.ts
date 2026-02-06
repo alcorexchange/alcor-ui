@@ -10,6 +10,7 @@ import { newSwapAction, updatePoolsStats, updatePositionsAggregation } from './s
 import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
 import { updateTokenScores } from './tokenScores'
 import { startTokenHoldersUpdater } from './tokenHolders'
+import { startTokenLogosUpdater } from './tokenLogos'
 
 import { streamByTrace, streamByGreymass } from './streamers'
 
@@ -51,6 +52,7 @@ export async function updater(chain: string, services: string[]) {
   }
 
   schedule.scheduleJob('58 23 * * *', () => updateGlobalStats(network))
+  setInterval(() => updateGlobalStats(network), 60 * 60 * 1000)
 
   if (services.includes('prices')) {
     console.log(`[${chain}] Starting price updater...`)
@@ -63,8 +65,10 @@ export async function updater(chain: string, services: string[]) {
 
   if (services.includes('markets')) {
     console.log(`[${chain}] Starting market updater...`)
-    await updateMarkets(network)
-    console.log(`[${chain}] Markets updated, starting streamer for ${network.contract}...`)
+    updateMarkets(network)
+      .then(() => console.log(`[${chain}] Markets updated`))
+      .catch((e) => console.log(`[${chain}] Markets update error`, e))
+    console.log(`[${chain}] Starting streamer for ${network.contract}...`)
     setInterval(() => updateMarkets(network), 3 * 60 * 1000)
 
     streamByTrace(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
@@ -73,13 +77,23 @@ export async function updater(chain: string, services: string[]) {
 
   if (services.includes('swap')) {
     console.log(`[${chain}] Starting swap updater...`)
-    await updatePoolsStats(chain)
-    await updatePositionsAggregation(chain)
-    console.log(`[${chain}] Pool stats updated, starting streamer for ${network.amm.contract}...`)
+    updatePoolsStats(chain)
+      .then(() => console.log(`[${chain}] Pool stats updated`))
+      .catch((e) => console.log(`[${chain}] Pool stats update error`, e))
+    updatePositionsAggregation(chain)
+      .then(() => console.log(`[${chain}] Positions aggregated`))
+      .catch((e) => console.log(`[${chain}] Positions aggregation error`, e))
+    console.log(`[${chain}] Starting streamer for ${network.amm.contract}...`)
     setInterval(() => updatePoolsStats(chain), 10 * 60 * 1000)
     setInterval(() => updatePositionsAggregation(chain), 2 * 60 * 1000) // Every 2 minutes
 
-    streamByTrace(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'], 300)
+    streamByTrace(
+      network,
+      network.amm.contract,
+      newSwapAction,
+      ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect', 'transferpos', 'logtransfer'],
+      300
+    )
       .catch(e => { console.log(`[${chain}:${network.amm.contract}] Streamer error:`, e.message); process.exit(1) })
   }
 
@@ -89,4 +103,7 @@ export async function updater(chain: string, services: string[]) {
 
   console.log(`[${chain}] Starting token holders updater...`)
   startTokenHoldersUpdater(network)
+
+  console.log(`[${chain}] Starting token logos updater...`)
+  startTokenLogosUpdater()
 }

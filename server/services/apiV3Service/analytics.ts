@@ -1,4 +1,3 @@
-import bigInt from 'big-integer'
 import { Asset } from '@wharfkit/antelope'
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
@@ -11,6 +10,9 @@ import { getSwapBarPriceAsString } from '../../../utils/amm'
 import { resolutions as candleResolutions, normalizeResolution } from '../updaterService/charts'
 import { getIncentives } from '../apiV2Service/farms'
 import { getOrderbook } from '../orderbookService/start'
+import { sqrt } from '../../../utils/bigint'
+import fs from 'fs'
+import path from 'path'
 
 export const analytics = Router()
 
@@ -30,6 +32,15 @@ const RESOLUTION_MS: Record<string, number> = {
 
 const PRICE_SCALE = 100000000
 const DEFAULT_ORDERBOOK_DEPTH = 100
+const MIN_STAKED_TVL_USD = 1
+
+type TokenInfo = {
+  id?: string
+  symbol?: string
+  contract?: string
+  name?: string
+  usd_price?: number
+}
 
 function getWindow(queryWindow: any) {
   const raw = String(queryWindow || '30d').toLowerCase()
@@ -64,9 +75,94 @@ function parseIncludes(input: any) {
   return new Set(raw.split(',').map((s) => s.trim()).filter(Boolean))
 }
 
-function getLogoUrl(networkName, tokenId) {
-  if (!tokenId) return null
-  return `https://${networkName}.alcor.exchange/api/v2/tokens/${tokenId}/logo`
+function parseSearchTerms(input: any) {
+  const raw = String(input || '').toLowerCase().trim()
+  if (!raw) return []
+  return raw.split(/[\s,/|]+/).map((s) => s.trim()).filter(Boolean)
+}
+
+function buildPoolSearchStack(pool: any, tokensById: Map<string, any>) {
+  const tokenA = pool?.tokenA || {}
+  const tokenB = pool?.tokenB || {}
+  const tokenAInfo = tokensById.get(tokenA.id) || {}
+  const tokenBInfo = tokensById.get(tokenB.id) || {}
+
+  return [
+    tokenA.id,
+    tokenA.symbol,
+    tokenA.contract,
+    tokenAInfo.id,
+    tokenAInfo.symbol,
+    tokenAInfo.contract,
+    tokenAInfo.name,
+    tokenB.id,
+    tokenB.symbol,
+    tokenB.contract,
+    tokenBInfo.id,
+    tokenBInfo.symbol,
+    tokenBInfo.contract,
+    tokenBInfo.name,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+}
+
+async function getEosAirdropLogo(chain: string, symbol: string, contract: string): Promise<string | null> {
+  const redis = getRedis()
+  const key = `${chain}:${symbol.toUpperCase()}:${contract}`
+  try {
+    return await redis.hGet('eos_airdrops_logos', key)
+  } catch (e) {
+    return null
+  }
+}
+
+function getLocalLogoUrl(networkName: string, tokenId: string, symbol: string, contract: string) {
+  const iconPath = path.join(process.cwd(), 'assets', 'tokens', networkName, `${symbol}_${contract}.png`)
+  if (fs.existsSync(iconPath)) {
+    return `https://${networkName}.alcor.exchange/api/v2/tokens/${tokenId}/logo`
+  }
+  return null
+}
+
+async function getLogoUrl(networkName: string, token: any) {
+  if (!token || !networkName) return null
+  const tokenId = String(token.id || '')
+  const symbol = String(token.symbol || '').toLowerCase()
+  const contract = String(token.contract || '')
+
+  const local = getLocalLogoUrl(networkName, tokenId, symbol, contract)
+  if (local) return local
+
+  return await getEosAirdropLogo(networkName, symbol, contract)
+}
+
+const fundamentalsCache = new Map<string, any>()
+
+function loadFundamentals(networkName: string) {
+  if (fundamentalsCache.has(networkName)) return fundamentalsCache.get(networkName)
+
+  try {
+    const filePath = path.join(process.cwd(), 'assets', 'fundamentals', `${networkName}.json`)
+    const raw = fs.readFileSync(filePath, 'utf8')
+    const parsed = JSON.parse(raw)
+    fundamentalsCache.set(networkName, parsed)
+    return parsed
+  } catch (e) {
+    fundamentalsCache.set(networkName, null)
+    return null
+  }
+}
+
+function getFundamental(networkName: string, token: any) {
+  if (!token || !networkName) return null
+  const byChain = loadFundamentals(networkName)
+  if (!byChain) return null
+  const symbol = String(token.symbol || '').toUpperCase()
+  const contract = String(token.contract || '')
+  const key = `${symbol}@${contract}`
+  return byChain[key] || null
 }
 
 function pickPoolVolumes(pool: any, window: string) {
@@ -360,7 +456,50 @@ function toPoolCard(pool: any, window: string) {
   }
 }
 
-function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, { usd_price?: number }>) {
+function toFarmCard(incentive: any, pool: any, tokensMap: Map<string, TokenInfo>, window: string) {
+  if (!incentive || !pool) return null
+
+  const rewardSymbol = incentive?.reward?.symbol?.symbol ?? incentive?.reward?.symbol ?? null
+  const rewardContract = incentive?.reward?.contract ?? null
+  const rewardTokenId =
+    rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
+  const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
+  const rewardTokenPrice = safeNumber(rewardToken?.usd_price, 0)
+
+  const rewardPerDay = safeNumber(incentive.rewardPerDay, 0)
+  const rewardPerDayUSD = rewardPerDay * rewardTokenPrice
+
+  const apr = calcIncentiveApr(incentive, pool, tokensMap)
+  const utilizationPct = calcIncentiveStakePercent(incentive, pool)
+  const stakedTvlUSD = utilizationPct === null
+    ? null
+    : safeNumber(pool.tvlUSD) * (utilizationPct / 100)
+
+  const poolTvlUSD = safeNumber(pool.tvlUSD)
+  const poolVolumeUSD = pickPoolVolumes(pool, window).usd
+
+  return {
+    id: incentive.id,
+    poolId: pool.id,
+    isFinished: Boolean(incentive.isFinished),
+    daysRemain: safeNumber(incentive.daysRemain),
+    periodFinish: incentive.periodFinish ?? null,
+    reward: incentive.reward?.quantity ?? null,
+    rewardSymbol,
+    rewardTokenId,
+    rewardTokenPrice,
+    rewardPerDay,
+    rewardPerDayUSD: Number.isFinite(rewardPerDayUSD) ? Number(rewardPerDayUSD.toFixed(2)) : 0,
+    apr,
+    utilizationPct: utilizationPct === null ? null : Number(utilizationPct.toFixed(4)),
+    stakedTvlUSD: stakedTvlUSD === null ? null : Number(stakedTvlUSD.toFixed(2)),
+    poolTvlUSD,
+    poolVolumeUSD,
+    pool: toPoolCard(pool, window),
+  }
+}
+
+function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, TokenInfo>) {
   if (!pool || !tokensMap) return null
 
   try {
@@ -380,18 +519,13 @@ function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, { us
       Asset.Symbol.fromParts(pool.tokenB.symbol, pool.tokenB.decimals)
     )
 
-    const absoluteTotalStaked = bigInt(tokenAQuantity.units.toString()).multiply(
-      bigInt(tokenBQuantity.units.toString())
-    )
-    const denominator = absoluteTotalStaked.equals(0) ? bigInt(1) : absoluteTotalStaked
-    const stakedPercentBn = bigInt(incentive.totalStakingWeight)
-      .multiply(100)
-      .multiply(1000)
-      .divide(denominator)
-    const stakedPercent = stakedPercentBn.toJSNumber() / 1000
+    const product = BigInt(tokenAQuantity.units.toString()) * BigInt(tokenBQuantity.units.toString())
+    const absoluteTotalStaked = sqrt(product) || BigInt(1)
+    const stakedPercentBn = (BigInt(incentive.totalStakingWeight || 0) * BigInt(100) * BigInt(1000)) / absoluteTotalStaked
+    const stakedPercent = Number(stakedPercentBn) / 1000
 
     const tvlUSD = safeNumber(pool.tvlUSD) * (stakedPercent / 100)
-    if (!tvlUSD || tvlUSD <= 0) return 0
+    const effectiveTvlUSD = tvlUSD > 0 ? tvlUSD : MIN_STAKED_TVL_USD
 
     const rewardPerDay = safeNumber(incentive.rewardPerDay)
     const rewardSymbol = incentive?.reward?.symbol?.symbol ?? incentive?.reward?.symbol
@@ -401,8 +535,32 @@ function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, { us
     const rewardTokenPrice = rewardToken?.usd_price ?? 0
     const dayRewardInUSD = rewardPerDay * rewardTokenPrice
 
-    const apr = (dayRewardInUSD / tvlUSD) * 365 * 100
+    const apr = (dayRewardInUSD / effectiveTvlUSD) * 365 * 100
     return Number.isFinite(apr) ? Number(apr.toFixed(2)) : 0
+  } catch (e) {
+    return null
+  }
+}
+
+function calcIncentiveStakePercent(incentive: any, pool: any) {
+  if (!pool || !incentive) return null
+
+  try {
+    const tokenAQuantity = Asset.fromFloat(
+      pool.tokenA.quantity,
+      Asset.Symbol.fromParts(pool.tokenA.symbol, pool.tokenA.decimals)
+    )
+    const tokenBQuantity = Asset.fromFloat(
+      pool.tokenB.quantity,
+      Asset.Symbol.fromParts(pool.tokenB.symbol, pool.tokenB.decimals)
+    )
+
+    const product = BigInt(tokenAQuantity.units.toString()) * BigInt(tokenBQuantity.units.toString())
+    const absoluteTotalStaked = sqrt(product) || BigInt(1)
+    const stakedPercentBn = (BigInt(incentive.totalStakingWeight || 0) * BigInt(100) * BigInt(1000)) / absoluteTotalStaked
+    const stakedPercent = Number(stakedPercentBn) / 1000
+
+    return Number.isFinite(stakedPercent) ? stakedPercent : null
   } catch (e) {
     return null
   }
@@ -472,22 +630,29 @@ function attachMarketTxAndDepth(card: any, matches?: number | null, depth?: any 
   return next
 }
 
-function attachIncentives(poolCard: any, pool: any, incentivesByPool: Map<number, any[]>, tokensMap: Map<string, { usd_price?: number }>) {
+function attachIncentives(poolCard: any, pool: any, incentivesByPool: Map<number, any[]>, tokensMap: Map<string, TokenInfo>) {
   const incentives = incentivesByPool.get(pool.id) || []
   const mapped = incentives.map((i) => {
     const rewardSymbol = i?.reward?.symbol?.symbol ?? i?.reward?.symbol
     const rewardContract = i?.reward?.contract
     const rewardTokenId = rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
+    const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
+    const rewardTokenPrice = safeNumber(rewardToken?.usd_price, 0)
+    const rewardPerDay = safeNumber(i?.rewardPerDay)
+    const rewardPerDayUSD = rewardPerDay * rewardTokenPrice
+    const utilizationPct = calcIncentiveStakePercent(i, pool)
 
     return {
       incentiveId: i?.id ?? i?.incentiveId ?? null,
       poolId: i?.poolId ?? pool.id,
       reward: i?.reward ?? null,
-      rewardPerDay: safeNumber(i?.rewardPerDay),
+      rewardPerDay,
+      rewardPerDayUSD: Number.isFinite(rewardPerDayUSD) ? Number(rewardPerDayUSD.toFixed(2)) : 0,
       periodFinish: i?.periodFinish ?? null,
       isFinished: Boolean(i?.isFinished),
       daysRemain: safeNumber(i?.daysRemain),
       rewardTokenId,
+      utilizationPct: utilizationPct === null ? null : Number(utilizationPct.toFixed(4)),
       apr: calcIncentiveApr(i, pool, tokensMap),
     }
   })
@@ -531,7 +696,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
     .slice(0, 10)
 
   const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
-  const tokensMap = includeIncentives ? new Map<string, { usd_price?: number }>(
+  const tokensMap = includeIncentives ? new Map<string, TokenInfo>(
     tokens.map((t) => [t.id, t])
   ) : new Map()
 
@@ -577,8 +742,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
     }
   }
 
-  const topTokens = tokens
-    .map((t) => {
+  const topTokens = (await Promise.all(tokens.map(async (t) => {
       const stats = tokenStats.get(t.id) || {}
       const score = tokenScores?.[t.id]?.score ?? null
       const firstSeenAt = tokenScores?.[t.id]?.firstSeenAt ?? null
@@ -586,6 +750,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
       const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
       const volumeSwap = safeNumber(stats.swapVolumeUSD)
       const volumeSpot = safeNumber(stats.spotVolumeUSD)
+      const logoUrl = await getLogoUrl(network.name, t)
 
       const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
       const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
@@ -596,7 +761,8 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
         contract: t.contract,
         name: t.name || null,
         decimals: t.decimals,
-        logo: getLogoUrl(network.name, t.id),
+        logo: logoUrl,
+        logoUrl,
         price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
         liquidity: { tvl: safeNumber(stats.tvlUSD) },
         volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
@@ -612,7 +778,7 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
         } : null,
         scores: { total: score },
       }
-    })
+    })))
     .sort((a, b) => safeNumber(b.scores.total) - safeNumber(a.scores.total))
     .slice(0, 10)
 
@@ -691,6 +857,9 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network: Network = req.app.get('network')
   const window = getWindow(req.query.window)
+  const includes = parseIncludes(req.query.include)
+  const includeFundamental = includes.has('fundamental')
+  const hasLogo = String(req.query.hasLogo || '').toLowerCase()
   const search = String(req.query.search || '').toLowerCase()
 
   let tokens = (await getTokens(network.name)) || []
@@ -727,7 +896,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
   const tokenScores = await loadTokenScores(network.name)
   const holdersStats = await loadTokenHoldersStats(network.name, tokens.map((t) => t.id))
 
-  const result = tokens.map((t) => {
+  const result = await Promise.all(tokens.map(async (t) => {
     const stats = tokenStats.get(t.id) || {}
     const score = tokenScores?.[t.id]?.score ?? null
     const firstSeenAt = tokenScores?.[t.id]?.firstSeenAt ?? null
@@ -735,9 +904,12 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
     const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
     const volumeSwap = safeNumber(stats.swapVolumeUSD)
     const volumeSpot = safeNumber(stats.spotVolumeUSD)
+    const logoUrl = await getLogoUrl(network.name, t)
 
     const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
     const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
+
+    const fundamental = includeFundamental ? getFundamental(network.name, t) : null
 
     return {
       id: t.id,
@@ -745,7 +917,8 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
       contract: t.contract,
       name: t.name || null,
       decimals: t.decimals,
-      logo: getLogoUrl(network.name, t.id),
+      logo: logoUrl,
+      logoUrl,
       price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
       liquidity: { tvl: safeNumber(stats.tvlUSD) },
       volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
@@ -759,15 +932,23 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
         change24h: holders.change24h ?? null,
         truncated: holders.truncated ?? false,
       } : null,
+      fundamental,
       scores: { total: score },
     }
-  })
+  }))
+
+  let filtered = result
+  if (hasLogo === 'true') {
+    filtered = filtered.filter((t) => Boolean(t.logoUrl))
+  } else if (hasLogo === 'false') {
+    filtered = filtered.filter((t) => !t.logoUrl)
+  }
 
   const sort = String(req.query.sort || 'score').toLowerCase()
   const order = String(req.query.order || 'desc').toLowerCase()
   const dir = order === 'asc' ? 1 : -1
 
-  result.sort((a, b) => {
+  filtered.sort((a, b) => {
     let av = 0
     let bv = 0
     if (sort === 'volume') {
@@ -805,10 +986,10 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
 
   res.json({
     meta: buildMeta(network, window.label),
-    items: result.slice(start, start + limit),
+    items: filtered.slice(start, start + limit),
     page,
     limit,
-    total: result.length,
+    total: filtered.length,
   })
 })
 
@@ -817,6 +998,9 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network: Network = req.app.get('network')
   const window = getWindow(req.query.window)
+  const includes = parseIncludes(req.query.include)
+  const includeTx = includes.has('tx')
+  const includeDepth = includes.has('depth')
   const tokenId = String(req.params.id || '').toLowerCase()
 
   const tokens = (await getTokens(network.name)) || []
@@ -840,6 +1024,21 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const usdTokenId = network?.USD_TOKEN || null
   const tokenPool = pickPoolForToken(new Map([[token.id, pools]]), token.id, baseTokenId, usdTokenId)
   const priceChange24h = computeTokenPriceChange24(tokenPool, token.id)
+
+  const fundamental = getFundamental(network.name, token)
+
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const marketTxStats = includeTx ? await buildMarketTxStats(network.name, markets.map((m) => m.id), window.since) : new Map()
+
+  const spotPairs = await Promise.all(markets.map(async (m) => {
+    let card = toMarketCard(m, window.label, priceMap)
+    if (includeTx) card = attachMarketTxAndDepth(card, marketTxStats.get(m.id) ?? 0, null)
+    if (includeDepth) {
+      const depth = await buildOrderbookDepth(network.name, m, priceMap)
+      card = attachMarketTxAndDepth(card, includeTx ? (marketTxStats.get(m.id) ?? 0) : null, depth)
+    }
+    return card
+  }))
 
   res.json({
     meta: buildMeta(network, window.label),
@@ -867,10 +1066,11 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
         change24h: holders.change24h ?? null,
         truncated: holders.truncated ?? false,
       } : null,
+      fundamental,
       scores: score ? { total: score.score, details: score } : { total: null, details: null },
     },
     pools: pools.map((p) => toPoolCard(p, window.label)),
-    spotPairs: markets.map((m) => toMarketCard(m, window.label, new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)])))),
+    spotPairs,
   })
 })
 
@@ -889,7 +1089,7 @@ analytics.get('/tokens/:id/pools', cacheSeconds(60, (req, res) => {
   }).lean()
 
   const tokens = includeIncentives ? (await getTokens(network.name)) || [] : []
-  const tokensMap = new Map<string, { usd_price?: number }>(
+  const tokensMap = new Map<string, TokenInfo>(
     tokens.map((t) => [t.id, t])
   )
   const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
@@ -910,6 +1110,9 @@ analytics.get('/tokens/:id/spot-pairs', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network: Network = req.app.get('network')
   const window = getWindow(req.query.window)
+  const includes = parseIncludes(req.query.include)
+  const includeTx = includes.has('tx')
+  const includeDepth = includes.has('depth')
   const tokenId = String(req.params.id || '').toLowerCase()
 
   const markets = await Market.find({
@@ -919,10 +1122,21 @@ analytics.get('/tokens/:id/spot-pairs', cacheSeconds(60, (req, res) => {
 
   const tokens = (await getTokens(network.name)) || []
   const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const marketTxStats = includeTx ? await buildMarketTxStats(network.name, markets.map((m) => m.id), window.since) : new Map()
+
+  const items = await Promise.all(markets.map(async (m) => {
+    let card = toMarketCard(m, window.label, priceMap)
+    if (includeTx) card = attachMarketTxAndDepth(card, marketTxStats.get(m.id) ?? 0, null)
+    if (includeDepth) {
+      const depth = await buildOrderbookDepth(network.name, m, priceMap)
+      card = attachMarketTxAndDepth(card, includeTx ? (marketTxStats.get(m.id) ?? 0) : null, depth)
+    }
+    return card
+  }))
 
   res.json({
     meta: buildMeta(network, window.label),
-    items: markets.map((m) => toMarketCard(m, window.label, priceMap)),
+    items,
   })
 })
 
@@ -935,6 +1149,7 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
   const includeIncentives = includes.has('incentives')
   const includeTx = includes.has('tx')
   const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
+  const search = String(req.query.search || '').toLowerCase().trim()
 
   let pools = await SwapPool.find({ chain: network.name }).lean()
 
@@ -946,6 +1161,20 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
       !scam_tokens.has(p.tokenA.id) &&
       !scam_tokens.has(p.tokenB.id)
     )
+  }
+
+  const needsTokens = includeIncentives || Boolean(search)
+  const tokens = needsTokens ? (await getTokens(network.name)) || [] : []
+  const tokensById = needsTokens ? new Map<string, any>(tokens.map((t) => [t.id, t])) : new Map()
+
+  if (search) {
+    const terms = parseSearchTerms(search)
+    if (terms.length) {
+      pools = pools.filter((p) => {
+        const stack = buildPoolSearchStack(p, tokensById)
+        return terms.every((term) => stack.includes(term))
+      })
+    }
   }
 
   const sort = String(req.query.sort || 'volume').toLowerCase()
@@ -969,8 +1198,7 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
   const page = Math.max(parseInt(String(req.query.page || '1')), 1)
   const start = (page - 1) * limit
 
-  const tokens = includeIncentives ? (await getTokens(network.name)) || [] : []
-  const tokensMap = new Map<string, { usd_price?: number }>(
+  const tokensMap = new Map<string, TokenInfo>(
     tokens.map((t) => [t.id, t])
   )
   const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
@@ -991,6 +1219,123 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
   })
 })
 
+analytics.get('/farms', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+  const window = getWindow(req.query.window)
+  const status = String(req.query.status || 'active').toLowerCase()
+  const sort = String(req.query.sort || 'apr').toLowerCase()
+  const order = String(req.query.order || 'desc').toLowerCase()
+  const dir = order === 'asc' ? 1 : -1
+  const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
+  const search = String(req.query.search || '').toLowerCase().trim()
+  const searchTerms = parseSearchTerms(search)
+  const minPoolTvl = Number(req.query.min_pool_tvl ?? req.query.min_tvl ?? 0)
+  const minStakedTvl = Number(req.query.min_staked_tvl ?? 0)
+
+  let pools = await SwapPool.find({ chain: network.name }).lean()
+
+  if (hideScam) {
+    const { scam_contracts, scam_tokens } = await getScamLists(network)
+    pools = pools.filter((p) =>
+      !scam_contracts.has(p.tokenA.contract) &&
+      !scam_contracts.has(p.tokenB.contract) &&
+      !scam_tokens.has(p.tokenA.id) &&
+      !scam_tokens.has(p.tokenB.id)
+    )
+  }
+
+  const poolsById = new Map<number, any>(pools.map((p) => [Number(p.id), p]))
+  const tokens = (await getTokens(network.name)) || []
+  const tokensMap = new Map<string, TokenInfo>(tokens.map((t) => [t.id, t]))
+
+  let incentives = await getIncentives(network)
+  if (status === 'active') {
+    incentives = incentives.filter((i) => !i.isFinished)
+  } else if (status === 'finished') {
+    incentives = incentives.filter((i) => i.isFinished)
+  }
+
+  const items = incentives.map((inc) => {
+    const pool = poolsById.get(Number(inc.poolId))
+    if (!pool) return null
+
+    const rewardSymbol = inc?.reward?.symbol?.symbol ?? inc?.reward?.symbol ?? null
+    const rewardContract = inc?.reward?.contract ?? null
+    const rewardTokenId =
+      rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
+    const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
+
+    if (searchTerms.length) {
+      const searchStack = [
+        rewardSymbol,
+        rewardContract,
+        rewardTokenId,
+        rewardToken?.name,
+        buildPoolSearchStack(pool, tokensMap),
+        String(pool?.id || ''),
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      if (!searchTerms.every((term) => searchStack.includes(term))) return null
+    }
+
+    return toFarmCard(inc, pool, tokensMap, window.label)
+  }).filter(Boolean)
+
+  const filteredItems = items.filter((item) => {
+    const poolTvl = safeNumber(item.poolTvlUSD)
+    const stakedTvl = safeNumber(item.stakedTvlUSD)
+
+    if (Number.isFinite(minPoolTvl) && minPoolTvl > 0 && poolTvl < minPoolTvl) return false
+    if (Number.isFinite(minStakedTvl) && minStakedTvl > 0 && stakedTvl < minStakedTvl) return false
+    return true
+  })
+
+  filteredItems.sort((a, b) => {
+    let av = 0
+    let bv = 0
+    if (sort === 'rewards') {
+      av = safeNumber(a.rewardPerDayUSD)
+      bv = safeNumber(b.rewardPerDayUSD)
+    } else if (sort === 'tvl') {
+      av = safeNumber(a.poolTvlUSD)
+      bv = safeNumber(b.poolTvlUSD)
+    } else if (sort === 'staked') {
+      av = safeNumber(a.stakedTvlUSD)
+      bv = safeNumber(b.stakedTvlUSD)
+    } else if (sort === 'remaining') {
+      av = safeNumber(a.daysRemain)
+      bv = safeNumber(b.daysRemain)
+    } else if (sort === 'utilization') {
+      av = safeNumber(a.utilizationPct)
+      bv = safeNumber(b.utilizationPct)
+    } else if (sort === 'volume') {
+      av = safeNumber(a.poolVolumeUSD)
+      bv = safeNumber(b.poolVolumeUSD)
+    } else {
+      av = safeNumber(a.apr)
+      bv = safeNumber(b.apr)
+    }
+    return (av - bv) * dir
+  })
+
+  const limit = Math.min(Math.max(parseInt(String(req.query.limit || '50')), 1), 500)
+  const page = Math.max(parseInt(String(req.query.page || '1')), 1)
+  const start = (page - 1) * limit
+
+  res.json({
+    meta: buildMeta(network, window.label),
+    items: filteredItems.slice(start, start + limit),
+    page,
+    limit,
+    total: filteredItems.length,
+  })
+})
+
 analytics.get('/pools/:id', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
@@ -998,7 +1343,9 @@ analytics.get('/pools/:id', cacheSeconds(60, (req, res) => {
   const window = getWindow(req.query.window)
   const includes = parseIncludes(req.query.include)
   const includeIncentives = includes.has('incentives')
+  const includeFarmCards = includes.has('farm_cards') || includes.has('farms')
   const includeTx = includes.has('tx')
+  const incentivesFilter = String(req.query.incentives || 'active').toLowerCase()
   const id = parseInt(String(req.params.id || ''), 10)
 
   if (!Number.isFinite(id)) return res.status(400).send('Invalid pool id')
@@ -1006,13 +1353,30 @@ analytics.get('/pools/:id', cacheSeconds(60, (req, res) => {
   const pool = await SwapPool.findOne({ chain: network.name, id }).lean()
   if (!pool) return res.status(404).send('Pool is not found')
 
-  const tokens = includeIncentives ? (await getTokens(network.name)) || [] : []
-  const tokensMap = new Map<string, { usd_price?: number }>(
+  const needIncentives = includeIncentives || includeFarmCards
+  const tokens = needIncentives ? (await getTokens(network.name)) || [] : []
+  const tokensMap = new Map<string, TokenInfo>(
     tokens.map((t) => [t.id, t])
   )
-  const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
-  let card = toPoolCard(pool, window.label)
-  if (includeIncentives) card = attachIncentives(card, pool, incentivesByPool, tokensMap)
+  const incentivesByPool = needIncentives ? await loadIncentivesByPool(network) : new Map()
+  let card: any = toPoolCard(pool, window.label)
+  if (includeIncentives) {
+    card = attachIncentives(card, pool, incentivesByPool, tokensMap)
+    if (incentivesFilter === 'active') {
+      card.incentives = card.incentives.filter((i) => !i.isFinished)
+    } else if (incentivesFilter === 'finished') {
+      card.incentives = card.incentives.filter((i) => i.isFinished)
+    }
+  }
+  if (includeFarmCards) {
+    let incs = incentivesByPool.get(pool.id) || []
+    if (incentivesFilter === 'active') {
+      incs = incs.filter((i) => !i.isFinished)
+    } else if (incentivesFilter === 'finished') {
+      incs = incs.filter((i) => i.isFinished)
+    }
+    card = { ...card, farms: incs.map((i) => toFarmCard(i, pool, tokensMap, window.label)).filter(Boolean) }
+  }
   if (includeTx) {
     const poolTxStats = await buildPoolTxStats(network.name, [pool.id], window.since)
     card = attachPoolTx(card, poolTxStats.get(pool.id) ?? 0)

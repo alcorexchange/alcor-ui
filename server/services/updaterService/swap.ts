@@ -7,9 +7,10 @@ const WEEK = ONEDAY * 7
 export async function newSwapAction(action: any, network: any) {
   //console.log('newSwapAction', action.act.name)
 
-  const { trx_id, block_time, block_num, act: { name, data } } = action
+  const { trx_id, block_time, block_num, receipt, act: { name, data } } = action
+  const global_sequence = receipt?.global_sequence
 
-  const message = JSON.stringify({ chain: network.name, name, trx_id, block_num, block_time, data })
+  const message = JSON.stringify({ chain: network.name, name, trx_id, block_num, block_time, data, global_sequence })
 
   await onSwapAction(message)
 

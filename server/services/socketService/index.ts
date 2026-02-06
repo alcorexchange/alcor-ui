@@ -10,7 +10,8 @@ import { getRedis } from '../redis'
 import { Match, Bar, SwapBar, SwapPool } from '../../models'
 import { getSwapBarPriceAsString } from '../../../utils/amm.js'
 import { littleEndianToDesimalString } from '../../../utils'
-import { getPoolPriceA, getPoolPriceB } from '../swapV2Service/utils'
+import { Price, Q128, Token } from '@alcorexchange/alcor-swap-sdk'
+import JSBI from 'jsbi'
 import { resolutions, getBarTimes } from '../updaterService/charts'
 
 import { subscribe, unsubscribe } from './sockets'
@@ -295,7 +296,12 @@ async function main() {
     }
 
     const { chain, pool, timeframe, time, close, open, high, low, volumeUSD } = bar
-    const tick = { close, open, high, low, volumeUSD, time: new Date(time).getTime() }
+    const barTime = new Date(time).getTime()
+    const barKey = `${chain}:${pool}:${timeframe}`
+    const existing = realtimeBars.get(barKey)
+    if (existing && barTime < existing.time) return
+
+    const tick = { close, open, high, low, volumeUSD, time: barTime }
     io.to(`swap-ticker:${chain}.${pool}.${timeframe}`).emit('swap-tick', tick)
 
     const poolInfo = await getPoolCached(chain, pool)
@@ -338,8 +344,6 @@ async function main() {
           }
         : null
 
-    const barTime = new Date(time).getTime()
-    const barKey = `${chain}:${pool}:${timeframe}`
     if (priceA && priceB && tokenA && tokenB) {
       await ensurePrevClose(
         barKey,
@@ -432,8 +436,26 @@ async function main() {
     if (!poolInfo) return
 
     const sqrtPriceX64 = littleEndianToDesimalString(data?.sqrtPriceX64)
-    const priceAString = getPoolPriceA(sqrtPriceX64, poolInfo.tokenA.decimals, poolInfo.tokenB.decimals)
-    const priceBString = getPoolPriceB(sqrtPriceX64, poolInfo.tokenA.decimals, poolInfo.tokenB.decimals)
+    let priceAString: string
+    let priceBString: string
+    try {
+      const tokenA = new Token(poolInfo.tokenA.contract, poolInfo.tokenA.decimals, poolInfo.tokenA.symbol)
+      const tokenB = new Token(poolInfo.tokenB.contract, poolInfo.tokenB.decimals, poolInfo.tokenB.symbol)
+      const sqrt = JSBI.BigInt(sqrtPriceX64)
+      const ratioX128 = JSBI.multiply(sqrt, sqrt)
+      const priceA = new Price(tokenA, tokenB, Q128, ratioX128)
+      const priceB = priceA.invert()
+      priceAString = priceA.toSignificant(12)
+      priceBString = priceB.toSignificant(12)
+    } catch (error) {
+      console.error('[swap-tick-v2] price calc failed', {
+        chain,
+        poolId,
+        sqrtPriceX64,
+        error,
+      })
+      return
+    }
     const priceA = Number(priceAString)
     const priceB = Number(priceBString)
 
@@ -468,6 +490,8 @@ async function main() {
       const { currentBarStart } = getBarTimes(swapTime, frame)
       const barTime = currentBarStart.getTime()
       const key = `${chain}:${poolId}:${timeframe}`
+      const existing = realtimeBars.get(key)
+      if (existing && barTime < existing.time) continue
 
       await ensurePrevClose(
         key,

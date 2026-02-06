@@ -24,6 +24,7 @@ type SwapBatchItem = {
   data: any
   block_time: string
   block_num: number
+  global_sequence?: number
 }
 
 type SwapBatch = {
@@ -51,8 +52,32 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
 
   const t0 = Date.now()
 
+  // 0. Deduplicate by global_sequence (skip existing swaps)
+  const seqs = batch.swaps
+    .map(s => s.global_sequence)
+    .filter(s => typeof s === 'number')
+
+  let newSwaps = batch.swaps
+  if (seqs.length > 0) {
+    const existing = await Swap.find({ chain, global_sequence: { $in: seqs } })
+      .select('global_sequence')
+      .lean()
+    const existingSet = new Set(existing.map(s => s.global_sequence))
+    const seen = new Set<number>()
+
+    newSwaps = batch.swaps.filter((s) => {
+      if (typeof s.global_sequence !== 'number') return true
+      if (existingSet.has(s.global_sequence)) return false
+      if (seen.has(s.global_sequence)) return false
+      seen.add(s.global_sequence)
+      return true
+    })
+  }
+
+  if (newSwaps.length === 0) return
+
   // 1. Collect unique pool IDs (ensure numbers)
-  const uniquePoolIds = [...new Set(batch.swaps.map(s => Number(s.data.poolId)))]
+  const uniquePoolIds = [...new Set(newSwaps.map(s => Number(s.data.poolId)))]
 
   // 2. Fetch all pools at once
   const pools = await SwapPool.find({ chain, id: { $in: uniquePoolIds } }).lean()
@@ -70,8 +95,8 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
   const poolSwaps = new Map<number, SwapBatchItem[]>()
   const swapDocs: any[] = []
 
-  for (const s of batch.swaps) {
-    const { data, trx_id, block_time, block_num } = s
+  for (const s of newSwaps) {
+    const { data, trx_id, block_time, block_num, global_sequence } = s
     const { poolId, recipient, sender, sqrtPriceX64 } = data
 
     const tokenAamount = parseFloat(data.tokenA)
@@ -96,6 +121,7 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
       pool: Number(poolId),
       recipient,
       trx_id,
+      global_sequence,
       sender,
       sqrtPriceX64: littleEndianToDesimalString(sqrtPriceX64),
       totalUSDVolume,
@@ -154,7 +180,7 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
   const account = networks[chain].amm.contract
 
   // Publish events
-  for (const s of batch.swaps) {
+  for (const s of newSwaps) {
     const message = JSON.stringify({
       chain,
       name: 'logswap',
@@ -168,7 +194,7 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
 
   // Only log if slow (>500ms) or every 10th block for progress
   if (total > 500 || batch.block_num % 10 === 0) {
-    console.log(`[${chain}:${account}] #${batch.block_num} ${batch.swaps.length} swaps ${total}ms`)
+    console.log(`[${chain}:${account}] #${batch.block_num} ${newSwaps.length} swaps ${total}ms`)
   }
 }
 
@@ -854,7 +880,7 @@ export async function handleSwap({ chain, data, trx_id, block_time, block_num })
 export async function onSwapAction(message: string) {
   await connectAll()
 
-  const { chain, name, trx_id, block_time, block_num, data } = JSON.parse(message)
+  const { chain, name, trx_id, block_time, block_num, data, global_sequence } = JSON.parse(message)
 
   // Flush pending swap batch if block changed (for any action type)
   const existingBatch = chainBatches.get(chain)
@@ -895,7 +921,7 @@ export async function onSwapAction(message: string) {
     }
 
     // Add swap to batch
-    batch.swaps.push({ chain, trx_id, data, block_time, block_num })
+    batch.swaps.push({ chain, trx_id, data, block_time, block_num, global_sequence })
 
     // Don't process immediately - will be flushed on next block
     return
@@ -916,13 +942,17 @@ export async function onSwapAction(message: string) {
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
   }
 
+  if (name == 'logtransfer') {
+    console.log(`[${chain}] transfer pos #${data.fromPosId || data.posId} from:${data.from} to:${data.to} pool:${data.poolId}`)
+  }
+
   // Only publish realtime events (skip during catch-up to avoid flooding swap-service)
   const eventAge = Date.now() - new Date(block_time).getTime()
   const isRealtime = eventAge < 5 * 60 * 1000 // 5 minutes
 
   // Update pool and positions for position changes
   // Fire and forget - don't block updater
-  if (['logmint', 'logburn', 'logcollect'].includes(name)) {
+  if (['logmint', 'logburn', 'logcollect', 'logtransfer'].includes(name)) {
     const poolId = Number(data.poolId)
     throttledPoolUpdate(chain, poolId).catch(e =>
       console.error(`[${chain}] pool update error:`, e.message)
@@ -932,15 +962,31 @@ export async function onSwapAction(message: string) {
     updatePositions(chain, poolId)
       .then(() => {
         if (isRealtime) {
-          const { posId, owner } = data
-          const push = { chain, account: owner, positions: [posId] }
-          getPublisher().publish('account:update-positions', JSON.stringify(push))
+          if (name === 'logtransfer') {
+            const from = data?.from
+            const to = data?.to
+            const fromPosId = Number(data?.fromPosId ?? data?.from_pos_id ?? data?.posId)
+            const toPosId = Number(data?.toPosId ?? data?.to_pos_id ?? data?.posId)
+
+            if (from) {
+              const push = { chain, account: from, positions: [fromPosId] }
+              getPublisher().publish('account:update-positions', JSON.stringify(push))
+            }
+            if (to) {
+              const push = { chain, account: to, positions: [toPosId] }
+              getPublisher().publish('account:update-positions', JSON.stringify(push))
+            }
+          } else {
+            const { posId, owner } = data
+            const push = { chain, account: owner, positions: [posId] }
+            getPublisher().publish('account:update-positions', JSON.stringify(push))
+          }
         }
       })
       .catch(e => console.error(`[${chain}] position update error:`, e.message))
   }
 
-  if (isRealtime && ['logpool', 'logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
+  if (isRealtime && ['logpool', 'logmint', 'logburn', 'logswap', 'logcollect', 'logtransfer'].includes(name)) {
     const account = networks[chain].amm.contract
     getPublisher().publish(`chainAction:${chain}:${account}:${name}`, message)
   }

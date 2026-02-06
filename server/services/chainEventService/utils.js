@@ -22,14 +22,22 @@ export async function decodeActionData(hexData, abi, actionName) {
 
   // Decode the hex data using eosjs API
   const buffer = Buffer.from(hexData, 'hex')
-  const data = await api.deserializeActions([
-    {
-      account: '',
-      name: actionName,
-      authorization: [],
-      data: buffer,
-    },
-  ])
+  try {
+    const data = await api.deserializeActions([
+      {
+        account: '',
+        name: actionName,
+        authorization: [],
+        data: buffer,
+      },
+    ])
 
-  return data[0].data
+    return data[0].data
+  } catch (e) {
+    const msg = String(e?.message || '')
+    if (msg.includes('Unknown action') || msg.includes('unknown action')) {
+      return null
+    }
+    throw e
+  }
 }

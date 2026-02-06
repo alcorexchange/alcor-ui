@@ -127,6 +127,7 @@ const MatchSchema = new mongoose.Schema({
   market: { type: Number, index: true },
   type: { type: String, index: true },
   trx_id: { type: String },
+  global_sequence: { type: Number, index: true },
 
   unit_price: { type: Number, index: true },
 
@@ -139,6 +140,7 @@ const MatchSchema = new mongoose.Schema({
   time: { type: Date, index: true },
   block_num: { type: Number },
 })
+MatchSchema.index({ chain: 1, global_sequence: 1 }, { background: true, sparse: true })
 MatchSchema.index({ chain: 1, market: 1, time: 1 }, { background: true })
 MatchSchema.index({ chain: 1, market: 1, time: -1 }, { background: true })
 MatchSchema.index({ chain: 1, market: 1, time: -1, type: 1 }, { background: true })
@@ -297,6 +299,7 @@ const SwapSchema = new mongoose.Schema({
   chain: { type: String, index: true },
   pool: { type: Number, index: true },
   trx_id: { type: String },
+  global_sequence: { type: Number, index: true },
 
   recipient: { type: String, index: true },
   sender: { type: String, index: true },
@@ -311,6 +314,7 @@ const SwapSchema = new mongoose.Schema({
   time: { type: Date, index: true },
   block_num: { type: Number },
 })
+SwapSchema.index({ chain: 1, global_sequence: 1 }, { background: true, sparse: true })
 SwapSchema.index({ chain: 1, pool: 1, sender: 1, recipient: 1, time: -1 }, { background: true })
 SwapSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
 SwapSchema.index({ chain: 1, sender: 1, time: -1 }, { background: true })

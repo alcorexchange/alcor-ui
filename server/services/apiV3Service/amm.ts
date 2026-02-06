@@ -11,6 +11,7 @@ import { getAccountPoolPositions, getPositionStats } from '../apiV2Service/accou
 import { getRedisPosition } from '../swapV2Service/utils'
 import { SwapPool } from '../../models'
 import { redis } from '../../utils'
+import { sqrt } from '../../../utils/bigint'
 
 export const amm = Router()
 const PrecisionMultiplier = bigInt('1000000000000000000')
@@ -99,18 +100,13 @@ function calcIncentiveApr(incentive, pool, tokensMap) {
       Asset.Symbol.fromParts(pool.tokenB.symbol, pool.tokenB.decimals)
     )
 
-    const absoluteTotalStaked = bigInt(tokenAQuantity.units.toString()).multiply(
-      bigInt(tokenBQuantity.units.toString())
-    )
-    const denominator = absoluteTotalStaked.equals(0) ? bigInt(1) : absoluteTotalStaked
-    const stakedPercent_bn = bigInt(incentive.totalStakingWeight)
-      .multiply(100)
-      .multiply(1000)
-      .divide(denominator)
-    const stakedPercent = stakedPercent_bn.toJSNumber() / 1000
+    const product = BigInt(tokenAQuantity.units.toString()) * BigInt(tokenBQuantity.units.toString())
+    const absoluteTotalStaked = sqrt(product) || BigInt(1)
+    const stakedPercent_bn = (BigInt(incentive.totalStakingWeight || 0) * BigInt(100) * BigInt(1000)) / absoluteTotalStaked
+    const stakedPercent = Number(stakedPercent_bn) / 1000
 
     const tvlUSD = pool.tvlUSD * (stakedPercent / 100)
-    if (!tvlUSD || tvlUSD <= 0) return 0
+    const effectiveTvlUSD = tvlUSD > 0 ? tvlUSD : 1
 
     const rewardPerDay = Number(incentive.rewardPerDay ?? 0)
     const rewardSymbol = incentive?.reward?.symbol?.symbol ?? incentive?.reward?.symbol
@@ -120,7 +116,7 @@ function calcIncentiveApr(incentive, pool, tokensMap) {
     const rewardTokenPrice = rewardToken?.usd_price ?? 0
     const dayRewardInUSD = rewardPerDay * rewardTokenPrice
 
-    const apr = (dayRewardInUSD / tvlUSD) * 365 * 100
+    const apr = (dayRewardInUSD / effectiveTvlUSD) * 365 * 100
     return Number.isFinite(apr) ? Number(apr.toFixed(2)) : 0
   } catch (e) {
     return null
@@ -230,6 +226,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
       let userSharePercent = null
       let dailyRewards = null
       let farmedReward = null
+      let hasClaimableReward = false
 
       if (stake) {
         const totalStakingWeight = bigInt(inc.totalStakingWeight)
@@ -258,6 +255,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
           Asset.Symbol.fromParts(rewardSymbol, rewardPrecision)
         )
         farmedReward = rewardAsset.toString()
+        hasClaimableReward = reward.gt(0)
 
         const daily = inc.isFinished
           ? 0
@@ -282,14 +280,16 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
         userSharePercent,
         dailyRewards,
         farmedReward,
+        hasClaimableReward,
       }
     })
 
     if (incentivesFilter === 'active') {
-      poolIncentives = poolIncentives.filter((i) => !i.isFinished)
+      poolIncentives = poolIncentives.filter((i) => !i.isFinished || i.hasClaimableReward)
     } else if (incentivesFilter === 'finished') {
       poolIncentives = poolIncentives.filter((i) => i.isFinished)
     }
+    poolIncentives = poolIncentives.map(({ hasClaimableReward, ...rest }) => rest)
 
     const stakeStatus = poolIncentives.length === 0
       ? null
@@ -413,5 +413,50 @@ amm.get('/positions/:id', async (req, res) => {
   } catch (err) {
     console.error('Error in v3 position:', err)
     res.status(500).json({ error: 'Failed to load position' })
+  }
+})
+
+amm.get('/pools/:id/positions', async (req, res) => {
+  const network = req.app.get('network')
+  const incentivesFilter = String(req.query?.incentives || 'active').toLowerCase()
+  const id = Number(req.params.id)
+
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: 'Invalid pool id' })
+    return
+  }
+
+  try {
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit || '200')), 1), 500)
+    const page = Math.max(parseInt(String(req.query.page || '1')), 1)
+    const start = (page - 1) * limit
+    const sort = String(req.query.sort || '').toLowerCase()
+    const order = String(req.query.order || 'desc').toLowerCase()
+    const dir = order === 'asc' ? 1 : -1
+
+    const allPositions = JSON.parse(await redis().get(`positions_${network.name}`) || '[]') || []
+    const poolPositions = allPositions.filter((p) => Number(p.pool) === id)
+    const slice = poolPositions.slice(start, start + limit)
+
+    const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`) || '[]')
+    const historyCache = new Map()
+
+    const positionsWithStats = await Promise.all(
+      slice.map(async (pos) => ({
+        ...pos,
+        ...(await getPositionStats(network.name, pos, tokenPrices, historyCache)),
+      }))
+    )
+
+    const response = await buildPositionsResponse(network, positionsWithStats, incentivesFilter)
+    if (sort === 'totalvalueusd') {
+      response.sort((a, b) => ((a?.totalValueUSD ?? 0) - (b?.totalValueUSD ?? 0)) * dir)
+    } else if (sort === 'totalfeesusd') {
+      response.sort((a, b) => ((a?.totalFeesUSD ?? 0) - (b?.totalFeesUSD ?? 0)) * dir)
+    }
+    res.json({ items: response, page, limit, total: poolPositions.length })
+  } catch (err) {
+    console.error('Error in v3 pool positions:', err)
+    res.status(500).json({ error: 'Failed to load pool positions' })
   }
 })
