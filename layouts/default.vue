@@ -1,5 +1,6 @@
 <template lang="pug">
 .unlim-width.default-layout
+  MigrationBanner
   .not-footer
     TopNav.px-3.py-2
 
@@ -18,6 +19,7 @@
 import config from '~/config'
 
 import TopNav from '~/components/layout/TopNav'
+import MigrationBanner from '~/components/layout/MigrationBanner'
 import ModalsDialog from '~/components/modals/ModalsDialog'
 import ChainSelect from '~/components/elements/ChainSelect'
 import Footer from '~/components/footer/Footer'
@@ -42,6 +44,7 @@ export default {
     AnnouncementModal,
     HackerWarningModal,
     TopNav,
+    MigrationBanner,
   },
 
   data() {

@@ -122,7 +122,6 @@ export default {
       items.push({ index: '/positions', name: 'Pool' })
 
       items.push({ index: '/markets', name: 'Spot' })
-      items.push({ href: 'https://perp.alcor.exchange/', name: 'Perpetuals', external: true, new: true })
       // items.push({ index: '/bridge', name: 'Bridge' })
 
       if (['wax', 'eos', 'proton'].includes(this.$store.state.network.name)) {
