@@ -1,7 +1,6 @@
 import axios from 'axios'
 
-import { getPools } from '../swapV2Service/utils'
-import { Market, Match } from '../../models'
+import { Market, Match, SwapPool } from '../../models'
 import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
 
@@ -78,8 +77,13 @@ export async function makeAllTokensWithPrices(network: Network) {
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
   const systemPrice = parseFloat(await getRedis().get(`${network.name}_price`)) || 0
 
-  const minimumUSDAmount = 10 // $10 minimum liquidity to avoid absurd prices
+  const minimumUSDAmount = 20 // $20 minimum liquidity to avoid absurd prices
   const minimumSystemAmount = (1 / systemPrice) * minimumUSDAmount
+
+  const isSystemOrUsdPool = (p) =>
+    p.tokenA.id === system_token ||
+    p.tokenB.id === system_token ||
+    (USD_TOKEN && (p.tokenA.id === USD_TOKEN || p.tokenB.id === USD_TOKEN))
 
   const filterOutPoolsWithLowLiquidity = (p) => {
     if (p.tokenA.id === system_token) {
@@ -101,8 +105,8 @@ export async function makeAllTokensWithPrices(network: Network) {
     return false
   }
 
-  const pools = await getPools(network.name)
-  const enough_liquidity_pools = await getPools(network.name, false, filterOutPoolsWithLowLiquidity)
+  const pools = await SwapPool.find({ chain: network.name }).lean()
+  const enough_liquidity_pools = pools.filter(filterOutPoolsWithLowLiquidity)
 
   // Sorting by more ticks means more liquidity
   // pools.sort((a, b) => {
@@ -111,7 +115,8 @@ export async function makeAllTokensWithPrices(network: Network) {
 
   const tokenIds = new Set(tokens.map(t => t.id))
   for (const p of pools) {
-    const { tokenA, tokenB } = p
+    const tokenA = { contract: p.tokenA.contract, decimals: p.tokenA.decimals, symbol: p.tokenA.symbol, id: p.tokenA.id }
+    const tokenB = { contract: p.tokenB.contract, decimals: p.tokenB.decimals, symbol: p.tokenB.symbol, id: p.tokenB.id }
     if (!tokenIds.has(tokenA.id)) {
       tokens.push(tokenA)
       tokenIds.add(tokenA.id)
@@ -120,6 +125,25 @@ export async function makeAllTokensWithPrices(network: Network) {
       tokens.push(tokenB)
       tokenIds.add(tokenB.id)
     }
+  }
+
+  const poolBaseLiquidityUSD = (p) => {
+    if (p.tokenA.id === system_token) return p.tokenA.quantity * systemPrice
+    if (p.tokenB.id === system_token) return p.tokenB.quantity * systemPrice
+    if (USD_TOKEN && p.tokenA.id === USD_TOKEN) return p.tokenA.quantity
+    if (USD_TOKEN && p.tokenB.id === USD_TOKEN) return p.tokenB.quantity
+    return 0
+  }
+
+  const poolsByToken = new Map<string, any[]>()
+  for (const p of enough_liquidity_pools) {
+    if (!isSystemOrUsdPool(p)) continue
+
+    if (!poolsByToken.has(p.tokenA.id)) poolsByToken.set(p.tokenA.id, [])
+    poolsByToken.get(p.tokenA.id)?.push(p)
+
+    if (!poolsByToken.has(p.tokenB.id)) poolsByToken.set(p.tokenB.id, [])
+    poolsByToken.get(p.tokenB.id)?.push(p)
   }
 
   for (const t of tokens) {
@@ -136,22 +160,32 @@ export async function makeAllTokensWithPrices(network: Network) {
     }
 
     // Get pool with best TVL
-    const pool = enough_liquidity_pools.find(p => (
-      (p.tokenA.id === t.id && (p.tokenB.id === system_token || (USD_TOKEN && p.tokenB.id === USD_TOKEN))) ||
-      (p.tokenB.id === t.id && (p.tokenA.id === system_token || (USD_TOKEN && p.tokenA.id === USD_TOKEN)))
-    ))
+    const candidates = poolsByToken.get(t.id) || []
+    let pool = null
+    let bestLiquidity = 0
+    for (const candidate of candidates) {
+      const liquidityUSD = poolBaseLiquidityUSD(candidate)
+      if (liquidityUSD > bestLiquidity) {
+        bestLiquidity = liquidityUSD
+        pool = candidate
+      }
+    }
 
     t.usd_price = 0.0
     t.system_price = 0.0
 
     if (pool) {
+      const rawPriceA = Number(pool.priceA)
+      const rawPriceB = Number(pool.priceB)
+      const priceA = Number.isFinite(rawPriceA) ? rawPriceA : 0
+      const priceB = Number.isFinite(rawPriceB) ? rawPriceB : 0
       const isUsdtPool = (pool.tokenA.id === USD_TOKEN || pool.tokenB.id === USD_TOKEN)
 
       if (isUsdtPool) {
-        t.usd_price = parseFloat((pool.tokenA.id == USD_TOKEN ? pool.tokenBPrice : pool.tokenAPrice).toSignificant(6))
+        t.usd_price = pool.tokenA.id == USD_TOKEN ? priceB : priceA
         t.system_price = (1 / systemPrice) * t.usd_price
       } else {
-        t.system_price = parseFloat((pool.tokenA.id == system_token ? pool.tokenBPrice : pool.tokenAPrice).toSignificant(6))
+        t.system_price = pool.tokenA.id == system_token ? priceB : priceA
         t.usd_price = t.system_price * systemPrice
       }
 
