@@ -800,7 +800,7 @@
       "full": "MASTERX - Master Asset Stability Token Exchange"
     },
     "website": {
-      "link": "https://taplink.ee/cilokmaster",
+      "link": "https://taplink.cc/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["Stable", "Reserve", "Treasury", "Staking", "Ecosystem"],
@@ -809,8 +809,7 @@
       "https://t.me/cilokmaster",
       "https://discord.gg/5ZApzNVZkJ"
     ],
-    "description": "MASTERX is the Master Asset Stability Token Exchange, the primary stability token forming the foundation of the CILOK MASTER economy. MASTERX acts as a reserve asset, value support, and liquidity hub via the WAX–MASTERX pool. Soft-pegged near $1, backed by treasury support and ecosystem demand."
-  },
+    "description": "MASTERX is the Master Asset Stability Token Exchange, designed as the foundational reserve and long-term stability anchor of the CILOK MASTER economy. MASTERX functions as a reserve asset, internal value reference, and liquidity hub through the permanently locked WAX–MASTERX pool. It is designed with a long-term soft-peg target near $1, intended to emerge progressively through treasury mechanisms, controlled distribution, and growing ecosystem demand, while market price may fluctuate during early phases."
 
   "CILFUN@masterxtoken": {
     "name": {
@@ -818,7 +817,7 @@
       "full": "CILFUN - Community Integration & Leadership Functional Unity Network"
     },
     "website": {
-      "link": "https://taplink.ee/cilokmaster",
+      "link": "https://taplink.cc/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["DAO", "Governance", "Community", "Rewards"],
@@ -838,7 +837,7 @@
       "full": "CILBORN — Conversion-Integrated Limited-Burn Optimized Redistribution Network"
     },
     "website": {
-      "link": "https://taplink.ee/cilokmaster",
+      "link": "https://taplink.cc/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["Burn", "Deflationary", "Conversion", "Economy"],
@@ -856,7 +855,7 @@
       "full": " Laugh of Cilok "
     },
     "website": {
-      "link": "https://taplink.ee/cilokmaster",
+      "link": "https://taplink.cc/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["Meme", "Rewards", "Funverse"],
@@ -874,7 +873,7 @@
       "full": " Buzzing Yield "
     },
     "website": {
-      "link": "https://taplink.ee/cilokmaster",
+      "link": "https://taplink.cc/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["Meme", "Rewards", "Funverse"],
@@ -892,7 +891,7 @@
       "full": " Joking Reality"
     },
     "website": {
-      "link": "https://taplink.ee/cilokmaster",
+      "link": "https://taplink.cc/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["Meme", "Rewards", "Funverse"],
@@ -994,7 +993,7 @@
       "full": " Cilok Master"
     },
     "website": {
-      "link": "https://taplink.ee/cilokmaster",
+      "link": "https://taplink.cc/cilokmaster",
       "name": "CILOK MASTER"
     },
     "tags": ["Meme", "Mascot", "NFT"],
