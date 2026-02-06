@@ -809,8 +809,7 @@
       "https://t.me/cilokmaster",
       "https://discord.gg/5ZApzNVZkJ"
     ],
-    "description": "MASTERX is the Master Asset Stability Token Exchange, the primary stability token forming the foundation of the CILOK MASTER economy. MASTERX acts as a reserve asset, value support, and liquidity hub via the WAX–MASTERX pool. Soft-pegged near $1, backed by treasury support and ecosystem demand."
-  },
+    "description": "MASTERX is the Master Asset Stability Token Exchange, designed as the foundational reserve and long-term stability anchor of the CILOK MASTER economy. MASTERX functions as a reserve asset, internal value reference, and liquidity hub through the permanently locked WAX–MASTERX pool. It is designed with a long-term soft-peg target near $1, intended to emerge progressively through treasury mechanisms, controlled distribution, and growing ecosystem demand, while market price may fluctuate during early phases."
 
   "CILFUN@masterxtoken": {
     "name": {
