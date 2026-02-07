@@ -3,7 +3,7 @@ import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 
 import { SwapPool, Market, GlobalStats, SwapBar, Bar, Swap, Match } from '../../models'
-import { getTokens } from '../../utils'
+import { getTokens, fetchPlatformBalances } from '../../utils'
 import { getRedis } from '../redis'
 import { getScamLists } from '../apiV2Service/config'
 import { getSwapBarPriceAsString } from '../../../utils/amm'
@@ -246,13 +246,13 @@ async function loadTokenHoldersStats(chain: string, tokenIds: string[]) {
   return result
 }
 
-function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: string) {
+function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: string, tokenTvlMap?: Map<string, number>) {
   const tokenStats = new Map<string, any>()
   const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
 
   for (const token of tokens) {
     tokenStats.set(token.id, {
-      tvlUSD: 0,
+      tvlUSD: tokenTvlMap?.get(token.id) ?? 0,
       swapVolumeUSD: 0,
       spotVolumeUSD: 0,
       poolsCount: 0,
@@ -265,13 +265,11 @@ function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: st
     const tokenBId = pool?.tokenB?.id
     if (!tokenStats.has(tokenAId) && !tokenStats.has(tokenBId)) continue
 
-    const tvlUSD = safeNumber(pool.tvlUSD)
     const volumes = pickPoolVolumes(pool, window)
 
     if (tokenStats.has(tokenAId)) {
       const stats = tokenStats.get(tokenAId)
       const price = priceMap.get(tokenAId) || 0
-      stats.tvlUSD += tvlUSD / 2
       stats.swapVolumeUSD += volumes.a * price
       stats.poolsCount += 1
     }
@@ -279,7 +277,6 @@ function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: st
     if (tokenStats.has(tokenBId)) {
       const stats = tokenStats.get(tokenBId)
       const price = priceMap.get(tokenBId) || 0
-      stats.tvlUSD += tvlUSD / 2
       stats.swapVolumeUSD += volumes.b * price
       stats.poolsCount += 1
     }
@@ -687,7 +684,8 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
   const pools = await SwapPool.find({ chain: network.name }).lean()
   const markets = await Market.find({ chain: network.name }).lean()
 
-  const tokenStats = buildTokenStats(tokens, pools, markets, window.label)
+  const { tokenTvlMap } = await fetchPlatformBalances(network, tokens)
+  const tokenStats = buildTokenStats(tokens, pools, markets, window.label, tokenTvlMap)
   const tokenTxStats = await buildTokenTxStats(network.name, tokens, pools, markets, window.since)
   const tokenScores = await loadTokenScores(network.name)
 
@@ -891,7 +889,8 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
     }
   }
 
-  const tokenStats = buildTokenStats(tokens, pools, markets, window.label)
+  const { tokenTvlMap } = await fetchPlatformBalances(network, tokens)
+  const tokenStats = buildTokenStats(tokens, pools, markets, window.label, tokenTvlMap)
   const tokenTxStats = await buildTokenTxStats(network.name, tokens, pools, markets, window.since)
   const tokenScores = await loadTokenScores(network.name)
   const holdersStats = await loadTokenHoldersStats(network.name, tokens.map((t) => t.id))
@@ -1021,7 +1020,8 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
     )
   }
 
-  const tokenStats = buildTokenStats([token], pools, markets, window.label).get(token.id)
+  const { tokenTvlMap } = await fetchPlatformBalances(network, tokens)
+  const tokenStats = buildTokenStats([token], pools, markets, window.label, tokenTvlMap).get(token.id)
   const tokenScores = await loadTokenScores(network.name)
   const tokenTxStats = await buildTokenTxStats(network.name, [token], pools, markets, window.since)
   const holdersStats = await loadTokenHoldersStats(network.name, [token.id])

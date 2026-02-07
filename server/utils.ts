@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import axios from 'axios'
 import fetch from 'cross-fetch'
 import { JsonRpc } from '../assets/libs/eosjs-jsonrpc'
 import { getMultyEndRpc } from '../utils/eosjs'
@@ -116,3 +117,54 @@ export async function deleteKeysByPattern(client, pattern) {
 }
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+export function getPlatformContracts(network): string[] {
+  const contracts = [
+    network.contract,
+    network.amm?.contract,
+    network.otc?.contract,
+    network.staking?.contract,
+  ]
+  return [...new Set(contracts.filter(Boolean))]
+}
+
+async function fetchLightApiBalances(network, account: string): Promise<any[]> {
+  try {
+    const { data } = await axios.get(
+      `${network.lightapi}/api/balances/${network.name}/${account}`
+    )
+    return data.balances || []
+  } catch (e) {
+    console.error(`[${network.name}] Failed to fetch balances for ${account}:`, e.message)
+    return []
+  }
+}
+
+export async function fetchPlatformBalances(network, tokens: any[]) {
+  const contracts = getPlatformContracts(network)
+  const tokenPriceMap = new Map<string, number>(tokens.map(t => [t.id, t.usd_price || 0]))
+
+  const results = await Promise.all(
+    contracts.map(async (account) => ({
+      account,
+      balances: await fetchLightApiBalances(network, account)
+    }))
+  )
+
+  const tokenTvlMap = new Map<string, number>()
+  const contractTvlMap = new Map<string, number>()
+
+  for (const { account, balances } of results) {
+    let contractTvl = 0
+    for (const balance of balances) {
+      const tokenId = (balance.currency + '-' + balance.contract).toLowerCase()
+      const price = tokenPriceMap.get(tokenId) ?? 0
+      const tvl = parseFloat(balance.amount) * price
+      tokenTvlMap.set(tokenId, (tokenTvlMap.get(tokenId) || 0) + tvl)
+      contractTvl += tvl
+    }
+    contractTvlMap.set(account, contractTvl)
+  }
+
+  return { tokenTvlMap, contractTvlMap }
+}

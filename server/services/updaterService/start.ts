@@ -45,7 +45,7 @@ export async function updater(chain: string, services: string[]) {
   // TODO Remove after test
   try {
     console.log(`[${chain}] Updating global stats...`)
-    await updateGlobalStats(network, null, 'trace')
+    await updateGlobalStats(network)
     console.log(`[${chain}] Global stats updated`)
   } catch (e) {
     console.log(`[${chain}] GlobalStats err`, e)
