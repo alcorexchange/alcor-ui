@@ -86,6 +86,26 @@
                   @click="removeSwapBan(scope.row.value)"
                   :disabled="!user"
                 ) Unban
+
+      el-tab-pane(label="Contract Bans (OTC)" name="otc")
+        .section
+          .info-text.mb-2 Accounts banned on-chain in {{ network.otc.contract }} ({{ filteredOtcBans.length }} accounts)
+          .add-form.mb-3
+            el-input(v-model="newOtcBannedAccount" placeholder="account name" @keyup.enter.native="addOtcBannedAccount").mr-2
+            el-button(type="primary" @click="addOtcBannedAccount" :loading="addingOtcBannedAccount" :disabled="!user") Ban Account
+          .warning-text.mb-3(v-if="!user") Connect wallet with contract authority to add bans
+
+          el-input.mb-3(v-model="otcSearch" placeholder="Search accounts..." prefix-icon="el-icon-search" clearable)
+
+          el-table(:data="filteredOtcBans" border style="width: 100%" v-loading="loadingOtcBans")
+            el-table-column(prop="value" label="Banned Account")
+            el-table-column(label="Actions" width="120")
+              template(slot-scope="scope")
+                el-button.unban-btn(
+                  size="mini"
+                  @click="removeOtcBan(scope.row.value)"
+                  :disabled="!user"
+                ) Unban
 </template>
 
 <script>
@@ -101,18 +121,23 @@ export default {
       newToken: '',
       newBannedAccount: '',
       newSwapBannedAccount: '',
+      newOtcBannedAccount: '',
       addingContract: false,
       addingToken: false,
       addingBannedAccount: false,
       addingSwapBannedAccount: false,
+      addingOtcBannedAccount: false,
       loadingContractBans: false,
       loadingSwapBans: false,
+      loadingOtcBans: false,
       scamContracts: [],
       scamTokens: [],
       contractBannedAccounts: [],
       swapBannedAccounts: [],
+      otcBannedAccounts: [],
       dexSearch: '',
-      swapSearch: ''
+      swapSearch: '',
+      otcSearch: ''
     }
   },
 
@@ -125,7 +150,7 @@ export default {
     },
     activeTab() {
       const tab = this.$route.query.tab
-      return ['ui', 'dex', 'swap'].includes(tab) ? tab : 'ui'
+      return ['ui', 'dex', 'swap', 'otc'].includes(tab) ? tab : 'ui'
     },
     filteredDexBans() {
       if (!this.dexSearch) return this.contractBannedAccounts
@@ -136,12 +161,18 @@ export default {
       if (!this.swapSearch) return this.swapBannedAccounts
       const search = this.swapSearch.toLowerCase()
       return this.swapBannedAccounts.filter(acc => acc.value.toLowerCase().includes(search))
+    },
+    filteredOtcBans() {
+      if (!this.otcSearch) return this.otcBannedAccounts
+      const search = this.otcSearch.toLowerCase()
+      return this.otcBannedAccounts.filter(acc => acc.value.toLowerCase().includes(search))
     }
   },
 
   mounted() {
     this.loadContractBans()
     this.loadSwapBans()
+    this.loadOtcBans()
   },
 
   methods: {
@@ -377,6 +408,78 @@ export default {
         await this.$store.dispatch('chain/sendTransaction', actions)
         await this.loadSwapBans()
         this.$notify.success({ title: 'Account unbanned from swap contract' })
+      } catch (e) {
+        const message = e.message || 'Transaction failed'
+        this.$notify.error({ title: 'Failed to unban account', message })
+      }
+    },
+
+    async loadOtcBans() {
+      this.loadingOtcBans = true
+      try {
+        const { rows } = await this.$rpc.get_table_rows({
+          code: this.network.otc.contract,
+          scope: this.network.otc.contract,
+          table: 'banned',
+          limit: 1000,
+          json: true
+        })
+
+        this.otcBannedAccounts = rows.map(row => ({ value: row.account }))
+      } catch (e) {
+        console.error('Failed to load OTC bans:', e)
+        this.otcBannedAccounts = []
+      } finally {
+        this.loadingOtcBans = false
+      }
+    },
+
+    async addOtcBannedAccount() {
+      const account = this.newOtcBannedAccount.trim().toLowerCase()
+      if (!account) return
+      if (!this.user) {
+        this.$notify.error({ title: 'Wallet not connected' })
+        return
+      }
+
+      this.addingOtcBannedAccount = true
+      try {
+        const actions = [{
+          account: this.network.otc.contract,
+          name: 'ban',
+          authorization: [{ actor: this.user.name, permission: 'active' }],
+          data: { account }
+        }]
+
+        await this.$store.dispatch('chain/sendTransaction', actions)
+        this.newOtcBannedAccount = ''
+        await this.loadOtcBans()
+        this.$notify.success({ title: 'Account banned on OTC contract' })
+      } catch (e) {
+        const message = e.message || 'Transaction failed'
+        this.$notify.error({ title: 'Failed to ban account', message })
+      } finally {
+        this.addingOtcBannedAccount = false
+      }
+    },
+
+    async removeOtcBan(account) {
+      if (!this.user) {
+        this.$notify.error({ title: 'Wallet not connected' })
+        return
+      }
+
+      try {
+        const actions = [{
+          account: this.network.otc.contract,
+          name: 'unban',
+          authorization: [{ actor: this.user.name, permission: 'active' }],
+          data: { account }
+        }]
+
+        await this.$store.dispatch('chain/sendTransaction', actions)
+        await this.loadOtcBans()
+        this.$notify.success({ title: 'Account unbanned from OTC contract' })
       } catch (e) {
         const message = e.message || 'Transaction failed'
         this.$notify.error({ title: 'Failed to unban account', message })
