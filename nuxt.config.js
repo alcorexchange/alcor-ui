@@ -226,7 +226,7 @@ module.exports = {
    */
   build: {
     standalone: true,
-    transpile: ['@msgpack/msgpack'],
+    transpile: ['@msgpack/msgpack', '@openpanel/web', '@openpanel/sdk'],
 
     extend(config, { isDev, isClient }) {
 
