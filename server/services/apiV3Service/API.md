@@ -62,6 +62,7 @@ Token details + pools and spot pairs.
 Query:
 - `window` (default: `30d`)
 - `include=tx,depth` (optional, applies to `spotPairs`)
+- `hide_scam=true|false` (optional, filters spot pairs and spot stats)
 
 Response:
 ```
@@ -91,6 +92,7 @@ Spot pairs for token.
 Query:
 - `window` (default: `30d`)
 - `include=tx,depth` (optional)
+- `hide_scam=true|false`
 
 Response:
 ```

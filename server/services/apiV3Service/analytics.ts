@@ -1001,6 +1001,7 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const includes = parseIncludes(req.query.include)
   const includeTx = includes.has('tx')
   const includeDepth = includes.has('depth')
+  const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
   const tokenId = String(req.params.id || '').toLowerCase()
 
   const tokens = (await getTokens(network.name)) || []
@@ -1009,7 +1010,16 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   if (!token) return res.status(404).send('Token is not found')
 
   const pools = await SwapPool.find({ chain: network.name, $or: [{ 'tokenA.id': token.id }, { 'tokenB.id': token.id }] }).lean()
-  const markets = await Market.find({ chain: network.name, $or: [{ 'base_token.id': token.id }, { 'quote_token.id': token.id }] }).lean()
+  let markets = await Market.find({ chain: network.name, $or: [{ 'base_token.id': token.id }, { 'quote_token.id': token.id }] }).lean()
+  if (hideScam) {
+    const { scam_contracts, scam_tokens } = await getScamLists(network)
+    markets = markets.filter((m) =>
+      !scam_contracts.has(m.base_token.contract) &&
+      !scam_contracts.has(m.quote_token.contract) &&
+      !scam_tokens.has(m.base_token.id) &&
+      !scam_tokens.has(m.quote_token.id)
+    )
+  }
 
   const tokenStats = buildTokenStats([token], pools, markets, window.label).get(token.id)
   const tokenScores = await loadTokenScores(network.name)
@@ -1113,12 +1123,22 @@ analytics.get('/tokens/:id/spot-pairs', cacheSeconds(60, (req, res) => {
   const includes = parseIncludes(req.query.include)
   const includeTx = includes.has('tx')
   const includeDepth = includes.has('depth')
+  const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
   const tokenId = String(req.params.id || '').toLowerCase()
 
-  const markets = await Market.find({
+  let markets = await Market.find({
     chain: network.name,
     $or: [{ 'base_token.id': tokenId }, { 'quote_token.id': tokenId }],
   }).lean()
+  if (hideScam) {
+    const { scam_contracts, scam_tokens } = await getScamLists(network)
+    markets = markets.filter((m) =>
+      !scam_contracts.has(m.base_token.contract) &&
+      !scam_contracts.has(m.quote_token.contract) &&
+      !scam_tokens.has(m.base_token.id) &&
+      !scam_tokens.has(m.quote_token.id)
+    )
+  }
 
   const tokens = (await getTokens(network.name)) || []
   const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
