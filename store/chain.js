@@ -1,5 +1,6 @@
 import { Api } from 'enf-eosjs'
 import posthog from 'posthog-js'
+import { op } from '~/plugins/openpanel'
 import { getChainRpc, getMultyEndRpc } from '../utils/eosjs'
 
 
@@ -81,6 +82,18 @@ export const actions = {
       chain: rootState.network.name
     })
     posthog.capture('login', { wallet: state.lastWallet })
+
+    op.identify({
+      profileId: rootState.user.name,
+      properties: {
+        wallet: state.lastWallet,
+        chain: rootState.network.name,
+      },
+    })
+    op.track('login', {
+      wallet: state.lastWallet,
+      chain: rootState.network.name,
+    })
     dispatch('amm/afterLogin', {}, { root: true })
     dispatch('loadAccountData', {}, { root: true })
 

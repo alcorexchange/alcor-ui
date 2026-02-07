@@ -2291,6 +2291,18 @@
     mustache "^2.3.0"
     stack-trace "0.0.10"
 
+"@openpanel/sdk@1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@openpanel/sdk/-/sdk-1.0.4.tgz#d58a2e2f1955715f066988cb40761f287f1ba05c"
+  integrity sha512-F4XocyiaUwUnNRre9LNa9RyTiX/fXcttR4rfFAmMxx6FrbcaemDzMYIg+mH3Hv7lwZqBSo1t2/jObkjpbqjW0g==
+
+"@openpanel/web@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@openpanel/web/-/web-1.0.7.tgz#a3c3ec253063f092b46eded0a16e26188d87029f"
+  integrity sha512-lhZCIjUSy5XCcTyzHisehJkdr2/PPEEpMbc8cKtg/5zqxGhHLWIoOiLDjD357KGaxzHg43QVWPe5YBO+Wpto0A==
+  dependencies:
+    "@openpanel/sdk" "1.0.4"
+
 "@opentelemetry/api-logs@0.208.0", "@opentelemetry/api-logs@^0.208.0":
   version "0.208.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/api-logs/-/api-logs-0.208.0.tgz#56d3891010a1fa1cf600ba8899ed61b43ace511c"
