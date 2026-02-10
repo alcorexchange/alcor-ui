@@ -287,7 +287,7 @@ otc.get('/history', cacheSeconds(2, (req, res) => {
   const actions = data?.actions || []
 
   let items = actions
-    .map((action) => ({ time: action['@timestamp'], ...action.act?.data?.record }))
+    .map((action) => ({ time: action['@timestamp'], trx_id: action.trx_id, ...action.act?.data?.record }))
     .map((row) => {
       const buy = parseOtcAsset(row.buy)
       const sell = parseOtcAsset(row.sell)
@@ -345,7 +345,7 @@ otc.get('/history', cacheSeconds(2, (req, res) => {
 
   res.json({
     items,
-    total: data?.total?.value ?? items.length,
+    total: items.length,
     limit,
     offset,
     has_more: Boolean(data?.actions?.length === limit)
