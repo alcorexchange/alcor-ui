@@ -63,6 +63,10 @@ Dex (alcordexmain / eostokensdex / book.alcor)
 Staking (liquid.alcor / alcor-staking-contract)
 - any action with account fields -> balancesAll for involved accounts
 
+OTC (network.otc.contract, e.g. alcorotcswap)
+- transfer (notify) involving OTC contract -> balances (or balancesAll fallback) for involved user accounts
+- cancelorder -> balancesAll for maker
+
 ## Notes
 - If market/pool not found in DB, payload uses balancesAll: true
 - Old events remain for now: "match", "account:update-positions"
