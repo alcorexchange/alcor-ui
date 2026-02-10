@@ -342,6 +342,9 @@ async function main() {
             close: getSwapBarPriceAsString(close, tokenA, tokenB, true),
           }
         : null
+    if (priceB) {
+      [priceB.high, priceB.low] = [priceB.low, priceB.high]
+    }
 
     if (priceA && priceB && tokenA && tokenB) {
       await ensurePrevClose(

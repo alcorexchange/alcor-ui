@@ -1582,7 +1582,7 @@ analytics.get('/pools/:id/candles', cacheSeconds(120, (req, res) => {
   const candles = await SwapBar.find(query).sort({ time: 1 }).lean()
   const items = candles.map((c) => {
     const volume = (c as any)[volumeField]
-    return {
+    const item = {
       time: c.time,
       open: getSwapBarPriceAsString(c.open, tokenA, tokenB, reverse),
       high: getSwapBarPriceAsString(c.high, tokenA, tokenB, reverse),
@@ -1590,6 +1590,10 @@ analytics.get('/pools/:id/candles', cacheSeconds(120, (req, res) => {
       close: getSwapBarPriceAsString(c.close, tokenA, tokenB, reverse),
       volume,
     }
+    if (reverse) {
+      [item.high, item.low] = [item.low, item.high]
+    }
+    return item
   })
 
   res.json({

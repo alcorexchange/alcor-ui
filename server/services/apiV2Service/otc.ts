@@ -141,6 +141,8 @@ otc.get('/orders', cacheSeconds(2, (req, res) => {
   const search = String(req.query.search || '').trim().toLowerCase()
   const maker = String(req.query.maker || '').trim().toLowerCase()
   const token = String(req.query.token || '').trim().toLowerCase()
+  const sellToken = String(req.query.sell_token || '').trim().toLowerCase()
+  const buyToken = String(req.query.buy_token || '').trim().toLowerCase()
   const sortBy = String(req.query.sort || 'id').toLowerCase()
   const sortOrder = parseSortOrder(req.query.order)
   const hideScam = String(req.query.hide_scam ?? 'true') !== 'false'
@@ -162,6 +164,21 @@ otc.get('/orders', cacheSeconds(2, (req, res) => {
       const sell = `${order.sell.symbol}@${order.sell.contract}`.toLowerCase()
       return buy === token || sell === token
     })
+  }
+
+  if (sellToken) {
+    // Format: symbol-contract (e.g. tlm-alien.worlds) -> match against sell side
+    const [sym, contract] = sellToken.split('-')
+    items = items.filter(order =>
+      order.sell.symbol.toLowerCase() === sym && order.sell.contract.toLowerCase() === contract
+    )
+  }
+
+  if (buyToken) {
+    const [sym, contract] = buyToken.split('-')
+    items = items.filter(order =>
+      order.buy.symbol.toLowerCase() === sym && order.buy.contract.toLowerCase() === contract
+    )
   }
 
   if (search) {
