@@ -73,58 +73,31 @@ export async function updatePoolsStats(chain) {
     const weekAgo = now - WEEK
     const monthAgo = now - ONEDAY * 30
 
-    // Get all volume stats in one aggregation query
+    const dayAgoDate = new Date(dayAgo)
+    const weekAgoDate = new Date(weekAgo)
+    const monthAgoDate = new Date(monthAgo)
+    const absField = (field: string) => ({ $abs: { $ifNull: [field, 0] } })
+
+    // Single-pass aggregation for 24h/7d/30d
     const volumeStats = await Swap.aggregate([
+      { $match: { chain, time: { $gte: monthAgoDate } } },
       {
-        $match: {
-          chain,
-          time: { $gte: new Date(monthAgo) } // Get all data from the furthest date
-        }
-      },
-      {
-        $facet: {
-          day: [
-            { $match: { time: { $gte: new Date(dayAgo) } } },
-            {
-              $group: {
-                _id: '$pool',
-                volumeUSD: { $sum: { $abs: { $ifNull: ['$totalUSDVolume', 0] } } },
-                volumeA: { $sum: { $abs: { $ifNull: ['$tokenA', 0] } } },
-                volumeB: { $sum: { $abs: { $ifNull: ['$tokenB', 0] } } }
-              }
-            }
-          ],
-          week: [
-            { $match: { time: { $gte: new Date(weekAgo) } } },
-            {
-              $group: {
-                _id: '$pool',
-                volumeUSD: { $sum: { $abs: { $ifNull: ['$totalUSDVolume', 0] } } },
-                volumeA: { $sum: { $abs: { $ifNull: ['$tokenA', 0] } } },
-                volumeB: { $sum: { $abs: { $ifNull: ['$tokenB', 0] } } }
-              }
-            }
-          ],
-          month: [
-            {
-              $group: {
-                _id: '$pool',
-                volumeUSD: { $sum: { $abs: { $ifNull: ['$totalUSDVolume', 0] } } },
-                volumeA: { $sum: { $abs: { $ifNull: ['$tokenA', 0] } } },
-                volumeB: { $sum: { $abs: { $ifNull: ['$tokenB', 0] } } }
-              }
-            }
-          ]
+        $group: {
+          _id: '$pool',
+          volumeUSDMonth: { $sum: absField('$totalUSDVolume') },
+          volumeAMonth: { $sum: absField('$tokenA') },
+          volumeBMonth: { $sum: absField('$tokenB') },
+          volumeUSDWeek: { $sum: { $cond: [{ $gte: ['$time', weekAgoDate] }, absField('$totalUSDVolume'), 0] } },
+          volumeAWeek: { $sum: { $cond: [{ $gte: ['$time', weekAgoDate] }, absField('$tokenA'), 0] } },
+          volumeBWeek: { $sum: { $cond: [{ $gte: ['$time', weekAgoDate] }, absField('$tokenB'), 0] } },
+          volumeUSD24: { $sum: { $cond: [{ $gte: ['$time', dayAgoDate] }, absField('$totalUSDVolume'), 0] } },
+          volumeA24: { $sum: { $cond: [{ $gte: ['$time', dayAgoDate] }, absField('$tokenA'), 0] } },
+          volumeB24: { $sum: { $cond: [{ $gte: ['$time', dayAgoDate] }, absField('$tokenB'), 0] } },
         }
       }
     ])
 
-    // Convert arrays to maps for quick lookup
-    const stats = {
-      day: new Map(volumeStats[0].day.map(item => [item._id, item])),
-      week: new Map(volumeStats[0].week.map(item => [item._id, item])),
-      month: new Map(volumeStats[0].month.map(item => [item._id, item]))
-    }
+    const statsByPool = new Map(volumeStats.map(item => [item._id, item]))
 
     // Get all pools and update them
     const pools = await SwapPool.find({ chain })
@@ -133,19 +106,22 @@ export async function updatePoolsStats(chain) {
     const batchSize = 10
     for (let i = 0; i < pools.length; i += batchSize) {
       const batch = pools.slice(i, i + batchSize)
-      await Promise.all(batch.map(pool => updatePoolData(pool, chain, stats)))
+      await Promise.all(batch.map(pool => updatePoolData(pool, chain, statsByPool)))
     }
+
+    await backfillPoolFirstSeen(chain, pools)
   } catch (error) {
     console.error('UPDATE POOL STATS ERR', chain, error)
   }
   console.timeEnd(`${chain} pools updated`)
 }
 
-async function updatePoolData(pool, chain, stats) {
+async function updatePoolData(pool, chain, statsByPool) {
   try {
-    const dayStats = stats.day.get(pool.id) || { volumeUSD: 0, volumeA: 0, volumeB: 0 }
-    const weekStats = stats.week.get(pool.id) || { volumeUSD: 0, volumeA: 0, volumeB: 0 }
-    const monthStats = stats.month.get(pool.id) || { volumeUSD: 0, volumeA: 0, volumeB: 0 }
+    const stats = statsByPool.get(pool.id) || {}
+    const dayStats = { volumeUSD: stats.volumeUSD24 || 0, volumeA: stats.volumeA24 || 0, volumeB: stats.volumeB24 || 0 }
+    const weekStats = { volumeUSD: stats.volumeUSDWeek || 0, volumeA: stats.volumeAWeek || 0, volumeB: stats.volumeBWeek || 0 }
+    const monthStats = { volumeUSD: stats.volumeUSDMonth || 0, volumeA: stats.volumeAMonth || 0, volumeB: stats.volumeBMonth || 0 }
 
     // Get price changes separately (these still need individual queries due to sorting)
     const [change24, changeWeek] = await Promise.all([
@@ -168,5 +144,31 @@ async function updatePoolData(pool, chain, stats) {
     await pool.save()
   } catch (error) {
     console.error(`Error updating pool ${pool.id} stats:`, error)
+  }
+}
+
+async function backfillPoolFirstSeen(chain: string, pools: any[], limit = 25) {
+  const missing = pools.filter((p) => !p.firstSeenAt).slice(0, limit)
+  if (!missing.length) return
+
+  const updates = await Promise.all(missing.map(async (pool) => {
+    const firstSwap = await Swap.findOne({ chain, pool: pool.id })
+      .sort({ time: 1 })
+      .select('time')
+      .lean()
+
+    if (!firstSwap?.time) return null
+
+    return {
+      updateOne: {
+        filter: { chain, id: pool.id },
+        update: { $set: { firstSeenAt: firstSwap.time } }
+      }
+    }
+  }))
+
+  const ops = updates.filter(Boolean)
+  if (ops.length > 0) {
+    await SwapPool.bulkWrite(ops, { ordered: false })
   }
 }

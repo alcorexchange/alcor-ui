@@ -226,9 +226,9 @@ module.exports = {
    */
   build: {
     standalone: true,
+    transpile: ['@msgpack/msgpack', '@openpanel/web', '@openpanel/sdk'],
 
     extend(config, { isDev, isClient }) {
-      config.resolve.alias.jsbi = path.resolve(__dirname, 'node_modules', 'jsbi', 'dist', 'jsbi-cjs.js')
 
       config.node = {
         fs: 'empty'

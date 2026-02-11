@@ -82,6 +82,14 @@ function addPoolBalances(update: AccountUpdate, pool?: any) {
   addBalance(update, pool.tokenB?.contract, pool.tokenB?.symbol)
 }
 
+function parseSymbolFromQuantity(quantity?: string): string | null {
+  if (!quantity || typeof quantity !== 'string') return null
+  const parts = quantity.trim().split(' ')
+  if (parts.length < 2) return null
+  const symbol = parts[1]
+  return symbol || null
+}
+
 function extractAccountsFromData(data: any): string[] {
   if (!data || typeof data !== 'object') return []
   const keys = ['owner', 'from', 'to', 'account', 'recipient', 'payer', 'user', 'staker', 'beneficiary']
@@ -131,6 +139,7 @@ export function initAccountUpdates(io) {
 
       const spotContract = network.contract
       const swapContract = network.amm?.contract
+      const otcContract = network.otc?.contract
       const stakingContract = network.staking?.contract
       const updates = new Map<string, AccountUpdate>()
 
@@ -228,6 +237,45 @@ export function initAccountUpdates(io) {
           const record = data?.record || data
           markOrders(record?.bidder)
           markOrders(record?.asker)
+        }
+      }
+
+      if (otcContract && contract === otcContract) {
+        const markOtcBalance = (acc?: string, tokenContract?: string, symbol?: string) => {
+          if (!acc) return
+          const update = getUpdate(updates, acc)
+          addBalance(update, tokenContract, symbol)
+        }
+
+        if (name === 'transfer') {
+          const from = data?.from
+          const to = data?.to
+          const symbol = parseSymbolFromQuantity(data?.quantity)
+          const tokenContract = (data?.contract && data?.contract !== otcContract) ? data.contract : undefined
+
+          if (from === otcContract && to) {
+            markOtcBalance(to, tokenContract, symbol || undefined)
+          } else if (to === otcContract && from) {
+            markOtcBalance(from, tokenContract, symbol || undefined)
+          } else {
+            // Fallback for traces where only notify action payload is available
+            const accounts = extractAccountsFromData(data)
+            for (const acc of accounts) {
+              if (acc === otcContract) continue
+              const update = getUpdate(updates, acc)
+              update.balancesAll = true
+              update.balances.clear()
+            }
+          }
+        }
+
+        if (name === 'cancelorder') {
+          const maker = data?.maker
+          if (maker) {
+            const update = getUpdate(updates, maker)
+            update.balancesAll = true
+            update.balances.clear()
+          }
         }
       }
 

@@ -127,9 +127,9 @@ export async function updateTokenScores(network: Network) {
     const since = new Date(Date.now() - WEEK_MS)
 
     // Pools map
-    const pools = await SwapPool.find({ chain }).select('id tokenA tokenB').lean()
-    const poolTokens = new Map<number, { tokenA: string, tokenB: string }>(
-      pools.map(p => [p.id, { tokenA: p.tokenA.id, tokenB: p.tokenB.id }])
+    const pools = await SwapPool.find({ chain }).select('id tokenA tokenB firstSeenAt').lean()
+    const poolTokens = new Map<number, { tokenA: string, tokenB: string, firstSeenAt: Date | null }>(
+      pools.map(p => [p.id, { tokenA: p.tokenA.id, tokenB: p.tokenB.id, firstSeenAt: p.firstSeenAt || null }])
     )
 
     // Markets map
@@ -162,20 +162,14 @@ export async function updateTokenScores(network: Network) {
       }
     }
 
-    // First seen date per pool (all time)
-    const swapFirstSeenByPool = await Swap.aggregate([
-      { $match: { chain } },
-      { $group: { _id: '$pool', firstSeen: { $min: '$time' } } }
-    ])
-
-    for (const p of swapFirstSeenByPool) {
-      const tokensPair = poolTokens.get(p._id)
-      if (!tokensPair) continue
+    // First seen date per pool (cached on SwapPool)
+    for (const tokensPair of poolTokens.values()) {
+      if (!tokensPair.firstSeenAt) continue
 
       for (const tokenId of [tokensPair.tokenA, tokensPair.tokenB]) {
         if (!tokenIds.has(tokenId)) continue
         const stat = ensureStat(stats, tokenId)
-        stat.firstSeenAt = minDate(stat.firstSeenAt, p.firstSeen || null)
+        stat.firstSeenAt = minDate(stat.firstSeenAt, tokensPair.firstSeenAt)
       }
     }
 

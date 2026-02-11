@@ -20,8 +20,6 @@ import { mapGetters } from 'vuex'
 import TokenImage from '~/components/elements/TokenImage'
 import ShortToken from '~/components/elements/ShortToken'
 
-import { calculatePrice, parseOtcAsset } from '~/utils'
-
 export default {
   components: {
     TokenImage,
@@ -47,42 +45,20 @@ export default {
     async fetch() {
       this.history = []
 
-      const contract = this.$store.state.network.otc.contract
-
       try {
-        const {
-          data: { actions }
-        } = await this.$axios.get(
-          this.$store.state.network.hyperion + '/v2/history/get_actions',
-          {
-            params: {
-              account: contract,
-              limit: 50,
-              filter: `${contract}:matchrecord`
-            }
+        const { data } = await this.$axios.get('/v2/otc/history', {
+          params: {
+            limit: 50,
+            offset: 0,
+            order: 'desc',
+            sort: 'time'
           }
-        )
+        })
 
-        const history = actions
-          .map((a) => {
-            return { time: a['@timestamp'], ...a.act.data.record }
-          })
-          .map((h) => {
-            const t = new Date(h.time).toLocaleString().split(':')
-            h.time = t[0] + ':' + t[1] + ':' + t[2]
-
-            h.sell = parseOtcAsset(h.sell)
-            h.buy = parseOtcAsset(h.buy)
-
-            h.price = calculatePrice(h.sell, h.buy)
-
-            h.buy.amount /= 0.9975
-            h.sell.amount /= 0.9975
-
-            return h
-          })
-
-        this.history = history
+        this.history = (data?.items || []).map((h) => {
+          const t = new Date(h.time).toLocaleString().split(':')
+          return { ...h, time: t[0] + ':' + t[1] + ':' + t[2] }
+        })
       } catch (e) {
         console.log(e)
         this.$notify({

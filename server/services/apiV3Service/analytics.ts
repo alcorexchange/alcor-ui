@@ -3,7 +3,7 @@ import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 
 import { SwapPool, Market, GlobalStats, SwapBar, Bar, Swap, Match } from '../../models'
-import { getTokens } from '../../utils'
+import { getTokens, fetchPlatformBalances } from '../../utils'
 import { getRedis } from '../redis'
 import { getScamLists } from '../apiV2Service/config'
 import { getSwapBarPriceAsString } from '../../../utils/amm'
@@ -246,13 +246,13 @@ async function loadTokenHoldersStats(chain: string, tokenIds: string[]) {
   return result
 }
 
-function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: string) {
+function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: string, tokenTvlMap?: Map<string, number>) {
   const tokenStats = new Map<string, any>()
   const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
 
   for (const token of tokens) {
     tokenStats.set(token.id, {
-      tvlUSD: 0,
+      tvlUSD: tokenTvlMap?.get(token.id) ?? 0,
       swapVolumeUSD: 0,
       spotVolumeUSD: 0,
       poolsCount: 0,
@@ -265,13 +265,11 @@ function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: st
     const tokenBId = pool?.tokenB?.id
     if (!tokenStats.has(tokenAId) && !tokenStats.has(tokenBId)) continue
 
-    const tvlUSD = safeNumber(pool.tvlUSD)
     const volumes = pickPoolVolumes(pool, window)
 
     if (tokenStats.has(tokenAId)) {
       const stats = tokenStats.get(tokenAId)
       const price = priceMap.get(tokenAId) || 0
-      stats.tvlUSD += tvlUSD / 2
       stats.swapVolumeUSD += volumes.a * price
       stats.poolsCount += 1
     }
@@ -279,7 +277,6 @@ function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: st
     if (tokenStats.has(tokenBId)) {
       const stats = tokenStats.get(tokenBId)
       const price = priceMap.get(tokenBId) || 0
-      stats.tvlUSD += tvlUSD / 2
       stats.swapVolumeUSD += volumes.b * price
       stats.poolsCount += 1
     }
@@ -687,7 +684,8 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
   const pools = await SwapPool.find({ chain: network.name }).lean()
   const markets = await Market.find({ chain: network.name }).lean()
 
-  const tokenStats = buildTokenStats(tokens, pools, markets, window.label)
+  const { tokenTvlMap } = await fetchPlatformBalances(network, tokens)
+  const tokenStats = buildTokenStats(tokens, pools, markets, window.label, tokenTvlMap)
   const tokenTxStats = await buildTokenTxStats(network.name, tokens, pools, markets, window.since)
   const tokenScores = await loadTokenScores(network.name)
 
@@ -891,7 +889,8 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
     }
   }
 
-  const tokenStats = buildTokenStats(tokens, pools, markets, window.label)
+  const { tokenTvlMap } = await fetchPlatformBalances(network, tokens)
+  const tokenStats = buildTokenStats(tokens, pools, markets, window.label, tokenTvlMap)
   const tokenTxStats = await buildTokenTxStats(network.name, tokens, pools, markets, window.since)
   const tokenScores = await loadTokenScores(network.name)
   const holdersStats = await loadTokenHoldersStats(network.name, tokens.map((t) => t.id))
@@ -1001,6 +1000,7 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const includes = parseIncludes(req.query.include)
   const includeTx = includes.has('tx')
   const includeDepth = includes.has('depth')
+  const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
   const tokenId = String(req.params.id || '').toLowerCase()
 
   const tokens = (await getTokens(network.name)) || []
@@ -1009,9 +1009,19 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   if (!token) return res.status(404).send('Token is not found')
 
   const pools = await SwapPool.find({ chain: network.name, $or: [{ 'tokenA.id': token.id }, { 'tokenB.id': token.id }] }).lean()
-  const markets = await Market.find({ chain: network.name, $or: [{ 'base_token.id': token.id }, { 'quote_token.id': token.id }] }).lean()
+  let markets = await Market.find({ chain: network.name, $or: [{ 'base_token.id': token.id }, { 'quote_token.id': token.id }] }).lean()
+  if (hideScam) {
+    const { scam_contracts, scam_tokens } = await getScamLists(network)
+    markets = markets.filter((m) =>
+      !scam_contracts.has(m.base_token.contract) &&
+      !scam_contracts.has(m.quote_token.contract) &&
+      !scam_tokens.has(m.base_token.id) &&
+      !scam_tokens.has(m.quote_token.id)
+    )
+  }
 
-  const tokenStats = buildTokenStats([token], pools, markets, window.label).get(token.id)
+  const { tokenTvlMap } = await fetchPlatformBalances(network, tokens)
+  const tokenStats = buildTokenStats([token], pools, markets, window.label, tokenTvlMap).get(token.id)
   const tokenScores = await loadTokenScores(network.name)
   const tokenTxStats = await buildTokenTxStats(network.name, [token], pools, markets, window.since)
   const holdersStats = await loadTokenHoldersStats(network.name, [token.id])
@@ -1113,12 +1123,22 @@ analytics.get('/tokens/:id/spot-pairs', cacheSeconds(60, (req, res) => {
   const includes = parseIncludes(req.query.include)
   const includeTx = includes.has('tx')
   const includeDepth = includes.has('depth')
+  const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
   const tokenId = String(req.params.id || '').toLowerCase()
 
-  const markets = await Market.find({
+  let markets = await Market.find({
     chain: network.name,
     $or: [{ 'base_token.id': tokenId }, { 'quote_token.id': tokenId }],
   }).lean()
+  if (hideScam) {
+    const { scam_contracts, scam_tokens } = await getScamLists(network)
+    markets = markets.filter((m) =>
+      !scam_contracts.has(m.base_token.contract) &&
+      !scam_contracts.has(m.quote_token.contract) &&
+      !scam_tokens.has(m.base_token.id) &&
+      !scam_tokens.has(m.quote_token.id)
+    )
+  }
 
   const tokens = (await getTokens(network.name)) || []
   const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
@@ -1562,7 +1582,7 @@ analytics.get('/pools/:id/candles', cacheSeconds(120, (req, res) => {
   const candles = await SwapBar.find(query).sort({ time: 1 }).lean()
   const items = candles.map((c) => {
     const volume = (c as any)[volumeField]
-    return {
+    const item = {
       time: c.time,
       open: getSwapBarPriceAsString(c.open, tokenA, tokenB, reverse),
       high: getSwapBarPriceAsString(c.high, tokenA, tokenB, reverse),
@@ -1570,6 +1590,10 @@ analytics.get('/pools/:id/candles', cacheSeconds(120, (req, res) => {
       close: getSwapBarPriceAsString(c.close, tokenA, tokenB, reverse),
       volume,
     }
+    if (reverse) {
+      [item.high, item.low] = [item.low, item.high]
+    }
+    return item
   })
 
   res.json({
