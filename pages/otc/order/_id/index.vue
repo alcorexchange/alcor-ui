@@ -65,20 +65,11 @@ export default {
     PleaseLoginButton
   },
 
-  async asyncData({ store, error, params, $rpc }) {
+  async asyncData({ store, error, params, $rpc, $axios }) {
     const contract = store.state.network.otc.contract
 
-    // FIXME Server call
     try {
-      const {
-        rows: [order]
-      } = await $rpc.get_table_rows({
-        code: contract,
-        scope: contract,
-        table: 'orders',
-        lower_bound: params.id,
-        limit: 1
-      })
+      const order = await $axios.$get(`/v2/otc/orders/${params.id}`)
 
       if (order && order.id == params.id) {
         return { order, loading: false }
@@ -90,8 +81,29 @@ export default {
         })
       }
     } catch (e) {
-      captureException(e)
-      return error({ message: 'Error fetching order: ' + e, statusCode: 500 })
+      try {
+        const {
+          rows: [order]
+        } = await $rpc.get_table_rows({
+          code: contract,
+          scope: contract,
+          table: 'orders',
+          lower_bound: params.id,
+          limit: 1
+        })
+
+        if (order && order.id == params.id) {
+          return { order, loading: false }
+        } else {
+          return error({
+            message: `Order ${params.id} wa sold, canceled or not created yet`,
+            statusCode: 404
+          })
+        }
+      } catch (rpcError) {
+        captureException(rpcError)
+        return error({ message: 'Error fetching order: ' + rpcError, statusCode: 500 })
+      }
     }
   },
 

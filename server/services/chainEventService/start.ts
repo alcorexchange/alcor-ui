@@ -11,6 +11,7 @@ function getAccountsForChain(chain: string) {
   const accounts = new Set<string>()
   if (network?.contract) accounts.add(network.contract)
   if (network?.amm?.contract) accounts.add(network.amm.contract)
+  if (network?.otc?.contract) accounts.add(network.otc.contract)
   if (network?.staking?.contract) accounts.add(network.staking.contract)
   accounts.add('alcor-staking-contract')
   return accounts

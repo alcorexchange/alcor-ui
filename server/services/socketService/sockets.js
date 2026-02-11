@@ -93,6 +93,10 @@ async function emitSwapTickerV2Snapshot(socket, chain, poolId, resolution) {
     low: getSwapBarPriceAsString(lowSqrt, tokenA, tokenB, true),
     close: getSwapBarPriceAsString(closeSqrt, tokenA, tokenB, true),
   }
+  const reversedHigh = priceB.low
+  const reversedLow = priceB.high
+  priceB.high = reversedHigh
+  priceB.low = reversedLow
 
   socket.emit('swap-tick-v2', {
     v: 2,

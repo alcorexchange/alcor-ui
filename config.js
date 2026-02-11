@@ -392,7 +392,8 @@ const networks = {
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
     //hyperion: 'https://wax-history.eosdac.io',
-    hyperion: 'https://wax.eu.eosamsterdam.net',
+    //hyperion: 'https://wax.eu.eosamsterdam.net',
+    hyperion: 'https://wax.eosusa.io',
 
     //hyperion: 'https://wax.pink.gg/',
     //hyperion: 'https://api.waxsweden.org',

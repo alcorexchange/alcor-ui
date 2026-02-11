@@ -93,6 +93,7 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
 
   // Group swaps by pool for OHLC aggregation
   const poolSwaps = new Map<number, SwapBatchItem[]>()
+  const poolFirstSeen = new Map<number, Date>()
   const swapDocs: any[] = []
 
   for (const s of newSwaps) {
@@ -115,6 +116,9 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
     const tokenBUSDPrice = (tokenB?.usd_price && tokenB.usd_price < MAX_SANE_PRICE) ? tokenB.usd_price : 0
 
     const totalUSDVolume = (Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)) / 2
+    const swapTime = new Date(block_time as any)
+
+    if (Number.isNaN(swapTime.getTime())) continue
 
     const swapDoc = {
       chain,
@@ -127,7 +131,7 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
       totalUSDVolume,
       tokenA: tokenAamount,
       tokenB: tokenBamount,
-      time: block_time,
+      time: swapTime,
       block_num,
     }
 
@@ -139,6 +143,11 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
       poolSwaps.set(numPoolId, [])
     }
     poolSwaps.get(numPoolId)!.push(s)
+
+    const currentFirstSeen = poolFirstSeen.get(numPoolId)
+    if (!currentFirstSeen || swapTime < currentFirstSeen) {
+      poolFirstSeen.set(numPoolId, swapTime)
+    }
   }
 
   const t1 = Date.now()
@@ -146,6 +155,15 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
   // 1. Bulk insert all swap documents
   if (swapDocs.length > 0) {
     await Swap.insertMany(swapDocs, { ordered: true })
+    if (poolFirstSeen.size > 0) {
+      const ops = [...poolFirstSeen.entries()].map(([poolId, firstSeenAt]) => ({
+        updateOne: {
+          filter: { chain, id: poolId },
+          update: { $min: { firstSeenAt } }
+        }
+      }))
+      await SwapPool.bulkWrite(ops, { ordered: false })
+    }
   }
 
   const t2 = Date.now()
@@ -636,7 +654,11 @@ export async function updatePool(chain: string, poolId: number) {
   const priceB = price.invert().toSignificant()
 
   // TODO FIX DEPRECATED
-  const r = await SwapPool.findOneAndUpdate({ chain, id: poolId }, { ...parsedPool, priceA, priceB, tvlUSD }, { upsert: true, new: true })
+  const r = await SwapPool.findOneAndUpdate(
+    { chain, id: poolId },
+    { $set: { ...parsedPool, priceA, priceB, tvlUSD, chain } },
+    { upsert: true, new: true }
+  )
 
   const updatedPool: any = await poolInstanceFromMongoPool(r)
 

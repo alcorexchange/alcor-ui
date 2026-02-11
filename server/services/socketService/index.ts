@@ -11,7 +11,6 @@ import { Match, Bar, SwapBar, SwapPool } from '../../models'
 import { getSwapBarPriceAsString } from '../../../utils/amm.js'
 import { littleEndianToDesimalString } from '../../../utils'
 import { Price, Q128, Token } from '@alcorexchange/alcor-swap-sdk'
-import JSBI from 'jsbi'
 import { resolutions, getBarTimes } from '../updaterService/charts'
 
 import { subscribe, unsubscribe } from './sockets'
@@ -343,6 +342,9 @@ async function main() {
             close: getSwapBarPriceAsString(close, tokenA, tokenB, true),
           }
         : null
+    if (priceB) {
+      [priceB.high, priceB.low] = [priceB.low, priceB.high]
+    }
 
     if (priceA && priceB && tokenA && tokenB) {
       await ensurePrevClose(
@@ -441,8 +443,8 @@ async function main() {
     try {
       const tokenA = new Token(poolInfo.tokenA.contract, poolInfo.tokenA.decimals, poolInfo.tokenA.symbol)
       const tokenB = new Token(poolInfo.tokenB.contract, poolInfo.tokenB.decimals, poolInfo.tokenB.symbol)
-      const sqrt = JSBI.BigInt(sqrtPriceX64)
-      const ratioX128 = JSBI.multiply(sqrt, sqrt)
+      const sqrt = BigInt(sqrtPriceX64)
+      const ratioX128 = sqrt * sqrt
       const priceA = new Price(tokenA, tokenB, Q128, ratioX128)
       const priceB = priceA.invert()
       priceAString = priceA.toSignificant(12)

@@ -13,6 +13,9 @@ function formatCandle(candle, volumeField, tokenA, tokenB, reverse) {
   candle.high = getSwapBarPriceAsString(candle.high, tokenA, tokenB, reverse)
   candle.low = getSwapBarPriceAsString(candle.low, tokenA, tokenB, reverse)
   candle.close = getSwapBarPriceAsString(candle.close, tokenA, tokenB, reverse)
+  if (reverse) {
+    [candle.high, candle.low] = [candle.low, candle.high]
+  }
 
   delete candle._id
   delete candle[volumeField]
