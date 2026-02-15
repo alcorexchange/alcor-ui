@@ -123,6 +123,30 @@ function calcIncentiveApr(incentive, pool, tokensMap) {
   }
 }
 
+function calcPoolSharePct(poolLiquidityValue, posLiquidityValue, inRange) {
+  if (!inRange) return 0
+
+  const poolLiquidity = bigInt(String(poolLiquidityValue ?? 0))
+  const posLiquidity = bigInt(String(posLiquidityValue ?? 0))
+  if (poolLiquidity.leq(0) || posLiquidity.leq(0)) return 0
+
+  // Percent with 6 decimals precision: 100 * 1e6 = 1e8
+  const scaled = posLiquidity.multiply(100000000).divide(poolLiquidity)
+  return scaled.toJSNumber() / 1000000
+}
+
+function calcEstimatedFees24hUSD(pool, poolSharePct) {
+  const volume24 = Number(pool?.volumeUSD24 ?? 0)
+  const feeRate = Number(pool?.fee ?? 0) / 1000000
+  const shareRate = Number(poolSharePct ?? 0) / 100
+
+  if (!Number.isFinite(volume24) || volume24 <= 0) return 0
+  if (!Number.isFinite(feeRate) || feeRate <= 0) return 0
+  if (!Number.isFinite(shareRate) || shareRate <= 0) return 0
+
+  return Number((volume24 * feeRate * shareRate).toFixed(4))
+}
+
 async function loadUserStakes(network, positionIds) {
   if (!positionIds.length) return []
   const rpc = getChainRpc(network.name)
@@ -318,9 +342,8 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
       ? feesBParsed.amount * (tokensMap.get(tokenB.id)?.usd_price ?? 0)
       : 0
 
-    const poolLiquidity = Number(pool.liquidity ?? 0)
-    const posLiquidity = Number(pos.liquidity ?? 0)
-    const poolSharePct = poolLiquidity > 0 && posLiquidity > 0 ? (posLiquidity / poolLiquidity) * 100 : null
+    const poolSharePct = calcPoolSharePct(pool.liquidity, pos.liquidity, Boolean(pos.inRange))
+    const estimatedFees24hUSD = calcEstimatedFees24hUSD(pool, poolSharePct)
 
     return {
       id: String(pos.id),
@@ -344,7 +367,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
       percentB: Number(percentB.toFixed(2)),
       pnlUSD: Number(pos.pNl ?? 0),
       poolSharePct,
-      estimatedFees24hUSD: null,
+      estimatedFees24hUSD,
       currentPriceA: pool.priceA ?? null,
       currentPriceB: pool.priceB ?? null,
       tokenA: {
