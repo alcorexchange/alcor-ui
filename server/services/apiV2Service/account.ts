@@ -139,7 +139,13 @@ export async function getPositionStats(
 
   const stats = { depositedUSDTotal, closed, collectedFees }
 
-  let current: { feesA: string, feesB: string, totalValue: number, pNl?: number } = { feesA: '0.0000', feesB: '0.0000', totalValue: 0, pNl: 0 }
+  let current: { feesA: string, feesB: string, totalValue: number, totalFeesUSD: number, pNl?: number } = {
+    feesA: '0.0000',
+    feesB: '0.0000',
+    totalValue: 0,
+    totalFeesUSD: 0,
+    pNl: 0
+  }
 
   if (redisPosition) {
     current = await getCurrentPositionState(chain, redisPosition, tokenPrices)
