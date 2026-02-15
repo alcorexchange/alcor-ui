@@ -147,6 +147,40 @@ function calcEstimatedFees24hUSD(pool, poolSharePct) {
   return Number((volume24 * feeRate * shareRate).toFixed(4))
 }
 
+function parseTruthy(value) {
+  if (value === undefined || value === null) return false
+  const normalized = String(value).trim().toLowerCase()
+  return normalized === '1' || normalized === 'true' || normalized === 'yes'
+}
+
+function safeNumber(value) {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : 0
+}
+
+function buildPositionsSummary(items) {
+  const totals = items.reduce((acc, item) => {
+    acc.estimatedFees24hUSD += safeNumber(item?.estimatedFees24hUSD)
+    acc.totalValueUSD += safeNumber(item?.totalValueUSD)
+    acc.totalFeesUSD += safeNumber(item?.totalFeesUSD)
+    acc.pnlUSD += safeNumber(item?.pnlUSD)
+    return acc
+  }, {
+    estimatedFees24hUSD: 0,
+    totalValueUSD: 0,
+    totalFeesUSD: 0,
+    pnlUSD: 0,
+  })
+
+  return {
+    positions: items.length,
+    estimatedFees24hUSD: Number(totals.estimatedFees24hUSD.toFixed(4)),
+    totalValueUSD: Number(totals.totalValueUSD.toFixed(4)),
+    totalFeesUSD: Number(totals.totalFeesUSD.toFixed(4)),
+    pnlUSD: Number(totals.pnlUSD.toFixed(4)),
+  }
+}
+
 async function loadUserStakes(network, positionIds) {
   if (!positionIds.length) return []
   const rpc = getChainRpc(network.name)
@@ -398,10 +432,20 @@ amm.get('/account/:account/positions', async (req, res) => {
   const network = req.app.get('network')
   const account = req.params.account
   const incentivesFilter = String(req.query?.incentives || 'active').toLowerCase()
+  const summaryParam = req.query?.summary ?? req.query?.withSummary
+  const withSummary = summaryParam === undefined ? true : parseTruthy(summaryParam)
 
   try {
     const positions = await getAccountPoolPositions(network.name, account)
     const response = await buildPositionsResponse(network, positions, incentivesFilter)
+
+    if (withSummary) {
+      res.json({
+        items: response,
+        summary: buildPositionsSummary(response),
+      })
+      return
+    }
 
     res.json(response)
   } catch (err) {
