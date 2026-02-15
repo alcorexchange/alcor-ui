@@ -143,8 +143,9 @@ export async function getPositionStats(
 
   if (redisPosition) {
     current = await getCurrentPositionState(chain, redisPosition, tokenPrices)
-    const realizedWithdrawalsUSD = burnedUSD + collectedFees.inUSD
-    current.pNl = +((current.totalValue + realizedWithdrawalsUSD - mintedUSD).toFixed(4))
+    // Temporary pragmatic PnL: fees-only (claimed + currently unclaimed),
+    // without principal mark-to-market effects.
+    current.pNl = +((current.totalFeesUSD + collectedFees.inUSD).toFixed(4))
   }
 
   return { ...stats, ...current }
