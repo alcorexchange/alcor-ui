@@ -107,33 +107,34 @@ export async function getPositionStats(
     historyCache.set(idKey, history)
   }
 
-  let total = 0
-  let sub = 0
+  let mintedUSD = 0
+  let burnedUSD = 0
   let liquidity = BigInt(0)
   const collectedFees = { tokenA: 0, tokenB: 0, inUSD: 0, lastCollectTime: null }
 
   for (const h of history) {
+    const eventUSD = Number(h.totalUSDValue || 0)
+
     if (h.type === 'burn') {
       liquidity -= BigInt(h.liquidity)
-      sub += h.totalUSDValue
+      burnedUSD += eventUSD
     }
 
     if (h.type === 'mint') {
       liquidity += BigInt(h.liquidity)
-      total += h.totalUSDValue
+      mintedUSD += eventUSD
     }
 
     if (h.type === 'collect') {
       collectedFees.tokenA += h.tokenA
       collectedFees.tokenB += h.tokenB
-      collectedFees.inUSD += h.totalUSDValue
+      collectedFees.inUSD += eventUSD
       collectedFees.lastCollectTime = h.time
     }
-
-    if (['burn', 'collect'].includes(h.type)) sub += h.totalUSDValue
   }
 
-  const depositedUSDTotal = +(total - sub).toFixed(4)
+  // Net liquidity capital still invested into the position (mints - burns).
+  const depositedUSDTotal = +(mintedUSD - burnedUSD).toFixed(4)
   const closed = liquidity === BigInt(0)
 
   const stats = { depositedUSDTotal, closed, collectedFees }
@@ -142,7 +143,8 @@ export async function getPositionStats(
 
   if (redisPosition) {
     current = await getCurrentPositionState(chain, redisPosition, tokenPrices)
-    current.pNl = (current.totalValue + collectedFees.inUSD) - depositedUSDTotal
+    const realizedWithdrawalsUSD = burnedUSD + collectedFees.inUSD
+    current.pNl = +((current.totalValue + realizedWithdrawalsUSD - mintedUSD).toFixed(4))
   }
 
   return { ...stats, ...current }
