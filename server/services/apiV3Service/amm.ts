@@ -430,7 +430,13 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
     return {
       id: String(pos.id),
       owner: pos.owner,
+      pool: pool.id,
       poolId: pool.id,
+      tickLower: hasTicks ? tickLower : null,
+      tickUpper: hasTicks ? tickUpper : null,
+      liquidity: pos.liquidity != null ? String(pos.liquidity) : '0',
+      feeGrowthInsideALastX64: pos.feeGrowthInsideALastX64 != null ? String(pos.feeGrowthInsideALastX64) : null,
+      feeGrowthInsideBLastX64: pos.feeGrowthInsideBLastX64 != null ? String(pos.feeGrowthInsideBLastX64) : null,
       feePct: pool.fee / 10000,
       inRange: Boolean(pos.inRange),
       priceLower,
