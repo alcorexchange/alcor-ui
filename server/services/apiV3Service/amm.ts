@@ -15,6 +15,7 @@ import { sqrt } from '../../../utils/bigint'
 
 export const amm = Router()
 const PrecisionMultiplier = bigInt('1000000000000000000')
+const APR_PERIOD_DAYS = 7
 
 function formatAmount(value, decimals) {
   if (value === null || value === undefined) return '0'
@@ -123,6 +124,106 @@ function calcIncentiveApr(incentive, pool, tokensMap) {
   }
 }
 
+function calcPoolSharePct(poolLiquidityValue, posLiquidityValue, inRange) {
+  if (!inRange) return 0
+
+  const poolLiquidity = bigInt(String(poolLiquidityValue ?? 0))
+  const posLiquidity = bigInt(String(posLiquidityValue ?? 0))
+  if (poolLiquidity.leq(0) || posLiquidity.leq(0)) return 0
+
+  // Percent with 6 decimals precision: 100 * 1e6 = 1e8
+  const scaled = posLiquidity.multiply(100000000).divide(poolLiquidity)
+  return scaled.toJSNumber() / 1000000
+}
+
+function getPoolVolumeUSD(pool, days) {
+  if (days === 1) return Number(pool?.volumeUSD24 ?? 0)
+  if (days === 7) return Number(pool?.volumeUSDWeek ?? 0)
+  if (days === 30) return Number(pool?.volumeUSDMonth ?? 0)
+  return Number(pool?.volumeUSD24 ?? 0)
+}
+
+function getPoolLpFeeRate(pool) {
+  const feeRate = Number(pool?.fee ?? 0) / 1000000
+  if (!Number.isFinite(feeRate) || feeRate <= 0) return 0
+  return feeRate
+}
+
+function calcEstimatedFeesUSD(pool, poolSharePct, days = 1) {
+  const volume = getPoolVolumeUSD(pool, days)
+  const lpFeeRate = getPoolLpFeeRate(pool)
+  const shareRate = Number(poolSharePct ?? 0) / 100
+
+  if (!Number.isFinite(volume) || volume <= 0) return 0
+  if (!Number.isFinite(lpFeeRate) || lpFeeRate <= 0) return 0
+  if (!Number.isFinite(shareRate) || shareRate <= 0) return 0
+
+  return Number((volume * lpFeeRate * shareRate).toFixed(4))
+}
+
+function calcEstimatedFees24hUSD(pool, poolSharePct) {
+  return calcEstimatedFeesUSD(pool, poolSharePct, 1)
+}
+
+function calcEstimatedFees7dUSD(pool, poolSharePct) {
+  return calcEstimatedFeesUSD(pool, poolSharePct, APR_PERIOD_DAYS)
+}
+
+function calcAprFromFees(estimatedFeesUSD, totalValueUSD, periodDays = APR_PERIOD_DAYS) {
+  const fees = Number(estimatedFeesUSD ?? 0)
+  const tvl = Number(totalValueUSD ?? 0)
+  if (!Number.isFinite(fees) || fees <= 0) return 0
+  if (!Number.isFinite(tvl) || tvl <= 0) return 0
+
+  const apr = (fees / tvl) * (365 / periodDays) * 100
+  return Number.isFinite(apr) ? Number(apr.toFixed(2)) : 0
+}
+
+function calcPositionFarmApr(incentives) {
+  const total = incentives
+    .filter((i) => i?.staked && !i?.isFinished)
+    .reduce((sum, i) => sum + Number(i?.apr ?? 0), 0)
+
+  return Number.isFinite(total) ? Number(total.toFixed(2)) : 0
+}
+
+function parseTruthy(value) {
+  if (value === undefined || value === null) return false
+  const normalized = String(value).trim().toLowerCase()
+  return normalized === '1' || normalized === 'true' || normalized === 'yes'
+}
+
+function safeNumber(value) {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : 0
+}
+
+function buildPositionsSummary(items) {
+  const totals = items.reduce((acc, item) => {
+    acc.estimatedFees24hUSD += safeNumber(item?.estimatedFees24hUSD)
+    acc.estimatedFees7dUSD += safeNumber(item?.estimatedFees7dUSD)
+    acc.totalValueUSD += safeNumber(item?.totalValueUSD)
+    acc.totalFeesUSD += safeNumber(item?.totalFeesUSD)
+    acc.pnlUSD += safeNumber(item?.pnlUSD)
+    return acc
+  }, {
+    estimatedFees24hUSD: 0,
+    estimatedFees7dUSD: 0,
+    totalValueUSD: 0,
+    totalFeesUSD: 0,
+    pnlUSD: 0,
+  })
+
+  return {
+    positions: items.length,
+    estimatedFees24hUSD: Number(totals.estimatedFees24hUSD.toFixed(4)),
+    estimatedFees7dUSD: Number(totals.estimatedFees7dUSD.toFixed(4)),
+    totalValueUSD: Number(totals.totalValueUSD.toFixed(4)),
+    totalFeesUSD: Number(totals.totalFeesUSD.toFixed(4)),
+    pnlUSD: Number(totals.pnlUSD.toFixed(4)),
+  }
+}
+
 async function loadUserStakes(network, positionIds) {
   if (!positionIds.length) return []
   const rpc = getChainRpc(network.name)
@@ -218,7 +319,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
     const stakeRows = stakesByPos.get(Number(pos.id)) || []
     const stakedIncentiveIds = new Set(stakeRows.map((s) => s.incentiveId))
 
-    let poolIncentives = (incentivesByPool.get(pool.id) || []).map((inc) => {
+    const rawPoolIncentives = (incentivesByPool.get(pool.id) || []).map((inc) => {
       const stake = stakeRows.find((s) => s.incentiveId === inc.id)
       const apr = calcIncentiveApr(inc, pool, tokensMap)
       const staked = stakedIncentiveIds.has(inc.id)
@@ -283,6 +384,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
         hasClaimableReward,
       }
     })
+    let poolIncentives = rawPoolIncentives
 
     if (incentivesFilter === 'active') {
       poolIncentives = poolIncentives.filter((i) => !i.isFinished || i.hasClaimableReward)
@@ -318,14 +420,23 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
       ? feesBParsed.amount * (tokensMap.get(tokenB.id)?.usd_price ?? 0)
       : 0
 
-    const poolLiquidity = Number(pool.liquidity ?? 0)
-    const posLiquidity = Number(pos.liquidity ?? 0)
-    const poolSharePct = poolLiquidity > 0 && posLiquidity > 0 ? (posLiquidity / poolLiquidity) * 100 : null
+    const poolSharePct = calcPoolSharePct(pool.liquidity, pos.liquidity, Boolean(pos.inRange))
+    const estimatedFees24hUSD = calcEstimatedFees24hUSD(pool, poolSharePct)
+    const estimatedFees7dUSD = calcEstimatedFees7dUSD(pool, poolSharePct)
+    const feeApr7d = calcAprFromFees(estimatedFees7dUSD, pos.totalValue, APR_PERIOD_DAYS)
+    const farmApr = calcPositionFarmApr(rawPoolIncentives)
+    const totalApr = Number((feeApr7d + farmApr).toFixed(2))
 
     return {
       id: String(pos.id),
       owner: pos.owner,
+      pool: pool.id,
       poolId: pool.id,
+      tickLower: hasTicks ? tickLower : null,
+      tickUpper: hasTicks ? tickUpper : null,
+      liquidity: pos.liquidity != null ? String(pos.liquidity) : '0',
+      feeGrowthInsideALastX64: pos.feeGrowthInsideALastX64 != null ? String(pos.feeGrowthInsideALastX64) : null,
+      feeGrowthInsideBLastX64: pos.feeGrowthInsideBLastX64 != null ? String(pos.feeGrowthInsideBLastX64) : null,
       feePct: pool.fee / 10000,
       inRange: Boolean(pos.inRange),
       priceLower,
@@ -344,7 +455,14 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
       percentB: Number(percentB.toFixed(2)),
       pnlUSD: Number(pos.pNl ?? 0),
       poolSharePct,
-      estimatedFees24hUSD: null,
+      estimatedFees24hUSD,
+      estimatedFees7dUSD,
+      apr: {
+        periodDays: APR_PERIOD_DAYS,
+        fee: feeApr7d,
+        farm: farmApr,
+        total: totalApr,
+      },
       currentPriceA: pool.priceA ?? null,
       currentPriceB: pool.priceB ?? null,
       tokenA: {
@@ -375,10 +493,20 @@ amm.get('/account/:account/positions', async (req, res) => {
   const network = req.app.get('network')
   const account = req.params.account
   const incentivesFilter = String(req.query?.incentives || 'active').toLowerCase()
+  const summaryParam = req.query?.summary ?? req.query?.withSummary
+  const withSummary = summaryParam === undefined ? true : parseTruthy(summaryParam)
 
   try {
     const positions = await getAccountPoolPositions(network.name, account)
     const response = await buildPositionsResponse(network, positions, incentivesFilter)
+
+    if (withSummary) {
+      res.json({
+        items: response,
+        summary: buildPositionsSummary(response),
+      })
+      return
+    }
 
     res.json(response)
   } catch (err) {
