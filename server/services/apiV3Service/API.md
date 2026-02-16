@@ -104,13 +104,14 @@ AMM pool list.
 
 Query:
 - `window` (default: `30d`)
-- `sort=volume|tvl` (default: `volume`)
+- `sort=volume|tvl|apr` (default: `volume`)
 - `order=asc|desc` (default: `desc`)
 - `limit` (default: `50`, max: `500`)
 - `page` (default: `1`)
 - `search` (optional, token symbol/name/contract/id, supports `A/B` or space-separated terms)
 - `hide_scam=true|false`
 - `include=incentives` (optional)
+- `sort=apr` uses 7d annualized APR; with `include=incentives` sorts by `apr.total`, otherwise by fee APR
 
 Response:
 ```

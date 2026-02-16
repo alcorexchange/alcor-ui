@@ -680,10 +680,7 @@ function attachIncentives(poolCard: any, pool: any, incentivesByPool: Map<number
     }
   })
 
-  const farmApr = Number(mapped
-    .filter((i) => !i.isFinished)
-    .reduce((sum, i) => sum + safeNumber(i.apr), 0)
-    .toFixed(2))
+  const farmApr = calcPoolFarmApr(pool, incentivesByPool, tokensMap)
   const feeApr = safeNumber(poolCard?.apr?.fee)
   const totalApr = Number((feeApr + farmApr).toFixed(2))
 
@@ -697,6 +694,16 @@ function attachIncentives(poolCard: any, pool: any, incentivesByPool: Map<number
       total: totalApr,
     },
   }
+}
+
+function calcPoolFarmApr(pool: any, incentivesByPool: Map<number, any[]>, tokensMap: Map<string, TokenInfo>) {
+  if (!pool) return 0
+  const incentives = incentivesByPool.get(pool.id) || []
+  const total = incentives
+    .filter((i) => !i?.isFinished)
+    .reduce((sum, i) => sum + safeNumber(calcIncentiveApr(i, pool, tokensMap)), 0)
+
+  return Number.isFinite(total) ? Number(total.toFixed(2)) : 0
 }
 
 function buildMeta(network, window: string) {
@@ -1212,6 +1219,9 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
   const includeTx = includes.has('tx')
   const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
   const search = String(req.query.search || '').toLowerCase().trim()
+  const sort = String(req.query.sort || 'volume').toLowerCase()
+  const order = String(req.query.order || 'desc').toLowerCase()
+  const dir = order === 'asc' ? 1 : -1
 
   let pools = await SwapPool.find({ chain: network.name }).lean()
 
@@ -1228,6 +1238,11 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
   const needsTokens = includeIncentives || Boolean(search)
   const tokens = needsTokens ? (await getTokens(network.name)) || [] : []
   const tokensById = needsTokens ? new Map<string, any>(tokens.map((t) => [t.id, t])) : new Map()
+  const tokensMap = new Map<string, TokenInfo>(
+    tokens.map((t) => [t.id, t])
+  )
+  const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
+  const aprByPool = new Map<number, number>()
 
   if (search) {
     const terms = parseSearchTerms(search)
@@ -1239,14 +1254,22 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
     }
   }
 
-  const sort = String(req.query.sort || 'volume').toLowerCase()
-  const order = String(req.query.order || 'desc').toLowerCase()
-  const dir = order === 'asc' ? 1 : -1
+  if (sort === 'apr') {
+    for (const pool of pools) {
+      const feeApr = calcPoolFeeApr7d(pool)
+      const farmApr = includeIncentives ? calcPoolFarmApr(pool, incentivesByPool, tokensMap) : 0
+      const totalApr = Number((feeApr + farmApr).toFixed(2))
+      aprByPool.set(Number(pool.id), totalApr)
+    }
+  }
 
   pools.sort((a, b) => {
     let av = 0
     let bv = 0
-    if (sort === 'tvl') {
+    if (sort === 'apr') {
+      av = aprByPool.get(Number(a.id)) ?? 0
+      bv = aprByPool.get(Number(b.id)) ?? 0
+    } else if (sort === 'tvl') {
       av = safeNumber(a.tvlUSD)
       bv = safeNumber(b.tvlUSD)
     } else {
@@ -1260,10 +1283,6 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
   const page = Math.max(parseInt(String(req.query.page || '1')), 1)
   const start = (page - 1) * limit
 
-  const tokensMap = new Map<string, TokenInfo>(
-    tokens.map((t) => [t.id, t])
-  )
-  const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
   const pagePools = pools.slice(start, start + limit)
   const poolTxStats = includeTx ? await buildPoolTxStats(network.name, pagePools.map((p) => p.id), window.since) : new Map()
 
