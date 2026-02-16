@@ -33,6 +33,7 @@ const RESOLUTION_MS: Record<string, number> = {
 const PRICE_SCALE = 100000000
 const DEFAULT_ORDERBOOK_DEPTH = 100
 const MIN_STAKED_TVL_USD = 1
+const APR_PERIOD_DAYS = 7
 
 type TokenInfo = {
   id?: string
@@ -67,6 +68,24 @@ function normalizeCandleResolution(input: any) {
 function safeNumber(value: any, fallback = 0) {
   const n = Number(value)
   return Number.isFinite(n) ? n : fallback
+}
+
+function getPoolLpFeeRate(pool: any) {
+  const feeRate = safeNumber(pool?.fee) / 1000000
+  if (!Number.isFinite(feeRate) || feeRate <= 0) return 0
+  return feeRate
+}
+
+function calcPoolFeeApr7d(pool: any) {
+  const volume7d = safeNumber(pool?.volumeUSDWeek)
+  const tvlUSD = safeNumber(pool?.tvlUSD)
+  const lpFeeRate = getPoolLpFeeRate(pool)
+  if (!Number.isFinite(volume7d) || volume7d <= 0) return 0
+  if (!Number.isFinite(tvlUSD) || tvlUSD <= 0) return 0
+  if (!Number.isFinite(lpFeeRate) || lpFeeRate <= 0) return 0
+
+  const apr = ((volume7d * lpFeeRate) / tvlUSD) * (365 / APR_PERIOD_DAYS) * 100
+  return Number.isFinite(apr) ? Number(apr.toFixed(2)) : 0
 }
 
 function parseIncludes(input: any) {
@@ -431,6 +450,7 @@ async function buildTokenTxStats(chain: string, tokens: any[], pools: any[], mar
 
 function toPoolCard(pool: any, window: string) {
   const volumes = pickPoolVolumes(pool, window)
+  const feeApr = calcPoolFeeApr7d(pool)
   return {
     id: pool.id,
     fee: pool.fee,
@@ -446,6 +466,12 @@ function toPoolCard(pool: any, window: string) {
     },
     volume: {
       usd: volumes.usd,
+    },
+    apr: {
+      periodDays: APR_PERIOD_DAYS,
+      fee: feeApr,
+      farm: null,
+      total: feeApr,
     },
     tx: {
       swaps: null,
@@ -654,7 +680,23 @@ function attachIncentives(poolCard: any, pool: any, incentivesByPool: Map<number
     }
   })
 
-  return { ...poolCard, incentives: mapped }
+  const farmApr = Number(mapped
+    .filter((i) => !i.isFinished)
+    .reduce((sum, i) => sum + safeNumber(i.apr), 0)
+    .toFixed(2))
+  const feeApr = safeNumber(poolCard?.apr?.fee)
+  const totalApr = Number((feeApr + farmApr).toFixed(2))
+
+  return {
+    ...poolCard,
+    incentives: mapped,
+    apr: {
+      periodDays: APR_PERIOD_DAYS,
+      fee: feeApr,
+      farm: farmApr,
+      total: totalApr,
+    },
+  }
 }
 
 function buildMeta(network, window: string) {

@@ -15,6 +15,7 @@ import { sqrt } from '../../../utils/bigint'
 
 export const amm = Router()
 const PrecisionMultiplier = bigInt('1000000000000000000')
+const APR_PERIOD_DAYS = 7
 
 function formatAmount(value, decimals) {
   if (value === null || value === undefined) return '0'
@@ -135,16 +136,55 @@ function calcPoolSharePct(poolLiquidityValue, posLiquidityValue, inRange) {
   return scaled.toJSNumber() / 1000000
 }
 
-function calcEstimatedFees24hUSD(pool, poolSharePct) {
-  const volume24 = Number(pool?.volumeUSD24 ?? 0)
+function getPoolVolumeUSD(pool, days) {
+  if (days === 1) return Number(pool?.volumeUSD24 ?? 0)
+  if (days === 7) return Number(pool?.volumeUSDWeek ?? 0)
+  if (days === 30) return Number(pool?.volumeUSDMonth ?? 0)
+  return Number(pool?.volumeUSD24 ?? 0)
+}
+
+function getPoolLpFeeRate(pool) {
   const feeRate = Number(pool?.fee ?? 0) / 1000000
+  if (!Number.isFinite(feeRate) || feeRate <= 0) return 0
+  return feeRate
+}
+
+function calcEstimatedFeesUSD(pool, poolSharePct, days = 1) {
+  const volume = getPoolVolumeUSD(pool, days)
+  const lpFeeRate = getPoolLpFeeRate(pool)
   const shareRate = Number(poolSharePct ?? 0) / 100
 
-  if (!Number.isFinite(volume24) || volume24 <= 0) return 0
-  if (!Number.isFinite(feeRate) || feeRate <= 0) return 0
+  if (!Number.isFinite(volume) || volume <= 0) return 0
+  if (!Number.isFinite(lpFeeRate) || lpFeeRate <= 0) return 0
   if (!Number.isFinite(shareRate) || shareRate <= 0) return 0
 
-  return Number((volume24 * feeRate * shareRate).toFixed(4))
+  return Number((volume * lpFeeRate * shareRate).toFixed(4))
+}
+
+function calcEstimatedFees24hUSD(pool, poolSharePct) {
+  return calcEstimatedFeesUSD(pool, poolSharePct, 1)
+}
+
+function calcEstimatedFees7dUSD(pool, poolSharePct) {
+  return calcEstimatedFeesUSD(pool, poolSharePct, APR_PERIOD_DAYS)
+}
+
+function calcAprFromFees(estimatedFeesUSD, totalValueUSD, periodDays = APR_PERIOD_DAYS) {
+  const fees = Number(estimatedFeesUSD ?? 0)
+  const tvl = Number(totalValueUSD ?? 0)
+  if (!Number.isFinite(fees) || fees <= 0) return 0
+  if (!Number.isFinite(tvl) || tvl <= 0) return 0
+
+  const apr = (fees / tvl) * (365 / periodDays) * 100
+  return Number.isFinite(apr) ? Number(apr.toFixed(2)) : 0
+}
+
+function calcPositionFarmApr(incentives) {
+  const total = incentives
+    .filter((i) => i?.staked && !i?.isFinished)
+    .reduce((sum, i) => sum + Number(i?.apr ?? 0), 0)
+
+  return Number.isFinite(total) ? Number(total.toFixed(2)) : 0
 }
 
 function parseTruthy(value) {
@@ -161,12 +201,14 @@ function safeNumber(value) {
 function buildPositionsSummary(items) {
   const totals = items.reduce((acc, item) => {
     acc.estimatedFees24hUSD += safeNumber(item?.estimatedFees24hUSD)
+    acc.estimatedFees7dUSD += safeNumber(item?.estimatedFees7dUSD)
     acc.totalValueUSD += safeNumber(item?.totalValueUSD)
     acc.totalFeesUSD += safeNumber(item?.totalFeesUSD)
     acc.pnlUSD += safeNumber(item?.pnlUSD)
     return acc
   }, {
     estimatedFees24hUSD: 0,
+    estimatedFees7dUSD: 0,
     totalValueUSD: 0,
     totalFeesUSD: 0,
     pnlUSD: 0,
@@ -175,6 +217,7 @@ function buildPositionsSummary(items) {
   return {
     positions: items.length,
     estimatedFees24hUSD: Number(totals.estimatedFees24hUSD.toFixed(4)),
+    estimatedFees7dUSD: Number(totals.estimatedFees7dUSD.toFixed(4)),
     totalValueUSD: Number(totals.totalValueUSD.toFixed(4)),
     totalFeesUSD: Number(totals.totalFeesUSD.toFixed(4)),
     pnlUSD: Number(totals.pnlUSD.toFixed(4)),
@@ -276,7 +319,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
     const stakeRows = stakesByPos.get(Number(pos.id)) || []
     const stakedIncentiveIds = new Set(stakeRows.map((s) => s.incentiveId))
 
-    let poolIncentives = (incentivesByPool.get(pool.id) || []).map((inc) => {
+    const rawPoolIncentives = (incentivesByPool.get(pool.id) || []).map((inc) => {
       const stake = stakeRows.find((s) => s.incentiveId === inc.id)
       const apr = calcIncentiveApr(inc, pool, tokensMap)
       const staked = stakedIncentiveIds.has(inc.id)
@@ -341,6 +384,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
         hasClaimableReward,
       }
     })
+    let poolIncentives = rawPoolIncentives
 
     if (incentivesFilter === 'active') {
       poolIncentives = poolIncentives.filter((i) => !i.isFinished || i.hasClaimableReward)
@@ -378,6 +422,10 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
 
     const poolSharePct = calcPoolSharePct(pool.liquidity, pos.liquidity, Boolean(pos.inRange))
     const estimatedFees24hUSD = calcEstimatedFees24hUSD(pool, poolSharePct)
+    const estimatedFees7dUSD = calcEstimatedFees7dUSD(pool, poolSharePct)
+    const feeApr7d = calcAprFromFees(estimatedFees7dUSD, pos.totalValue, APR_PERIOD_DAYS)
+    const farmApr = calcPositionFarmApr(rawPoolIncentives)
+    const totalApr = Number((feeApr7d + farmApr).toFixed(2))
 
     return {
       id: String(pos.id),
@@ -402,6 +450,13 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
       pnlUSD: Number(pos.pNl ?? 0),
       poolSharePct,
       estimatedFees24hUSD,
+      estimatedFees7dUSD,
+      apr: {
+        periodDays: APR_PERIOD_DAYS,
+        fee: feeApr7d,
+        farm: farmApr,
+        total: totalApr,
+      },
       currentPriceA: pool.priceA ?? null,
       currentPriceB: pool.priceB ?? null,
       tokenA: {
