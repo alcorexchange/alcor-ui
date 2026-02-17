@@ -1,11 +1,20 @@
 import { SwapPool, Market, Match, GlobalStats, PositionHistory, Swap } from '../../models'
 import { getTokens, fetchPlatformBalances } from '../../utils'
 
+const DAY_MS = 24 * 60 * 60 * 1000
+const SPOT_FEE_SCALE = 1000
+const SWAP_FEE_SCALE = 1000000
+
+function safeNumber(value: any, fallback = 0) {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : fallback
+}
+
 export async function updateGlobalStats(network, day = null) {
   console.log('fetching global stats for', network.name)
 
-  const now = day || new Date()
-  const dayAgo = new Date(new Date().setDate(now.getDate() - 1))
+  const now = day ? new Date(day) : new Date()
+  const dayAgo = new Date(now.getTime() - DAY_MS)
   const already_exists = await GlobalStats.findOne({ chain: network.name, time: { $gt: dayAgo, $lt: now } })
 
   if (already_exists) {
@@ -22,15 +31,23 @@ export async function updateGlobalStats(network, day = null) {
   let spotFees = 0
   let swapFees = 0
   for (const market of markets) {
-    const price: number = tokenPriceMap.get(market.base_token.id) ?? 0
-    spotTradingVolume += market.volume24 * price
-    spotFees += (market.volume24 * price) * (market.fee / 1000)
+    // market.volume24 is quote volume; convert to USD by quote token price.
+    const quoteTokenId = market?.quote_token?.id
+    const quotePrice = safeNumber(tokenPriceMap.get(quoteTokenId) ?? 0)
+    const volumeQuote = safeNumber(market?.volume24)
+    const volumeUsd = volumeQuote * quotePrice
+    const feeRate = safeNumber(market?.fee) / SPOT_FEE_SCALE
+
+    spotTradingVolume += volumeUsd
+    spotFees += volumeUsd * feeRate
   }
 
   let swapTradingVolume = 0
   for (const pool of pools) {
-    swapTradingVolume += pool.volumeUSD24
-    swapFees += pool.volumeUSD24 * (pool.fee / 10000 / 100)
+    const volumeUsd = safeNumber(pool?.volumeUSD24)
+    const feeRate = safeNumber(pool?.fee) / SWAP_FEE_SCALE
+    swapTradingVolume += volumeUsd
+    swapFees += volumeUsd * feeRate
   }
 
   const { contractTvlMap } = await fetchPlatformBalances(network, tokens)

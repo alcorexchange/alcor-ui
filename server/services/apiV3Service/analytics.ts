@@ -851,12 +851,14 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
 
   const chart = await GlobalStats.aggregate([
     { $match },
+    { $sort: { time: 1 } },
     { $group },
     { $sort: { _id: 1 } },
   ])
 
   const [stats] = await GlobalStats.aggregate([
     { $match },
+    { $sort: { time: 1 } },
     {
       $group: {
         _id: '$chain',
@@ -1589,6 +1591,7 @@ analytics.get('/global/charts', cacheSeconds(120, (req, res) => {
 
   const rows = await GlobalStats.aggregate([
     { $match },
+    { $sort: { time: 1 } },
     { $group },
     { $sort: { _id: 1 } },
   ])
