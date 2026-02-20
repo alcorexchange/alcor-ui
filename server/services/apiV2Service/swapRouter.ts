@@ -243,7 +243,17 @@ swapRouter.get('/stats', async (req, res) => {
 
 swapRouter.get('/getRoute', async (req, res) => {
   const network = req.app.get('network')
-  let { v2, trade_type, input, output, amount, slippage, receiver = '<receiver>', maxHops } = <any>req.query
+  let {
+    v2,
+    trade_type,
+    input,
+    output,
+    amount,
+    slippage,
+    receiver = '<receiver>',
+    maxHops,
+    includePoolDetails
+  } = <any>req.query
 
   if (!trade_type || !input || !output) {
     return res.status(403).send('Invalid request')
@@ -256,11 +266,12 @@ swapRouter.get('/getRoute', async (req, res) => {
   slippage = slippage ? new Percent(parseFloat(slippage) * 100, 10000) : new Percent(30, 10000)
 
   maxHops = Math.min(3, !isNaN(parseInt(maxHops)) ? parseInt(maxHops) : TRADE_LIMITS.maxHops)
+  includePoolDetails = includePoolDetails === true || includePoolDetails === 'true'
 
   const exactIn = trade_type === 'EXACT_INPUT'
 
   // Создаем ключ для кеша
-  const tradeCacheKey = `${network.name}-${input}-${output}-${amount}-${trade_type}-${maxHops}-${slippage.toSignificant()}-${v2}`
+  const tradeCacheKey = `${network.name}-${input}-${output}-${amount}-${trade_type}-${maxHops}-${slippage.toSignificant()}-${v2}-${includePoolDetails}`
 
   // Проверяем кеш
   const cached = TRADE_CACHE.get(tradeCacheKey)
@@ -382,7 +393,7 @@ swapRouter.get('/getRoute', async (req, res) => {
     return res.status(403).send('No route found')
   }
 
-  const parsedTrade = parseTrade(trade, slippage, receiver)
+  const parsedTrade = parseTrade(trade, slippage, receiver, includePoolDetails)
 
   // Сохраняем результат в кеш
   TRADE_CACHE.set(tradeCacheKey, {

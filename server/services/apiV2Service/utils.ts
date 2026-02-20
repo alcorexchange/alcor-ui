@@ -79,7 +79,31 @@ export async function bestTradeWithSplitMultiThreaded(
   return Trade.createUncheckedTradeWithMultipleRoutes({ routes, tradeType })
 }
 
-export function parseTrade(trade, slippage, receiver) {
+function getPoolDetailsMap(trade) {
+  const pools = {}
+
+  for (const swap of trade.swaps) {
+    for (const pool of swap.route.pools) {
+      if (pools[pool.id]) continue
+
+      pools[pool.id] = {
+        fee: Number(pool.fee),
+        tokenA: {
+          id: pool.tokenA.id,
+          symbol: pool.tokenA.symbol
+        },
+        tokenB: {
+          id: pool.tokenB.id,
+          symbol: pool.tokenB.symbol
+        }
+      }
+    }
+  }
+
+  return pools
+}
+
+export function parseTrade(trade, slippage, receiver, includePoolDetails = false) {
   // Parse Trade into api format object
   const exactIn = trade.tradeType === TradeType.EXACT_INPUT
 
@@ -101,7 +125,7 @@ export function parseTrade(trade, slippage, receiver) {
     return { input, route, output, percent, memo, maxSent: maxSent.toFixed(), minReceived: minReceived.toFixed() }
   })
 
-  const result = {
+  const result: any = {
     route: null,
     memo: null,
     swaps,
@@ -117,9 +141,13 @@ export function parseTrade(trade, slippage, receiver) {
     }
   }
 
+  if (includePoolDetails) {
+    result.pools = getPoolDetailsMap(trade)
+  }
+
   // FIXME DEPRECATED Hotfix for legacy v1
-  result!.route = trade.swaps[0].route.pools.map((p) => p.id)
-  result!.memo = `${tradeType}#${result.route.join(',')}#${receiver}#${minReceived.toExtendedAsset()}#0`
+  result.route = trade.swaps[0].route.pools.map((p) => p.id)
+  result.memo = `${tradeType}#${result.route.join(',')}#${receiver}#${minReceived.toExtendedAsset()}#0`
 
   return result
 }
