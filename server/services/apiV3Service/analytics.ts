@@ -1461,7 +1461,6 @@ analytics.get('/pools/:id', cacheSeconds(60, (req, res) => {
   const includes = parseIncludes(req.query.include)
   const includeIncentives = includes.has('incentives')
   const includeFarmCards = includes.has('farm_cards') || includes.has('farms')
-  const includeTx = includes.has('tx')
   const incentivesFilter = String(req.query.incentives || 'active').toLowerCase()
   const id = parseInt(String(req.params.id || ''), 10)
 
@@ -1494,10 +1493,8 @@ analytics.get('/pools/:id', cacheSeconds(60, (req, res) => {
     }
     card = { ...card, farms: incs.map((i) => toFarmCard(i, pool, tokensMap, window.label)).filter(Boolean) }
   }
-  if (includeTx) {
-    const poolTxStats = await buildPoolTxStats(network.name, [pool.id], window.since)
-    card = attachPoolTx(card, poolTxStats.get(pool.id) ?? 0)
-  }
+  const poolTxStats = await buildPoolTxStats(network.name, [pool.id], window.since)
+  card = attachPoolTx(card, poolTxStats.get(pool.id) ?? 0)
 
   res.json({
     meta: buildMeta(network, window.label),

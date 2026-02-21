@@ -143,6 +143,8 @@ When `include=farm_cards`, response adds:
 { "pool": { "farms": [FarmCard] } }
 ```
 
+Response always includes swaps count for selected `window` in `pool.tx.swaps`.
+
 ### GET `/analytics/farms`
 Farms (incentives) list with analytics.
 
