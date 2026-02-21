@@ -4,6 +4,16 @@ import { Market, Match, SwapPool } from '../../models'
 import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
 
+const MAX_SANE_PRICE = 100000
+const DEFAULT_MIN_POOL_BASE_LIQUIDITY_USD = 100
+const DEFAULT_MARKET_PRICE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
+const DEFAULT_MIN_MARKET_DEAL_NOTIONAL_USD = 10
+
+function positiveNumber(value: any, fallback: number) {
+  const n = Number(value)
+  return Number.isFinite(n) && n > 0 ? n : fallback
+}
+
 export async function updateCMSucid() {
   try {
     const { data: { data } } = await axios.get(
@@ -77,8 +87,14 @@ export async function makeAllTokensWithPrices(network: Network) {
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
   const systemPrice = parseFloat(await getRedis().get(`${network.name}_price`)) || 0
 
-  const minimumUSDAmount = 20 // $20 minimum liquidity to avoid absurd prices
-  const minimumSystemAmount = (1 / systemPrice) * minimumUSDAmount
+  // Price from pool is accepted only when reference side (system/USD) has enough liquidity.
+  const minimumUSDAmount = positiveNumber(process.env.MIN_POOL_BASE_LIQUIDITY_USD, DEFAULT_MIN_POOL_BASE_LIQUIDITY_USD)
+  const minimumSystemAmount = systemPrice > 0 ? (1 / systemPrice) * minimumUSDAmount : Number.POSITIVE_INFINITY
+  const marketPriceMaxAgeMs = positiveNumber(process.env.MARKET_PRICE_MAX_AGE_MS, DEFAULT_MARKET_PRICE_MAX_AGE_MS)
+  const minimumMarketDealNotionalUsd = positiveNumber(
+    process.env.MIN_MARKET_DEAL_NOTIONAL_USD,
+    DEFAULT_MIN_MARKET_DEAL_NOTIONAL_USD
+  )
 
   const isSystemOrUsdPool = (p) =>
     p.tokenA.id === system_token ||
@@ -190,7 +206,6 @@ export async function makeAllTokensWithPrices(network: Network) {
       }
 
       // Cap unrealistic prices (likely from low liquidity pools)
-      const MAX_SANE_PRICE = 100000
       if (t.usd_price > MAX_SANE_PRICE) {
         t.usd_price = 0
         t.system_price = 0
@@ -236,9 +251,29 @@ export async function makeAllTokensWithPrices(network: Network) {
       const last_deal = await Match.findOne({ chain: network.name, market: market.id }, {}, { sort: { time: -1 } })
 
       if (last_deal) {
-        t.system_price = last_deal.unit_price
-        t.usd_price = t.system_price * systemPrice
+        const unitPrice = Number(last_deal.unit_price)
+        const dealTime = new Date(last_deal.time).getTime()
+        const ageMs = Date.now() - dealTime
+        const systemAmount = Number(last_deal.ask || 0)
+        const dealNotionalUsd = systemAmount * systemPrice
+
+        if (
+          Number.isFinite(unitPrice) &&
+          Number.isFinite(dealTime) &&
+          ageMs >= 0 &&
+          ageMs <= marketPriceMaxAgeMs &&
+          Number.isFinite(dealNotionalUsd) &&
+          dealNotionalUsd >= minimumMarketDealNotionalUsd
+        ) {
+          t.system_price = unitPrice
+          t.usd_price = t.system_price * systemPrice
+        }
       }
+    }
+
+    if (t.usd_price > MAX_SANE_PRICE) {
+      t.usd_price = 0
+      t.system_price = 0
     }
 
     tokens.push(t)
