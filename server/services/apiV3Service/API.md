@@ -22,13 +22,19 @@ Response:
 {
   "meta": { "chain", "ts", "window", "baseToken", "usdToken" },
   "stats": {
-    "tvl", "swapVolume", "spotVolume", "swapFees", "spotFees",
+    "tvl", "volume", "fees",
+    "swapVolume", "spotVolume", "swapFees", "spotFees",
     "swapTx", "spotTx", "dauAvg", "poolsTotal", "spotPairsTotal"
   },
   "charts": {
     "tvl": [{ "t", "v" }],
+    "volume": [{ "t", "v" }],
+    "fees": [{ "t", "v" }],
     "swapVolume": [{ "t", "v" }],
-    "spotVolume": [{ "t", "v" }]
+    "spotVolume": [{ "t", "v" }],
+    "swapFees": [{ "t", "v" }],
+    "spotFees": [{ "t", "v" }],
+    "items": [{ "t", "tvl", "volume", "fees", "swapVolume", "spotVolume", "swapFees", "spotFees" }]
   },
   "topPools": [PoolCard],
   "topTokens": [TokenCard],
@@ -198,7 +204,19 @@ Query:
 
 Response:
 ```
-{ "meta": { ... }, "items": [ { "t", "tvl", "swapVolume", "spotVolume", "swapFees", "spotFees" } ] }
+{
+  "meta": { ... },
+  "charts": {
+    "tvl": [{ "t", "v" }],
+    "volume": [{ "t", "v" }],
+    "fees": [{ "t", "v" }],
+    "swapVolume": [{ "t", "v" }],
+    "spotVolume": [{ "t", "v" }],
+    "swapFees": [{ "t", "v" }],
+    "spotFees": [{ "t", "v" }]
+  },
+  "items": [ { "t", "tvl", "volume", "fees", "swapVolume", "spotVolume", "swapFees", "spotFees" } ]
+}
 ```
 
 ### GET `/analytics/pools/:id/candles`

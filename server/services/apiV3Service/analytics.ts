@@ -847,6 +847,8 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
     totalValueLocked: { $last: '$totalValueLocked' },
     swapTradingVolume: { $sum: '$swapTradingVolume' },
     spotTradingVolume: { $sum: '$spotTradingVolume' },
+    swapFees: { $sum: '$swapFees' },
+    spotFees: { $sum: '$spotFees' },
   }
 
   const chart = await GlobalStats.aggregate([
@@ -876,10 +878,32 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
     },
   ])
 
+  const chartPoints = chart.map((i) => {
+    const swapVolume = safeNumber(i.swapTradingVolume)
+    const spotVolume = safeNumber(i.spotTradingVolume)
+    const swapFees = safeNumber(i.swapFees)
+    const spotFees = safeNumber(i.spotFees)
+    const volume = swapVolume + spotVolume
+    const fees = swapFees + spotFees
+
+    return {
+      t: i._id,
+      tvl: safeNumber(i.totalValueLocked),
+      volume,
+      fees,
+      swapVolume,
+      spotVolume,
+      swapFees,
+      spotFees,
+    }
+  })
+
   res.json({
     meta: buildMeta(network, window.label),
     stats: {
       tvl: safeNumber(stats?.totalValueLocked),
+      volume: safeNumber(stats?.swapTradingVolume) + safeNumber(stats?.spotTradingVolume),
+      fees: safeNumber(stats?.swapFees) + safeNumber(stats?.spotFees),
       swapVolume: safeNumber(stats?.swapTradingVolume),
       spotVolume: safeNumber(stats?.spotTradingVolume),
       swapFees: safeNumber(stats?.swapFees),
@@ -891,9 +915,14 @@ analytics.get('/overview', cacheSeconds(60, (req, res) => {
       spotPairsTotal: safeNumber(stats?.totalSpotPairs),
     },
     charts: {
-      tvl: chart.map((i) => ({ t: i._id, v: safeNumber(i.totalValueLocked) })),
-      swapVolume: chart.map((i) => ({ t: i._id, v: safeNumber(i.swapTradingVolume) })),
-      spotVolume: chart.map((i) => ({ t: i._id, v: safeNumber(i.spotTradingVolume) })),
+      tvl: chartPoints.map((i) => ({ t: i.t, v: i.tvl })),
+      volume: chartPoints.map((i) => ({ t: i.t, v: i.volume })),
+      fees: chartPoints.map((i) => ({ t: i.t, v: i.fees })),
+      swapVolume: chartPoints.map((i) => ({ t: i.t, v: i.swapVolume })),
+      spotVolume: chartPoints.map((i) => ({ t: i.t, v: i.spotVolume })),
+      swapFees: chartPoints.map((i) => ({ t: i.t, v: i.swapFees })),
+      spotFees: chartPoints.map((i) => ({ t: i.t, v: i.spotFees })),
+      items: chartPoints,
     },
     topPools,
     topTokens,
@@ -1596,16 +1625,39 @@ analytics.get('/global/charts', cacheSeconds(120, (req, res) => {
     { $sort: { _id: 1 } },
   ])
 
+  const items = rows.map((i) => {
+    const tvl = safeNumber(i.totalValueLocked)
+    const swapVolume = safeNumber(i.swapTradingVolume)
+    const spotVolume = safeNumber(i.spotTradingVolume)
+    const swapFees = safeNumber(i.swapFees)
+    const spotFees = safeNumber(i.spotFees)
+    const volume = swapVolume + spotVolume
+    const fees = swapFees + spotFees
+
+    return {
+      t: i._id,
+      tvl,
+      volume,
+      fees,
+      swapVolume,
+      spotVolume,
+      swapFees,
+      spotFees,
+    }
+  })
+
   res.json({
     meta: buildMeta(network, window.label),
-    items: rows.map((i) => ({
-      t: i._id,
-      tvl: safeNumber(i.totalValueLocked),
-      swapVolume: safeNumber(i.swapTradingVolume),
-      spotVolume: safeNumber(i.spotTradingVolume),
-      swapFees: safeNumber(i.swapFees),
-      spotFees: safeNumber(i.spotFees),
-    })),
+    charts: {
+      tvl: items.map((i) => ({ t: i.t, v: i.tvl })),
+      volume: items.map((i) => ({ t: i.t, v: i.volume })),
+      fees: items.map((i) => ({ t: i.t, v: i.fees })),
+      swapVolume: items.map((i) => ({ t: i.t, v: i.swapVolume })),
+      spotVolume: items.map((i) => ({ t: i.t, v: i.spotVolume })),
+      swapFees: items.map((i) => ({ t: i.t, v: i.swapFees })),
+      spotFees: items.map((i) => ({ t: i.t, v: i.spotFees })),
+    },
+    items,
   })
 })
 
