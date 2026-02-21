@@ -219,6 +219,30 @@ Response:
 }
 ```
 
+### GET `/analytics/pools/:id/charts`
+Pool analytics chart points (`tvl/volume/fees`).
+
+Query:
+- `window` (default: `30d`)
+- `resolution=1h|4h|1d|1w` (default: `1d`)
+- `from` (optional ms timestamp, enables custom range)
+- `to` (optional ms timestamp, enables custom range)
+
+Response:
+```
+{
+  "meta": { ... },
+  "poolId": 123,
+  "feeRate": 0.003,
+  "charts": {
+    "tvl": [{ "t", "v" }],
+    "volume": [{ "t", "v" }],
+    "fees": [{ "t", "v" }]
+  },
+  "items": [ { "t", "tvl", "volume", "fees" } ]
+}
+```
+
 ### GET `/analytics/pools/:id/candles`
 Swap (AMM) candles.
 

@@ -2,7 +2,7 @@ import { Asset } from '@wharfkit/antelope'
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 
-import { SwapPool, Market, GlobalStats, SwapBar, Bar, Swap, Match } from '../../models'
+import { SwapPool, Market, GlobalStats, SwapBar, Bar, Swap, Match, SwapChartPoint } from '../../models'
 import { getTokens, fetchPlatformBalances } from '../../utils'
 import { getRedis } from '../redis'
 import { getScamLists } from '../apiV2Service/config'
@@ -74,6 +74,11 @@ function getPoolLpFeeRate(pool: any) {
   const feeRate = safeNumber(pool?.fee) / 1000000
   if (!Number.isFinite(feeRate) || feeRate <= 0) return 0
   return feeRate
+}
+
+function normalizeSwapChartVolumeUSD(value: any) {
+  // SwapChartPoint stores both legs in USD (A+B), while API stats use averaged USD ((A+B)/2).
+  return safeNumber(value) / 2
 }
 
 function calcPoolFeeApr7d(pool: any) {
@@ -1656,6 +1661,93 @@ analytics.get('/global/charts', cacheSeconds(120, (req, res) => {
       spotVolume: items.map((i) => ({ t: i.t, v: i.spotVolume })),
       swapFees: items.map((i) => ({ t: i.t, v: i.swapFees })),
       spotFees: items.map((i) => ({ t: i.t, v: i.spotFees })),
+    },
+    items,
+  })
+})
+
+analytics.get('/pools/:id/charts', cacheSeconds(120, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+  const id = parseInt(String(req.params.id || ''), 10)
+  if (!Number.isFinite(id)) return res.status(400).send('Invalid pool id')
+
+  const resolution = getResolution(req.query.resolution)
+  const window = getWindow(req.query.window)
+
+  const fromInput = req.query.from
+  const toInput = req.query.to
+  const hasCustomRange = fromInput !== undefined || toInput !== undefined
+
+  const fromMs = fromInput !== undefined ? Number(fromInput) : null
+  const toMs = toInput !== undefined ? Number(toInput) : null
+
+  if (fromInput !== undefined && !Number.isFinite(fromMs)) return res.status(400).send('Invalid from')
+  if (toInput !== undefined && !Number.isFinite(toMs)) return res.status(400).send('Invalid to')
+
+  const from = Number.isFinite(fromMs) ? new Date(fromMs as number) : null
+  const to = Number.isFinite(toMs) ? new Date(toMs as number) : null
+  if (from && to && from > to) return res.status(400).send('Invalid time range')
+
+  const pool = await SwapPool.findOne({ chain: network.name, id }).lean()
+  if (!pool) return res.status(404).send('Pool is not found')
+
+  const $match: any = {
+    chain: network.name,
+    pool: id,
+  }
+
+  const since = hasCustomRange ? from : window.since
+  if (since || to) {
+    $match.time = {}
+    if (since) $match.time.$gte = since
+    if (to) $match.time.$lte = to
+  }
+
+  const rows = await SwapChartPoint.aggregate([
+    { $match },
+    { $sort: { time: 1 } },
+    {
+      $group: {
+        _id: {
+          $toDate: {
+            $subtract: [
+              { $toLong: '$time' },
+              { $mod: [{ $toLong: '$time' }, resolution] },
+            ],
+          },
+        },
+        usdReserveA: { $last: '$usdReserveA' },
+        usdReserveB: { $last: '$usdReserveB' },
+        volumeUSD: { $sum: '$volumeUSD' },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ])
+
+  const feeRate = getPoolLpFeeRate(pool)
+  const items = rows.map((row) => {
+    const tvl = safeNumber(row.usdReserveA) + safeNumber(row.usdReserveB)
+    const volume = normalizeSwapChartVolumeUSD(row.volumeUSD)
+    const fees = volume * feeRate
+
+    return {
+      t: row._id,
+      tvl: Number(tvl.toFixed(8)),
+      volume: Number(volume.toFixed(8)),
+      fees: Number(fees.toFixed(8)),
+    }
+  })
+
+  res.json({
+    meta: buildMeta(network, hasCustomRange ? 'custom' : window.label),
+    poolId: id,
+    feeRate,
+    charts: {
+      tvl: items.map((i) => ({ t: i.t, v: i.tvl })),
+      volume: items.map((i) => ({ t: i.t, v: i.volume })),
+      fees: items.map((i) => ({ t: i.t, v: i.fees })),
     },
     items,
   })
