@@ -9,13 +9,16 @@ import { parseAssetPlain } from '../../../utils'
 import { getIncentives } from '../apiV2Service/farms'
 import { getAccountPoolPositions, getPositionStats } from '../apiV2Service/account'
 import { getRedisPosition } from '../swapV2Service/utils'
-import { SwapPool } from '../../models'
+import { PositionHistory, SwapPool } from '../../models'
 import { redis } from '../../utils'
 import { sqrt } from '../../../utils/bigint'
 
 export const amm = Router()
 const PrecisionMultiplier = bigInt('1000000000000000000')
 const APR_PERIOD_DAYS = 7
+const HISTORY_DEFAULT_LIMIT = 100
+const HISTORY_MAX_LIMIT = 500
+const HISTORY_TYPES = new Set(['mint', 'burn', 'collect'])
 
 function formatAmount(value, decimals) {
   if (value === null || value === undefined) return '0'
@@ -191,6 +194,94 @@ function parseTruthy(value) {
   if (value === undefined || value === null) return false
   const normalized = String(value).trim().toLowerCase()
   return normalized === '1' || normalized === 'true' || normalized === 'yes'
+}
+
+function parseLimit(value, fallback = HISTORY_DEFAULT_LIMIT) {
+  const n = Number(value)
+  if (!Number.isFinite(n) || n <= 0) return fallback
+  return Math.min(Math.floor(n), HISTORY_MAX_LIMIT)
+}
+
+function parseOptionalInt(value) {
+  if (value === undefined || value === null || value === '') return null
+  const n = Number(value)
+  if (!Number.isFinite(n)) return null
+  return Math.floor(n)
+}
+
+function parseHistoryTypes(value): string[] {
+  if (value === undefined || value === null || value === '') {
+    return ['mint', 'burn', 'collect']
+  }
+
+  const values = String(value)
+    .split(',')
+    .map((v) => v.trim().toLowerCase())
+    .filter(Boolean)
+
+  if (!values.length || values.includes('all')) {
+    return ['mint', 'burn', 'collect']
+  }
+
+  const uniq = [...new Set(values)]
+  const allowed = uniq.filter((t) => HISTORY_TYPES.has(t))
+
+  return allowed.length ? allowed : ['mint', 'burn', 'collect']
+}
+
+function parseHistoryCursor(timeValue, idValue) {
+  const timeNum = Number(timeValue)
+  if (!Number.isFinite(timeNum)) return null
+
+  const time = new Date(timeNum)
+  if (Number.isNaN(time.getTime())) return null
+
+  const id =
+    typeof idValue === 'string' && /^[a-f0-9]{24}$/i.test(idValue.trim())
+      ? idValue.trim()
+      : null
+
+  return { time, id }
+}
+
+function mapHistoryItem(item) {
+  return {
+    positionId: Number(item.id),
+    poolId: Number(item.pool),
+    owner: item.owner,
+    type: item.type,
+    tokenA: Number(item.tokenA || 0),
+    tokenB: Number(item.tokenB || 0),
+    tokenAUSDPrice: Number(item.tokenAUSDPrice || 0),
+    tokenBUSDPrice: Number(item.tokenBUSDPrice || 0),
+    totalUSDValue: Number(item.totalUSDValue || 0),
+    liquidity: item.liquidity != null ? String(item.liquidity) : '0',
+    trxId: item.trx_id,
+    time: item.time,
+  }
+}
+
+async function fetchHistoryPage(query, limit) {
+  const rows = await PositionHistory.find(query)
+    .sort({ time: -1, _id: -1 })
+    .limit(limit + 1)
+    .select('id pool owner type tokenA tokenAUSDPrice tokenB tokenBUSDPrice totalUSDValue liquidity trx_id time')
+    .lean()
+
+  const hasMore = rows.length > limit
+  const slice = hasMore ? rows.slice(0, limit) : rows
+  const items = slice.map(mapHistoryItem)
+
+  let nextCursor = null
+  if (hasMore && slice.length) {
+    const last = slice[slice.length - 1] as any
+    nextCursor = {
+      cursorTime: new Date(last.time).getTime(),
+      cursorId: String(last._id),
+    }
+  }
+
+  return { items, pageInfo: { hasMore, nextCursor } }
 }
 
 function safeNumber(value) {
@@ -515,6 +606,47 @@ amm.get('/account/:account/positions', async (req, res) => {
   }
 })
 
+amm.get('/account/:account/history', async (req, res) => {
+  const network = req.app.get('network')
+  const account = String(req.params.account || '').trim()
+
+  if (!account) {
+    res.status(400).json({ error: 'Invalid account' })
+    return
+  }
+
+  try {
+    const limit = parseLimit(req.query.limit)
+    const types = parseHistoryTypes(req.query.types ?? req.query.type)
+    const poolId = parseOptionalInt(req.query.poolId)
+    const positionId = parseOptionalInt(req.query.positionId ?? req.query.id)
+    const cursor = parseHistoryCursor(req.query.cursorTime, req.query.cursorId)
+
+    const query: any = { chain: network.name, owner: account }
+
+    if (types.length < HISTORY_TYPES.size) query.type = { $in: types }
+    if (poolId !== null) query.pool = poolId
+    if (positionId !== null) query.id = positionId
+
+    if (cursor) {
+      if (cursor.id) {
+        query.$or = [
+          { time: { $lt: cursor.time } },
+          { time: cursor.time, _id: { $lt: cursor.id } },
+        ]
+      } else {
+        query.time = { $lt: cursor.time }
+      }
+    }
+
+    const result = await fetchHistoryPage(query, limit)
+    res.json(result)
+  } catch (err) {
+    console.error('Error in v3 account history:', err)
+    res.status(500).json({ error: 'Failed to load account history' })
+  }
+})
+
 amm.get('/positions/:id', async (req, res) => {
   const network = req.app.get('network')
   const incentivesFilter = String(req.query?.incentives || 'active').toLowerCase()
@@ -541,6 +673,46 @@ amm.get('/positions/:id', async (req, res) => {
   } catch (err) {
     console.error('Error in v3 position:', err)
     res.status(500).json({ error: 'Failed to load position' })
+  }
+})
+
+amm.get('/positions/:id/history', async (req, res) => {
+  const network = req.app.get('network')
+  const id = Number(req.params.id)
+
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: 'Invalid position id' })
+    return
+  }
+
+  try {
+    const limit = parseLimit(req.query.limit)
+    const types = parseHistoryTypes(req.query.types ?? req.query.type)
+    const poolId = parseOptionalInt(req.query.poolId)
+    const owner = typeof req.query.owner === 'string' ? req.query.owner.trim() : ''
+    const cursor = parseHistoryCursor(req.query.cursorTime, req.query.cursorId)
+
+    const query: any = { chain: network.name, id }
+    if (types.length < HISTORY_TYPES.size) query.type = { $in: types }
+    if (poolId !== null) query.pool = poolId
+    if (owner) query.owner = owner
+
+    if (cursor) {
+      if (cursor.id) {
+        query.$or = [
+          { time: { $lt: cursor.time } },
+          { time: cursor.time, _id: { $lt: cursor.id } },
+        ]
+      } else {
+        query.time = { $lt: cursor.time }
+      }
+    }
+
+    const result = await fetchHistoryPage(query, limit)
+    res.json(result)
+  } catch (err) {
+    console.error('Error in v3 position history:', err)
+    res.status(500).json({ error: 'Failed to load position history' })
   }
 })
 
@@ -586,5 +758,45 @@ amm.get('/pools/:id/positions', async (req, res) => {
   } catch (err) {
     console.error('Error in v3 pool positions:', err)
     res.status(500).json({ error: 'Failed to load pool positions' })
+  }
+})
+
+amm.get('/pools/:id/history', async (req, res) => {
+  const network = req.app.get('network')
+  const id = Number(req.params.id)
+
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: 'Invalid pool id' })
+    return
+  }
+
+  try {
+    const limit = parseLimit(req.query.limit)
+    const types = parseHistoryTypes(req.query.types ?? req.query.type)
+    const positionId = parseOptionalInt(req.query.positionId ?? req.query.id)
+    const owner = typeof req.query.owner === 'string' ? req.query.owner.trim() : ''
+    const cursor = parseHistoryCursor(req.query.cursorTime, req.query.cursorId)
+
+    const query: any = { chain: network.name, pool: id }
+    if (types.length < HISTORY_TYPES.size) query.type = { $in: types }
+    if (positionId !== null) query.id = positionId
+    if (owner) query.owner = owner
+
+    if (cursor) {
+      if (cursor.id) {
+        query.$or = [
+          { time: { $lt: cursor.time } },
+          { time: cursor.time, _id: { $lt: cursor.id } },
+        ]
+      } else {
+        query.time = { $lt: cursor.time }
+      }
+    }
+
+    const result = await fetchHistoryPage(query, limit)
+    res.json(result)
+  } catch (err) {
+    console.error('Error in v3 pool history:', err)
+    res.status(500).json({ error: 'Failed to load pool history' })
   }
 })

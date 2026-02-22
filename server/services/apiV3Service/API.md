@@ -275,14 +275,73 @@ Response:
 
 ## AMM
 
-### GET `/amm/positions/:account`
-Positions and incentives for account (from existing v3 amm).
+### GET `/amm/account/:account/positions`
+Positions and incentives for account.
 
-### GET `/amm/positions/:account/:positionId`
+### GET `/amm/positions/:id`
 Single position details.
 
-### GET `/amm/pools/positions/:account`
-Positions grouped by pools.
+### GET `/amm/pools/:id/positions`
+Positions for pool.
+
+### GET `/amm/account/:account/history`
+Position history for account (mint/burn/collect), optimized for cursor pagination.
+
+Query:
+- `limit` (default `100`, max `500`)
+- `cursorTime` (ms timestamp)
+- `cursorId` (Mongo ObjectId from previous `pageInfo.nextCursor.cursorId`)
+- `type` or `types` (`mint,burn,collect` or `all`)
+- `poolId`
+- `positionId`
+
+Response:
+```
+{
+  "items": [
+    {
+      "positionId",
+      "poolId",
+      "owner",
+      "type",
+      "tokenA",
+      "tokenB",
+      "tokenAUSDPrice",
+      "tokenBUSDPrice",
+      "totalUSDValue",
+      "liquidity",
+      "trxId",
+      "time"
+    }
+  ],
+  "pageInfo": {
+    "hasMore",
+    "nextCursor": { "cursorTime", "cursorId" } | null
+  }
+}
+```
+
+### GET `/amm/positions/:id/history`
+History for a single position.
+
+Query:
+- `limit`
+- `cursorTime`
+- `cursorId`
+- `type` or `types`
+- `poolId`
+- `owner`
+
+### GET `/amm/pools/:id/history`
+History for a pool.
+
+Query:
+- `limit`
+- `cursorTime`
+- `cursorId`
+- `type` or `types`
+- `positionId`
+- `owner`
 
 ### GET `/amm/pools/:id`
 Pool + incentives + staking summary.
