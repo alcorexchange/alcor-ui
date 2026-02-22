@@ -244,6 +244,18 @@ function parseHistoryCursor(timeValue, idValue) {
   return { time, id }
 }
 
+function shouldIncludePoolDetails(query) {
+  if (parseTruthy(query?.withPool) || parseTruthy(query?.includePool)) return true
+
+  const include = typeof query?.include === 'string' ? query.include : ''
+  if (!include) return false
+
+  return include
+    .split(',')
+    .map((v) => v.trim().toLowerCase())
+    .includes('pool')
+}
+
 function parseHistorySearch(value) {
   const raw = typeof value === 'string' ? value.trim() : ''
   if (!raw) return null
@@ -318,6 +330,44 @@ async function fetchHistoryPage(query, limit) {
   }
 
   return { items, pageInfo: { hasMore, nextCursor } }
+}
+
+async function enrichHistoryWithPoolInfo(networkName, items, includePoolDetails) {
+  if (!includePoolDetails || !items.length) return items
+
+  const uniquePoolIds = [...new Set(items.map((i) => Number(i.poolId)).filter((v) => Number.isFinite(v)))]
+  if (!uniquePoolIds.length) return items.map((item) => ({ ...item, pool: null }))
+
+  const pools = await SwapPool.find({ chain: networkName, id: { $in: uniquePoolIds } })
+    .select('id fee tokenA tokenB priceA priceB tvlUSD volumeUSD24 volumeUSDWeek volumeUSDMonth active tickSpacing liquidity sqrtPriceX64')
+    .lean()
+
+  const poolMap = new Map<number, any>(pools.map((p) => [Number(p.id), p]))
+
+  return items.map((item) => {
+    const pool = poolMap.get(Number(item.poolId))
+    if (!pool) return { ...item, pool: null }
+
+    return {
+      ...item,
+      pool: {
+        id: Number(pool.id),
+        fee: Number(pool.fee ?? 0),
+        tokenA: pool.tokenA,
+        tokenB: pool.tokenB,
+        priceA: pool.priceA ?? null,
+        priceB: pool.priceB ?? null,
+        tvlUSD: Number(pool.tvlUSD ?? 0),
+        volumeUSD24: Number(pool.volumeUSD24 ?? 0),
+        volumeUSDWeek: Number(pool.volumeUSDWeek ?? 0),
+        volumeUSDMonth: Number(pool.volumeUSDMonth ?? 0),
+        active: Boolean(pool.active),
+        tickSpacing: Number(pool.tickSpacing ?? 0),
+        liquidity: pool.liquidity != null ? String(pool.liquidity) : '0',
+        sqrtPriceX64: pool.sqrtPriceX64 != null ? String(pool.sqrtPriceX64) : null,
+      },
+    }
+  })
 }
 
 function safeNumber(value) {
@@ -653,6 +703,7 @@ amm.get('/account/:account/history', async (req, res) => {
 
   try {
     const limit = parseLimit(req.query.limit)
+    const includePoolDetails = shouldIncludePoolDetails(req.query)
     const types = parseHistoryTypes(req.query.types ?? req.query.type)
     const poolId = parseOptionalInt(req.query.poolId)
     const positionId = parseOptionalInt(req.query.positionId ?? req.query.id)
@@ -694,7 +745,8 @@ amm.get('/account/:account/history', async (req, res) => {
     }
 
     const result = await fetchHistoryPage(query, limit)
-    res.json(result)
+    const items = await enrichHistoryWithPoolInfo(network.name, result.items, includePoolDetails)
+    res.json({ ...result, items })
   } catch (err) {
     console.error('Error in v3 account history:', err)
     res.status(500).json({ error: 'Failed to load account history' })
@@ -741,6 +793,7 @@ amm.get('/positions/:id/history', async (req, res) => {
 
   try {
     const limit = parseLimit(req.query.limit)
+    const includePoolDetails = shouldIncludePoolDetails(req.query)
     const types = parseHistoryTypes(req.query.types ?? req.query.type)
     const poolId = parseOptionalInt(req.query.poolId)
     const owner = typeof req.query.owner === 'string' ? req.query.owner.trim() : ''
@@ -763,7 +816,8 @@ amm.get('/positions/:id/history', async (req, res) => {
     }
 
     const result = await fetchHistoryPage(query, limit)
-    res.json(result)
+    const items = await enrichHistoryWithPoolInfo(network.name, result.items, includePoolDetails)
+    res.json({ ...result, items })
   } catch (err) {
     console.error('Error in v3 position history:', err)
     res.status(500).json({ error: 'Failed to load position history' })
@@ -826,6 +880,7 @@ amm.get('/pools/:id/history', async (req, res) => {
 
   try {
     const limit = parseLimit(req.query.limit)
+    const includePoolDetails = shouldIncludePoolDetails(req.query)
     const types = parseHistoryTypes(req.query.types ?? req.query.type)
     const positionId = parseOptionalInt(req.query.positionId ?? req.query.id)
     const owner = typeof req.query.owner === 'string' ? req.query.owner.trim() : ''
@@ -848,7 +903,8 @@ amm.get('/pools/:id/history', async (req, res) => {
     }
 
     const result = await fetchHistoryPage(query, limit)
-    res.json(result)
+    const items = await enrichHistoryWithPoolInfo(network.name, result.items, includePoolDetails)
+    res.json({ ...result, items })
   } catch (err) {
     console.error('Error in v3 pool history:', err)
     res.status(500).json({ error: 'Failed to load pool history' })

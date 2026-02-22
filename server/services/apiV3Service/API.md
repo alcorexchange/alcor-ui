@@ -293,6 +293,7 @@ Query:
 - `cursorId` (Mongo ObjectId from previous `pageInfo.nextCursor.cursorId`)
 - `type` or `types` (`mint,burn,collect` or `all`)
 - `search` (one text input: pool id or token `id/symbol/contract`)
+- `withPool=true|false` (or `includePool=true`) to include extended pool info in each item
 - `poolId`
 - `positionId`
 
@@ -332,6 +333,7 @@ Query:
 - `type` or `types`
 - `poolId`
 - `owner`
+- `withPool=true|false` (or `includePool=true`)
 
 ### GET `/amm/pools/:id/history`
 History for a pool.
@@ -343,6 +345,7 @@ Query:
 - `type` or `types`
 - `positionId`
 - `owner`
+- `withPool=true|false` (or `includePool=true`)
 
 ### GET `/amm/pools/:id`
 Pool + incentives + staking summary.
