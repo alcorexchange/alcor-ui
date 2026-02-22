@@ -292,10 +292,7 @@ Query:
 - `cursorTime` (ms timestamp)
 - `cursorId` (Mongo ObjectId from previous `pageInfo.nextCursor.cursorId`)
 - `type` or `types` (`mint,burn,collect` or `all`)
-- `token` (`tokenId` like `usdt-tethertether` or symbol like `USDT`)
-- `tokenId` (exact token id)
-- `symbol` (token symbol)
-- `contract` (token contract/account)
+- `search` (one text input: pool id or token `id/symbol/contract`)
 - `poolId`
 - `positionId`
 

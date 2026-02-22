@@ -244,47 +244,33 @@ function parseHistoryCursor(timeValue, idValue) {
   return { time, id }
 }
 
-function parseHistoryTokenFilter(query) {
-  const tokenParam = typeof query?.token === 'string' ? query.token.trim() : ''
-  const tokenIdParam = typeof query?.tokenId === 'string' ? query.tokenId.trim() : ''
-  const symbolParam = typeof query?.symbol === 'string' ? query.symbol.trim() : ''
-  const contractParam = typeof query?.contract === 'string' ? query.contract.trim() : ''
+function parseHistorySearch(value) {
+  const raw = typeof value === 'string' ? value.trim() : ''
+  if (!raw) return null
 
-  let tokenId = tokenIdParam ? tokenIdParam.toLowerCase() : ''
-  let symbol = symbolParam ? symbolParam.toUpperCase() : ''
-  const contract = contractParam ? contractParam.toLowerCase() : ''
+  const poolId = /^\d+$/.test(raw) ? Number(raw) : null
 
-  if (!tokenId && tokenParam) {
-    if (tokenParam.includes('-')) tokenId = tokenParam.toLowerCase()
-    else if (!symbol) symbol = tokenParam.toUpperCase()
+  return {
+    raw,
+    lower: raw.toLowerCase(),
+    upper: raw.toUpperCase(),
+    poolId,
   }
-
-  return { tokenId, symbol, contract }
 }
 
-async function resolvePoolIdsForTokenFilter(networkName, tokenFilter) {
-  const { tokenId, symbol, contract } = tokenFilter || {}
-  if (!tokenId && !symbol && !contract) return null
-
-  const tokenAQuery: any = {}
-  const tokenBQuery: any = {}
-
-  if (tokenId) {
-    tokenAQuery['tokenA.id'] = tokenId
-    tokenBQuery['tokenB.id'] = tokenId
-  }
-  if (symbol) {
-    tokenAQuery['tokenA.symbol'] = symbol
-    tokenBQuery['tokenB.symbol'] = symbol
-  }
-  if (contract) {
-    tokenAQuery['tokenA.contract'] = contract
-    tokenBQuery['tokenB.contract'] = contract
-  }
+async function resolvePoolIdsBySearch(networkName, search) {
+  if (!search || search.poolId !== null) return null
 
   const pools = await SwapPool.find({
     chain: networkName,
-    $or: [tokenAQuery, tokenBQuery],
+    $or: [
+      { 'tokenA.id': search.lower },
+      { 'tokenB.id': search.lower },
+      { 'tokenA.symbol': search.upper },
+      { 'tokenB.symbol': search.upper },
+      { 'tokenA.contract': search.lower },
+      { 'tokenB.contract': search.lower },
+    ],
   })
     .select('id -_id')
     .lean()
@@ -670,7 +656,7 @@ amm.get('/account/:account/history', async (req, res) => {
     const types = parseHistoryTypes(req.query.types ?? req.query.type)
     const poolId = parseOptionalInt(req.query.poolId)
     const positionId = parseOptionalInt(req.query.positionId ?? req.query.id)
-    const tokenFilter = parseHistoryTokenFilter(req.query)
+    const search = parseHistorySearch(req.query.search)
     const cursor = parseHistoryCursor(req.query.cursorTime, req.query.cursorId)
 
     const query: any = { chain: network.name, owner: account }
@@ -678,20 +664,22 @@ amm.get('/account/:account/history', async (req, res) => {
     if (types.length < HISTORY_TYPES.size) query.type = { $in: types }
     if (positionId !== null) query.id = positionId
 
-    const tokenPoolIds = await resolvePoolIdsForTokenFilter(network.name, tokenFilter)
-    if (tokenPoolIds && tokenPoolIds.length === 0) {
+    const searchPoolIds = await resolvePoolIdsBySearch(network.name, search)
+    if (searchPoolIds && searchPoolIds.length === 0) {
       res.json({ items: [], pageInfo: { hasMore: false, nextCursor: null } })
       return
     }
 
-    if (poolId !== null) {
-      if (tokenPoolIds && !tokenPoolIds.includes(poolId)) {
+    if (search?.poolId !== null) {
+      if (poolId !== null && poolId !== search.poolId) {
         res.json({ items: [], pageInfo: { hasMore: false, nextCursor: null } })
         return
       }
+      query.pool = search.poolId
+    } else if (poolId !== null) {
       query.pool = poolId
-    } else if (tokenPoolIds) {
-      query.pool = { $in: tokenPoolIds }
+    } else if (searchPoolIds) {
+      query.pool = { $in: searchPoolIds }
     }
 
     if (cursor) {
