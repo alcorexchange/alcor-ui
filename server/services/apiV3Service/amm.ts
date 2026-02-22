@@ -670,7 +670,7 @@ amm.get('/account/:account/history', async (req, res) => {
       return
     }
 
-    if (search?.poolId !== null) {
+    if (search && search.poolId !== null) {
       if (poolId !== null && poolId !== search.poolId) {
         res.json({ items: [], pageInfo: { hasMore: false, nextCursor: null } })
         return
