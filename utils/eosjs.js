@@ -10,11 +10,15 @@ export function getChainRpc(chain) {
   const directNode = process.env[directEnvKey]
   const nodes = Object.keys(config.networks[chain].client_nodes)
 
+  // Sort alcor nodes first among public nodes
+  nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
+
+  // Direct node always first — must be after sort to stay on top
   if (directNode) {
     nodes.unshift(directNode)
   }
 
-  return getMultyEndRpc(nodes)
+  return getMultyEndRpc(nodes, false)
 }
 
 export function getMultyEndRpc(nodes, alcorSorted = true) {
