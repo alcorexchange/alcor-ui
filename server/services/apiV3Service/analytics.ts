@@ -34,6 +34,7 @@ const PRICE_SCALE = 100000000
 const DEFAULT_ORDERBOOK_DEPTH = 100
 const MIN_STAKED_TVL_USD = 1
 const APR_PERIOD_DAYS = 7
+const OVERVIEW_CACHE_SECONDS = 900
 
 type TokenInfo = {
   id?: string
@@ -97,6 +98,13 @@ function parseIncludes(input: any) {
   const raw = String(input || '').toLowerCase()
   if (!raw) return new Set<string>()
   return new Set(raw.split(',').map((s) => s.trim()).filter(Boolean))
+}
+
+function getOverviewCacheKey(req: any) {
+  const network = req.app.get('network')
+  const window = getWindow(req.query.window)
+  const include = Array.from(parseIncludes(req.query.include)).sort().join(',')
+  return `overview|${network?.name || 'unknown'}|window:${window.label}|include:${include}`
 }
 
 function parseSearchTerms(input: any) {
@@ -721,8 +729,8 @@ function buildMeta(network, window: string) {
   }
 }
 
-analytics.get('/overview', cacheSeconds(60, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name
+analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
+  return getOverviewCacheKey(req)
 }), async (req, res) => {
   const network: Network = req.app.get('network')
   const window = getWindow(req.query.window)
