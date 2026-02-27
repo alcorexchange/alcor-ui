@@ -380,7 +380,6 @@ async function buildMarketTxStats(chain: string, marketIds: number[], since?: Da
 
 async function buildOrderbookDepth(chain: string, market: any, priceMap: Map<string, number>, depthLimit = DEFAULT_ORDERBOOK_DEPTH) {
   const quotePrecision = market?.quote_token?.symbol?.precision ?? 0
-  const basePrecision = market?.base_token?.symbol?.precision ?? 0
   const quoteId = market?.quote_token?.id
   const baseId = market?.base_token?.id
   let quotePrice = safeNumber(priceMap.get(quoteId), 0)
@@ -402,15 +401,16 @@ async function buildOrderbookDepth(chain: string, market: any, priceMap: Map<str
 
   let bidDepthQuote = 0
   for (const row of buyRows) {
-    const bidAmount = Number(row?.[1] || 0)
-    bidDepthQuote += bidAmount / Math.pow(10, quotePrecision)
+    // buy book row format: [unit_price, bid(base), ask(quote)]
+    const quoteAmount = Number(row?.[2] || 0)
+    bidDepthQuote += quoteAmount / Math.pow(10, quotePrecision)
   }
 
   let askDepthQuote = 0
   for (const row of sellRows) {
-    const unitPrice = Number(row?.[0] || 0) / PRICE_SCALE
-    const askAmountBase = Number(row?.[2] || 0) / Math.pow(10, basePrecision)
-    askDepthQuote += askAmountBase * unitPrice
+    // sell book row format: [unit_price, bid(quote), ask(base)]
+    const quoteAmount = Number(row?.[1] || 0)
+    askDepthQuote += quoteAmount / Math.pow(10, quotePrecision)
   }
 
   return {
