@@ -1,14 +1,26 @@
 export function pushAccountNewMatch(io, m) {
+  const side = m.type == 'buymatch' ? 'buy' : 'sell'
+  const base_volume = m.type == 'buymatch' ? m.ask : m.bid
+  const target_volume = m.type == 'buymatch' ? m.bid : m.ask
+
   io.to(`account:${m.chain}.${m.asker}`).emit('match', {
     ask: m.type == 'sellmatch' ? m.ask : m.bid,
     market_id: m.market,
-    price: m.unit_price
+    price: m.unit_price,
+    side,
+    match_type: m.type,
+    base_volume,
+    target_volume
   })
 
   io.to(`account:${m.chain}.${m.bidder}`).emit('match', {
     bid: m.type == 'sellmatch' ? m.bid : m.ask,
     market_id: m.market,
-    price: m.unit_price
+    price: m.unit_price,
+    side,
+    match_type: m.type,
+    base_volume,
+    target_volume
   })
 }
 
