@@ -179,7 +179,7 @@ Query:
 - `limit` (default: `50`, max: `500`)
 - `page` (default: `1`)
 - `hide_scam=true|false` (optional)
-- `include=tx,depth` (optional)
+- `include=tx,depth` (optional; when omitted, both are included by default)
 
 Response:
 ```
@@ -191,7 +191,7 @@ Spot pair detail.
 
 Query:
 - `window` (default: `30d`)
-- `include=tx,depth` (optional)
+- `include=tx,depth` (optional; when omitted, both are included by default)
 
 Response:
 ```

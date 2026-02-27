@@ -382,10 +382,20 @@ async function buildOrderbookDepth(chain: string, market: any, priceMap: Map<str
   const quotePrecision = market?.quote_token?.symbol?.precision ?? 0
   const basePrecision = market?.base_token?.symbol?.precision ?? 0
   const quoteId = market?.quote_token?.id
-  const quotePrice = priceMap.get(quoteId) || 0
+  const baseId = market?.base_token?.id
+  let quotePrice = safeNumber(priceMap.get(quoteId), 0)
+  if (quotePrice <= 0) {
+    const basePrice = safeNumber(priceMap.get(baseId), 0)
+    const lastPrice = safeNumber(market?.last_price, 0)
+    if (basePrice > 0 && lastPrice > 0) {
+      quotePrice = basePrice / lastPrice
+    }
+  }
 
-  const buyBook = await getOrderbook(chain, 'buy', market.id)
-  const sellBook = await getOrderbook(chain, 'sell', market.id)
+  const [buyBook, sellBook] = await Promise.all([
+    getOrderbook(chain, 'buy', market.id),
+    getOrderbook(chain, 'sell', market.id),
+  ])
 
   const buyRows = Array.from(buyBook.values()).slice(0, depthLimit)
   const sellRows = Array.from(sellBook.values()).slice(0, depthLimit)
@@ -1519,9 +1529,10 @@ analytics.get('/spot-pairs', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network: Network = req.app.get('network')
   const window = getWindow(req.query.window)
+  const hasIncludeParam = typeof req.query.include !== 'undefined'
   const includes = parseIncludes(req.query.include)
-  const includeTx = includes.has('tx')
-  const includeDepth = includes.has('depth')
+  const includeTx = hasIncludeParam ? includes.has('tx') : true
+  const includeDepth = hasIncludeParam ? includes.has('depth') : true
   const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
 
   let markets = await Market.find({ chain: network.name }).lean()
@@ -1585,9 +1596,10 @@ analytics.get('/spot-pairs/:id', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network: Network = req.app.get('network')
   const window = getWindow(req.query.window)
+  const hasIncludeParam = typeof req.query.include !== 'undefined'
   const includes = parseIncludes(req.query.include)
-  const includeTx = includes.has('tx')
-  const includeDepth = includes.has('depth')
+  const includeTx = hasIncludeParam ? includes.has('tx') : true
+  const includeDepth = hasIncludeParam ? includes.has('depth') : true
   const id = parseInt(String(req.params.id || ''), 10)
 
   if (!Number.isFinite(id)) return res.status(400).send('Invalid market id')
