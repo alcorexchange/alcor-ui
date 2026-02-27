@@ -13,10 +13,10 @@ const DEFAULT_PRICE_MODE = 'quotePerBase'
 const MIN_ABS_PRICE = 1e-12
 const MAX_ABS_PRICE = 1e12
 
-const RANGE_MIN_RATIO = 1e-4
-const RANGE_MAX_RATIO = 1e4
+const FOCUS_MAX_RATIO = 10
 const EMPTY_MIN_RATIO = 0.5
 const EMPTY_MAX_RATIO = 2
+const RANGE_EPSILON = 1e-6
 
 type PriceMode = 'quotePerBase' | 'basePerQuote'
 type Segment = {
@@ -94,7 +94,7 @@ function readCurrentPriceQuotePerBase(pool): number {
   return 1
 }
 
-function buildSegmentsQuotePerBase(pool, currentPrice: number): Segment[] {
+function buildSegmentsQuotePerBase(pool): Segment[] {
   const chart = getLiquidityRangeChart(pool, pool.tokenA, pool.tokenB) || []
   if (!Array.isArray(chart) || chart.length < 2) return []
 
@@ -135,9 +135,6 @@ function buildSegmentsQuotePerBase(pool, currentPrice: number): Segment[] {
 
   if (deduped.length < 2) return []
 
-  const rangeMin = clampPrice(currentPrice * RANGE_MIN_RATIO) ?? MIN_ABS_PRICE
-  const rangeMax = clampPrice(currentPrice * RANGE_MAX_RATIO) ?? MAX_ABS_PRICE
-
   const segments: Segment[] = []
 
   for (let i = 0; i < deduped.length - 1; i++) {
@@ -147,8 +144,8 @@ function buildSegmentsQuotePerBase(pool, currentPrice: number): Segment[] {
     if (!Number.isFinite(current.price) || !Number.isFinite(next.price)) continue
     if (next.price <= current.price) continue
 
-    const lower = Math.max(current.price, rangeMin)
-    const upper = Math.min(next.price, rangeMax)
+    const lower = current.price
+    const upper = next.price
     if (upper <= lower) continue
 
     const liquidity = Number.isFinite(current.liquidity) && current.liquidity >= 0 ? current.liquidity : 0
@@ -163,11 +160,99 @@ function buildSegmentsQuotePerBase(pool, currentPrice: number): Segment[] {
   return segments
 }
 
-function buildBinsFromSegments(segments: Segment[], binCount: number): Bin[] {
+function sanitizeSegments(segments: Segment[]): Segment[] {
+  return segments
+    .map((segment) => {
+      const priceLower = clampPrice(segment.priceLower)
+      const priceUpper = clampPrice(segment.priceUpper)
+      if (!priceLower || !priceUpper || priceUpper <= priceLower) return null
+
+      let liquidity = Number(segment.liquidity)
+      if (!Number.isFinite(liquidity) || liquidity < 0) liquidity = 0
+
+      return { priceLower, priceUpper, liquidity }
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.priceLower - b.priceLower) as Segment[]
+}
+
+function ensureRangeContainsPrice(
+  range: { minPrice: number, maxPrice: number },
+  currentPrice: number
+) {
+  let minPrice = clampPrice(range.minPrice) ?? MIN_ABS_PRICE
+  let maxPrice = clampPrice(range.maxPrice) ?? MAX_ABS_PRICE
+
+  if (!(maxPrice > minPrice)) {
+    return fallbackPriceRange(currentPrice)
+  }
+
+  if (currentPrice <= minPrice) {
+    minPrice = clampPrice(currentPrice * (1 - RANGE_EPSILON)) ?? minPrice
+  }
+  if (currentPrice >= maxPrice) {
+    maxPrice = clampPrice(currentPrice * (1 + RANGE_EPSILON)) ?? maxPrice
+  }
+
+  if (!(maxPrice > minPrice) || currentPrice <= minPrice || currentPrice >= maxPrice) {
+    return fallbackPriceRange(currentPrice)
+  }
+
+  return { minPrice, maxPrice }
+}
+
+function chooseFocusedRange(segments: Segment[], currentPrice: number) {
+  const hardMin = clampPrice(currentPrice / FOCUS_MAX_RATIO) ?? MIN_ABS_PRICE
+  const hardMax = clampPrice(currentPrice * FOCUS_MAX_RATIO) ?? MAX_ABS_PRICE
+
+  if (hardMax <= hardMin) {
+    return fallbackPriceRange(currentPrice)
+  }
+
+  if (!segments.length) {
+    return ensureRangeContainsPrice({ minPrice: hardMin, maxPrice: hardMax }, currentPrice)
+  }
+
+  const aroundCurrent = segments.filter((segment) => (
+    segment.priceUpper > hardMin && segment.priceLower < hardMax
+  ))
+
+  if (!aroundCurrent.length) {
+    return ensureRangeContainsPrice({ minPrice: hardMin, maxPrice: hardMax }, currentPrice)
+  }
+
+  const minPrice = Math.max(aroundCurrent[0].priceLower, hardMin)
+  const maxPrice = Math.min(aroundCurrent[aroundCurrent.length - 1].priceUpper, hardMax)
+
+  return ensureRangeContainsPrice({ minPrice, maxPrice }, currentPrice)
+}
+
+function invertSegments(segments: Segment[]): Segment[] {
+  return sanitizeSegments(
+    segments
+      .map((segment) => {
+        const priceLower = safeInverse(segment.priceUpper)
+        const priceUpper = safeInverse(segment.priceLower)
+        if (!priceLower || !priceUpper || priceUpper <= priceLower) return null
+        return {
+          priceLower,
+          priceUpper,
+          liquidity: segment.liquidity,
+        }
+      })
+      .filter(Boolean) as Segment[]
+  )
+}
+
+function buildBinsFromSegments(
+  segments: Segment[],
+  binCount: number,
+  range: { minPrice: number, maxPrice: number }
+): Bin[] {
   if (!segments.length || binCount <= 0) return []
 
-  const minPrice = segments[0].priceLower
-  const maxPrice = segments[segments.length - 1].priceUpper
+  const minPrice = range.minPrice
+  const maxPrice = range.maxPrice
   if (!Number.isFinite(minPrice) || !Number.isFinite(maxPrice) || maxPrice <= minPrice) return []
 
   const binWidth = (maxPrice - minPrice) / binCount
@@ -201,51 +286,6 @@ function buildBinsFromSegments(segments: Segment[], binCount: number): Bin[] {
   }
 
   return bins
-}
-
-function invertBins(bins: Bin[]): Bin[] {
-  if (!bins.length) return []
-
-  const transformed = bins
-    .map((bin) => {
-      const priceLower = safeInverse(bin.priceUpper)
-      const priceUpper = safeInverse(bin.priceLower)
-      if (!priceLower || !priceUpper || priceUpper <= priceLower) return null
-      return {
-        priceLower,
-        priceUpper,
-        liquidity: Number.isFinite(bin.liquidity) && bin.liquidity >= 0 ? bin.liquidity : 0,
-      }
-    })
-    .filter(Boolean)
-    .sort((a, b) => a.priceLower - b.priceLower) as Bin[]
-
-  if (!transformed.length) return []
-
-  const normalized: Bin[] = [
-    {
-      priceLower: transformed[0].priceLower,
-      priceUpper: transformed[0].priceUpper,
-      liquidity: transformed[0].liquidity,
-    },
-  ]
-
-  for (let i = 1; i < transformed.length; i++) {
-    const prev = normalized[normalized.length - 1]
-    const curr = transformed[i]
-
-    const priceLower = prev.priceUpper
-    const priceUpper = curr.priceUpper
-    if (!Number.isFinite(priceLower) || !Number.isFinite(priceUpper) || priceUpper <= priceLower) continue
-
-    normalized.push({
-      priceLower,
-      priceUpper,
-      liquidity: curr.liquidity,
-    })
-  }
-
-  return normalized
 }
 
 function sanitizeBins(bins: Bin[]): Bin[] {
@@ -327,52 +367,42 @@ swap.get('/pools/:poolId/liquidity-distribution', async (req, res) => {
     }
 
     const currentQuotePerBase = readCurrentPriceQuotePerBase(pool)
-    const segmentsQuotePerBase = buildSegmentsQuotePerBase(pool, currentQuotePerBase)
-    const hasPositiveLiquidity = segmentsQuotePerBase.some((segment) => segment.liquidity > 0)
+    const quoteSegments = sanitizeSegments(buildSegmentsQuotePerBase(pool))
 
-    const binsQuotePerBase = hasPositiveLiquidity
-      ? buildBinsFromSegments(segmentsQuotePerBase, requestedBinCount)
-      : []
-
-    const safeBinsQuotePerBase = sanitizeBins(binsQuotePerBase)
-
-    const quoteRange =
-      getRangeFromSegments(safeBinsQuotePerBase) ||
-      getRangeFromSegments(segmentsQuotePerBase) ||
-      fallbackPriceRange(currentQuotePerBase)
-
-    let responseBins: Bin[] = []
-    let currentPrice = currentQuotePerBase
-    let minPrice = quoteRange.minPrice
-    let maxPrice = quoteRange.maxPrice
-
-    if (priceMode === 'basePerQuote') {
-      currentPrice = safeInverse(currentQuotePerBase) ?? 1
-
-      const invertedBins = invertBins(safeBinsQuotePerBase)
-      responseBins = sanitizeBins(invertedBins)
-
-      const invertedMin = safeInverse(quoteRange.maxPrice)
-      const invertedMax = safeInverse(quoteRange.minPrice)
-      if (invertedMin && invertedMax && invertedMax > invertedMin) {
-        minPrice = invertedMin
-        maxPrice = invertedMax
-      } else {
-        const fallback = fallbackPriceRange(currentPrice)
-        minPrice = fallback.minPrice
-        maxPrice = fallback.maxPrice
-      }
-    } else {
-      responseBins = safeBinsQuotePerBase
-    }
-
+    let currentPrice = priceMode === 'basePerQuote'
+      ? (safeInverse(currentQuotePerBase) ?? 1)
+      : currentQuotePerBase
     currentPrice = clampPrice(currentPrice) ?? 1
 
-    if (!Number.isFinite(minPrice) || !Number.isFinite(maxPrice) || maxPrice <= minPrice) {
-      const fallback = fallbackPriceRange(currentPrice)
-      minPrice = fallback.minPrice
-      maxPrice = fallback.maxPrice
+    const modeSegments = priceMode === 'basePerQuote'
+      ? invertSegments(quoteSegments)
+      : quoteSegments
+
+    const nonZeroSegments = modeSegments.filter((segment) => segment.liquidity > 0)
+    const hasPositiveLiquidity = nonZeroSegments.length > 0
+
+    let focusedRange = chooseFocusedRange(hasPositiveLiquidity ? nonZeroSegments : modeSegments, currentPrice)
+    focusedRange = ensureRangeContainsPrice(focusedRange, currentPrice)
+
+    const responseBins = hasPositiveLiquidity
+      ? sanitizeBins(buildBinsFromSegments(modeSegments, requestedBinCount, focusedRange))
+      : []
+
+    let minPrice = focusedRange.minPrice
+    let maxPrice = focusedRange.maxPrice
+
+    if (responseBins.length) {
+      minPrice = responseBins[0].priceLower
+      maxPrice = responseBins[responseBins.length - 1].priceUpper
+    } else {
+      const fallbackRange = getRangeFromSegments(modeSegments) || focusedRange
+      minPrice = fallbackRange.minPrice
+      maxPrice = fallbackRange.maxPrice
     }
+
+    const safeFinalRange = ensureRangeContainsPrice({ minPrice, maxPrice }, currentPrice)
+    minPrice = safeFinalRange.minPrice
+    maxPrice = safeFinalRange.maxPrice
 
     const updatedAt = new Date().toISOString()
 
