@@ -13,11 +13,11 @@ function isTrustedToken(
   token: any,
   tokenId: string,
   baseTokenId: string,
-  usdTokenId: string | null,
+  stableTokenSet: Set<string>,
   minScore: number
 ) {
   if (tokenId === baseTokenId) return true
-  if (usdTokenId && tokenId === usdTokenId) return true
+  if (stableTokenSet.has(tokenId)) return true
   if (token?.is_scam === true) return false
   if (token?.is_trusted === true) return true
 
@@ -25,7 +25,7 @@ function isTrustedToken(
   return score > minScore
 }
 
-function getBaseLiquidityUsd(pool: any, baseTokenId: string, usdTokenId: string | null, baseTokenUsdPrice: number) {
+function getBaseLiquidityUsd(pool: any, baseTokenId: string, stableTokenSet: Set<string>, baseTokenUsdPrice: number) {
   const tokenAId = String(pool?.tokenA?.id || '')
   const tokenBId = String(pool?.tokenB?.id || '')
   const tokenAQty = toFiniteNumber(pool?.tokenA?.quantity, 0)
@@ -33,18 +33,18 @@ function getBaseLiquidityUsd(pool: any, baseTokenId: string, usdTokenId: string 
 
   if (tokenAId === baseTokenId) return tokenAQty * baseTokenUsdPrice
   if (tokenBId === baseTokenId) return tokenBQty * baseTokenUsdPrice
-  if (usdTokenId && tokenAId === usdTokenId) return tokenAQty
-  if (usdTokenId && tokenBId === usdTokenId) return tokenBQty
+  if (stableTokenSet.has(tokenAId)) return tokenAQty
+  if (stableTokenSet.has(tokenBId)) return tokenBQty
 
   return 0
 }
 
 export function computeSafePoolTvlUSD(pool: any, tokenMap: Map<string, any>, network: any) {
   const trustedScoreMin = toFiniteNumber(process.env.TOKEN_TRUSTED_SCORE_MIN, 40)
-  const smallPoolBaseLiquidityUsd = toFiniteNumber(process.env.POOL_SMALL_BASE_LIQUIDITY_USD, 100)
+  const smallPoolBaseLiquidityUsd = toFiniteNumber(process.env.POOL_SMALL_BASE_LIQUIDITY_USD, 10)
 
   const baseTokenId = `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase()
-  const usdTokenId = network.USD_TOKEN || null
+  const stableTokenSet = new Set([network.USD_TOKEN, (network as any).USDT_TOKEN].filter(Boolean))
 
   const tokenAId = String(pool?.tokenA?.id || '')
   const tokenBId = String(pool?.tokenB?.id || '')
@@ -62,10 +62,10 @@ export function computeSafePoolTvlUSD(pool: any, tokenMap: Map<string, any>, net
       ? tokenBUsd
       : 0
 
-  const baseLiquidityUsd = getBaseLiquidityUsd(pool, baseTokenId, usdTokenId, baseTokenUsdPrice)
+  const baseLiquidityUsd = getBaseLiquidityUsd(pool, baseTokenId, stableTokenSet, baseTokenUsdPrice)
   if (tokenA?.is_scam === true || tokenB?.is_scam === true) return 0
-  const trustedA = isTrustedToken(tokenA, tokenAId, baseTokenId, usdTokenId, trustedScoreMin)
-  const trustedB = isTrustedToken(tokenB, tokenBId, baseTokenId, usdTokenId, trustedScoreMin)
+  const trustedA = isTrustedToken(tokenA, tokenAId, baseTokenId, stableTokenSet, trustedScoreMin)
+  const trustedB = isTrustedToken(tokenB, tokenBId, baseTokenId, stableTokenSet, trustedScoreMin)
 
   if (!trustedA || !trustedB) {
     if (baseLiquidityUsd > 0) return Number((baseLiquidityUsd * 2).toFixed(8))

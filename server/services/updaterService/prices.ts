@@ -6,13 +6,32 @@ import { getRedis } from '../redis'
 import { getScamLists } from '../apiV2Service/config'
 
 const MAX_SANE_PRICE = 100000
-const DEFAULT_MIN_POOL_BASE_LIQUIDITY_USD = 100
+const DEFAULT_MIN_POOL_BASE_LIQUIDITY_USD = 10
 const DEFAULT_MARKET_PRICE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
 const DEFAULT_MIN_MARKET_DEAL_NOTIONAL_USD = 10
 
 function positiveNumber(value: any, fallback: number) {
   const n = Number(value)
   return Number.isFinite(n) && n > 0 ? n : fallback
+}
+
+function weightedMedianUsdPrice(candidates: Array<{ usdPrice: number, liquidityUSD: number }>) {
+  const valid = candidates
+    .filter((c) => Number.isFinite(c.usdPrice) && c.usdPrice > 0 && Number.isFinite(c.liquidityUSD) && c.liquidityUSD > 0)
+    .sort((a, b) => a.usdPrice - b.usdPrice)
+
+  if (valid.length === 0) return 0
+
+  const totalWeight = valid.reduce((sum, c) => sum + c.liquidityUSD, 0)
+  if (!Number.isFinite(totalWeight) || totalWeight <= 0) return 0
+
+  let cumulative = 0
+  for (const c of valid) {
+    cumulative += c.liquidityUSD
+    if (cumulative >= totalWeight / 2) return c.usdPrice
+  }
+
+  return valid[valid.length - 1].usdPrice
 }
 
 export async function updateCMSucid() {
@@ -84,6 +103,7 @@ export async function makeAllTokensWithPrices(network: Network) {
   // Based on swap only, right now
   const tokens = []
   const { baseToken, USD_TOKEN } = network
+  const USDT_TOKEN = (network as any).USDT_TOKEN || null
 
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
   const systemPrice = parseFloat(await getRedis().get(`${network.name}_price`)) || 0
@@ -91,43 +111,41 @@ export async function makeAllTokensWithPrices(network: Network) {
   const scores = JSON.parse(await getRedis().get(`${network.name}_token_scores`) || '{}')
   const { scam_contracts, scam_tokens } = await getScamLists(network)
   const isScam = (id: string, contract: string) => scam_tokens.has(id) || scam_contracts.has(contract)
+  const stableTokenIds = Array.from(new Set([USD_TOKEN, USDT_TOKEN].filter(Boolean)))
+  const stableTokenSet = new Set(stableTokenIds)
+  const referenceTokenIds = [system_token, ...stableTokenIds]
+  const referenceTokenSet = new Set(referenceTokenIds)
 
-  // Price from pool is accepted only when reference side (system/USD) has enough liquidity.
+  // Price from pool is accepted only when reference side (system/stable) has enough liquidity.
   const minimumUSDAmount = positiveNumber(process.env.MIN_POOL_BASE_LIQUIDITY_USD, DEFAULT_MIN_POOL_BASE_LIQUIDITY_USD)
-  const minimumSystemAmount = systemPrice > 0 ? (1 / systemPrice) * minimumUSDAmount : Number.POSITIVE_INFINITY
   const marketPriceMaxAgeMs = positiveNumber(process.env.MARKET_PRICE_MAX_AGE_MS, DEFAULT_MARKET_PRICE_MAX_AGE_MS)
   const minimumMarketDealNotionalUsd = positiveNumber(
     process.env.MIN_MARKET_DEAL_NOTIONAL_USD,
     DEFAULT_MIN_MARKET_DEAL_NOTIONAL_USD
   )
 
-  const isSystemOrUsdPool = (p) =>
-    p.tokenA.id === system_token ||
-    p.tokenB.id === system_token ||
-    (USD_TOKEN && (p.tokenA.id === USD_TOKEN || p.tokenB.id === USD_TOKEN))
-
-  const filterOutPoolsWithLowLiquidity = (p) => {
-    if (p.tokenA.id === system_token) {
-      return p.tokenA.quantity >= minimumSystemAmount
+  const getReferenceLiquidityUSD = (p, referenceId: string) => {
+    if (referenceId === system_token) {
+      if (p.tokenA.id === system_token) return Number(p.tokenA.quantity || 0) * systemPrice
+      if (p.tokenB.id === system_token) return Number(p.tokenB.quantity || 0) * systemPrice
+      return 0
     }
 
-    if (p.tokenB.id === system_token) {
-      return p.tokenB.quantity >= minimumSystemAmount
-    }
+    if (p.tokenA.id === referenceId) return Number(p.tokenA.quantity || 0)
+    if (p.tokenB.id === referenceId) return Number(p.tokenB.quantity || 0)
+    return 0
+  }
 
-    if (p.tokenA.id === USD_TOKEN) {
-      return p.tokenA.quantity >= minimumUSDAmount
+  const poolHasEnoughReferenceLiquidity = (p) => {
+    for (const referenceId of referenceTokenIds) {
+      const liquidityUSD = getReferenceLiquidityUSD(p, referenceId)
+      if (liquidityUSD >= minimumUSDAmount) return true
     }
-
-    if (p.tokenB.id === USD_TOKEN) {
-      return p.tokenB.quantity >= minimumUSDAmount
-    }
-
     return false
   }
 
   const pools = await SwapPool.find({ chain: network.name }).lean()
-  const enough_liquidity_pools = pools.filter(filterOutPoolsWithLowLiquidity)
+  const enough_liquidity_pools = pools.filter(poolHasEnoughReferenceLiquidity)
 
   // Sorting by more ticks means more liquidity
   // pools.sort((a, b) => {
@@ -148,24 +166,41 @@ export async function makeAllTokensWithPrices(network: Network) {
     }
   }
 
-  const poolBaseLiquidityUSD = (p) => {
-    if (p.tokenA.id === system_token) return p.tokenA.quantity * systemPrice
-    if (p.tokenB.id === system_token) return p.tokenB.quantity * systemPrice
-    if (USD_TOKEN && p.tokenA.id === USD_TOKEN) return p.tokenA.quantity
-    if (USD_TOKEN && p.tokenB.id === USD_TOKEN) return p.tokenB.quantity
-    return 0
-  }
+  const priceCandidatesByToken = new Map<string, Array<{
+    usdPrice: number
+    liquidityUSD: number
+  }>>()
 
-  const poolsByToken = new Map<string, any[]>()
   for (const p of enough_liquidity_pools) {
-    if (!isSystemOrUsdPool(p)) continue
     if (isScam(p.tokenA.id, p.tokenA.contract) || isScam(p.tokenB.id, p.tokenB.contract)) continue
+    if (!referenceTokenSet.has(p.tokenA.id) && !referenceTokenSet.has(p.tokenB.id)) continue
 
-    if (!poolsByToken.has(p.tokenA.id)) poolsByToken.set(p.tokenA.id, [])
-    poolsByToken.get(p.tokenA.id)?.push(p)
+    const tokenAId = p.tokenA.id
+    const tokenBId = p.tokenB.id
+    const refsInPool = []
+    if (referenceTokenSet.has(tokenAId)) refsInPool.push(tokenAId)
+    if (referenceTokenSet.has(tokenBId)) refsInPool.push(tokenBId)
 
-    if (!poolsByToken.has(p.tokenB.id)) poolsByToken.set(p.tokenB.id, [])
-    poolsByToken.get(p.tokenB.id)?.push(p)
+    for (const referenceId of refsInPool) {
+      const referenceOnA = tokenAId === referenceId
+      const tokenId = referenceOnA ? tokenBId : tokenAId
+      if (referenceTokenSet.has(tokenId)) continue
+
+      const rawPrice = Number(referenceOnA ? p.priceB : p.priceA)
+      if (!Number.isFinite(rawPrice) || rawPrice <= 0) continue
+
+      const referenceUsdPrice = referenceId === system_token ? systemPrice : 1
+      if (!Number.isFinite(referenceUsdPrice) || referenceUsdPrice <= 0) continue
+
+      const usdPrice = rawPrice * referenceUsdPrice
+      if (!Number.isFinite(usdPrice) || usdPrice <= 0 || usdPrice > MAX_SANE_PRICE) continue
+
+      const liquidityUSD = getReferenceLiquidityUSD(p, referenceId)
+      if (!Number.isFinite(liquidityUSD) || liquidityUSD < minimumUSDAmount) continue
+
+      if (!priceCandidatesByToken.has(tokenId)) priceCandidatesByToken.set(tokenId, [])
+      priceCandidatesByToken.get(tokenId)?.push({ usdPrice, liquidityUSD })
+    }
   }
 
   for (const t of tokens) {
@@ -175,8 +210,8 @@ export async function makeAllTokensWithPrices(network: Network) {
       continue
     }
 
-    if (t.id == USD_TOKEN) {
-      t.system_price = (1 / systemPrice)
+    if (stableTokenSet.has(t.id)) {
+      t.system_price = systemPrice > 0 ? (1 / systemPrice) : 0
       t.usd_price = 1
       continue
     }
@@ -187,35 +222,14 @@ export async function makeAllTokensWithPrices(network: Network) {
       continue
     }
 
-    // Get pool with best TVL
-    const candidates = poolsByToken.get(t.id) || []
-    let pool = null
-    let bestLiquidity = 0
-    for (const candidate of candidates) {
-      const liquidityUSD = poolBaseLiquidityUSD(candidate)
-      if (liquidityUSD > bestLiquidity) {
-        bestLiquidity = liquidityUSD
-        pool = candidate
-      }
-    }
-
     t.usd_price = 0.0
     t.system_price = 0.0
 
-    if (pool) {
-      const rawPriceA = Number(pool.priceA)
-      const rawPriceB = Number(pool.priceB)
-      const priceA = Number.isFinite(rawPriceA) ? rawPriceA : 0
-      const priceB = Number.isFinite(rawPriceB) ? rawPriceB : 0
-      const isUsdtPool = (pool.tokenA.id === USD_TOKEN || pool.tokenB.id === USD_TOKEN)
-
-      if (isUsdtPool) {
-        t.usd_price = pool.tokenA.id == USD_TOKEN ? priceB : priceA
-        t.system_price = (1 / systemPrice) * t.usd_price
-      } else {
-        t.system_price = pool.tokenA.id == system_token ? priceB : priceA
-        t.usd_price = t.system_price * systemPrice
-      }
+    const candidates = priceCandidatesByToken.get(t.id) || []
+    if (candidates.length > 0) {
+      const usdPrice = weightedMedianUsdPrice(candidates)
+      t.usd_price = usdPrice
+      t.system_price = systemPrice > 0 ? usdPrice / systemPrice : 0
 
       // Cap unrealistic prices (likely from low liquidity pools)
       if (t.usd_price > MAX_SANE_PRICE) {
@@ -294,7 +308,7 @@ export async function makeAllTokensWithPrices(network: Network) {
   for (const t of tokens) {
     const score = Number(scores?.[t.id]?.score || 0)
     const scam = isScam(t.id, t.contract)
-    const isBaseOrUsd = t.id === system_token || t.id === USD_TOKEN
+    const isBaseOrUsd = t.id === system_token || stableTokenSet.has(t.id)
     const trusted = !scam && (isBaseOrUsd || score > trustedScoreMin)
 
     if (scam) {
