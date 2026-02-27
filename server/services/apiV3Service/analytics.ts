@@ -32,6 +32,7 @@ const RESOLUTION_MS: Record<string, number> = {
 
 const PRICE_SCALE = 100000000
 const DEFAULT_ORDERBOOK_DEPTH = 100
+const DEFAULT_DEPTH_PRICE_FACTOR = 20
 const MIN_STAKED_TVL_USD = 1
 const APR_PERIOD_DAYS = 7
 const OVERVIEW_CACHE_SECONDS = 900
@@ -382,6 +383,20 @@ async function buildOrderbookDepth(chain: string, market: any, priceMap: Map<str
   const quotePrecision = market?.quote_token?.symbol?.precision ?? 0
   const quoteId = market?.quote_token?.id
   const baseId = market?.base_token?.id
+  const bid = safeNumber(market?.bid, 0)
+  const ask = safeNumber(market?.ask, 0)
+  const last = safeNumber(market?.last_price, 0)
+  const refPrice = bid > 0 && ask > 0 ? (bid + ask) / 2 : last
+  const minPrice = refPrice > 0 ? refPrice / DEFAULT_DEPTH_PRICE_FACTOR : 0
+  const maxPrice = refPrice > 0 ? refPrice * DEFAULT_DEPTH_PRICE_FACTOR : Number.POSITIVE_INFINITY
+
+  const isRowInPriceBand = (row: any) => {
+    const unitPrice = Number(row?.[0] || 0) / PRICE_SCALE
+    if (!Number.isFinite(unitPrice) || unitPrice <= 0) return false
+    if (refPrice <= 0) return true
+    return unitPrice >= minPrice && unitPrice <= maxPrice
+  }
+
   let quotePrice = safeNumber(priceMap.get(quoteId), 0)
   if (quotePrice <= 0) {
     const basePrice = safeNumber(priceMap.get(baseId), 0)
@@ -396,8 +411,8 @@ async function buildOrderbookDepth(chain: string, market: any, priceMap: Map<str
     getOrderbook(chain, 'sell', market.id),
   ])
 
-  const buyRows = Array.from(buyBook.values()).slice(0, depthLimit)
-  const sellRows = Array.from(sellBook.values()).slice(0, depthLimit)
+  const buyRows = Array.from(buyBook.values()).filter(isRowInPriceBand).slice(0, depthLimit)
+  const sellRows = Array.from(sellBook.values()).filter(isRowInPriceBand).slice(0, depthLimit)
 
   let bidDepthQuote = 0
   for (const row of buyRows) {

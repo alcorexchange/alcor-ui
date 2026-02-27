@@ -394,6 +394,7 @@ Pool + incentives + staking summary.
   "tx": { "matches" }
 }
 ```
+`orders.*DepthUsd` is computed from top-of-book levels within a bounded price band around current pair price (to avoid far-outlier orders distorting depth).
 
 ### FarmCard
 ```
