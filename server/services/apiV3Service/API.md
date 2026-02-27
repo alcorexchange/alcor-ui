@@ -353,6 +353,40 @@ Pool + incentives + staking summary.
 
 (See `server/services/apiV3Service/amm.ts` for exact response shape.)
 
+## Swap
+
+### GET `/swap/pools/:poolId/liquidity-distribution`
+UI-friendly liquidity distribution for range selector.
+
+Query:
+- `priceMode=quotePerBase|basePerQuote` (default: `quotePerBase`)
+- `bins` (default: `120`, max: `300`)
+
+Response:
+```
+{
+  "poolId": 1129,
+  "chain": "wax",
+  "priceMode": "quotePerBase",
+  "currentPrice": 3.72058,
+  "minPrice": 0.5,
+  "maxPrice": 8.0,
+  "bins": [
+    { "priceLower": 3.50, "priceUpper": 3.55, "liquidity": 12345.67 }
+  ],
+  "meta": {
+    "updatedAt": "2026-02-27T21:00:00.000Z",
+    "binCount": 120
+  }
+}
+```
+
+Notes:
+- `currentPrice > 0` always.
+- Bins are sorted by price, contiguous, and without overlaps.
+- `liquidity >= 0`; `NaN`/`Infinity` are not returned.
+- If no liquidity is available, `bins` is empty while `currentPrice/minPrice/maxPrice` stay valid.
+
 ---
 
 ## Shared response shapes

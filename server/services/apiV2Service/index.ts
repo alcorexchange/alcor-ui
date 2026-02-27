@@ -15,6 +15,7 @@ import { getRedis, getPublisher } from '../redis'
 import { networkResolver } from '../apiService/middleware'
 import { amm as ammV3 } from '../apiV3Service/amm'
 import { analytics as analyticsV3 } from '../apiV3Service/analytics'
+import { swap as swapV3 } from '../apiV3Service/swap'
 import { spot } from './spot'
 import { swap } from './swap'
 import { ibc } from './ibc'
@@ -70,6 +71,7 @@ async function start () {
   app.use('/api/v2/config', configRouter)
   app.use('/api/v3/amm', ammV3)
   app.use('/api/v3/analytics', analyticsV3)
+  app.use('/api/v3/swap', swapV3)
 
   // Listen the server
   const PORT = process.env.PORT || 8000
