@@ -178,6 +178,7 @@ Query:
 - `order=asc|desc` (default: `desc`)
 - `limit` (default: `50`, max: `500`)
 - `page` (default: `1`)
+- `hide_scam=true|false` (optional)
 - `include=tx,depth` (optional)
 
 Response:

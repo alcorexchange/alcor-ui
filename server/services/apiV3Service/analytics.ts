@@ -213,6 +213,13 @@ function pickMarketVolume(market: any, window: string) {
   return safeNumber(market.volumeMonth)
 }
 
+function pickMarketVolumeUsd(market: any, window: string, priceMap: Map<string, number>) {
+  const volumeQuote = pickMarketVolume(market, window)
+  const quoteId = market?.quote_token?.id
+  const quotePrice = safeNumber(priceMap.get(quoteId), 0)
+  return volumeQuote * quotePrice
+}
+
 function computeInverseChangePercent(changePercent: number) {
   const changeDec = changePercent / 100
   const denom = 1 + changeDec
@@ -613,10 +620,7 @@ async function loadIncentivesByPool(network: Network) {
 }
 
 function toMarketCard(market: any, window: string, priceMap: Map<string, number>) {
-  const volumeQuote = pickMarketVolume(market, window)
-  const quoteId = market?.quote_token?.id
-  const quotePrice = priceMap.get(quoteId) || 0
-  const volumeUSD = volumeQuote * quotePrice
+  const volumeUSD = pickMarketVolumeUsd(market, window, priceMap)
   const lastPrice = safeNumber(market.last_price)
   const ask = safeNumber(market.ask)
   const bid = safeNumber(market.bid)
@@ -770,7 +774,7 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
   })
 
   const topSpotPairsRaw = [...markets]
-    .sort((a, b) => pickMarketVolume(b, window.label) - pickMarketVolume(a, window.label))
+    .sort((a, b) => pickMarketVolumeUsd(b, window.label, priceMap) - pickMarketVolumeUsd(a, window.label, priceMap))
     .slice(0, 10)
 
   const marketTxStats = includeTx ? await buildMarketTxStats(network.name, topSpotPairsRaw.map((m) => m.id), window.since) : new Map()
@@ -1518,8 +1522,18 @@ analytics.get('/spot-pairs', cacheSeconds(60, (req, res) => {
   const includes = parseIncludes(req.query.include)
   const includeTx = includes.has('tx')
   const includeDepth = includes.has('depth')
+  const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
 
-  const markets = await Market.find({ chain: network.name }).lean()
+  let markets = await Market.find({ chain: network.name }).lean()
+  if (hideScam) {
+    const { scam_contracts, scam_tokens } = await getScamLists(network)
+    markets = markets.filter((m) =>
+      !scam_contracts.has(m.base_token.contract) &&
+      !scam_contracts.has(m.quote_token.contract) &&
+      !scam_tokens.has(m.base_token.id) &&
+      !scam_tokens.has(m.quote_token.id)
+    )
+  }
   const tokens = (await getTokens(network.name)) || []
   const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
 
@@ -1534,8 +1548,8 @@ analytics.get('/spot-pairs', cacheSeconds(60, (req, res) => {
       av = safeNumber(a.last_price)
       bv = safeNumber(b.last_price)
     } else {
-      av = pickMarketVolume(a, window.label)
-      bv = pickMarketVolume(b, window.label)
+      av = pickMarketVolumeUsd(a, window.label, priceMap)
+      bv = pickMarketVolumeUsd(b, window.label, priceMap)
     }
     return (av - bv) * dir
   })
