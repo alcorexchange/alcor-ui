@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Market, Match, SwapPool } from '../../models'
 import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
+import { getScamLists } from '../apiV2Service/config'
 
 const MAX_SANE_PRICE = 100000
 const DEFAULT_MIN_POOL_BASE_LIQUIDITY_USD = 100
@@ -86,6 +87,10 @@ export async function makeAllTokensWithPrices(network: Network) {
 
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
   const systemPrice = parseFloat(await getRedis().get(`${network.name}_price`)) || 0
+  const trustedScoreMin = positiveNumber(process.env.TOKEN_TRUSTED_SCORE_MIN, 40)
+  const scores = JSON.parse(await getRedis().get(`${network.name}_token_scores`) || '{}')
+  const { scam_contracts, scam_tokens } = await getScamLists(network)
+  const isScam = (id: string, contract: string) => scam_tokens.has(id) || scam_contracts.has(contract)
 
   // Price from pool is accepted only when reference side (system/USD) has enough liquidity.
   const minimumUSDAmount = positiveNumber(process.env.MIN_POOL_BASE_LIQUIDITY_USD, DEFAULT_MIN_POOL_BASE_LIQUIDITY_USD)
@@ -154,6 +159,7 @@ export async function makeAllTokensWithPrices(network: Network) {
   const poolsByToken = new Map<string, any[]>()
   for (const p of enough_liquidity_pools) {
     if (!isSystemOrUsdPool(p)) continue
+    if (isScam(p.tokenA.id, p.tokenA.contract) || isScam(p.tokenB.id, p.tokenB.contract)) continue
 
     if (!poolsByToken.has(p.tokenA.id)) poolsByToken.set(p.tokenA.id, [])
     poolsByToken.get(p.tokenA.id)?.push(p)
@@ -172,6 +178,12 @@ export async function makeAllTokensWithPrices(network: Network) {
     if (t.id == USD_TOKEN) {
       t.system_price = (1 / systemPrice)
       t.usd_price = 1
+      continue
+    }
+
+    if (isScam(t.id, t.contract)) {
+      t.system_price = 0
+      t.usd_price = 0
       continue
     }
 
@@ -277,6 +289,27 @@ export async function makeAllTokensWithPrices(network: Network) {
     }
 
     tokens.push(t)
+  }
+
+  for (const t of tokens) {
+    const score = Number(scores?.[t.id]?.score || 0)
+    const scam = isScam(t.id, t.contract)
+    const isBaseOrUsd = t.id === system_token || t.id === USD_TOKEN
+    const trusted = !scam && (isBaseOrUsd || score > trustedScoreMin)
+
+    if (scam) {
+      t.usd_price = 0
+      t.system_price = 0
+    }
+
+    const usdPrice = Number.isFinite(Number(t.usd_price)) ? Number(t.usd_price) : 0
+    const systemTokenPrice = Number.isFinite(Number(t.system_price)) ? Number(t.system_price) : 0
+
+    t.score = score
+    t.is_scam = scam
+    t.is_trusted = trusted
+    t.safe_usd_price = trusted ? usdPrice : 0
+    t.safe_system_price = trusted ? systemTokenPrice : 0
   }
 
   return tokens

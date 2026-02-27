@@ -1,5 +1,8 @@
 import { SwapPool, Swap } from '../../models'
+import config from '../../../config'
+import { getTokens } from '../../utils'
 import { onSwapAction, aggregatePositions } from '../swapV2Service'
+import { computeSafePoolTvlUSD } from './poolValuation'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
@@ -68,6 +71,7 @@ export async function updatePositionsAggregation(chain: string) {
 export async function updatePoolsStats(chain) {
   console.time(`${chain} pools updated`)
   try {
+    const network = config.networks[chain]
     const now = Date.now()
     const dayAgo = now - ONEDAY
     const weekAgo = now - WEEK
@@ -98,6 +102,8 @@ export async function updatePoolsStats(chain) {
     ])
 
     const statsByPool = new Map(volumeStats.map(item => [item._id, item]))
+    const tokens = await getTokens(chain)
+    const tokenMap = new Map((tokens || []).map((t) => [t.id, t]))
 
     // Get all pools and update them
     const pools = await SwapPool.find({ chain })
@@ -106,7 +112,7 @@ export async function updatePoolsStats(chain) {
     const batchSize = 10
     for (let i = 0; i < pools.length; i += batchSize) {
       const batch = pools.slice(i, i + batchSize)
-      await Promise.all(batch.map(pool => updatePoolData(pool, chain, statsByPool)))
+      await Promise.all(batch.map(pool => updatePoolData(pool, chain, statsByPool, tokenMap, network)))
     }
 
     await backfillPoolFirstSeen(chain, pools)
@@ -116,7 +122,7 @@ export async function updatePoolsStats(chain) {
   console.timeEnd(`${chain} pools updated`)
 }
 
-async function updatePoolData(pool, chain, statsByPool) {
+async function updatePoolData(pool, chain, statsByPool, tokenMap, network) {
   try {
     const stats = statsByPool.get(pool.id) || {}
     const dayStats = { volumeUSD: stats.volumeUSD24 || 0, volumeA: stats.volumeA24 || 0, volumeB: stats.volumeB24 || 0 }
@@ -140,6 +146,7 @@ async function updatePoolData(pool, chain, statsByPool) {
     pool.volumeBMonth = monthStats.volumeB
     pool.change24 = change24
     pool.changeWeek = changeWeek
+    pool.tvlUSD = computeSafePoolTvlUSD(pool, tokenMap, network)
 
     await pool.save()
   } catch (error) {

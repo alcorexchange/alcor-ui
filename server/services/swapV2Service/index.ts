@@ -9,6 +9,7 @@ import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
+import { computeSafePoolTvlUSD } from '../updaterService/poolValuation'
 import { makeSwapBars, resolutions, getBarTimes } from '../updaterService/charts'
 import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
 import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, getTokens, initRedis, mongoConnect } from './../../utils'
@@ -637,11 +638,11 @@ export async function updatePool(chain: string, poolId: number) {
   // Update tvlUSD
   const tokenA = await getToken(chain, parsedPool.tokenA.id)
   const tokenB = await getToken(chain, parsedPool.tokenB.id)
-
-  const tokenAUSDPrice = tokenA?.usd_price || 0
-  const tokenBUSDPrice = tokenB?.usd_price || 0
-
-  const tvlUSD = parsedPool.tokenA.quantity * tokenAUSDPrice + parsedPool.tokenB.quantity * tokenBUSDPrice
+  const tokenMap = new Map<string, any>([
+    [parsedPool.tokenA.id, tokenA],
+    [parsedPool.tokenB.id, tokenB],
+  ])
+  const tvlUSD = computeSafePoolTvlUSD(parsedPool, tokenMap, network)
 
   const price = new Price(
     parseToken(pool.tokenA),
@@ -741,6 +742,8 @@ function parsePool(pool: { [key: string]: any }) {
 export async function updatePools(chain: string, forceAll = false) {
   const network = networks[chain]
   const rpc = getFailOverAlcorOnlyRpc(network)
+  const tokenList = await getTokens(chain)
+  const tokenMap = new Map<string, any>((tokenList || []).map((t) => [t.id, t]))
 
   const pools = await fetchAllRows(rpc, {
     code: network.amm.contract,
@@ -766,11 +769,12 @@ export async function updatePools(chain: string, forceAll = false) {
 
       const priceA = price.toSignificant()
       const priceB = price.invert().toSignificant()
+      const tvlUSD = computeSafePoolTvlUSD(parsed_pool, tokenMap, network)
 
       return {
         updateOne: {
           filter: { chain, id: pool.id },
-          update: { $set: { ...parsed_pool, priceA, priceB, chain } },
+          update: { $set: { ...parsed_pool, priceA, priceB, tvlUSD, chain } },
           upsert: true
         }
       }
@@ -795,8 +799,8 @@ export async function updatePools(chain: string, forceAll = false) {
 
         const priceA = price.toSignificant()
         const priceB = price.invert().toSignificant()
-
-        to_create.push({ ...parsed_pool, priceA, priceB, chain })
+        const tvlUSD = computeSafePoolTvlUSD(parsed_pool, tokenMap, network)
+        to_create.push({ ...parsed_pool, priceA, priceB, tvlUSD, chain })
       }
     }
 
@@ -843,8 +847,8 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
   const tokenA = await getToken(chain, pool.tokenA.id)
   const tokenB = await getToken(chain, pool.tokenB.id)
 
-  const tokenAUSDPrice = tokenA?.usd_price || 0
-  const tokenBUSDPrice = tokenB?.usd_price || 0
+  const tokenAUSDPrice = Number.isFinite(Number(tokenA?.safe_usd_price)) ? Number(tokenA.safe_usd_price) : (tokenA?.usd_price || 0)
+  const tokenBUSDPrice = Number.isFinite(Number(tokenB?.safe_usd_price)) ? Number(tokenB.safe_usd_price) : (tokenB?.usd_price || 0)
 
   const totalUSDValue = ((tokenAamount * tokenAUSDPrice) + (tokenBamount * tokenBUSDPrice)).toFixed(4)
 
@@ -879,8 +883,10 @@ export async function handleSwap({ chain, data, trx_id, block_time, block_num })
   const tokenB = await getToken(chain, pool.tokenB.id)
 
   const MAX_SANE_PRICE = 100000
-  const tokenAUSDPrice = (tokenA?.usd_price && tokenA.usd_price < MAX_SANE_PRICE) ? tokenA.usd_price : 0
-  const tokenBUSDPrice = (tokenB?.usd_price && tokenB.usd_price < MAX_SANE_PRICE) ? tokenB.usd_price : 0
+  const tokenARawPrice = Number.isFinite(Number(tokenA?.safe_usd_price)) ? Number(tokenA.safe_usd_price) : Number(tokenA?.usd_price || 0)
+  const tokenBRawPrice = Number.isFinite(Number(tokenB?.safe_usd_price)) ? Number(tokenB.safe_usd_price) : Number(tokenB?.usd_price || 0)
+  const tokenAUSDPrice = (tokenARawPrice > 0 && tokenARawPrice < MAX_SANE_PRICE) ? tokenARawPrice : 0
+  const tokenBUSDPrice = (tokenBRawPrice > 0 && tokenBRawPrice < MAX_SANE_PRICE) ? tokenBRawPrice : 0
 
   const totalUSDVolume = (Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)) / 2
 
