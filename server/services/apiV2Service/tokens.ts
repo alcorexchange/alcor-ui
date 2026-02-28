@@ -6,6 +6,7 @@ import axios from 'axios'
 import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
 import { getScamLists } from './config'
+import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 
 export const tokens = Router()
 
@@ -67,6 +68,14 @@ tokens.get('/tokens/:id/logo', async (req, res) => {
   if (existsSync(iconPath)) {
     res.set('Cache-Control', 'public, max-age=86400')
     res.sendFile(iconPath)
+    return
+  }
+
+  // Proton fallback from token.proton::tokens registry
+  const protonRegistryToken = await getProtonTokenRegistryEntry(network, symbol, contract)
+  if (protonRegistryToken?.iconUrl) {
+    res.set('Cache-Control', 'public, max-age=86400')
+    res.redirect(301, protonRegistryToken.iconUrl)
     return
   }
 

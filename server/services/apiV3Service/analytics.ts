@@ -11,6 +11,8 @@ import { resolutions as candleResolutions, normalizeResolution } from '../update
 import { getIncentives } from '../apiV2Service/farms'
 import { getOrderbook } from '../orderbookService/start'
 import { sqrt } from '../../../utils/bigint'
+import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
+import type { ProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import fs from 'fs'
 import path from 'path'
 
@@ -159,16 +161,18 @@ function getLocalLogoUrl(networkName: string, tokenId: string, symbol: string, c
   return null
 }
 
-async function getLogoUrl(networkName: string, token: any) {
-  if (!token || !networkName) return null
+async function getLogoUrl(network: any, token: any, protonRegistryToken: ProtonTokenRegistryEntry | null = null) {
+  if (!token || !network?.name) return null
   const tokenId = String(token.id || '')
   const symbol = String(token.symbol || '').toLowerCase()
   const contract = String(token.contract || '')
 
-  const local = getLocalLogoUrl(networkName, tokenId, symbol, contract)
+  const local = getLocalLogoUrl(network.name, tokenId, symbol, contract)
   if (local) return local
 
-  return await getEosAirdropLogo(networkName, symbol, contract)
+  if (protonRegistryToken?.iconUrl) return protonRegistryToken.iconUrl
+
+  return await getEosAirdropLogo(network.name, symbol, contract)
 }
 
 const fundamentalsCache = new Map<string, any>()
@@ -188,14 +192,54 @@ function loadFundamentals(networkName: string) {
   }
 }
 
-function getFundamental(networkName: string, token: any) {
-  if (!token || !networkName) return null
-  const byChain = loadFundamentals(networkName)
-  if (!byChain) return null
+function buildFundamentalFromProton(protonToken: ProtonTokenRegistryEntry | null) {
+  if (!protonToken) return null
+
+  return {
+    name: protonToken.name || null,
+    website: {
+      link: protonToken.url || '',
+      name: protonToken.name || '',
+    },
+    tags: [],
+    socials: [],
+    description: protonToken.description || '',
+    iconurl: protonToken.iconUrl || null,
+    blacklisted: protonToken.blacklisted,
+    source: 'token.proton',
+  }
+}
+
+function mergeFundamental(base: any, fallback: any) {
+  if (!base) return fallback || null
+  if (!fallback) return base
+
+  return {
+    ...base,
+    name: base.name || fallback.name || null,
+    description: base.description || fallback.description || '',
+    website: {
+      link: base.website?.link || fallback.website?.link || '',
+      name: base.website?.name || fallback.website?.name || '',
+    },
+    iconurl: base.iconurl || fallback.iconurl || null,
+    blacklisted: base.blacklisted ?? fallback.blacklisted ?? false,
+  }
+}
+
+async function getFundamental(network: any, token: any, protonRegistryToken: ProtonTokenRegistryEntry | null = null) {
+  if (!token || !network?.name) return null
+
+  const byChain = loadFundamentals(network.name)
   const symbol = String(token.symbol || '').toUpperCase()
   const contract = String(token.contract || '')
   const key = `${symbol}@${contract}`
-  return byChain[key] || null
+  const base = byChain?.[key] || null
+
+  const protonToken = protonRegistryToken || await getProtonTokenRegistryEntry(network, symbol, contract)
+  const protonFundamental = buildFundamentalFromProton(protonToken)
+
+  return mergeFundamental(base, protonFundamental)
 }
 
 function pickPoolVolumes(pool: any, window: string) {
@@ -839,7 +883,8 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
       const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
       const volumeSwap = safeNumber(stats.swapVolumeUSD)
       const volumeSpot = safeNumber(stats.spotVolumeUSD)
-      const logoUrl = await getLogoUrl(network.name, t)
+      const protonRegistryToken = await getProtonTokenRegistryEntry(network, t.symbol, t.contract)
+      const logoUrl = await getLogoUrl(network, t, protonRegistryToken)
 
       const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
       const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
@@ -848,7 +893,7 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
         id: t.id,
         symbol: t.symbol,
         contract: t.contract,
-        name: t.name || null,
+        name: t.name || protonRegistryToken?.name || null,
         decimals: t.decimals,
         logo: logoUrl,
         logoUrl,
@@ -1025,18 +1070,19 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
     const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
     const volumeSwap = safeNumber(stats.swapVolumeUSD)
     const volumeSpot = safeNumber(stats.spotVolumeUSD)
-    const logoUrl = await getLogoUrl(network.name, t)
+    const protonRegistryToken = await getProtonTokenRegistryEntry(network, t.symbol, t.contract)
+    const logoUrl = await getLogoUrl(network, t, protonRegistryToken)
 
     const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
     const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
 
-    const fundamental = includeFundamental ? getFundamental(network.name, t) : null
+    const fundamental = includeFundamental ? await getFundamental(network, t, protonRegistryToken) : null
 
     return {
       id: t.id,
       symbol: t.symbol,
       contract: t.contract,
-      name: t.name || null,
+      name: t.name || protonRegistryToken?.name || null,
       decimals: t.decimals,
       logo: logoUrl,
       logoUrl,
@@ -1156,8 +1202,10 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const usdTokenId = network?.USD_TOKEN || null
   const tokenPool = pickPoolForToken(new Map([[token.id, pools]]), token.id, baseTokenId, usdTokenId)
   const priceChange24h = computeTokenPriceChange24(tokenPool, token.id)
+  const protonRegistryToken = await getProtonTokenRegistryEntry(network, token.symbol, token.contract)
 
-  const fundamental = getFundamental(network.name, token)
+  const fundamental = await getFundamental(network, token, protonRegistryToken)
+  const logoUrl = await getLogoUrl(network, token, protonRegistryToken)
 
   const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
   const marketTxStats = includeTx ? await buildMarketTxStats(network.name, markets.map((m) => m.id), window.since) : new Map()
@@ -1178,9 +1226,10 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
       id: token.id,
       symbol: token.symbol,
       contract: token.contract,
-      name: token.name || null,
+      name: token.name || protonRegistryToken?.name || null,
       decimals: token.decimals,
-      logo: getLogoUrl(network.name, token.id),
+      logo: logoUrl,
+      logoUrl,
       price: { usd: safeNumber(token.usd_price), change24h: priceChange24h },
       liquidity: { tvl: safeNumber(tokenStats?.tvlUSD) },
       volume: {
