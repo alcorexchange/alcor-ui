@@ -1,12 +1,12 @@
-import { fetchAllRows } from '../../utils/eosjs'
-import { getFailOverAlcorOnlyRpc } from '../utils'
 import { getRedis } from './redis'
+import { fetchProtonTokenRegistryRowsWharfkit } from './protonTokenRegistryWharfkit'
 
 const PROTON_NETWORK = 'proton'
-const TOKEN_REGISTRY_CONTRACT = 'token.proton'
-const TOKEN_REGISTRY_TABLE = 'tokens'
 const TOKEN_REGISTRY_CACHE_KEY = 'proton_token_registry_tokens_v1'
 const TOKEN_REGISTRY_CACHE_TTL_MS = 1000 * 60 * 60 // 1 hour
+const TOKEN_REGISTRY_FAILURE_COOLDOWN_MS = 1000 * 60 * 10 // 10 minutes
+const TOKEN_REGISTRY_FAILURE_LOG_THROTTLE_MS = 1000 * 60 // 1 minute
+const TOKEN_REGISTRY_SKIPPED_SAMPLE_SIZE = 5
 
 type ProtonTokenRegistryRow = {
   id?: number | string
@@ -33,6 +33,25 @@ export type ProtonTokenRegistryEntry = {
 let inMemoryFetchedAt = 0
 let inMemoryEntries = new Map<string, ProtonTokenRegistryEntry>()
 let refreshPromise: Promise<Map<string, ProtonTokenRegistryEntry>> | null = null
+let lastRegistryFailureAt = 0
+let lastRegistryFailureLogAt = 0
+
+function isMalformedSymbolError(error: any): boolean {
+  const message = String(error?.message || '').toLowerCase()
+  if (!message) return false
+
+  return (
+    message.includes('error unpacking eosio::chain::symbol') ||
+    message.includes("unable to unpack built-in type 'symbol'") ||
+    (message.includes('precision') && message.includes('<= 18') && message.includes('symbol'))
+  )
+}
+
+function shouldLogRegistryFailure(now: number): boolean {
+  if (now - lastRegistryFailureLogAt < TOKEN_REGISTRY_FAILURE_LOG_THROTTLE_MS) return false
+  lastRegistryFailureLogAt = now
+  return true
+}
 
 function normalizeSymbol(rawSymbol: any): string | null {
   if (typeof rawSymbol !== 'string') return null
@@ -128,14 +147,18 @@ async function writeRedisCache(rows: ProtonTokenRegistryRow[], fetchedAt: number
 }
 
 async function fetchRegistryRows(network: any): Promise<ProtonTokenRegistryRow[]> {
-  const rpc = getFailOverAlcorOnlyRpc(network)
+  const { rows, skipped } = await fetchProtonTokenRegistryRowsWharfkit(network)
 
-  return await fetchAllRows(rpc, {
-    code: TOKEN_REGISTRY_CONTRACT,
-    scope: TOKEN_REGISTRY_CONTRACT,
-    table: TOKEN_REGISTRY_TABLE,
-    limit: 1000,
-  })
+  if (skipped.length > 0) {
+    const sample = skipped
+      .slice(0, TOKEN_REGISTRY_SKIPPED_SAMPLE_SIZE)
+      .map((row) => `${row.id || '?'}:${row.contract || '?'}:${row.symbolRaw || '?'} (${row.reason})`)
+      .join(', ')
+
+    console.warn(`[proton] skipped ${skipped.length} malformed token.proton::tokens rows${sample ? ` | sample: ${sample}` : ''}`)
+  }
+
+  return rows
 }
 
 async function refreshInMemory(network: any) {
@@ -159,6 +182,11 @@ async function getRegistryMap(network: any): Promise<Map<string, ProtonTokenRegi
   const isMemoryFresh = inMemoryEntries.size > 0 && (now - inMemoryFetchedAt) < TOKEN_REGISTRY_CACHE_TTL_MS
   if (isMemoryFresh) return inMemoryEntries
 
+  // Registry table on Proton occasionally contains malformed symbol rows.
+  // Treat this source as optional and back off refresh attempts for a while.
+  const onFailureCooldown = (now - lastRegistryFailureAt) < TOKEN_REGISTRY_FAILURE_COOLDOWN_MS
+  if (onFailureCooldown) return inMemoryEntries
+
   if (!refreshPromise) {
     refreshPromise = (async () => {
       const redisCached = await readRedisCache()
@@ -175,7 +203,19 @@ async function getRegistryMap(network: any): Promise<Map<string, ProtonTokenRegi
       try {
         return await refreshInMemory(network)
       } catch (e) {
-        console.error('[proton] failed to fetch token.proton::tokens:', e.message)
+        lastRegistryFailureAt = now
+
+        if (isMalformedSymbolError(e)) {
+          if (shouldLogRegistryFailure(now)) {
+            const cooldownMinutes = Math.round(TOKEN_REGISTRY_FAILURE_COOLDOWN_MS / (60 * 1000))
+            console.warn(
+              `[proton] token.proton::tokens contains malformed symbol rows; pausing registry refresh for ${cooldownMinutes}m:`,
+              e.message
+            )
+          }
+        } else if (shouldLogRegistryFailure(now)) {
+          console.error('[proton] failed to fetch token.proton::tokens:', e.message)
+        }
 
         if (redisCached && redisCached.map.size > 0) {
           inMemoryEntries = redisCached.map
