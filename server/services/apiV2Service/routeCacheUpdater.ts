@@ -431,9 +431,13 @@ async function scanAndUpdateRoutes(chain) {
 
     // Загружаем пулы для сети
     const allPools = await getAllPools(chain)
-    // Все пулы из getAllPools уже отфильтрованы (активные с тиками)
-    const liquidPools = Array.from(allPools.values())
-    console.log(`[POOLS] Using ${liquidPools.length} liquid pools for ${chain}`)
+    // Важно: используем ту же фильтрацию, что и в swapRouter,
+    // иначе updater может кешировать маршруты через пулы без тиков,
+    // которые router затем отбрасывает.
+    const routablePools = (Array.from(allPools.values()) as any[]).filter(
+      (p) => Boolean(p && p.active && p.tickDataProvider?.ticks?.length > 0)
+    )
+    console.log(`[POOLS] Using ${routablePools.length}/${allPools.size} routable pools for ${chain}`)
 
     // Проверяем expiration для каждого роута с использованием pipeline
     const currentTime = Date.now()
@@ -486,7 +490,7 @@ async function scanAndUpdateRoutes(chain) {
 
     // Обновляем роуты батчами для параллельной обработки
     let updated = 0
-    const poolIds = liquidPools.map((p: any) => p.id)
+    const poolIds = routablePools.map((p: any) => p.id)
 
     // Разбиваем на батчи
     for (let i = 0; i < routesToUpdate.length; i += BATCH_SIZE) {
@@ -502,8 +506,8 @@ async function scanAndUpdateRoutes(chain) {
         const routeInfo = parseRouteKey('routes_' + route.key)
         if (!routeInfo || routeInfo.chain !== chain) return false
 
-        const inputToken = findToken(liquidPools, routeInfo.inputTokenId)
-        const outputToken = findToken(liquidPools, routeInfo.outputTokenId)
+        const inputToken = findToken(routablePools, routeInfo.inputTokenId)
+        const outputToken = findToken(routablePools, routeInfo.outputTokenId)
 
         if (!inputToken || !outputToken) {
           console.log(`[SKIP] Tokens not found for route: ${route.key}`)

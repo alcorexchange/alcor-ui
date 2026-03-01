@@ -235,6 +235,64 @@ async function computeRoutesOnDemand(
   )
   const poolsForRoutes = pools as Pool[]
 
+  const inputTokenId = inputToken.id
+  const outputTokenId = outputToken.id
+  const adjacency = new Map<string, Set<string>>()
+  let inputPoolCount = 0
+  let outputPoolCount = 0
+
+  for (const pool of poolsForRoutes) {
+    const tokenAId = pool.tokenA.id
+    const tokenBId = pool.tokenB.id
+
+    if (!adjacency.has(tokenAId)) adjacency.set(tokenAId, new Set())
+    if (!adjacency.has(tokenBId)) adjacency.set(tokenBId, new Set())
+    adjacency.get(tokenAId)!.add(tokenBId)
+    adjacency.get(tokenBId)!.add(tokenAId)
+
+    if (tokenAId === inputTokenId || tokenBId === inputTokenId) inputPoolCount++
+    if (tokenAId === outputTokenId || tokenBId === outputTokenId) outputPoolCount++
+  }
+
+  if (inputPoolCount === 0 || outputPoolCount === 0) {
+    const endTime = performance.now()
+    console.log(
+      `[ROUTES] On-demand precheck: ${cacheKey} -> 0 routes (no attached pools: input=${inputPoolCount}, output=${outputPoolCount}, total=${poolsForRoutes.length}) in ${Math.round(endTime - startTime)}ms`
+    )
+    return []
+  }
+
+  const visited = new Set<string>([inputTokenId])
+  const queue: Array<{ tokenId: string; hops: number }> = [{ tokenId: inputTokenId, hops: 0 }]
+  let hasPathWithinHops = inputTokenId === outputTokenId
+
+  for (let i = 0; i < queue.length && !hasPathWithinHops; i++) {
+    const { tokenId, hops } = queue[i]
+    if (hops >= maxHops) continue
+
+    const neighbors = adjacency.get(tokenId)
+    if (!neighbors) continue
+
+    for (const nextTokenId of neighbors) {
+      if (nextTokenId === outputTokenId) {
+        hasPathWithinHops = true
+        break
+      }
+
+      if (visited.has(nextTokenId)) continue
+      visited.add(nextTokenId)
+      queue.push({ tokenId: nextTokenId, hops: hops + 1 })
+    }
+  }
+
+  if (!hasPathWithinHops) {
+    const endTime = performance.now()
+    console.log(
+      `[ROUTES] On-demand precheck: ${cacheKey} -> 0 routes (graph disconnected within ${maxHops} hops, total pools=${poolsForRoutes.length}) in ${Math.round(endTime - startTime)}ms`
+    )
+    return []
+  }
+
   let routes: Route<Token, Token>[] = []
   try {
     routes = computeAllRoutes(inputToken, outputToken, poolsForRoutes, maxHops) as Route<Token, Token>[]
