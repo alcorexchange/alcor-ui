@@ -11,11 +11,29 @@ export const swapRouter = Router()
 
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
 const ROUTES_CACHE_TIMEOUT_SECONDS = 60 * 60 * 24 * 20 // 20 дней
+const ROUTES_UPDATING_TIMEOUT_SECONDS = 60 * 15
+const ON_DEMAND_QUEUE_KEY = 'routes_on_demand_queue'
+const ON_DEMAND_QUEUE_LOCK_KEY = 'routes_on_demand_queue_lock'
+const ON_DEMAND_QUEUE_LOCK_TTL_SECONDS = 120
+const ON_DEMAND_QUEUE_JOB_TTL_SECONDS = 60 * 5
+const ON_DEMAND_WAIT_TIMEOUT_MS = 120000
+const ON_DEMAND_WAIT_STEP_MS = 500
+const ON_DEMAND_EMPTY_COOLDOWN_SECONDS = 20
+const PROCESS_INSTANCE_ID = `${process.pid}-${Math.random().toString(36).slice(2, 10)}`
 const POOLS = {}
 const POOLS_LOADING_PROMISES = {}
 const TOKEN_INDEX = {} // { chain: Map<tokenId, Token> }
 const TRADE_CACHE = new Map() // Кеш для результатов trade
 const CACHE_TTL = 5000 // 3 секунды TTL для кеша
+let queueProcessorPromise: Promise<void> | null = null
+
+interface OnDemandRouteJob {
+  chain: string
+  inputTokenId: string
+  outputTokenId: string
+  maxHops: number
+  cacheKey: string
+}
 
 // Статистика по источникам запросов
 const REQUEST_STATS = new Map() // origin -> { count, lastSeen, routes: Map }
@@ -121,7 +139,7 @@ async function getAllPools(chain) {
   return POOLS[chain]
 }
 
-async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
+async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2, allPoolsMap: Map<any, Pool> | null = null) {
   const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
   const redisRoutes = await getRedis().get('routes_' + cacheKey)
 
@@ -134,15 +152,32 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
     return { routes: [], cacheKey, cacheMiss: true, cacheEmpty: true }
   }
 
-  const allPools = await getAllPools(chain)
-  const routes = []
-  const parsedRoutes = JSON.parse(redisRoutes)
+  const allPools = allPoolsMap || await getAllPools(chain)
+  const routes = parseRoutesFromRedis(cacheKey, redisRoutes, allPools, inputToken, outputToken)
 
   // Если кеш пустой, помечаем как expired для пересчёта и возвращаем
-  if (!parsedRoutes || parsedRoutes.length === 0) {
+  if (routes.length === 0) {
     // Устанавливаем время истечения в прошлое чтобы updater пересчитал
     await getRedis().set('routes_expiration_' + cacheKey, (Date.now() - 60 * 60 * 1000).toString())
     return { routes, cacheKey, cacheMiss: false, cacheEmpty: true }
+  }
+
+  return { routes, cacheKey, cacheMiss: false, cacheEmpty: false }
+}
+
+function parseRoutesFromRedis(cacheKey, redisRoutes, allPools, inputToken, outputToken) {
+  let parsedRoutes = []
+  const routes = []
+
+  try {
+    parsedRoutes = JSON.parse(redisRoutes)
+  } catch (e) {
+    console.error(`[ROUTES] Failed to parse routes from redis for ${cacheKey}:`, e.message)
+    return routes
+  }
+
+  if (!parsedRoutes || parsedRoutes.length === 0) {
+    return routes
   }
 
   for (const route of parsedRoutes) {
@@ -156,7 +191,18 @@ async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2) {
     }
   }
 
-  return { routes, cacheKey, cacheMiss: false, cacheEmpty: false }
+  return routes
+}
+
+async function readCachedRoutesWithoutTouchingExpiration(chain, inputToken, outputToken, maxHops = 2, allPoolsMap: Map<any, Pool> | null = null) {
+  const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
+  const redisRoutes = await getRedis().get('routes_' + cacheKey)
+  if (!redisRoutes) {
+    return []
+  }
+
+  const allPools = allPoolsMap || await getAllPools(chain)
+  return parseRoutesFromRedis(cacheKey, redisRoutes, allPools, inputToken, outputToken)
 }
 
 // Оптимизированный поиск токенов через индекс O(1)
@@ -207,6 +253,163 @@ async function computeRoutesOnDemand(
   console.log(`[ROUTES] On-demand compute: ${cacheKey} -> ${routes.length} routes in ${Math.round(endTime - startTime)}ms`)
 
   return routes
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function onDemandEnqueuedKey(cacheKey: string) {
+  return `routes_on_demand_enqueued_${cacheKey}`
+}
+
+function onDemandCooldownKey(cacheKey: string) {
+  return `routes_on_demand_cooldown_${cacheKey}`
+}
+
+async function enqueueOnDemandRoute(job: OnDemandRouteJob) {
+  const redis = getRedis()
+  const enqueuedKey = onDemandEnqueuedKey(job.cacheKey)
+
+  // Если недавно уже считали и не нашли роутов, не заспамливаем очередь.
+  if (await redis.get(onDemandCooldownKey(job.cacheKey))) {
+    console.log(`[ROUTES] On-demand skip (cooldown): ${job.cacheKey}`)
+    return { enqueued: false, reason: 'cooldown' }
+  }
+
+  const setResult = await redis.set(enqueuedKey, PROCESS_INSTANCE_ID, { EX: ON_DEMAND_QUEUE_JOB_TTL_SECONDS, NX: true })
+  if (setResult !== 'OK') {
+    const queueSize = await redis.lLen(ON_DEMAND_QUEUE_KEY)
+    console.log(`[ROUTES] On-demand already queued: ${job.cacheKey} | queue size: ${queueSize}`)
+    return { enqueued: false, reason: 'already_queued' }
+  }
+
+  try {
+    const queueSize = await redis.rPush(ON_DEMAND_QUEUE_KEY, JSON.stringify(job))
+    const position = queueSize
+    console.log(`[ROUTES] On-demand queued: ${job.cacheKey} | position: ${position}/${queueSize}`)
+    return { enqueued: true, reason: 'queued' }
+  } catch (e) {
+    await redis.del(enqueuedKey)
+    throw e
+  }
+}
+
+async function releaseQueueLock(lockValue: string) {
+  const redis = getRedis()
+  const current = await redis.get(ON_DEMAND_QUEUE_LOCK_KEY)
+  if (current === lockValue) {
+    await redis.del(ON_DEMAND_QUEUE_LOCK_KEY)
+  }
+}
+
+async function processQueuedOnDemandRoute(job: OnDemandRouteJob) {
+  const redis = getRedis()
+  const { chain, inputTokenId, outputTokenId, maxHops, cacheKey } = job
+  const updatingKey = 'updating_' + cacheKey
+
+  try {
+    const allPools = await getAllPools(chain)
+    const inputToken = findToken(chain, inputTokenId)
+    const outputToken = findToken(chain, outputTokenId)
+
+    if (!inputToken || !outputToken || inputToken.equals(outputToken)) {
+      return
+    }
+
+    const routesInCache = await readCachedRoutesWithoutTouchingExpiration(chain, inputToken, outputToken, maxHops, allPools)
+    if (routesInCache.length > 0) {
+      return
+    }
+
+    const lockSet = await redis.set(updatingKey, PROCESS_INSTANCE_ID, { EX: ROUTES_UPDATING_TIMEOUT_SECONDS, NX: true })
+    if (lockSet !== 'OK') {
+      return
+    }
+
+    try {
+      const routes = await computeRoutesOnDemand(chain, inputToken, outputToken, maxHops, allPools, cacheKey)
+      if (routes.length === 0) {
+        await redis.set(onDemandCooldownKey(cacheKey), Date.now().toString(), { EX: ON_DEMAND_EMPTY_COOLDOWN_SECONDS })
+      }
+    } finally {
+      await redis.del(updatingKey)
+    }
+  } catch (e) {
+    console.error(`[ROUTES] Failed to process queued job ${cacheKey}:`, e.message)
+  } finally {
+    await redis.del(onDemandEnqueuedKey(cacheKey))
+  }
+}
+
+function startOnDemandQueueProcessor() {
+  if (queueProcessorPromise) return queueProcessorPromise
+
+  queueProcessorPromise = (async () => {
+    const redis = getRedis()
+    const lockValue = `${PROCESS_INSTANCE_ID}:${Date.now()}`
+    const lockSet = await redis.set(ON_DEMAND_QUEUE_LOCK_KEY, lockValue, { EX: ON_DEMAND_QUEUE_LOCK_TTL_SECONDS, NX: true })
+
+    if (lockSet !== 'OK') {
+      return
+    }
+
+    try {
+      while (true) {
+        const rawJob = await redis.lPop(ON_DEMAND_QUEUE_KEY)
+        if (!rawJob) break
+
+        await redis.expire(ON_DEMAND_QUEUE_LOCK_KEY, ON_DEMAND_QUEUE_LOCK_TTL_SECONDS)
+
+        let job: OnDemandRouteJob
+        try {
+          job = JSON.parse(rawJob)
+        } catch (e) {
+          console.error('[ROUTES] Invalid on-demand queue payload:', e.message)
+          continue
+        }
+
+        if (!job?.cacheKey || !job?.chain || !job?.inputTokenId || !job?.outputTokenId) {
+          continue
+        }
+
+        const queueLeft = await redis.lLen(ON_DEMAND_QUEUE_KEY)
+        console.log(`[ROUTES] On-demand processing: ${job.cacheKey} | left in queue: ${queueLeft}`)
+
+        await processQueuedOnDemandRoute(job)
+        await redis.expire(ON_DEMAND_QUEUE_LOCK_KEY, ON_DEMAND_QUEUE_LOCK_TTL_SECONDS)
+      }
+    } finally {
+      await releaseQueueLock(lockValue)
+    }
+  })()
+    .catch((e) => {
+      console.error('[ROUTES] On-demand queue processor failed:', e.message)
+    })
+    .finally(() => {
+      queueProcessorPromise = null
+    })
+
+  return queueProcessorPromise
+}
+
+async function waitForQueuedRoutes(chain, inputToken, outputToken, maxHops, cacheKey, allPools) {
+  const startAt = Date.now()
+  while (Date.now() - startAt < ON_DEMAND_WAIT_TIMEOUT_MS) {
+    const routesInCache = await readCachedRoutesWithoutTouchingExpiration(chain, inputToken, outputToken, maxHops, allPools)
+    if (routesInCache.length > 0) {
+      return routesInCache
+    }
+
+    const enqueued = await getRedis().get(onDemandEnqueuedKey(cacheKey))
+    if (!enqueued) {
+      break
+    }
+
+    await sleep(ON_DEMAND_WAIT_STEP_MS)
+  }
+
+  return []
 }
 
 // Эндпоинт для просмотра статистики
@@ -311,7 +514,8 @@ swapRouter.get('/getRoute', async (req, res) => {
       network.name,
       inputToken,
       outputToken,
-      maxHops
+      maxHops,
+      allPools
     )
     cachedRoutes = cachedRoutesInfo.routes
     cacheKey = cachedRoutesInfo.cacheKey
@@ -322,15 +526,29 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   if (cachedRoutes.length == 0) {
     console.log(`[ROUTES] Cache empty: ${network.name} ${inputToken.symbol}(${inputToken.id}) -> ${outputToken.symbol}(${outputToken.id}) maxHops:${maxHops}`)
+    const effectiveCacheKey = cacheKey || `${network.name}-${inputToken.id}-${outputToken.id}-${maxHops}`
+
     try {
-      cachedRoutes = await computeRoutesOnDemand(
-        network.name,
-        inputToken,
-        outputToken,
+      const queueResult = await enqueueOnDemandRoute({
+        chain: network.name,
+        inputTokenId: inputToken.id,
+        outputTokenId: outputToken.id,
         maxHops,
-        allPools,
-        cacheKey || `${network.name}-${inputToken.id}-${outputToken.id}-${maxHops}`
-      )
+        cacheKey: effectiveCacheKey
+      })
+
+      startOnDemandQueueProcessor()
+
+      if (queueResult.reason !== 'cooldown') {
+        cachedRoutes = await waitForQueuedRoutes(
+          network.name,
+          inputToken,
+          outputToken,
+          maxHops,
+          effectiveCacheKey,
+          allPools
+        )
+      }
     } catch (e) {
       console.error('Error computing routes on-demand:', e.message)
     }
