@@ -4,7 +4,7 @@ import _ from 'lodash'
 import workerpool from 'workerpool'
 import invariant from 'tiny-invariant'
 
-import { getBestSwapRoute, CurrencyAmount, Route, Currency, Percent, Trade, TradeType } from '@alcorexchange/alcor-swap-sdk'
+import { getBestSwapRoute, CurrencyAmount, Route, Currency, Percent, Trade, TradeType, SplitRouteQuote } from '@alcorexchange/alcor-swap-sdk'
 
 const WorkerPool = workerpool.pool(path.resolve(__dirname, 'workers/computeTradeFromRoute.js'), { maxWorkers: 6 })
 
@@ -36,7 +36,7 @@ export async function bestTradeWithSplitMultiThreaded(
 
   const trades = await Promise.all(route_promises)
 
-  const percentToTrades: { [percent: number]: Trade<Currency, Currency, TradeType>[] } = {}
+  const percentToQuotes: { [percent: number]: SplitRouteQuote[] } = {}
   for (let { inputAmount, outputAmount, routeBuffer, percent } of trades.filter(t => !!t)) {
     const route = Route.fromBuffer(routeBuffer)
 
@@ -45,18 +45,18 @@ export async function bestTradeWithSplitMultiThreaded(
 
     if (!inputAmount.greaterThan(0)) continue
 
-    if (!percentToTrades[percent]) {
-      percentToTrades[percent] = []
+    if (!percentToQuotes[percent]) {
+      percentToQuotes[percent] = []
     }
 
-    percentToTrades[percent].push(Trade.createUncheckedTrade({ percent, route, inputAmount, outputAmount, tradeType }))
+    percentToQuotes[percent].push({ percent, route, inputAmount, outputAmount })
   }
 
-  const bestTrades = getBestSwapRoute(tradeType, percentToTrades, percents, swapConfig)
+  const bestTrades = getBestSwapRoute(tradeType, percentToQuotes, percents, swapConfig)
   if (!bestTrades) return null
 
-  const routes = bestTrades.map(({ inputAmount, outputAmount, route, swaps }) => {
-    return { inputAmount, outputAmount, route, percent: swaps[0].percent }
+  const routes = bestTrades.map(({ inputAmount, outputAmount, route, percent }) => {
+    return { inputAmount, outputAmount, route, percent }
   })
 
   // Check missing input after splitting

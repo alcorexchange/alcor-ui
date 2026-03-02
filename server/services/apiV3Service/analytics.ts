@@ -13,6 +13,7 @@ import { getOrderbook } from '../orderbookService/start'
 import { sqrt } from '../../../utils/bigint'
 import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import type { ProtonTokenRegistryEntry } from '../protonTokenRegistryService'
+import { getSimpleTokenLogoUrl } from '../simpleTokenLogoService'
 import fs from 'fs'
 import path from 'path'
 
@@ -171,6 +172,9 @@ async function getLogoUrl(network: any, token: any, protonRegistryToken: ProtonT
   if (local) return local
 
   if (protonRegistryToken?.iconUrl) return protonRegistryToken.iconUrl
+
+  const simpleTokenLogoUrl = await getSimpleTokenLogoUrl(network, token)
+  if (simpleTokenLogoUrl) return simpleTokenLogoUrl
 
   return await getEosAirdropLogo(network.name, symbol, contract)
 }

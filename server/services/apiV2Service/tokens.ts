@@ -7,6 +7,7 @@ import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
 import { getScamLists } from './config'
 import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
+import { getSimpleTokenLogoUrl } from '../simpleTokenLogoService'
 
 export const tokens = Router()
 
@@ -76,6 +77,14 @@ tokens.get('/tokens/:id/logo', async (req, res) => {
   if (protonRegistryToken?.iconUrl) {
     res.set('Cache-Control', 'public, max-age=86400')
     res.redirect(301, protonRegistryToken.iconUrl)
+    return
+  }
+
+  // Proton simpletoken fallback from simplelaunch::curves imageUrl
+  const simpleTokenLogoUrl = await getSimpleTokenLogoUrl(network, { symbol, contract })
+  if (simpleTokenLogoUrl) {
+    res.set('Cache-Control', 'public, max-age=86400')
+    res.redirect(301, simpleTokenLogoUrl)
     return
   }
 
