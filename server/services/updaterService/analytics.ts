@@ -25,7 +25,8 @@ export async function updateGlobalStats(network, day = null) {
   const markets = await Market.find({ chain: network.name })
   const pools = await SwapPool.find({ chain: network.name })
 
-  const tokenPriceMap = new Map<string, number>(tokens.map(t => [t.id, t.usd_price || 0]))
+  // Use trusted prices to avoid inflating global spot volume by untrusted/scam quote tokens.
+  const tokenPriceMap = new Map<string, number>(tokens.map(t => [t.id, safeNumber(t?.safe_usd_price)]))
 
   let spotTradingVolume = 0
   let spotFees = 0
