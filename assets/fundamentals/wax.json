@@ -829,7 +829,7 @@
       "https://waxdao.io/v2/daos/democraticmx",
       "https://zora.co/@cilfun"
     ],
-    "description": "CILFUN is the Community Integration & Leadership Functional Unity Network, the token powering the CILOK MASTER community and DAO. Used for voting, community contribution, event rewards, staking, and access to exclusive ecosystem features."
+    "description": "CILFUN (Community Integration & Leadership Functional Unity Network) is the governance and community utility token powering the CILOK MASTER Funverse. It enables voting, staking, contribution rewards, event incentives, and access to exclusive ecosystem features."
   },
 
   "CILBORN@masterxtoken": {
@@ -848,7 +848,7 @@
       "https://discord.gg/5ZApzNVZkJ",
       "https://zora.co/@cilokmaster"
     ],
-    "description": "CILBORN is the Conversion-Integrated Limited-Burn Optimized Redistribution Network, a deflationary token designed to maintain ecosystem supply balance. Each conversion of CILBORN → CILMAST triggers an automatic burn on CILMAST, creating long-term scarcity and economic stability."
+    "description": "CILBORN (Conversion-Integrated Limited-Burn Optimized Redistribution Network) is the deflationary mechanism token of the CILOK MASTER ecosystem. Each CILBORN → CILMAST conversion triggers a corresponding reduction in CILMAST supply, reinforcing long-term scarcity and systematic supply balance. "
   },
   "LOLK@cilfunxtoken": {
     "name": {
