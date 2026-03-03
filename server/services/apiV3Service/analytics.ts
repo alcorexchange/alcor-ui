@@ -46,6 +46,7 @@ type TokenInfo = {
   contract?: string
   name?: string
   usd_price?: number
+  safe_usd_price?: number
 }
 
 function getWindow(queryWindow: any) {
@@ -73,6 +74,10 @@ function normalizeCandleResolution(input: any) {
 function safeNumber(value: any, fallback = 0) {
   const n = Number(value)
   return Number.isFinite(n) ? n : fallback
+}
+
+function getSafeUsdPrice(token: any, fallback = 0) {
+  return safeNumber(token?.safe_usd_price, fallback)
 }
 
 function getPoolLpFeeRate(pool: any) {
@@ -336,7 +341,7 @@ async function loadTokenHoldersStats(chain: string, tokenIds: string[]) {
 
 function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: string, tokenTvlMap?: Map<string, number>) {
   const tokenStats = new Map<string, any>()
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
 
   for (const token of tokens) {
     tokenStats.set(token.id, {
@@ -580,7 +585,7 @@ function toFarmCard(incentive: any, pool: any, tokensMap: Map<string, TokenInfo>
   const rewardTokenId =
     rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
   const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
-  const rewardTokenPrice = safeNumber(rewardToken?.usd_price, 0)
+  const rewardTokenPrice = getSafeUsdPrice(rewardToken)
 
   const rewardPerDay = safeNumber(incentive.rewardPerDay, 0)
   const rewardPerDayUSD = rewardPerDay * rewardTokenPrice
@@ -648,7 +653,7 @@ function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, Toke
     const rewardContract = incentive?.reward?.contract
     const rewardTokenId = rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
     const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
-    const rewardTokenPrice = rewardToken?.usd_price ?? 0
+    const rewardTokenPrice = getSafeUsdPrice(rewardToken)
     const dayRewardInUSD = rewardPerDay * rewardTokenPrice
 
     const apr = (dayRewardInUSD / effectiveTvlUSD) * 365 * 100
@@ -750,7 +755,7 @@ function attachIncentives(poolCard: any, pool: any, incentivesByPool: Map<number
     const rewardContract = i?.reward?.contract
     const rewardTokenId = rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
     const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
-    const rewardTokenPrice = safeNumber(rewardToken?.usd_price, 0)
+    const rewardTokenPrice = getSafeUsdPrice(rewardToken)
     const rewardPerDay = safeNumber(i?.rewardPerDay)
     const rewardPerDayUSD = rewardPerDay * rewardTokenPrice
     const utilizationPct = calcIncentiveStakePercent(i, pool)
@@ -818,7 +823,7 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
 
   const tokens = (await getTokens(network.name)) || []
   const holdersStats = await loadTokenHoldersStats(network.name, tokens.map((t) => t.id))
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
 
   const pools = await SwapPool.find({ chain: network.name }).lean()
   const markets = await Market.find({ chain: network.name }).lean()
@@ -1211,7 +1216,7 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const fundamental = await getFundamental(network, token, protonRegistryToken)
   const logoUrl = await getLogoUrl(network, token, protonRegistryToken)
 
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
   const marketTxStats = includeTx ? await buildMarketTxStats(network.name, markets.map((m) => m.id), window.since) : new Map()
 
   const spotPairs = await Promise.all(markets.map(async (m) => {
@@ -1316,7 +1321,7 @@ analytics.get('/tokens/:id/spot-pairs', cacheSeconds(60, (req, res) => {
   }
 
   const tokens = (await getTokens(network.name)) || []
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
   const marketTxStats = includeTx ? await buildMarketTxStats(network.name, markets.map((m) => m.id), window.since) : new Map()
 
   const items = await Promise.all(markets.map(async (m) => {
@@ -1614,7 +1619,7 @@ analytics.get('/spot-pairs', cacheSeconds(60, (req, res) => {
     )
   }
   const tokens = (await getTokens(network.name)) || []
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
 
   const sort = String(req.query.sort || 'volume').toLowerCase()
   const order = String(req.query.order || 'desc').toLowerCase()
@@ -1676,7 +1681,7 @@ analytics.get('/spot-pairs/:id', cacheSeconds(60, (req, res) => {
   if (!market) return res.status(404).send('Market is not found')
 
   const tokens = (await getTokens(network.name)) || []
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
 
   let card = toMarketCard(market, window.label, priceMap)
   if (includeTx) {

@@ -144,7 +144,7 @@ export async function fetchPlatformBalances(network, tokens: any[]) {
   const contracts = getPlatformContracts(network)
   const tokenPriceMap = new Map<string, number>(tokens.map(t => [
     t.id,
-    Number.isFinite(Number(t.safe_usd_price)) ? Number(t.safe_usd_price) : (t.usd_price || 0)
+    Number.isFinite(Number(t.safe_usd_price)) ? Number(t.safe_usd_price) : 0
   ]))
 
   const results = await Promise.all(

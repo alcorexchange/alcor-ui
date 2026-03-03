@@ -4,9 +4,7 @@ function toFiniteNumber(value: any, fallback = 0) {
 }
 
 function getTokenUsdPrice(token: any) {
-  const safe = toFiniteNumber(token?.safe_usd_price, NaN)
-  if (Number.isFinite(safe)) return safe
-  return toFiniteNumber(token?.usd_price, 0)
+  return toFiniteNumber(token?.safe_usd_price, 0)
 }
 
 function isTrustedToken(

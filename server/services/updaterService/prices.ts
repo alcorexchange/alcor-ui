@@ -193,7 +193,7 @@ export async function makeAllTokensWithPrices(network: Network) {
       if (!Number.isFinite(referenceUsdPrice) || referenceUsdPrice <= 0) continue
 
       const usdPrice = rawPrice * referenceUsdPrice
-      if (!Number.isFinite(usdPrice) || usdPrice <= 0 || usdPrice > MAX_SANE_PRICE) continue
+      if (!Number.isFinite(usdPrice) || usdPrice <= 0) continue
 
       const liquidityUSD = getReferenceLiquidityUSD(p, referenceId)
       if (!Number.isFinite(liquidityUSD) || liquidityUSD < minimumUSDAmount) continue
@@ -230,12 +230,6 @@ export async function makeAllTokensWithPrices(network: Network) {
       const usdPrice = weightedMedianUsdPrice(candidates)
       t.usd_price = usdPrice
       t.system_price = systemPrice > 0 ? usdPrice / systemPrice : 0
-
-      // Cap unrealistic prices (likely from low liquidity pools)
-      if (t.usd_price > MAX_SANE_PRICE) {
-        t.usd_price = 0
-        t.system_price = 0
-      }
     }
 
     // if (t.id.includes('pasta-aquascapeart')) {
@@ -297,11 +291,6 @@ export async function makeAllTokensWithPrices(network: Network) {
       }
     }
 
-    if (t.usd_price > MAX_SANE_PRICE) {
-      t.usd_price = 0
-      t.system_price = 0
-    }
-
     tokens.push(t)
   }
 
@@ -318,12 +307,13 @@ export async function makeAllTokensWithPrices(network: Network) {
 
     const usdPrice = Number.isFinite(Number(t.usd_price)) ? Number(t.usd_price) : 0
     const systemTokenPrice = Number.isFinite(Number(t.system_price)) ? Number(t.system_price) : 0
+    const isSaneUsdPrice = usdPrice > 0 && usdPrice <= MAX_SANE_PRICE
 
     t.score = score
     t.is_scam = scam
     t.is_trusted = trusted
-    t.safe_usd_price = trusted ? usdPrice : 0
-    t.safe_system_price = trusted ? systemTokenPrice : 0
+    t.safe_usd_price = trusted && isSaneUsdPrice ? usdPrice : 0
+    t.safe_system_price = trusted && isSaneUsdPrice ? systemTokenPrice : 0
   }
 
   return tokens

@@ -45,6 +45,11 @@ function parseAssetAmount(assetString) {
   return { amount, symbol, precision }
 }
 
+function getSafeUsdPrice(token) {
+  const safe = Number(token?.safe_usd_price)
+  return Number.isFinite(safe) && safe > 0 ? safe : 0
+}
+
 function getLogoUrl(networkName, tokenId) {
   if (!tokenId) return null
   return `https://${networkName}.alcor.exchange/api/v2/tokens/${tokenId}/logo`
@@ -117,7 +122,7 @@ function calcIncentiveApr(incentive, pool, tokensMap) {
     const rewardContract = incentive?.reward?.contract
     const rewardTokenId = rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
     const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
-    const rewardTokenPrice = rewardToken?.usd_price ?? 0
+    const rewardTokenPrice = getSafeUsdPrice(rewardToken)
     const dayRewardInUSD = rewardPerDay * rewardTokenPrice
 
     const apr = (dayRewardInUSD / effectiveTvlUSD) * 365 * 100
@@ -457,7 +462,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
   }
 
   const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`)) || []
-  const tokensMap = new Map<string, { usd_price?: number }>(
+  const tokensMap = new Map<string, { usd_price?: number, safe_usd_price?: number }>(
     tokenPrices.map((t) => [t.id, t])
   )
 
@@ -582,8 +587,8 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
 
     const amountA = typeof pos.amountA === 'string' ? parseAssetPlain(pos.amountA).amount : pos.amountA
     const amountB = typeof pos.amountB === 'string' ? parseAssetPlain(pos.amountB).amount : pos.amountB
-    const amountAUsd = Number(amountA || 0) * (tokensMap.get(tokenA.id)?.usd_price ?? 0)
-    const amountBUsd = Number(amountB || 0) * (tokensMap.get(tokenB.id)?.usd_price ?? 0)
+    const amountAUsd = Number(amountA || 0) * getSafeUsdPrice(tokensMap.get(tokenA.id))
+    const amountBUsd = Number(amountB || 0) * getSafeUsdPrice(tokensMap.get(tokenB.id))
     const totalAmountsUsd = amountAUsd + amountBUsd
     const percentA = totalAmountsUsd > 0 ? (amountAUsd / totalAmountsUsd) * 100 : 0
     const percentB = totalAmountsUsd > 0 ? (amountBUsd / totalAmountsUsd) * 100 : 0
@@ -591,10 +596,10 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
     const feesAParsed = parseAssetAmount(pos.feesA)
     const feesBParsed = parseAssetAmount(pos.feesB)
     const feesAUsd = feesAParsed
-      ? feesAParsed.amount * (tokensMap.get(tokenA.id)?.usd_price ?? 0)
+      ? feesAParsed.amount * getSafeUsdPrice(tokensMap.get(tokenA.id))
       : 0
     const feesBUsd = feesBParsed
-      ? feesBParsed.amount * (tokensMap.get(tokenB.id)?.usd_price ?? 0)
+      ? feesBParsed.amount * getSafeUsdPrice(tokensMap.get(tokenB.id))
       : 0
 
     const poolSharePct = calcPoolSharePct(pool.liquidity, pos.liquidity, Boolean(pos.inRange))

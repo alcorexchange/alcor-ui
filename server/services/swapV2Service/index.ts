@@ -36,6 +36,11 @@ type SwapBatch = {
 
 const chainBatches: Map<string, SwapBatch> = new Map()
 
+function getSafeUsdPrice(token: any) {
+  const safe = Number(token?.safe_usd_price)
+  return Number.isFinite(safe) && safe > 0 ? safe : 0
+}
+
 // Flush all pending batches (for graceful shutdown)
 export async function flushAllSwapBatches() {
   for (const [chain, batch] of chainBatches) {
@@ -112,9 +117,8 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
     const tokenA = tokensMap.get(pool.tokenA.id)
     const tokenB = tokensMap.get(pool.tokenB.id)
 
-    const MAX_SANE_PRICE = 100000
-    const tokenAUSDPrice = (tokenA?.usd_price && tokenA.usd_price < MAX_SANE_PRICE) ? tokenA.usd_price : 0
-    const tokenBUSDPrice = (tokenB?.usd_price && tokenB.usd_price < MAX_SANE_PRICE) ? tokenB.usd_price : 0
+    const tokenAUSDPrice = getSafeUsdPrice(tokenA)
+    const tokenBUSDPrice = getSafeUsdPrice(tokenB)
 
     const totalUSDVolume = (Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)) / 2
     const swapTime = new Date(block_time as any)
@@ -354,13 +358,13 @@ async function handlePoolChart(
   const tokenAprice = tokenCache.find(t => t.id === tokenA_id)
   const tokenBprice = tokenCache.find(t => t.id === tokenB_id)
 
-  const usdReserveA = reserveA * (tokenAprice?.usd_price || 0)
-  const usdReserveB = reserveB * (tokenBprice?.usd_price || 0)
+  const usdReserveA = reserveA * getSafeUsdPrice(tokenAprice)
+  const usdReserveB = reserveB * getSafeUsdPrice(tokenBprice)
 
   const last_point = await SwapChartPoint.findOne({ chain: network.name, pool: poolId }, {}, { sort: { time: -1 } })
 
-  const volumeTokenA = tokenAprice ? volumeA * tokenAprice?.usd_price : 0
-  const volumeTokenB = tokenBprice ? volumeB * tokenBprice?.usd_price : 0
+  const volumeTokenA = volumeA * getSafeUsdPrice(tokenAprice)
+  const volumeTokenB = volumeB * getSafeUsdPrice(tokenBprice)
 
   const volumeUSD = volumeTokenA + volumeTokenB
 
@@ -847,8 +851,8 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
   const tokenA = await getToken(chain, pool.tokenA.id)
   const tokenB = await getToken(chain, pool.tokenB.id)
 
-  const tokenAUSDPrice = Number.isFinite(Number(tokenA?.safe_usd_price)) ? Number(tokenA.safe_usd_price) : (tokenA?.usd_price || 0)
-  const tokenBUSDPrice = Number.isFinite(Number(tokenB?.safe_usd_price)) ? Number(tokenB.safe_usd_price) : (tokenB?.usd_price || 0)
+  const tokenAUSDPrice = getSafeUsdPrice(tokenA)
+  const tokenBUSDPrice = getSafeUsdPrice(tokenB)
 
   const totalUSDValue = ((tokenAamount * tokenAUSDPrice) + (tokenBamount * tokenBUSDPrice)).toFixed(4)
 
@@ -882,11 +886,8 @@ export async function handleSwap({ chain, data, trx_id, block_time, block_num })
   const tokenA = await getToken(chain, pool.tokenA.id)
   const tokenB = await getToken(chain, pool.tokenB.id)
 
-  const MAX_SANE_PRICE = 100000
-  const tokenARawPrice = Number.isFinite(Number(tokenA?.safe_usd_price)) ? Number(tokenA.safe_usd_price) : Number(tokenA?.usd_price || 0)
-  const tokenBRawPrice = Number.isFinite(Number(tokenB?.safe_usd_price)) ? Number(tokenB.safe_usd_price) : Number(tokenB?.usd_price || 0)
-  const tokenAUSDPrice = (tokenARawPrice > 0 && tokenARawPrice < MAX_SANE_PRICE) ? tokenARawPrice : 0
-  const tokenBUSDPrice = (tokenBRawPrice > 0 && tokenBRawPrice < MAX_SANE_PRICE) ? tokenBRawPrice : 0
+  const tokenAUSDPrice = getSafeUsdPrice(tokenA)
+  const tokenBUSDPrice = getSafeUsdPrice(tokenB)
 
   const totalUSDVolume = (Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)) / 2
 
