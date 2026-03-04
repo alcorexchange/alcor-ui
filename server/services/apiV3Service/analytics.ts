@@ -756,8 +756,9 @@ function toMarketCard(market: any, window: string, priceMap: Map<string, number>
 
   return {
     id: market.id,
-    base: market.base_token,
-    quote: market.quote_token,
+    // Keep spot pair sides aligned with /api/v2/tickers ticker_id ordering.
+    base: market.quote_token,
+    quote: market.base_token,
     price: {
       last: lastPrice,
       change24h: safeNumber(market.change24),
