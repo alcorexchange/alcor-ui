@@ -225,7 +225,7 @@ const networks = {
       'xusdt-tokencreate', 'xusdt-tokencreate', 'yfi-tokencreate'
     ],
     SCAM_CONTRACTS: [
-      'eosiotokens', 'albabank', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
+      'eosiotokens', 'bayramela', 'magaxpr', 'bartxpr', 'gokuxpr', 'btoken', 'hulkxpr', 'gretaxpr',
       'xprjesus', 'lgbtqxpr', 'pikachuxpr', 'wojakxpr', 'lgbtqxpr', 'softclarinet', 'liquidtokens', 'metaltoken',
       'quantnetwork', 'xtokeneosio', 'xflare', 'sui.xpr', 'thorchain', 'sologenicxpr', 'eosioavax', 'xahaunetwork',
       'celestia', 'moneroxmr', 'arbitrum', 'toncoinxpr', 'polkadotx', 'hederax', 'icpx', 'protoninj', 'protonfile', 'xlinkchain',
