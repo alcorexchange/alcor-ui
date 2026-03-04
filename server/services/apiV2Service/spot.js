@@ -36,15 +36,19 @@ function formatToken(token) {
   }
 }
 
-function formatTicker(m, tokens = [], global_tokens = []) {
+function getPairKey(a, b) {
+  return a < b ? `${a}|${b}` : `${b}|${a}`
+}
+
+function formatTicker(m, tokenById = new Map(), global_tokens = []) {
   const [base, target] = m.ticker_id.split('_')
 
   m.market_id = m.id
   m.target_currency = target.toLowerCase()
   m.base_currency = base.toLowerCase()
 
-  const target_token = tokens.find(t => t.id == m.target_currency)
-  const base_token = tokens.find(t => t.id == m.base_currency)
+  const target_token = tokenById.get(m.target_currency)
+  const base_token = tokenById.get(m.base_currency)
 
   m.target_cmc_ucid = target_token?.cmc_id || null
   m.base_cmc_ucid = base_token?.cmc_id || null
@@ -56,6 +60,8 @@ function formatTicker(m, tokens = [], global_tokens = []) {
   } else {
     m.global_ticker_id = null
   }
+
+  return getPairKey(m.base_currency, m.target_currency)
 }
 
 spot.get('/pairs', cacheSeconds(60, (req, res) => {
@@ -83,15 +89,7 @@ spot.get('/pairs', cacheSeconds(60, (req, res) => {
   res.json(pairs)
 })
 
-function formatMarket(m, pools, tokens = []) {
-  const market_pools = pools.filter(p => {
-    return (
-      (p.tokenA.id == m.target_currency) && (p.tokenB.id == m.base_currency)
-    ) || (
-      (p.tokenA.id == m.base_currency) && (p.tokenB.id == m.target_currency)
-    )
-  })
-
+function formatMarket(m, market_pools = [], tokenById = new Map()) {
   m.target_amm_liquidity = 0
   m.base_amm_liquidity = 0
 
@@ -118,7 +116,7 @@ function formatMarket(m, pools, tokens = []) {
   })
 
   // Calculate 24h volume in USD (use target token as it's usually the system token with reliable USD price)
-  const target_token = tokens.find(t => t.id == m.target_currency)
+  const target_token = tokenById.get(m.target_currency)
   const spot_volume_usd = m.target_volume * (target_token?.usd_price || 0)
 
   m.volumeUSD24 = spot_volume_usd + amm_volume_usd
@@ -130,33 +128,47 @@ spot.get('/tickers', cacheSeconds(60, (req, res) => {
 }), async (req, res) => {
   const network = req.app.get('network')
   const hide_scam = req.query.hide_scam === 'true'
-  const tokens = await getTokens(network.name)
+  const [tokens, pools, rawMarkets] = await Promise.all([
+    getTokens(network.name),
+    SwapPool.find({ chain: network.name })
+      .select('tokenA.id tokenA.quantity tokenB.id tokenB.quantity volumeA24 volumeB24 volumeUSD24')
+      .lean(),
+    Market.find({ chain: network.name })
+      .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek')
+      .lean(),
+  ])
 
-  const pools = await SwapPool.find({ chain: network.name }).select('-_id -__v').lean()
-
-  let markets = await Market.find({ chain: network.name })
-    .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
+  let markets = rawMarkets
 
   // Depth 2/-2%
   // > baseTokenLiquidity * (Math.sqrt(1 / 1.02) - 1)
   // > baseTokenLiquidity * (1 - Math.sqrt(1 / 0.98))
 
-  markets.forEach(m => {
-    formatTicker(m, tokens, network.GLOBAL_TOKENS)
-    formatMarket(m, pools, tokens)
-  })
-
   if (hide_scam) {
     const { scam_contracts, scam_tokens } = await getScamLists(network)
     markets = markets.filter(m => {
-      const baseContract = m.base_currency.split('-')[1]
-      const targetContract = m.target_currency.split('-')[1]
+      const [baseCurrency, targetCurrency] = String(m.ticker_id || '').toLowerCase().split('_')
+      const baseContract = String(baseCurrency || '').split('-')[1]
+      const targetContract = String(targetCurrency || '').split('-')[1]
       return !scam_contracts.has(baseContract) &&
              !scam_contracts.has(targetContract) &&
-             !scam_tokens.has(m.base_currency) &&
-             !scam_tokens.has(m.target_currency)
+             !scam_tokens.has(baseCurrency) &&
+             !scam_tokens.has(targetCurrency)
     })
   }
+
+  const tokenById = new Map((tokens || []).map(t => [t.id, t]))
+  const poolsByPair = new Map()
+  for (const p of pools) {
+    const key = getPairKey(p.tokenA.id, p.tokenB.id)
+    if (!poolsByPair.has(key)) poolsByPair.set(key, [])
+    poolsByPair.get(key).push(p)
+  }
+
+  markets.forEach(m => {
+    const pairKey = formatTicker(m, tokenById, network.GLOBAL_TOKENS)
+    formatMarket(m, poolsByPair.get(pairKey) || [], tokenById)
+  })
 
   res.json(markets)
 })
@@ -167,15 +179,27 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   const network = req.app.get('network')
 
   const { ticker_id } = req.params
-  const pools = await SwapPool.find({ chain: network.name }).select('-_id -__v').lean()
-  const tokens = await getTokens(network.name)
+  const [baseCurrency, targetCurrency] = String(ticker_id).toLowerCase().split('_')
+  const [pools, tokens] = await Promise.all([
+    SwapPool.find({
+      chain: network.name,
+      $or: [
+        { 'tokenA.id': targetCurrency, 'tokenB.id': baseCurrency },
+        { 'tokenA.id': baseCurrency, 'tokenB.id': targetCurrency },
+      ],
+    })
+      .select('tokenA.id tokenA.quantity tokenB.id tokenB.quantity volumeA24 volumeB24 volumeUSD24')
+      .lean(),
+    getTokens(network.name),
+  ])
   const m = await Market.findOne({ ticker_id, chain: network.name })
     .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
 
   if (!m) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
 
-  formatTicker(m, tokens, network.GLOBAL_TOKENS)
-  formatMarket(m, pools, tokens)
+  const tokenById = new Map((tokens || []).map(t => [t.id, t]))
+  formatTicker(m, tokenById, network.GLOBAL_TOKENS)
+  formatMarket(m, pools, tokenById)
 
   res.json(m)
 })
