@@ -1095,8 +1095,35 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
     )
   }
 
-  const pools = await SwapPool.find({ chain: network.name }).lean()
-  const markets = await Market.find({ chain: network.name }).lean()
+  if (tokens.length === 0) {
+    return res.json({
+      meta: buildMeta(network, window.label),
+      items: [],
+      page: 1,
+      limit: Math.min(Math.max(parseInt(String(req.query.limit || '50')), 1), 500),
+      total: 0,
+    })
+  }
+
+  const tokenIds = tokens.map((t) => t.id)
+  const useScopedSources = Boolean(search) && tokenIds.length > 0 && tokenIds.length <= 200
+  const poolsQuery: any = useScopedSources
+    ? {
+      chain: network.name,
+      $or: [{ 'tokenA.id': { $in: tokenIds } }, { 'tokenB.id': { $in: tokenIds } }],
+    }
+    : { chain: network.name }
+  const marketsQuery: any = useScopedSources
+    ? {
+      chain: network.name,
+      $or: [{ 'base_token.id': { $in: tokenIds } }, { 'quote_token.id': { $in: tokenIds } }],
+    }
+    : { chain: network.name }
+
+  const [pools, markets] = await Promise.all([
+    SwapPool.find(poolsQuery).lean(),
+    Market.find(marketsQuery).lean(),
+  ])
 
   const baseTokenId = network?.baseToken ? `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase() : null
   const usdTokenId = network?.USD_TOKEN || null
@@ -1115,9 +1142,16 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
     }
   }
 
-  const { tokenTvlMap } = await fetchPlatformBalances(network, tokens)
+  const { tokenTvlMap } = await getPlatformBalancesCached(network, tokens)
   const tokenStats = buildTokenStats(tokens, pools, markets, window.label, tokenTvlMap)
-  const tokenTxStats = await buildTokenTxStats(network.name, tokens, pools, markets, window.since)
+  const tokenTxStats = await buildTokenTxStats(
+    network.name,
+    tokens,
+    pools,
+    markets,
+    window.since,
+    { restrictToProvidedSources: useScopedSources }
+  )
   const tokenScores = await loadTokenScores(network.name)
   const holdersStats = await loadTokenHoldersStats(network.name, tokens.map((t) => t.id))
 
