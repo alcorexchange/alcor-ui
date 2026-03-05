@@ -106,6 +106,7 @@ export async function updateGlobalStats(network, day = null) {
   for (const row of swapVolumes) {
     const pool = poolById.get(Number(row._id))
     if (!pool) continue
+    if (safeNumber(pool?.tvlUSD) < 100) continue
     const volumeUsd = safeNumber(row?.volumeUsd)
     if (!Number.isFinite(volumeUsd) || volumeUsd <= 0) continue
     const feeRate = safeNumber(pool?.fee) / SWAP_FEE_SCALE
