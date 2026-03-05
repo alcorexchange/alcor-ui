@@ -382,6 +382,21 @@ const TokenHoldersHistorySchema = new mongoose.Schema({
 })
 TokenHoldersHistorySchema.index({ chain: 1, tokenId: 1, time: -1 }, { background: true })
 
+const LaunchpadTokenMetaSchema = new mongoose.Schema({
+  chain: { type: String, index: true },
+  token_id: { type: String, index: true },
+  symbol: { type: String },
+  name: { type: String },
+  contract: { type: String },
+  decimals: { type: Number },
+  status: { type: String, default: 'LAUNCH', index: true },
+  total_supply: { type: Number, default: null },
+  created_at: { type: Date, default: () => Date.now(), index: true },
+  updated_at: { type: Date, default: () => Date.now(), index: true },
+})
+LaunchpadTokenMetaSchema.index({ chain: 1, token_id: 1 }, { unique: true })
+LaunchpadTokenMetaSchema.index({ chain: 1, status: 1, updated_at: -1 }, { background: true })
+
 export const Market = mongoose.model('Market', MarketSchema)
 export const PoolPair = mongoose.model('PoolPair', PoolPairSchema)
 export const Liquidity = mongoose.model('Liquidity', LiquiditySchema)
@@ -398,3 +413,4 @@ export const PositionHistory = mongoose.model('PositionHistory', PositionHistory
 export const Position = mongoose.model('Position', PositionSchema)
 export const GlobalStats = mongoose.model('GlobalStats', GlobalStatsSchema)
 export const TokenHoldersHistory = mongoose.model('TokenHoldersHistory', TokenHoldersHistorySchema)
+export const LaunchpadTokenMeta = mongoose.model('LaunchpadTokenMeta', LaunchpadTokenMetaSchema)

@@ -387,6 +387,68 @@ Notes:
 - `liquidity >= 0`; `NaN`/`Infinity` are not returned.
 - If no liquidity is available, `bins` is empty while `currentPrice/minPrice/maxPrice` stay valid.
 
+## Launchpad
+
+Base path: `/api/v3/launchpad`
+
+Notes:
+- Launchpad indexes only `token/baseToken` pools for current chain.
+- Example for Proton: only `token/XPR` pools are included.
+
+### GET `/launchpad/new`
+New launchpad tokens list (sorted by newest first).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+
+### GET `/launchpad/trending`
+Trending launchpad list (score based on 5m volume/trades/change/liquidity).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+
+### GET `/launchpad/graduated`
+Graduated tokens list.
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+
+### GET `/launchpad/search`
+Search tokens by word.
+
+Query:
+- `q` or `search` (required)
+- `list=trending|new|graduated` (default: `trending`)
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+
+### GET `/launchpad/token/:tokenId/summary`
+Live token summary:
+- `price` (quote/base/usd)
+- `liquidity` (base/usd)
+- `volume` and `trades_count` (`5m/1h/24h`)
+- `price_change_pct` (`5m/1h/24h`)
+- `last_trade`
+- `status` (`LAUNCH|OPEN|GRADUATED|UNKNOWN`)
+
+### GET `/launchpad/token/:tokenId/trades`
+Recent token trades (Redis-backed).
+
+Query:
+- `limit` (default: `100`, max: `200`)
+
+### GET `/launchpad/token/:tokenId/holders`
+Optional holders endpoint (top-holders source may be unavailable; returns stats + empty `items` in that case).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+
 ---
 
 ## Shared response shapes

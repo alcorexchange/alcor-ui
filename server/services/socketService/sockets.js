@@ -24,6 +24,13 @@ function normalizeResolution(resolution) {
   return String(resolution)
 }
 
+function normalizeLaunchpadChannel(value) {
+  if (!value) return null
+  const channel = String(value).trim()
+  if (!channel) return null
+  return channel
+}
+
 async function emitSwapTickerV2Snapshot(socket, chain, poolId, resolution) {
   const key = makeSwapTickerV2Key(chain, poolId, resolution)
   const cached = getSwapTickerV2Snapshot(key)
@@ -172,6 +179,13 @@ export function subscribe(io, socket) {
       }
     }
 
+    if (room == 'launchpad') {
+      const channel = normalizeLaunchpadChannel(params?.channel)
+      if (channel) {
+        socket.join(`launchpad:${channel}`)
+      }
+    }
+
     if (room == 'pools') {
       socket.join(`pools:${params.chain}`)
     }
@@ -210,6 +224,17 @@ export function subscribe(io, socket) {
     // if (room == 'swap') {
     //   socket.join(`account:${params.chain}.${params.name}`)
     // }
+  })
+
+  socket.on('launchpad:op', ({ op, channel }) => {
+    const normalized = normalizeLaunchpadChannel(channel)
+    if (!normalized) return
+
+    if (op === 'sub') {
+      socket.join(`launchpad:${normalized}`)
+    } else if (op === 'unsub') {
+      socket.leave(`launchpad:${normalized}`)
+    }
   })
 }
 
@@ -275,6 +300,13 @@ export function unsubscribe(io, socket) {
         socket.leave(`swap:${params.chain}`)
       } else {
         socket.leave(`swap:${params.chain}.${params.poolId}`)
+      }
+    }
+
+    if (room == 'launchpad') {
+      const channel = normalizeLaunchpadChannel(params?.channel)
+      if (channel) {
+        socket.leave(`launchpad:${channel}`)
       }
     }
   })
