@@ -24,6 +24,7 @@ const TRADES_TTL_SECONDS = 3 * 24 * 60 * 60
 const MAX_RECENT_TRADES = 200
 const TRENDING_TOP_N = 50
 const TRENDING_RECALC_MS = Number(process.env.LAUNCHPAD_TRENDING_RECALC_MS || 10_000)
+const POOLS_SYNC_MS = Number(process.env.LAUNCHPAD_POOLS_SYNC_MS || 120_000)
 const LIQUIDITY_GRADUATION_USD = Number(process.env.LAUNCHPAD_GRADUATION_LIQ_USD || 250_000)
 const VOLUME_GRADUATION_USD = Number(process.env.LAUNCHPAD_GRADUATION_VOL24_USD || 500_000)
 
@@ -129,6 +130,7 @@ type ChainRuntimeState = {
   tokens: Map<string, TokenRuntimeState>
   pools: Map<number, PoolRuntimeState>
   tokenPools: Map<string, Set<number>>
+  seededTokenIds: Set<string>
   rankByToken: Map<string, number>
   queue: Promise<void>
   hydrated: boolean
@@ -153,6 +155,20 @@ class LaunchpadMarketDataRuntime {
     if (typeof (timer as any).unref === 'function') {
       ;(timer as any).unref()
     }
+
+    const poolsSyncTimer = setInterval(() => {
+      void this.syncAllChainsFromPools().catch((e) => {
+        console.error('[launchpad] pools sync failed', e)
+      })
+    }, POOLS_SYNC_MS)
+
+    if (typeof (poolsSyncTimer as any).unref === 'function') {
+      ;(poolsSyncTimer as any).unref()
+    }
+
+    void this.bootstrapAllConfiguredChains().catch((e) => {
+      console.error('[launchpad] bootstrap failed', e)
+    })
   }
 
   async handleChainAction(action: any) {
@@ -188,6 +204,7 @@ class LaunchpadMarketDataRuntime {
       tokens: new Map(),
       pools: new Map(),
       tokenPools: new Map(),
+      seededTokenIds: new Set(),
       rankByToken: new Map(),
       queue: Promise.resolve(),
       hydrated: false,
@@ -200,6 +217,17 @@ class LaunchpadMarketDataRuntime {
     return created
   }
 
+  private async bootstrapAllConfiguredChains() {
+    const networks = Object.keys((config as any).networks || {})
+    for (const chain of networks) {
+      try {
+        await this.ensureChainState(chain)
+      } catch (e) {
+        console.error(`[launchpad:${chain}] bootstrap chain failed`, e)
+      }
+    }
+  }
+
   private async hydrateChainState(state: ChainRuntimeState) {
     if (state.hydrated) return
 
@@ -207,6 +235,7 @@ class LaunchpadMarketDataRuntime {
     await this.loadPools(state)
     await this.loadMeta(state)
     await this.restoreFromRedis(state)
+    await this.syncTokenSnapshotsFromPools(state, true)
 
     state.hydrated = true
 
@@ -214,6 +243,22 @@ class LaunchpadMarketDataRuntime {
       hydratedAt: String(Date.now()),
       processId: String(process.pid),
     })
+  }
+
+  private async syncAllChainsFromPools() {
+    for (const state of this.chainStates.values()) {
+      if (!state.hydrated) continue
+
+      state.queue = state.queue
+        .then(async () => {
+          await this.refreshTokenPrices(state)
+          await this.loadPools(state)
+          await this.syncTokenSnapshotsFromPools(state, false)
+        })
+        .catch((e) => {
+          console.error(`[launchpad:${state.chain}] sync queue error`, e)
+        })
+    }
   }
 
   private async refreshTokenPrices(state: ChainRuntimeState) {
@@ -330,6 +375,57 @@ class LaunchpadMarketDataRuntime {
 
       this.pruneBuckets(token)
       this.recomputeRolling(token, Date.now())
+      state.seededTokenIds.add(normalizedTokenId)
+    }
+  }
+
+  private async syncTokenSnapshotsFromPools(state: ChainRuntimeState, force = false) {
+    for (const [tokenId, poolIds] of state.tokenPools.entries()) {
+      if (!tokenId || tokenId === state.baseTokenId) continue
+
+      const token = this.ensureTokenState(state, tokenId, { createdAt: Date.now() })
+
+      let earliest = Number.POSITIVE_INFINITY
+      let liquidityUsd = 0
+
+      for (const poolId of poolIds.values()) {
+        const pool = state.pools.get(poolId)
+        if (!pool) continue
+
+        if (Number.isFinite(pool.createdAt) && pool.createdAt > 0 && pool.createdAt < earliest) {
+          earliest = pool.createdAt
+        }
+        if (finite(pool.tvlUSD) > 0) liquidityUsd += finite(pool.tvlUSD) / 2
+      }
+
+      if (!Number.isFinite(earliest) || earliest <= 0) {
+        earliest = token.createdAt
+      }
+
+      const liquidityBase = state.baseUsd > 0 ? (liquidityUsd / state.baseUsd) : 0
+
+      const prevCreatedAt = token.createdAt
+      const prevLiquidityUsd = token.liquidityUsd
+      const prevQuoteTokenId = token.quoteTokenId
+      const prevStatus = token.status
+
+      token.createdAt = earliest
+      token.quoteTokenId = state.baseTokenId
+      token.liquidityUsd = liquidityUsd
+      token.liquidityBase = liquidityBase
+      token.updatedAt = Date.now()
+      this.applyAutoStatus(token)
+
+      const changed = (
+        prevCreatedAt !== token.createdAt
+        || Math.abs(prevLiquidityUsd - token.liquidityUsd) > 1e-9
+        || prevQuoteTokenId !== token.quoteTokenId
+        || prevStatus !== token.status
+      )
+
+      if (force || changed || !state.seededTokenIds.has(tokenId)) {
+        await this.persistTokenState(state, token)
+      }
     }
   }
 
@@ -729,6 +825,7 @@ class LaunchpadMarketDataRuntime {
     }
 
     await multi.exec()
+    state.seededTokenIds.add(token.tokenId)
 
     await this.upsertTokenMeta(state, token)
   }
@@ -762,9 +859,9 @@ class LaunchpadMarketDataRuntime {
           total_supply: supply,
           updated_at: new Date(token.updatedAt),
         },
-        $setOnInsert: {
+        $min: {
           created_at: new Date(token.createdAt),
-        }
+        },
       },
       { upsert: true }
     )
@@ -786,8 +883,25 @@ class LaunchpadMarketDataRuntime {
     await multi.exec()
   }
 
+  private getTopPoolForToken(state: ChainRuntimeState, tokenId: string) {
+    const poolIds = state.tokenPools.get(tokenId)
+    if (!poolIds || poolIds.size === 0) return null
+
+    let top: PoolRuntimeState | null = null
+    for (const poolId of poolIds.values()) {
+      const pool = state.pools.get(poolId)
+      if (!pool) continue
+      if (!top || finite(pool.tvlUSD) > finite(top.tvlUSD)) {
+        top = pool
+      }
+    }
+
+    return top
+  }
+
   private buildTokenSummary(state: ChainRuntimeState, token: TokenRuntimeState) {
     const tokenPrice = state.tokenPrices.get(token.tokenId)
+    const topPool = this.getTopPoolForToken(state, token.tokenId)
 
     const supply = Number.isFinite(Number(token.totalSupply)) ? Number(token.totalSupply) : null
     const priceUsd = finite(token.lastPriceUsd)
@@ -801,6 +915,8 @@ class LaunchpadMarketDataRuntime {
       name: token.name,
       contract: token.contract,
       decimals: token.decimals,
+      pool_id: topPool?.id ?? null,
+      pool_tvl_usd: topPool ? finite(topPool.tvlUSD) : 0,
       icon_url: tokenPrice?.logo || null,
       status: token.status,
       created_at: token.createdAt,
