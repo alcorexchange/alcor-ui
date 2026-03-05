@@ -49,6 +49,8 @@ const MarketSchema = new mongoose.Schema({
 })
 MarketSchema.index({ chain: 1, id: 1 }, { unique: true })
 MarketSchema.index({ chain: 1, ticker_id: 1 }, { unique: true  })
+MarketSchema.index({ chain: 1, 'base_token.id': 1 }, { background: true })
+MarketSchema.index({ chain: 1, 'quote_token.id': 1 }, { background: true })
 
 const PoolPairSchema = new mongoose.Schema({
   chain: { type: String, index: true },
@@ -83,6 +85,7 @@ const GlobalStatsSchema = new mongoose.Schema({
   totalLiquidityPools: { type: Number },
   totalSpotPairs: { type: Number },
 })
+GlobalStatsSchema.index({ chain: 1, time: 1 }, { background: true })
 
 const LiquiditySchema = new mongoose.Schema({
   chain: { type: String, index: true },
@@ -270,6 +273,8 @@ const SwapPoolSchema = new mongoose.Schema({
   low24: { type: Number, default: 0 }
 })
 SwapPoolSchema.index({ chain: 1, id: 1 }, { unique: true })
+SwapPoolSchema.index({ chain: 1, 'tokenA.id': 1 }, { background: true })
+SwapPoolSchema.index({ chain: 1, 'tokenB.id': 1 }, { background: true })
 
 // Every hour cahrt basic point for info
 const SwapChartPointSchema = new mongoose.Schema({

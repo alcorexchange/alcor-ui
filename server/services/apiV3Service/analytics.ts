@@ -214,21 +214,206 @@ async function getTokenPresentationCached(network: any, token: any): Promise<Tok
 }
 
 const fundamentalsCache = new Map<string, any>()
+type PlatformBalancesData = { tokenTvlMap: Map<string, number>, contractTvlMap: Map<string, number> }
 const platformBalancesCache = new Map<string, {
   expiresAt: number
-  data: { tokenTvlMap: Map<string, number>, contractTvlMap: Map<string, number> }
+  data: PlatformBalancesData
+  refreshPromise?: Promise<void>
 }>()
 const PLATFORM_BALANCES_CACHE_MS = 60 * 1000
+const PLATFORM_BALANCES_REDIS_TTL_SECONDS = 10 * 60
+const PLATFORM_BALANCES_REFRESH_LOCK_TTL_SECONDS = 55
+const PLATFORM_BALANCES_REFRESH_WAIT_MS = 8000
+
+function serializePlatformBalances(data: PlatformBalancesData) {
+  return {
+    tokenTvl: Object.fromEntries(data.tokenTvlMap.entries()),
+    contractTvl: Object.fromEntries(data.contractTvlMap.entries()),
+  }
+}
+
+function deserializePlatformBalances(raw: any): PlatformBalancesData | null {
+  if (!raw || typeof raw !== 'object') return null
+
+  const tokenEntries = Object.entries(raw?.tokenTvl || {})
+    .map(([k, v]) => [String(k), safeNumber(v)] as [string, number])
+  const contractEntries = Object.entries(raw?.contractTvl || {})
+    .map(([k, v]) => [String(k), safeNumber(v)] as [string, number])
+
+  return {
+    tokenTvlMap: new Map<string, number>(tokenEntries),
+    contractTvlMap: new Map<string, number>(contractEntries),
+  }
+}
+
+async function readPlatformBalancesFromRedis(redisKey: string) {
+  const redis = getRedis()
+  try {
+    const raw = await redis.get(redisKey)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    const fetchedAt = safeNumber(parsed?.fetchedAt, 0)
+    const data = deserializePlatformBalances(parsed?.data)
+    if (!data) return null
+    return { fetchedAt, expiresAt: fetchedAt + PLATFORM_BALANCES_CACHE_MS, data }
+  } catch (e) {
+    return null
+  }
+}
+
+async function writePlatformBalancesToRedis(redisKey: string, fetchedAt: number, data: PlatformBalancesData) {
+  const redis = getRedis()
+  try {
+    await redis.set(
+      redisKey,
+      JSON.stringify({
+        fetchedAt,
+        data: serializePlatformBalances(data),
+      }),
+      { EX: PLATFORM_BALANCES_REDIS_TTL_SECONDS }
+    )
+  } catch (e) {
+    // ignore redis write errors; in-memory cache still works
+  }
+}
+
+function getPlatformBalancesRefreshLockKey(networkKey: string) {
+  return `${networkKey}_platform_balances_refresh_lock_v1`
+}
+
+async function tryAcquirePlatformBalancesRefreshLock(lockKey: string) {
+  const redis = getRedis()
+  const lockToken = `${process.pid}:${Date.now()}:${Math.random().toString(36).slice(2)}`
+  try {
+    const result = await redis.set(lockKey, lockToken, {
+      NX: true,
+      EX: PLATFORM_BALANCES_REFRESH_LOCK_TTL_SECONDS,
+    })
+    return result === 'OK' ? lockToken : null
+  } catch (e) {
+    return null
+  }
+}
+
+async function releasePlatformBalancesRefreshLock(lockKey: string, lockToken: string | null) {
+  if (!lockToken) return
+  const redis = getRedis()
+  try {
+    const current = await redis.get(lockKey)
+    if (current === lockToken) {
+      await redis.del(lockKey)
+    }
+  } catch (e) {
+    // rely on lock TTL on failure
+  }
+}
+
+async function waitForPlatformBalancesFromRedis(redisKey: string, timeoutMs = PLATFORM_BALANCES_REFRESH_WAIT_MS) {
+  const startedAt = Date.now()
+  while ((Date.now() - startedAt) < timeoutMs) {
+    const redisCached = await readPlatformBalancesFromRedis(redisKey)
+    if (redisCached?.data) return redisCached
+    await new Promise((resolve) => setTimeout(resolve, 150))
+  }
+  return null
+}
 
 async function getPlatformBalancesCached(network: any, tokens: any[]) {
   const key = String(network?.name || '')
+  const redisKey = `${key}_platform_balances_cache_v1`
+  const lockKey = getPlatformBalancesRefreshLockKey(key)
   const now = Date.now()
   const cached = platformBalancesCache.get(key)
   if (cached && cached.expiresAt > now) return cached.data
 
-  const data = await fetchPlatformBalances(network, tokens)
-  platformBalancesCache.set(key, { expiresAt: now + PLATFORM_BALANCES_CACHE_MS, data })
-  return data
+  const refreshAndPersist = async () => {
+    const fetchedAt = Date.now()
+    const data = await fetchPlatformBalances(network, tokens)
+    platformBalancesCache.set(key, {
+      expiresAt: fetchedAt + PLATFORM_BALANCES_CACHE_MS,
+      data,
+      refreshPromise: undefined,
+    })
+    await writePlatformBalancesToRedis(redisKey, fetchedAt, data)
+    return data
+  }
+
+  const redisCached = await readPlatformBalancesFromRedis(redisKey)
+  if (redisCached && redisCached.expiresAt > now) {
+    platformBalancesCache.set(key, {
+      expiresAt: redisCached.expiresAt,
+      data: redisCached.data,
+      refreshPromise: cached?.refreshPromise,
+    })
+    return redisCached.data
+  }
+
+  const staleEntry = cached?.data
+    ? cached
+    : (redisCached ? { expiresAt: redisCached.expiresAt, data: redisCached.data, refreshPromise: undefined } : null)
+
+  if (staleEntry?.data) {
+    if (!staleEntry.refreshPromise) {
+      const refreshPromise = (async () => {
+        let lockToken: string | null = null
+        try {
+          lockToken = await tryAcquirePlatformBalancesRefreshLock(lockKey)
+          if (!lockToken) return
+          await refreshAndPersist()
+        } catch (e) {
+          platformBalancesCache.set(key, { ...staleEntry, refreshPromise: undefined })
+        } finally {
+          await releasePlatformBalancesRefreshLock(lockKey, lockToken)
+        }
+      })()
+      platformBalancesCache.set(key, { ...staleEntry, refreshPromise })
+    }
+    return staleEntry.data
+  }
+
+  let lockToken: string | null = await tryAcquirePlatformBalancesRefreshLock(lockKey)
+  if (lockToken) {
+    try {
+      return await refreshAndPersist()
+    } finally {
+      await releasePlatformBalancesRefreshLock(lockKey, lockToken)
+    }
+  }
+
+  const waited = await waitForPlatformBalancesFromRedis(redisKey)
+  if (waited?.data) {
+    platformBalancesCache.set(key, {
+      expiresAt: waited.expiresAt,
+      data: waited.data,
+      refreshPromise: undefined,
+    })
+    return waited.data
+  }
+
+  // Fallback path: if lock owner failed to refresh, retry lock once to avoid long outage.
+  lockToken = await tryAcquirePlatformBalancesRefreshLock(lockKey)
+  if (lockToken) {
+    try {
+      return await refreshAndPersist()
+    } finally {
+      await releasePlatformBalancesRefreshLock(lockKey, lockToken)
+    }
+  }
+
+  const staleAfterWait = await readPlatformBalancesFromRedis(redisKey)
+  if (staleAfterWait?.data) {
+    platformBalancesCache.set(key, {
+      expiresAt: staleAfterWait.expiresAt,
+      data: staleAfterWait.data,
+      refreshPromise: undefined,
+    })
+    return staleAfterWait.data
+  }
+
+  return {
+    tokenTvlMap: new Map<string, number>(),
+    contractTvlMap: new Map<string, number>(),
+  }
 }
 
 function loadFundamentals(networkName: string) {
@@ -918,7 +1103,7 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
   const topTokenMarkets = markets.filter((m) => topTokenIdSet.has(m?.base_token?.id) || topTokenIdSet.has(m?.quote_token?.id))
   const [holdersStats, { tokenTvlMap }, tokenTxStats] = await Promise.all([
     loadTokenHoldersStats(network.name, topTokenIds),
-    fetchPlatformBalances(network, tokens),
+    getPlatformBalancesCached(network, tokens),
     buildTokenTxStats(
       network.name,
       topTokensRaw,
