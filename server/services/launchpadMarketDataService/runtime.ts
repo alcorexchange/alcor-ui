@@ -485,7 +485,10 @@ class LaunchpadMarketDataRuntime {
     if (!tokenAId || !tokenBId) return
     if (!isBasePair(state.baseTokenId, tokenAId, tokenBId)) return
 
-    const createdAt = parseTs(pool?.firstSeenAt || Date.now())
+    const prev = state.pools.get(poolId)
+    const createdAt = pool?.firstSeenAt
+      ? parseTs(pool.firstSeenAt)
+      : (Number.isFinite(prev?.createdAt) ? Number(prev?.createdAt) : 0)
     const launchTokenId = tokenAId === state.baseTokenId ? tokenBId : tokenAId
 
     state.pools.set(poolId, {
@@ -501,7 +504,11 @@ class LaunchpadMarketDataRuntime {
     if (!state.tokenPools.has(launchTokenId)) state.tokenPools.set(launchTokenId, new Set())
     state.tokenPools.get(launchTokenId)?.add(poolId)
 
-    this.ensureTokenState(state, launchTokenId, { createdAt })
+    if (createdAt > 0) {
+      this.ensureTokenState(state, launchTokenId, { createdAt })
+    } else {
+      this.ensureTokenState(state, launchTokenId)
+    }
   }
 
   private async processAction(state: ChainRuntimeState, action: any) {
@@ -581,7 +588,9 @@ class LaunchpadMarketDataRuntime {
     if (!trackedTrades.length) return
 
     for (const trade of trackedTrades) {
-      const token = this.ensureTokenState(state, trade.token_id, { createdAt: pool.createdAt })
+      const token = pool.createdAt > 0
+        ? this.ensureTokenState(state, trade.token_id, { createdAt: pool.createdAt })
+        : this.ensureTokenState(state, trade.token_id)
       this.applyTradeToToken(state, token, trade)
 
       await this.persistTokenState(state, token)
@@ -961,7 +970,8 @@ class LaunchpadMarketDataRuntime {
     if (!launchTokens.length) return
 
     for (const tokenId of launchTokens) {
-      const token = this.ensureTokenState(state, tokenId, { createdAt: Math.min(pool.createdAt, ts) })
+      const createdAt = pool.createdAt > 0 ? Math.min(pool.createdAt, ts) : ts
+      const token = this.ensureTokenState(state, tokenId, { createdAt })
       token.quoteTokenId = state.baseTokenId
       await this.persistTokenState(state, token)
       await this.publishEvent(LAUNCHPAD_EVENT_CHANNELS.newPool, {
@@ -1008,7 +1018,9 @@ class LaunchpadMarketDataRuntime {
     const changedTokens = [pool.tokenAId === state.baseTokenId ? pool.tokenBId : pool.tokenAId]
 
     for (const tokenId of changedTokens) {
-      const token = this.ensureTokenState(state, tokenId, { createdAt: pool.createdAt })
+      const token = pool.createdAt > 0
+        ? this.ensureTokenState(state, tokenId, { createdAt: pool.createdAt })
+        : this.ensureTokenState(state, tokenId)
 
       const poolIds = state.tokenPools.get(tokenId) || new Set<number>()
       let liquidityUsd = 0

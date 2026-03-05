@@ -1,4 +1,4 @@
-import { SwapPool, Swap } from '../../models'
+import { SwapPool, Swap, PositionHistory } from '../../models'
 import config from '../../../config'
 import { getTokens } from '../../utils'
 import { onSwapAction, aggregatePositions } from '../swapV2Service'
@@ -154,28 +154,53 @@ async function updatePoolData(pool, chain, statsByPool, tokenMap, network) {
   }
 }
 
-async function backfillPoolFirstSeen(chain: string, pools: any[], limit = 25) {
+async function backfillPoolFirstSeen(chain: string, pools: any[], limit = Number(process.env.SWAP_POOL_FIRSTSEEN_BACKFILL_LIMIT || 500)) {
   const missing = pools.filter((p) => !p.firstSeenAt).slice(0, limit)
   if (!missing.length) return
 
-  const updates = await Promise.all(missing.map(async (pool) => {
-    const firstSwap = await Swap.findOne({ chain, pool: pool.id })
-      .sort({ time: 1 })
-      .select('time')
-      .lean()
+  const poolIds = missing
+    .map((pool) => Number(pool.id))
+    .filter((poolId) => Number.isFinite(poolId))
 
-    if (!firstSwap?.time) return null
+  if (!poolIds.length) return
+
+  const [firstMints, firstSwaps] = await Promise.all([
+    PositionHistory.aggregate([
+      { $match: { chain, pool: { $in: poolIds }, type: 'mint' } },
+      { $group: { _id: '$pool', firstSeenAt: { $min: '$time' } } },
+    ]),
+    Swap.aggregate([
+      { $match: { chain, pool: { $in: poolIds } } },
+      { $group: { _id: '$pool', firstSeenAt: { $min: '$time' } } },
+    ]),
+  ])
+
+  const mintByPool = new Map<number, Date>(
+    firstMints
+      .filter((row: any) => Number.isFinite(Number(row?._id)) && row?.firstSeenAt)
+      .map((row: any) => [Number(row._id), row.firstSeenAt])
+  )
+  const swapByPool = new Map<number, Date>(
+    firstSwaps
+      .filter((row: any) => Number.isFinite(Number(row?._id)) && row?.firstSeenAt)
+      .map((row: any) => [Number(row._id), row.firstSeenAt])
+  )
+
+  const updates = poolIds.map((poolId) => {
+    const firstSeenAt = mintByPool.get(poolId) || swapByPool.get(poolId)
+    if (!firstSeenAt) return null
 
     return {
       updateOne: {
-        filter: { chain, id: pool.id },
-        update: { $set: { firstSeenAt: firstSwap.time } }
+        filter: { chain, id: poolId },
+        update: { $min: { firstSeenAt } }
       }
     }
-  }))
+  })
 
   const ops = updates.filter(Boolean)
   if (ops.length > 0) {
     await SwapPool.bulkWrite(ops, { ordered: false })
+    console.log(`[${chain}] firstSeenAt backfilled for ${ops.length} pools`)
   }
 }

@@ -41,6 +41,26 @@ function getSafeUsdPrice(token: any) {
   return Number.isFinite(safe) && safe > 0 ? safe : 0
 }
 
+function parseActionTime(value: any): Date | null {
+  const ts = new Date(value)
+  return Number.isFinite(ts.getTime()) ? ts : null
+}
+
+async function markPoolFirstSeen(chain: string, poolId: any, blockTime: any) {
+  const id = Number(poolId)
+  const firstSeenAt = parseActionTime(blockTime)
+  if (!Number.isFinite(id) || !firstSeenAt) return
+
+  try {
+    await SwapPool.updateOne(
+      { chain, id },
+      { $min: { firstSeenAt } }
+    )
+  } catch (e: any) {
+    console.error(`[${chain}] firstSeenAt update failed for pool ${id}:`, e?.message || e)
+  }
+}
+
 // Flush all pending batches (for graceful shutdown)
 export async function flushAllSwapBatches() {
   for (const [chain, batch] of chainBatches) {
@@ -400,7 +420,7 @@ async function handlePoolChart(
 
 // Get pool and wait for pool lock while pool might be creating
 async function getPool(filter) {
-  const pool = await SwapPool.findOne(filter).lean()
+  let pool = await SwapPool.findOne(filter).lean()
 
   if (pool === null) {
     console.warn(`WARNING: Updating(and creating) non existing pool ${filter.id} action`)
@@ -409,8 +429,11 @@ async function getPool(filter) {
     // It might be first position of just created pool
     // Update token prices in that case
     await updateTokensPrices(networks[filter.chain])
+
+    pool = await SwapPool.findOne(filter).lean()
   }
 
+  if (pool === null) throw new Error(`NOT FOUND POOL ${filter.chain}:${filter.id}`)
   return pool
 }
 
@@ -920,6 +943,7 @@ export async function onSwapAction(message: string) {
 
   if (name == 'logpool') {
     await throttledPoolUpdate(chain, data.poolId)
+    await markPoolFirstSeen(chain, data.poolId, block_time)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
 
     // Lead to high load
@@ -958,6 +982,7 @@ export async function onSwapAction(message: string) {
 
   if (name == 'logmint') {
     console.log(`[${chain}] mint pos #${data.posId} owner:${data.owner} pool:${data.poolId}`)
+    await markPoolFirstSeen(chain, data.poolId, block_time)
     await saveMintOrBurn({ chain, trx_id, data, type: 'mint', block_time })
   }
 

@@ -275,6 +275,7 @@ const SwapPoolSchema = new mongoose.Schema({
 SwapPoolSchema.index({ chain: 1, id: 1 }, { unique: true })
 SwapPoolSchema.index({ chain: 1, 'tokenA.id': 1 }, { background: true })
 SwapPoolSchema.index({ chain: 1, 'tokenB.id': 1 }, { background: true })
+SwapPoolSchema.index({ chain: 1, firstSeenAt: -1 }, { background: true })
 
 // Every hour cahrt basic point for info
 const SwapChartPointSchema = new mongoose.Schema({
