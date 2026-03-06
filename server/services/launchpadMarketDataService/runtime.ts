@@ -26,6 +26,10 @@ const TRENDING_TOP_N = 50
 const TRENDING_RECALC_MS = Number(process.env.LAUNCHPAD_TRENDING_RECALC_MS || 10_000)
 const POOLS_SYNC_MS = Number(process.env.LAUNCHPAD_POOLS_SYNC_MS || 120_000)
 const TOKEN_SCORES_REFRESH_MS = Number(process.env.LAUNCHPAD_TOKEN_SCORES_REFRESH_MS || 60_000)
+const SCAM_FILTER_REFRESH_MS = Number(process.env.LAUNCHPAD_SCAM_FILTER_REFRESH_MS || 60_000)
+const TRENDING_MIN_LIQ_USD = Number(process.env.LAUNCHPAD_TRENDING_MIN_LIQ_USD || 100)
+const TRENDING_NEW_BOOST_MINUTES = Number(process.env.LAUNCHPAD_TRENDING_NEW_BOOST_MINUTES || (24 * 60))
+const TRENDING_HIDE_SCAM = !['false', '0', 'no'].includes(String(process.env.LAUNCHPAD_TRENDING_HIDE_SCAM || 'true').toLowerCase())
 const LIQUIDITY_GRADUATION_USD = Number(process.env.LAUNCHPAD_GRADUATION_LIQ_USD || 250_000)
 const VOLUME_GRADUATION_USD = Number(process.env.LAUNCHPAD_GRADUATION_VOL24_USD || 500_000)
 
@@ -129,13 +133,25 @@ type PoolRuntimeState = {
   createdAt: number
 }
 
+type TokenScoreSnapshot = {
+  score: number
+  holders: number
+  volumeUsd7d: number
+  uniqueTraders7d: number
+  ageDays: number
+}
+
 type ChainRuntimeState = {
   chain: string
   baseTokenId: string
   baseUsd: number
   tokenPrices: Map<string, any>
   tokenFirstSeenById: Map<string, number>
+  tokenScoresById: Map<string, TokenScoreSnapshot>
   tokenFirstSeenLoadedAt: number
+  scamTokens: Set<string>
+  scamContracts: Set<string>
+  scamLoadedAt: number
   tokens: Map<string, TokenRuntimeState>
   pools: Map<number, PoolRuntimeState>
   tokenPools: Map<string, Set<number>>
@@ -211,7 +227,11 @@ class LaunchpadMarketDataRuntime {
       baseUsd: 0,
       tokenPrices: new Map(),
       tokenFirstSeenById: new Map(),
+      tokenScoresById: new Map(),
       tokenFirstSeenLoadedAt: 0,
+      scamTokens: new Set(),
+      scamContracts: new Set(),
+      scamLoadedAt: 0,
       tokens: new Map(),
       pools: new Map(),
       tokenPools: new Map(),
@@ -293,10 +313,21 @@ class LaunchpadMarketDataRuntime {
     const tokenScoresRaw = await redis.get(`${state.chain}_token_scores`)
     const tokenScores = safeJsonParse<Record<string, any>>(tokenScoresRaw, {})
     state.tokenFirstSeenById.clear()
+    state.tokenScoresById.clear()
 
     for (const [tokenId, score] of Object.entries(tokenScores || {})) {
       const normalizedId = String(tokenId || '').toLowerCase()
       if (!normalizedId || normalizedId === state.baseTokenId) continue
+
+      const parsedScore: TokenScoreSnapshot = {
+        score: finite((score as any)?.score),
+        holders: finite((score as any)?.holders),
+        volumeUsd7d: finite((score as any)?.volumeUsd7d),
+        uniqueTraders7d: finite((score as any)?.uniqueTraders7d),
+        ageDays: finite((score as any)?.ageDays),
+      }
+
+      state.tokenScoresById.set(normalizedId, parsedScore)
 
       const firstSeenTs = parseTsOrZero((score as any)?.firstSeenAt)
       if (firstSeenTs > 0) {
@@ -305,6 +336,37 @@ class LaunchpadMarketDataRuntime {
     }
 
     state.tokenFirstSeenLoadedAt = now
+  }
+
+  private async refreshScamFilters(state: ChainRuntimeState) {
+    const now = Date.now()
+    if ((now - state.scamLoadedAt) < SCAM_FILTER_REFRESH_MS && (state.scamTokens.size > 0 || state.scamContracts.size > 0)) {
+      return
+    }
+
+    const network: any = (config as any).networks?.[state.chain] || {}
+    const staticScamTokens = Array.isArray(network.SCAM_TOKENS) ? network.SCAM_TOKENS : []
+    const staticScamContracts = Array.isArray(network.SCAM_CONTRACTS) ? network.SCAM_CONTRACTS : []
+
+    const redis = getRedis()
+    const [dynamicScamContracts, dynamicScamTokens] = await Promise.all([
+      redis.sMembers(`scam_contracts_${state.chain}`).catch(() => []),
+      redis.sMembers(`scam_tokens_${state.chain}`).catch(() => []),
+    ])
+
+    state.scamTokens = new Set(
+      [...staticScamTokens, ...dynamicScamTokens]
+        .map((value) => String(value || '').toLowerCase())
+        .filter(Boolean)
+    )
+
+    state.scamContracts = new Set(
+      [...staticScamContracts, ...dynamicScamContracts]
+        .map((value) => String(value || '').toLowerCase())
+        .filter(Boolean)
+    )
+
+    state.scamLoadedAt = now
   }
 
   private async loadPools(state: ChainRuntimeState) {
@@ -1150,24 +1212,71 @@ class LaunchpadMarketDataRuntime {
   private async recomputeTrendingForChain(state: ChainRuntimeState) {
     const now = Date.now()
 
-    const scored = [...state.tokens.values()].map((token) => {
-      const ageMinutes = Math.max(0, (now - token.createdAt) / 60000)
-      const agePenalty = clamp01(ageMinutes / 360)
+    if (TRENDING_HIDE_SCAM) {
+      await this.refreshScamFilters(state)
+    }
 
-      const score = (
-        2.0 * Math.log(token.volume5mUsd + 1)
-        + 1.6 * Math.log(token.trades5m + 1)
-        + 1.2 * Math.abs(token.chg5mPct)
-        + 1.0 * Math.log(token.liquidityUsd + 1)
-        - 0.8 * agePenalty
-      )
+    const scored = [...state.tokens.values()]
+      .filter((token) => {
+        if (!token.lastTrade) return false
+        if (TRENDING_MIN_LIQ_USD > 0 && finite(token.liquidityUsd) < TRENDING_MIN_LIQ_USD) return false
 
-      return {
-        token,
-        score: Number.isFinite(score) ? score : 0,
-      }
-    })
-      .filter((row) => row.token.lastTrade)
+        if (TRENDING_HIDE_SCAM) {
+          if (state.scamTokens.has(token.tokenId)) return false
+          const contract = String(token.contract || '').toLowerCase()
+          if (contract && state.scamContracts.has(contract)) return false
+        }
+
+        return true
+      })
+      .map((token) => {
+        const ageMinutes = token.createdAt > 0
+          ? Math.max(0, (now - token.createdAt) / 60000)
+          : Number.POSITIVE_INFINITY
+        const freshnessBoost = 0.6 * (1 - clamp01(ageMinutes / Math.max(1, TRENDING_NEW_BOOST_MINUTES)))
+
+        const score7d = state.tokenScoresById.get(token.tokenId)
+        const qualityScore = finite(score7d?.score, 0)
+        const uniqueTraders7d = finite(score7d?.uniqueTraders7d, 0)
+        const holders = finite(score7d?.holders, 0)
+        const volume7d = finite(score7d?.volumeUsd7d, 0)
+
+        const fastMoveScore = (
+          1.4 * Math.log(finite(token.volume5mUsd) + 1)
+          + 1.1 * Math.log(finite(token.trades5m) + 1)
+          + 0.8 * Math.log(Math.abs(finite(token.chg5mPct)) + 1)
+        )
+
+        const dayMomentumScore = (
+          1.4 * Math.log(finite(token.volume24hUsd) + 1)
+          + 1.0 * Math.log(finite(token.trades24h) + 1)
+          + 0.7 * Math.log(Math.abs(finite(token.chg24hPct)) + 1)
+          + 0.8 * Math.log(finite(token.volume1hUsd) + 1)
+          + 0.5 * Math.log(Math.abs(finite(token.chg1hPct)) + 1)
+        )
+
+        const longTermScore = (
+          1.2 * Math.log(qualityScore + 1)
+          + 0.7 * Math.log(uniqueTraders7d + 1)
+          + 0.6 * Math.log(volume7d + 1)
+          + 0.3 * Math.log(holders + 1)
+        )
+
+        const liquidityScore = 1.0 * Math.log(finite(token.liquidityUsd) + 1)
+        const baseScore = fastMoveScore + dayMomentumScore + longTermScore + liquidityScore + freshnessBoost
+
+        // If token_scores are missing, keep only a small dampener to not hide fresh valid tokens.
+        const qualityMultiplier = qualityScore > 0
+          ? (0.65 + 0.35 * clamp01(qualityScore / 100))
+          : 0.85
+
+        const score = baseScore * qualityMultiplier
+
+        return {
+          token,
+          score: Number.isFinite(score) ? score : 0,
+        }
+      })
       .sort((a, b) => b.score - a.score)
 
     const redis: any = getRedis()
