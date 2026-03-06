@@ -25,6 +25,7 @@ const MAX_RECENT_TRADES = 200
 const TRENDING_TOP_N = 50
 const TRENDING_RECALC_MS = Number(process.env.LAUNCHPAD_TRENDING_RECALC_MS || 10_000)
 const POOLS_SYNC_MS = Number(process.env.LAUNCHPAD_POOLS_SYNC_MS || 120_000)
+const TOKEN_SCORES_REFRESH_MS = Number(process.env.LAUNCHPAD_TOKEN_SCORES_REFRESH_MS || 60_000)
 const LIQUIDITY_GRADUATION_USD = Number(process.env.LAUNCHPAD_GRADUATION_LIQ_USD || 250_000)
 const VOLUME_GRADUATION_USD = Number(process.env.LAUNCHPAD_GRADUATION_VOL24_USD || 500_000)
 
@@ -36,6 +37,12 @@ function finite(value: any, fallback = 0) {
 function parseTs(value: any) {
   const ts = new Date(value).getTime()
   return Number.isFinite(ts) ? ts : Date.now()
+}
+
+function parseTsOrZero(value: any) {
+  if (value === undefined || value === null || value === '') return 0
+  const ts = new Date(value).getTime()
+  return Number.isFinite(ts) ? ts : 0
 }
 
 function parseAmount(value: any) {
@@ -127,6 +134,8 @@ type ChainRuntimeState = {
   baseTokenId: string
   baseUsd: number
   tokenPrices: Map<string, any>
+  tokenFirstSeenById: Map<string, number>
+  tokenFirstSeenLoadedAt: number
   tokens: Map<string, TokenRuntimeState>
   pools: Map<number, PoolRuntimeState>
   tokenPools: Map<string, Set<number>>
@@ -201,6 +210,8 @@ class LaunchpadMarketDataRuntime {
       baseTokenId,
       baseUsd: 0,
       tokenPrices: new Map(),
+      tokenFirstSeenById: new Map(),
+      tokenFirstSeenLoadedAt: 0,
       tokens: new Map(),
       pools: new Map(),
       tokenPools: new Map(),
@@ -273,6 +284,27 @@ class LaunchpadMarketDataRuntime {
     }
 
     state.baseUsd = finite(await redis.get(`${state.chain}_price`), 0)
+
+    const now = Date.now()
+    if ((now - state.tokenFirstSeenLoadedAt) < TOKEN_SCORES_REFRESH_MS && state.tokenFirstSeenById.size > 0) {
+      return
+    }
+
+    const tokenScoresRaw = await redis.get(`${state.chain}_token_scores`)
+    const tokenScores = safeJsonParse<Record<string, any>>(tokenScoresRaw, {})
+    state.tokenFirstSeenById.clear()
+
+    for (const [tokenId, score] of Object.entries(tokenScores || {})) {
+      const normalizedId = String(tokenId || '').toLowerCase()
+      if (!normalizedId || normalizedId === state.baseTokenId) continue
+
+      const firstSeenTs = parseTsOrZero((score as any)?.firstSeenAt)
+      if (firstSeenTs > 0) {
+        state.tokenFirstSeenById.set(normalizedId, firstSeenTs)
+      }
+    }
+
+    state.tokenFirstSeenLoadedAt = now
   }
 
   private async loadPools(state: ChainRuntimeState) {
@@ -293,7 +325,7 @@ class LaunchpadMarketDataRuntime {
       if (!tokenId || tokenId === state.baseTokenId) continue
 
       const rawCreatedAt = (meta?.created_at ?? meta?.createdAt)
-      const createdAt = rawCreatedAt ? parseTs(rawCreatedAt) : 0
+      const createdAt = parseTsOrZero(rawCreatedAt)
       const token = this.ensureTokenState(state, tokenId, {
         createdAt,
       })
@@ -330,7 +362,7 @@ class LaunchpadMarketDataRuntime {
       if (String(summary.quote_token_id || '').toLowerCase() !== state.baseTokenId) continue
 
       const rawCreatedAt = (summary?.created_at ?? summary?.createdAt)
-      const createdAt = rawCreatedAt ? parseTs(rawCreatedAt) : 0
+      const createdAt = parseTsOrZero(rawCreatedAt)
       const token = this.ensureTokenState(state, normalizedTokenId, {
         createdAt,
       })
@@ -402,8 +434,14 @@ class LaunchpadMarketDataRuntime {
         if (finite(pool.tvlUSD) > 0) liquidityUsd += finite(pool.tvlUSD) / 2
       }
 
+      const globalFirstSeen = finite(state.tokenFirstSeenById.get(tokenId) as any, 0)
       const hasEarliestFromPools = Number.isFinite(earliest) && earliest > 0
-      const effectiveCreatedAt = hasEarliestFromPools ? earliest : 0
+      const candidates = [
+        hasEarliestFromPools ? earliest : 0,
+        globalFirstSeen > 0 ? globalFirstSeen : 0,
+        token.createdAt > 0 ? token.createdAt : 0,
+      ].filter((v) => Number.isFinite(v) && v > 0)
+      const effectiveCreatedAt = candidates.length ? Math.min(...candidates) : 0
 
       const liquidityBase = state.baseUsd > 0 ? (liquidityUsd / state.baseUsd) : 0
 
@@ -494,7 +532,7 @@ class LaunchpadMarketDataRuntime {
 
     const prev = state.pools.get(poolId)
     const createdAt = pool?.firstSeenAt
-      ? parseTs(pool.firstSeenAt)
+      ? parseTsOrZero(pool.firstSeenAt)
       : (Number.isFinite(prev?.createdAt) ? Number(prev?.createdAt) : 0)
     const launchTokenId = tokenAId === state.baseTokenId ? tokenBId : tokenAId
 

@@ -3,9 +3,11 @@ import config from '../../../config'
 import { getTokens } from '../../utils'
 import { onSwapAction, aggregatePositions } from '../swapV2Service'
 import { computeSafePoolTvlUSD } from './poolValuation'
+import { getRedis } from '../redis'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
+const FIRST_SEEN_RECALC_BATCH = Math.max(1, Number(process.env.SWAP_POOL_FIRSTSEEN_RECALC_BATCH || 5000))
 
 export async function newSwapAction(action: any, network: any) {
   //console.log('newSwapAction', action.act.name)
@@ -154,15 +156,35 @@ async function updatePoolData(pool, chain, statsByPool, tokenMap, network) {
   }
 }
 
-async function backfillPoolFirstSeen(chain: string, pools: any[], limit = Number(process.env.SWAP_POOL_FIRSTSEEN_BACKFILL_LIMIT || 500)) {
-  const missing = pools.filter((p) => !p.firstSeenAt).slice(0, limit)
-  if (!missing.length) return
-
-  const poolIds = missing
+async function backfillPoolFirstSeen(chain: string, pools: any[]) {
+  const allPoolIds = pools
     .map((pool) => Number(pool.id))
     .filter((poolId) => Number.isFinite(poolId))
+    .sort((a, b) => a - b)
 
+  if (!allPoolIds.length) return
+
+  const cursorKey = `${chain}_pool_first_seen_recalc_cursor`
+  const redis = getRedis()
+
+  let cursor = Number(await redis.get(cursorKey))
+  if (!Number.isFinite(cursor) || cursor < 0 || cursor >= allPoolIds.length) {
+    cursor = 0
+  }
+
+  let poolIds = allPoolIds.slice(cursor, cursor + FIRST_SEEN_RECALC_BATCH)
+  if (poolIds.length === 0) {
+    cursor = 0
+    poolIds = allPoolIds.slice(0, FIRST_SEEN_RECALC_BATCH)
+  }
   if (!poolIds.length) return
+
+  const poolById = new Map<number, any>()
+  for (const pool of pools) {
+    const poolId = Number(pool?.id)
+    if (!Number.isFinite(poolId)) continue
+    poolById.set(poolId, pool)
+  }
 
   const [firstMints, firstSwaps] = await Promise.all([
     PositionHistory.aggregate([
@@ -190,10 +212,15 @@ async function backfillPoolFirstSeen(chain: string, pools: any[], limit = Number
     const firstSeenAt = mintByPool.get(poolId) || swapByPool.get(poolId)
     if (!firstSeenAt) return null
 
+    const current = poolById.get(poolId)?.firstSeenAt
+    if (current instanceof Date && current.getTime() === firstSeenAt.getTime()) {
+      return null
+    }
+
     return {
       updateOne: {
         filter: { chain, id: poolId },
-        update: { $min: { firstSeenAt } }
+        update: { $set: { firstSeenAt } }
       }
     }
   })
@@ -201,6 +228,11 @@ async function backfillPoolFirstSeen(chain: string, pools: any[], limit = Number
   const ops = updates.filter(Boolean)
   if (ops.length > 0) {
     await SwapPool.bulkWrite(ops, { ordered: false })
-    console.log(`[${chain}] firstSeenAt backfilled for ${ops.length} pools`)
   }
+
+  const nextCursor = (cursor + poolIds.length) % allPoolIds.length
+  await redis.set(cursorKey, String(nextCursor))
+  console.log(
+    `[${chain}] firstSeenAt recalculated: batch=${poolIds.length} updated=${ops.length} cursor=${nextCursor}/${allPoolIds.length}`
+  )
 }

@@ -757,13 +757,18 @@ function parsePool(pool: { [key: string]: any }) {
   const tokenA = { ...parseToken(pool.tokenA), quantity: pool.tokenA.quantity.split(' ')[0] }
   const tokenB = { ...parseToken(pool.tokenB), quantity: pool.tokenB.quantity.split(' ')[0] }
 
-  pool.protocolFeeA = parseFloat(pool.protocolFeeA)
-  pool.protocolFeeB = parseFloat(pool.protocolFeeB)
+  const parsed: any = { ...pool }
+  parsed.protocolFeeA = parseFloat(parsed.protocolFeeA)
+  parsed.protocolFeeB = parseFloat(parsed.protocolFeeB)
 
-  const { sqrtPriceX64, tick } = pool.currSlot
-  delete pool.currSlot
+  const { sqrtPriceX64, tick } = parsed.currSlot || {}
+  delete parsed.currSlot
 
-  return { ...pool, tokenA, tokenB, sqrtPriceX64, tick }
+  // Keep firstSeenAt controlled by Mongo events-derived logic (mint/swap/logpool),
+  // do not overwrite it from raw on-chain pool snapshot payload.
+  delete parsed.firstSeenAt
+
+  return { ...parsed, tokenA, tokenB, sqrtPriceX64, tick }
 }
 
 export async function updatePools(chain: string, forceAll = false) {
