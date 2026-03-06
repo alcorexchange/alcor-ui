@@ -402,6 +402,7 @@ Query:
 - `limit` (default: `50`, max: `200`)
 - `cursor` (offset pagination; optional)
 - `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
 
 ### GET `/launchpad/trending`
 Trending launchpad list (score based on 5m volume/trades/change/liquidity).
@@ -410,6 +411,7 @@ Query:
 - `limit` (default: `50`, max: `200`)
 - `cursor` (offset pagination; optional)
 - `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
 
 ### GET `/launchpad/graduated`
 Graduated tokens list.
@@ -418,6 +420,7 @@ Query:
 - `limit` (default: `50`, max: `200`)
 - `cursor` (offset pagination; optional)
 - `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
 
 ### GET `/launchpad/search`
 Search tokens by word.
@@ -427,6 +430,7 @@ Query:
 - `list=trending|new|graduated` (default: `trending`)
 - `limit` (default: `50`, max: `200`)
 - `cursor` (offset pagination; optional)
+- `hide_scam=true|false` (default: `true`)
 
 ### GET `/launchpad/token/:tokenId/summary`
 Live token summary:
@@ -437,17 +441,22 @@ Live token summary:
 - `last_trade`
 - `status` (`LAUNCH|OPEN|GRADUATED|UNKNOWN`)
 
+Query:
+- `hide_scam=true|false` (default: `true`)
+
 ### GET `/launchpad/token/:tokenId/trades`
 Recent token trades (Redis-backed).
 
 Query:
 - `limit` (default: `100`, max: `200`)
+- `hide_scam=true|false` (default: `true`)
 
 ### GET `/launchpad/token/:tokenId/holders`
 Optional holders endpoint (top-holders source may be unavailable; returns stats + empty `items` in that case).
 
 Query:
 - `limit` (default: `50`, max: `200`)
+- `hide_scam=true|false` (default: `true`)
 
 ---
 

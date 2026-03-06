@@ -403,9 +403,7 @@ class LaunchpadMarketDataRuntime {
       }
 
       const hasEarliestFromPools = Number.isFinite(earliest) && earliest > 0
-      const effectiveCreatedAt = hasEarliestFromPools
-        ? earliest
-        : (Number.isFinite(token.createdAt) ? token.createdAt : 0)
+      const effectiveCreatedAt = hasEarliestFromPools ? earliest : 0
 
       const liquidityBase = state.baseUsd > 0 ? (liquidityUsd / state.baseUsd) : 0
 

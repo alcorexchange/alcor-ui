@@ -2,6 +2,7 @@ import { Router } from 'express'
 import config from '../../../config'
 
 import { getRedis } from '../redis'
+import { getScamLists } from '../apiV2Service/config'
 import {
   listGraduatedKey,
   listNewKey,
@@ -15,6 +16,11 @@ export const launchpad = Router()
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 200
 const MAX_SEARCH_SCAN = 5000
+
+type ScamFilters = {
+  scamContracts: Set<string>
+  scamTokens: Set<string>
+}
 
 function safeJsonParse<T>(value: string | null, fallback: T): T {
   if (!value) return fallback
@@ -41,6 +47,27 @@ function normalizeSearch(raw: any) {
   return String(raw || '').trim().toLowerCase()
 }
 
+function parseHideScam(raw: any) {
+  if (raw === undefined || raw === null || raw === '') return true
+  const normalized = String(raw).trim().toLowerCase()
+  if (!normalized) return true
+  return !['false', '0', 'no'].includes(normalized)
+}
+
+function normalizeScamFilters(lists: { scam_contracts: Set<string>, scam_tokens: Set<string> }): ScamFilters {
+  return {
+    scamContracts: new Set([...lists.scam_contracts].map((c) => String(c || '').toLowerCase()).filter(Boolean)),
+    scamTokens: new Set([...lists.scam_tokens].map((t) => String(t || '').toLowerCase()).filter(Boolean)),
+  }
+}
+
+function isScamSummary(summary: any, scam: ScamFilters) {
+  const tokenId = String(summary?.token_id || '').toLowerCase()
+  const contract = String(summary?.contract || '').toLowerCase()
+  if (!tokenId && !contract) return false
+  return scam.scamTokens.has(tokenId) || scam.scamContracts.has(contract)
+}
+
 function matchesSearch(summary: any, term: string) {
   if (!term) return true
   const fields = [
@@ -52,7 +79,14 @@ function matchesSearch(summary: any, term: string) {
   return fields.some((value) => String(value || '').toLowerCase().includes(term))
 }
 
-async function readRankedList(chain: string, key: string, limit: number, cursor: number, search = '') {
+async function readRankedList(
+  chain: string,
+  key: string,
+  limit: number,
+  cursor: number,
+  search = '',
+  scamFilters: ScamFilters | null = null
+) {
   const redis: any = getRedis()
   const baseTokenId = String((config as any)?.networks?.[chain]?.baseToken?.id || '').toLowerCase()
   const hasSearch = Boolean(search)
@@ -86,6 +120,7 @@ async function readRankedList(chain: string, key: string, limit: number, cursor:
       const summary = safeJsonParse<any>(summaryRaw[index], null)
       if (!summary) return null
       if (baseTokenId && String(summary?.quote_token_id || '').toLowerCase() !== baseTokenId) return null
+      if (scamFilters && isScamSummary(summary, scamFilters)) return null
       if (!matchesSearch(summary, search)) return null
 
       return {
@@ -114,11 +149,20 @@ launchpad.get('/new', async (req, res) => {
     const limit = parseLimit(req.query.limit)
     const cursor = parseCursor(req.query.cursor)
     const search = normalizeSearch(req.query.search || req.query.q)
+    const hideScam = parseHideScam(req.query.hide_scam)
+    const scamFilters = hideScam ? normalizeScamFilters(await getScamLists(network)) : null
 
-    const { items, nextCursor, totalMatched } = await readRankedList(chain, listNewKey(chain), limit, cursor, search)
+    const { items, nextCursor, totalMatched } = await readRankedList(
+      chain,
+      listNewKey(chain),
+      limit,
+      cursor,
+      search,
+      scamFilters
+    )
 
     res.json({
-      meta: { chain, ts: Date.now(), list: 'new', limit, cursor, search: search || null },
+      meta: { chain, ts: Date.now(), list: 'new', limit, cursor, search: search || null, hide_scam: hideScam },
       items,
       next_cursor: nextCursor,
       total: totalMatched,
@@ -136,11 +180,20 @@ launchpad.get('/trending', async (req, res) => {
     const limit = parseLimit(req.query.limit)
     const cursor = parseCursor(req.query.cursor)
     const search = normalizeSearch(req.query.search || req.query.q)
+    const hideScam = parseHideScam(req.query.hide_scam)
+    const scamFilters = hideScam ? normalizeScamFilters(await getScamLists(network)) : null
 
-    const { items, nextCursor, totalMatched } = await readRankedList(chain, listTrendingKey(chain), limit, cursor, search)
+    const { items, nextCursor, totalMatched } = await readRankedList(
+      chain,
+      listTrendingKey(chain),
+      limit,
+      cursor,
+      search,
+      scamFilters
+    )
 
     res.json({
-      meta: { chain, ts: Date.now(), list: 'trending', limit, cursor, search: search || null },
+      meta: { chain, ts: Date.now(), list: 'trending', limit, cursor, search: search || null, hide_scam: hideScam },
       items,
       next_cursor: nextCursor,
       total: totalMatched,
@@ -158,11 +211,20 @@ launchpad.get('/graduated', async (req, res) => {
     const limit = parseLimit(req.query.limit)
     const cursor = parseCursor(req.query.cursor)
     const search = normalizeSearch(req.query.search || req.query.q)
+    const hideScam = parseHideScam(req.query.hide_scam)
+    const scamFilters = hideScam ? normalizeScamFilters(await getScamLists(network)) : null
 
-    const { items, nextCursor, totalMatched } = await readRankedList(chain, listGraduatedKey(chain), limit, cursor, search)
+    const { items, nextCursor, totalMatched } = await readRankedList(
+      chain,
+      listGraduatedKey(chain),
+      limit,
+      cursor,
+      search,
+      scamFilters
+    )
 
     res.json({
-      meta: { chain, ts: Date.now(), list: 'graduated', limit, cursor, search: search || null },
+      meta: { chain, ts: Date.now(), list: 'graduated', limit, cursor, search: search || null, hide_scam: hideScam },
       items,
       next_cursor: nextCursor,
       total: totalMatched,
@@ -180,6 +242,8 @@ launchpad.get('/search', async (req, res) => {
     const cursor = parseCursor(req.query.cursor)
     const q = normalizeSearch(req.query.q || req.query.search)
     const list = String(req.query.list || 'trending').toLowerCase()
+    const hideScam = parseHideScam(req.query.hide_scam)
+    const scamFilters = hideScam ? normalizeScamFilters(await getScamLists(network)) : null
 
     if (!q) {
       return res.status(400).json({ error: 'q is required' })
@@ -189,10 +253,10 @@ launchpad.get('/search', async (req, res) => {
       ? listNewKey(chain)
       : (list === 'graduated' ? listGraduatedKey(chain) : listTrendingKey(chain))
 
-    const { items, nextCursor, totalMatched } = await readRankedList(chain, key, limit, cursor, q)
+    const { items, nextCursor, totalMatched } = await readRankedList(chain, key, limit, cursor, q, scamFilters)
 
     res.json({
-      meta: { chain, ts: Date.now(), list, q, limit, cursor },
+      meta: { chain, ts: Date.now(), list, q, limit, cursor, hide_scam: hideScam },
       items,
       next_cursor: nextCursor,
       total: totalMatched,
@@ -208,6 +272,8 @@ launchpad.get('/token/:tokenId/summary', async (req, res) => {
     const chain = network?.name
     const baseTokenId = String(network?.baseToken?.id || '').toLowerCase()
     const tokenId = decodeURIComponent(String(req.params.tokenId || '')).toLowerCase()
+    const hideScam = parseHideScam(req.query.hide_scam)
+    const scamFilters = hideScam ? normalizeScamFilters(await getScamLists(network)) : null
 
     if (!tokenId) {
       return res.status(400).json({ error: 'tokenId is required' })
@@ -226,11 +292,14 @@ launchpad.get('/token/:tokenId/summary', async (req, res) => {
     if (baseTokenId && String(summary.quote_token_id || '').toLowerCase() !== baseTokenId) {
       return res.status(404).json({ error: 'Token summary not found' })
     }
+    if (scamFilters && isScamSummary(summary, scamFilters)) {
+      return res.status(404).json({ error: 'Token summary not found' })
+    }
 
     const holders = safeJsonParse<any>(holdersRaw, null)
 
     res.json({
-      meta: { chain, ts: Date.now() },
+      meta: { chain, ts: Date.now(), hide_scam: hideScam },
       ...summary,
       holders: holders
         ? {
@@ -254,19 +323,33 @@ launchpad.get('/token/:tokenId/trades', async (req, res) => {
     const chain = network?.name
     const tokenId = decodeURIComponent(String(req.params.tokenId || '')).toLowerCase()
     const limit = parseLimit(req.query.limit, 100)
+    const hideScam = parseHideScam(req.query.hide_scam)
+    const scamFilters = hideScam ? normalizeScamFilters(await getScamLists(network)) : null
 
     if (!tokenId) {
       return res.status(400).json({ error: 'tokenId is required' })
     }
 
     const redis = getRedis()
+    const summaryRaw = await redis.get(tokenSummaryKey(chain, tokenId))
+    const summary = safeJsonParse<any>(summaryRaw, null)
+    if (scamFilters) {
+      const isScam = (
+        scamFilters.scamTokens.has(tokenId)
+        || (summary ? isScamSummary(summary, scamFilters) : false)
+      )
+      if (isScam) {
+        return res.status(404).json({ error: 'Token trades not found' })
+      }
+    }
+
     const rows = await redis.lRange(tokenTradesKey(chain, tokenId), 0, Math.max(0, limit - 1))
     const items = rows
       .map((row) => safeJsonParse<any>(row, null))
       .filter(Boolean)
 
     res.json({
-      meta: { chain, ts: Date.now(), token_id: tokenId, limit },
+      meta: { chain, ts: Date.now(), token_id: tokenId, limit, hide_scam: hideScam },
       items,
     })
   } catch (e: any) {
@@ -280,17 +363,31 @@ launchpad.get('/token/:tokenId/holders', async (req, res) => {
     const chain = network?.name
     const tokenId = decodeURIComponent(String(req.params.tokenId || '')).toLowerCase()
     const limit = parseLimit(req.query.limit, 50)
+    const hideScam = parseHideScam(req.query.hide_scam)
+    const scamFilters = hideScam ? normalizeScamFilters(await getScamLists(network)) : null
 
     if (!tokenId) {
       return res.status(400).json({ error: 'tokenId is required' })
     }
 
     const redis = getRedis()
+    const summaryRaw = await redis.get(tokenSummaryKey(chain, tokenId))
+    const summary = safeJsonParse<any>(summaryRaw, null)
+    if (scamFilters) {
+      const isScam = (
+        scamFilters.scamTokens.has(tokenId)
+        || (summary ? isScamSummary(summary, scamFilters) : false)
+      )
+      if (isScam) {
+        return res.status(404).json({ error: 'Token holders not found' })
+      }
+    }
+
     const raw = await redis.hGet(`${chain}_token_holders_stats`, tokenId)
     const stats = safeJsonParse<any>(raw, null)
 
     res.json({
-      meta: { chain, ts: Date.now(), token_id: tokenId, limit },
+      meta: { chain, ts: Date.now(), token_id: tokenId, limit, hide_scam: hideScam },
       available: false,
       reason: 'top holders source is not configured in this environment',
       stats: stats
