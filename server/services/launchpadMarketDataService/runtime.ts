@@ -125,6 +125,7 @@ type TokenRuntimeState = {
   buckets: Map<number, MinuteBucket>
   liquidityUsd: number
   liquidityBase: number
+  tvlAllUsd: number
   volume5mQuote: number
   volume1hQuote: number
   volume24hQuote: number
@@ -169,6 +170,7 @@ type TokenScoreSnapshot = {
 type ChainRuntimeState = {
   chain: string
   baseTokenId: string
+  trustedQuoteTokenIds: Set<string>
   baseUsd: number
   tokenPrices: Map<string, any>
   tokenFirstSeenById: Map<string, number>
@@ -245,10 +247,19 @@ class LaunchpadMarketDataRuntime {
     if (!network) throw new Error(`Unknown chain: ${chain}`)
 
     const baseTokenId = String(network.baseToken?.id || '').toLowerCase()
+    const trustedQuoteTokenIds = new Set<string>([
+      baseTokenId,
+      String((network as any)?.USD_TOKEN || '').toLowerCase(),
+      String((network as any)?.USDT_TOKEN || '').toLowerCase(),
+      ...String(process.env.LAUNCHPAD_TRUSTED_QUOTE_TOKEN_IDS || '')
+        .split(',')
+        .map((v) => v.trim().toLowerCase()),
+    ].filter(Boolean))
 
     const created: ChainRuntimeState = {
       chain,
       baseTokenId,
+      trustedQuoteTokenIds,
       baseUsd: 0,
       tokenPrices: new Map(),
       tokenFirstSeenById: new Map(),
@@ -475,6 +486,7 @@ class LaunchpadMarketDataRuntime {
 
       token.liquidityUsd = finite(summary?.liquidity?.usd)
       token.liquidityBase = finite(summary?.liquidity?.base)
+      token.tvlAllUsd = finite(summary?.liquidity?.tvl_all_usd)
 
       token.volume5mQuote = finite(summary?.volume?.m5)
       token.volume1hQuote = finite(summary?.volume?.h1)
@@ -520,6 +532,7 @@ class LaunchpadMarketDataRuntime {
 
       let earliest = Number.POSITIVE_INFINITY
       let liquidityUsd = 0
+      let tvlAllUsd = 0
 
       for (const poolId of poolIds.values()) {
         const pool = state.pools.get(poolId)
@@ -528,7 +541,9 @@ class LaunchpadMarketDataRuntime {
         if (Number.isFinite(pool.createdAt) && pool.createdAt > 0 && pool.createdAt < earliest) {
           earliest = pool.createdAt
         }
-        if (finite(pool.tvlUSD) > 0) liquidityUsd += finite(pool.tvlUSD)
+        const poolTvl = finite(pool.tvlUSD)
+        if (poolTvl > 0) tvlAllUsd += poolTvl
+        liquidityUsd += this.getPoolBackingUsdForToken(state, tokenId, pool)
       }
 
       const globalFirstSeen = finite(state.tokenFirstSeenById.get(tokenId) as any, 0)
@@ -544,6 +559,7 @@ class LaunchpadMarketDataRuntime {
 
       const prevCreatedAt = token.createdAt
       const prevLiquidityUsd = token.liquidityUsd
+      const prevTvlAllUsd = token.tvlAllUsd
       const prevQuoteTokenId = token.quoteTokenId
       const prevStatus = token.status
 
@@ -551,12 +567,14 @@ class LaunchpadMarketDataRuntime {
       token.quoteTokenId = state.baseTokenId
       token.liquidityUsd = liquidityUsd
       token.liquidityBase = liquidityBase
+      token.tvlAllUsd = tvlAllUsd
       token.updatedAt = Date.now()
       this.applyAutoStatus(token)
 
       const changed = (
         prevCreatedAt !== token.createdAt
         || Math.abs(prevLiquidityUsd - token.liquidityUsd) > 1e-9
+        || Math.abs(prevTvlAllUsd - token.tvlAllUsd) > 1e-9
         || prevQuoteTokenId !== token.quoteTokenId
         || prevStatus !== token.status
       )
@@ -599,6 +617,7 @@ class LaunchpadMarketDataRuntime {
       buckets: new Map(),
       liquidityUsd: 0,
       liquidityBase: 0,
+      tvlAllUsd: 0,
       volume5mQuote: 0,
       volume1hQuote: 0,
       volume24hQuote: 0,
@@ -1102,11 +1121,14 @@ class LaunchpadMarketDataRuntime {
     if (!poolIds || poolIds.size === 0) return null
 
     let top: PoolRuntimeState | null = null
+    let topBackingUsd = 0
     for (const poolId of poolIds.values()) {
       const pool = state.pools.get(poolId)
       if (!pool) continue
-      if (!top || finite(pool.tvlUSD) > finite(top.tvlUSD)) {
+      const backingUsd = this.getPoolBackingUsdForToken(state, tokenId, pool)
+      if (!top || backingUsd > topBackingUsd || (backingUsd === topBackingUsd && finite(pool.tvlUSD) > finite(top.tvlUSD))) {
         top = pool
+        topBackingUsd = backingUsd
       }
     }
 
@@ -1116,6 +1138,7 @@ class LaunchpadMarketDataRuntime {
   private buildTokenSummary(state: ChainRuntimeState, token: TokenRuntimeState) {
     const tokenPrice = state.tokenPrices.get(token.tokenId)
     const topPool = this.getTopPoolForToken(state, token.tokenId)
+    const topPoolBackingUsd = topPool ? this.getPoolBackingUsdForToken(state, token.tokenId, topPool) : 0
 
     const supply = Number.isFinite(Number(token.totalSupply)) ? Number(token.totalSupply) : null
     const priceUsd = finite(token.lastPriceUsd)
@@ -1131,6 +1154,7 @@ class LaunchpadMarketDataRuntime {
       decimals: token.decimals,
       pool_id: topPool?.id ?? null,
       pool_tvl_usd: topPool ? finite(topPool.tvlUSD) : 0,
+      pool_backing_usd: topPoolBackingUsd,
       icon_url: tokenPrice?.logo || null,
       status: token.status,
       created_at: token.createdAt || null,
@@ -1145,6 +1169,7 @@ class LaunchpadMarketDataRuntime {
       liquidity: {
         base: token.liquidityBase,
         usd: token.liquidityUsd,
+        tvl_all_usd: token.tvlAllUsd,
       },
       volume: {
         m5: token.volume5mQuote,
@@ -1230,31 +1255,36 @@ class LaunchpadMarketDataRuntime {
 
       const poolIds = state.tokenPools.get(tokenId) || new Set<number>()
       let liquidityUsd = 0
+      let tvlAllUsd = 0
 
       for (const pid of poolIds) {
         const p = state.pools.get(pid)
         if (!p) continue
-        if (p.tvlUSD > 0) liquidityUsd += p.tvlUSD
+        const poolTvl = finite(p.tvlUSD)
+        if (poolTvl > 0) tvlAllUsd += poolTvl
+        liquidityUsd += this.getPoolBackingUsdForToken(state, tokenId, p)
       }
 
       const liquidityBase = state.baseUsd > 0 ? (liquidityUsd / state.baseUsd) : 0
 
       const liquidityChanged = Math.abs(liquidityUsd - token.liquidityUsd) > 1e-9
+      const tvlChanged = Math.abs(tvlAllUsd - token.tvlAllUsd) > 1e-9
 
       token.liquidityUsd = liquidityUsd
       token.liquidityBase = liquidityBase
+      token.tvlAllUsd = tvlAllUsd
       token.updatedAt = Date.now()
       this.applyAutoStatus(token)
 
       await this.persistTokenState(state, token)
 
-      if (liquidityChanged) {
+      if (liquidityChanged || tvlChanged) {
         await this.publishEvent(LAUNCHPAD_EVENT_CHANNELS.poolLiquidityUpdate, {
           type: 'pool_liquidity_update',
           chain: state.chain,
           pool_id: pool.id,
           token_id: tokenId,
-          liquidity: { usd: token.liquidityUsd, base: token.liquidityBase },
+          liquidity: { usd: token.liquidityUsd, base: token.liquidityBase, tvl_all_usd: token.tvlAllUsd },
           ts: Date.now(),
           channel: `token:${state.chain}:${tokenId}`,
         })
@@ -1289,6 +1319,25 @@ class LaunchpadMarketDataRuntime {
     return 0
   }
 
+  // Backing liquidity for a token in one pool = trusted quote reserve (USD), not full pool TVL.
+  private getPoolBackingUsdForToken(state: ChainRuntimeState, tokenId: string, pool: PoolRuntimeState) {
+    if (!tokenId || tokenId === state.baseTokenId) return 0
+
+    if (pool.tokenAId === tokenId && state.trustedQuoteTokenIds.has(pool.tokenBId)) {
+      const quoteUsd = this.getUsdPriceForQuote(state, pool.tokenBId)
+      if (quoteUsd <= 0) return 0
+      return Math.abs(finite(pool.tokenBQuantity)) * quoteUsd
+    }
+
+    if (pool.tokenBId === tokenId && state.trustedQuoteTokenIds.has(pool.tokenAId)) {
+      const quoteUsd = this.getUsdPriceForQuote(state, pool.tokenAId)
+      if (quoteUsd <= 0) return 0
+      return Math.abs(finite(pool.tokenAQuantity)) * quoteUsd
+    }
+
+    return 0
+  }
+
   private async publishNewListUpdate(state: ChainRuntimeState) {
     const items = await this.readListItems(state, listNewKey(state.chain), TRENDING_TOP_N)
     await this.publishEvent(LAUNCHPAD_EVENT_CHANNELS.listUpdate, {
@@ -1318,8 +1367,6 @@ class LaunchpadMarketDataRuntime {
     const scored = [...state.tokens.values()]
       .filter((token) => {
         if (token.tokenId === state.baseTokenId) return false
-        if (!token.lastTrade) return false
-        if (TRENDING_MIN_LIQ_USD > 0 && finite(token.liquidityUsd) < TRENDING_MIN_LIQ_USD) return false
 
         if (TRENDING_HIDE_SCAM) {
           if (state.scamTokens.has(token.tokenId)) return false
