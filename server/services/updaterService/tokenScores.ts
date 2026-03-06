@@ -9,6 +9,7 @@ import { getChainRpc, fetchAllScopes } from '../../../utils/eosjs'
 const DAY_MS = 24 * 60 * 60 * 1000
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 const MONTH_MS = 30 * DAY_MS
+const QUARTER_MS = 90 * DAY_MS
 const HOLDERS_CACHE_TTL_MS = 24 * 60 * 60 * 1000
 const HOLDERS_CONCURRENCY = 3
 
@@ -28,6 +29,8 @@ type TokenStat = {
   trades7d: number
   uniqueTraders: Set<string>
   uniqueTraders24h: Set<string>
+  uniqueTradersPrev24h: Set<string>
+  uniqueTradersPrev7d: Set<string>
   firstSeenAt: Date | null
   holders: number
 }
@@ -69,6 +72,8 @@ function ensureStat(map: Map<string, TokenStat>, tokenId: string) {
       trades7d: 0,
       uniqueTraders: new Set(),
       uniqueTraders24h: new Set(),
+      uniqueTradersPrev24h: new Set(),
+      uniqueTradersPrev7d: new Set(),
       firstSeenAt: null,
       holders: 0,
     })
@@ -230,6 +235,9 @@ export async function updateTokenScores(network: Network) {
     const since = new Date(nowTs - WEEK_MS)
     const since24h = new Date(nowTs - DAY_MS)
     const since30d = new Date(nowTs - MONTH_MS)
+    const since90d = new Date(nowTs - QUARTER_MS)
+    const sincePrev24h = new Date(nowTs - (2 * DAY_MS))
+    const sincePrev7d = new Date(nowTs - (2 * WEEK_MS))
 
     // Pools map
     const pools = await SwapPool.find({ chain }).select('id tokenA tokenB firstSeenAt').lean()
@@ -318,6 +326,50 @@ export async function updateTokenScores(network: Network) {
         const stat = ensureStat(stats, tokenId)
         for (const trader of p.traders || []) {
           stat.uniqueTraders24h.add(trader)
+        }
+      }
+    }
+
+    // Swap unique traders per pool (previous 24h window)
+    const swapTradersPrev24hByPool = await Swap.aggregate([
+      { $match: { chain, time: { $gte: sincePrev24h, $lt: since24h } } },
+      { $project: { pool: 1, traders: ['$sender', '$recipient'] } },
+      { $unwind: '$traders' },
+      { $group: { _id: { pool: '$pool', trader: '$traders' } } },
+      { $group: { _id: '$_id.pool', traders: { $addToSet: '$_id.trader' } } }
+    ])
+
+    for (const p of swapTradersPrev24hByPool) {
+      const tokensPair = poolTokens.get(p._id)
+      if (!tokensPair) continue
+
+      for (const tokenId of [tokensPair.tokenA, tokensPair.tokenB]) {
+        if (!tokenIds.has(tokenId)) continue
+        const stat = ensureStat(stats, tokenId)
+        for (const trader of p.traders || []) {
+          stat.uniqueTradersPrev24h.add(trader)
+        }
+      }
+    }
+
+    // Swap unique traders per pool (previous 7d window: day 8-14)
+    const swapTradersPrev7dByPool = await Swap.aggregate([
+      { $match: { chain, time: { $gte: sincePrev7d, $lt: since } } },
+      { $project: { pool: 1, traders: ['$sender', '$recipient'] } },
+      { $unwind: '$traders' },
+      { $group: { _id: { pool: '$pool', trader: '$traders' } } },
+      { $group: { _id: '$_id.pool', traders: { $addToSet: '$_id.trader' } } }
+    ])
+
+    for (const p of swapTradersPrev7dByPool) {
+      const tokensPair = poolTokens.get(p._id)
+      if (!tokensPair) continue
+
+      for (const tokenId of [tokensPair.tokenA, tokensPair.tokenB]) {
+        if (!tokenIds.has(tokenId)) continue
+        const stat = ensureStat(stats, tokenId)
+        for (const trader of p.traders || []) {
+          stat.uniqueTradersPrev7d.add(trader)
         }
       }
     }
@@ -423,9 +475,54 @@ export async function updateTokenScores(network: Network) {
       }
     }
 
-    const [priceChange7d, priceChange30d] = await Promise.all([
+    // Spot unique traders per market (previous 24h window)
+    const matchTradersPrev24hByMarket = await Match.aggregate([
+      { $match: { chain, time: { $gte: sincePrev24h, $lt: since24h } } },
+      { $project: { market: 1, traders: ['$asker', '$bidder'] } },
+      { $unwind: '$traders' },
+      { $group: { _id: { market: '$market', trader: '$traders' } } },
+      { $group: { _id: '$_id.market', traders: { $addToSet: '$_id.trader' } } }
+    ])
+
+    for (const m of matchTradersPrev24hByMarket) {
+      const tokensPair = marketTokens.get(m._id)
+      if (!tokensPair) continue
+
+      for (const tokenId of [tokensPair.base, tokensPair.quote]) {
+        if (!tokenIds.has(tokenId)) continue
+        const stat = ensureStat(stats, tokenId)
+        for (const trader of m.traders || []) {
+          stat.uniqueTradersPrev24h.add(trader)
+        }
+      }
+    }
+
+    // Spot unique traders per market (previous 7d window)
+    const matchTradersPrev7dByMarket = await Match.aggregate([
+      { $match: { chain, time: { $gte: sincePrev7d, $lt: since } } },
+      { $project: { market: 1, traders: ['$asker', '$bidder'] } },
+      { $unwind: '$traders' },
+      { $group: { _id: { market: '$market', trader: '$traders' } } },
+      { $group: { _id: '$_id.market', traders: { $addToSet: '$_id.trader' } } }
+    ])
+
+    for (const m of matchTradersPrev7dByMarket) {
+      const tokensPair = marketTokens.get(m._id)
+      if (!tokensPair) continue
+
+      for (const tokenId of [tokensPair.base, tokensPair.quote]) {
+        if (!tokenIds.has(tokenId)) continue
+        const stat = ensureStat(stats, tokenId)
+        for (const trader of m.traders || []) {
+          stat.uniqueTradersPrev7d.add(trader)
+        }
+      }
+    }
+
+    const [priceChange7d, priceChange30d, priceChange90d] = await Promise.all([
       baseTokenId ? collectTokenPriceChangeMap(chain, poolTokens, baseTokenId, since) : Promise.resolve(new Map<string, number>()),
       baseTokenId ? collectTokenPriceChangeMap(chain, poolTokens, baseTokenId, since30d) : Promise.resolve(new Map<string, number>()),
+      baseTokenId ? collectTokenPriceChangeMap(chain, poolTokens, baseTokenId, since90d) : Promise.resolve(new Map<string, number>()),
     ])
 
     // Holders (contract accounts scopes count)
@@ -476,10 +573,15 @@ export async function updateTokenScores(network: Network) {
       const stat = ensureStat(stats, t.id)
       const uniqueTraders7d = stat.uniqueTraders.size
       const uniqueTraders24h = stat.uniqueTraders24h.size
+      const uniqueTradersPrev24h = stat.uniqueTradersPrev24h.size
+      const uniqueTradersPrev7d = stat.uniqueTradersPrev7d.size
       const ageDays = stat.firstSeenAt ? Math.floor((nowTs - stat.firstSeenAt.getTime()) / DAY_MS) : 0
       const cappedVolumeUsd7d = Math.min(stat.volumeUsd7d, MAX_SANE_VOLUME)
       const priceChange7dPct = priceChange7d.get(t.id) ?? 0
       const priceChange30dPct = priceChange30d.get(t.id) ?? 0
+      const priceChange90dPct = priceChange90d.get(t.id) ?? 0
+      const uniqueTraderGrowth24h = uniqueTraders24h / Math.max(1, uniqueTradersPrev24h)
+      const uniqueTraderGrowth7d = uniqueTraders7d / Math.max(1, uniqueTradersPrev7d)
 
       const holdersScore = clamp(scoreByPoints(stat.holders, holdersPoints), 0, 35)
       const tradersScore = clamp(scoreByPoints(uniqueTraders7d, tradersPoints), 0, 35)
@@ -502,8 +604,13 @@ export async function updateTokenScores(network: Network) {
         trades7d: stat.trades7d,
         uniqueTraders7d,
         uniqueTraders24h,
+        uniqueTradersPrev24h,
+        uniqueTradersPrev7d,
+        uniqueTraderGrowth24h: Number(uniqueTraderGrowth24h.toFixed(4)),
+        uniqueTraderGrowth7d: Number(uniqueTraderGrowth7d.toFixed(4)),
         priceChange7dPct: Number(priceChange7dPct.toFixed(4)),
         priceChange30dPct: Number(priceChange30dPct.toFixed(4)),
+        priceChange90dPct: Number(priceChange90dPct.toFixed(4)),
         ageDays,
         firstSeenAt: stat.firstSeenAt ? stat.firstSeenAt.toISOString() : null,
         updatedAt: new Date().toISOString(),

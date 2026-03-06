@@ -156,8 +156,13 @@ type TokenScoreSnapshot = {
   volumeUsd7d: number
   uniqueTraders7d: number
   uniqueTraders24h: number
+  uniqueTradersPrev24h: number
+  uniqueTradersPrev7d: number
+  uniqueTraderGrowth24h: number
+  uniqueTraderGrowth7d: number
   priceChange7dPct: number
   priceChange30dPct: number
+  priceChange90dPct: number
   ageDays: number
 }
 
@@ -345,8 +350,13 @@ class LaunchpadMarketDataRuntime {
         volumeUsd7d: finite((score as any)?.volumeUsd7d),
         uniqueTraders7d: finite((score as any)?.uniqueTraders7d),
         uniqueTraders24h: finite((score as any)?.uniqueTraders24h),
+        uniqueTradersPrev24h: finite((score as any)?.uniqueTradersPrev24h),
+        uniqueTradersPrev7d: finite((score as any)?.uniqueTradersPrev7d),
+        uniqueTraderGrowth24h: finite((score as any)?.uniqueTraderGrowth24h),
+        uniqueTraderGrowth7d: finite((score as any)?.uniqueTraderGrowth7d),
         priceChange7dPct: finite((score as any)?.priceChange7dPct),
         priceChange30dPct: finite((score as any)?.priceChange30dPct),
+        priceChange90dPct: finite((score as any)?.priceChange90dPct),
         ageDays: finite((score as any)?.ageDays),
       }
 
@@ -1266,16 +1276,23 @@ class LaunchpadMarketDataRuntime {
         const qualityScore = finite(score7d?.score, 0)
         const uniqueTraders7d = finite(score7d?.uniqueTraders7d, 0)
         const uniqueTraders24h = finite(score7d?.uniqueTraders24h, 0)
+        const uniqueTradersPrev24h = finite(score7d?.uniqueTradersPrev24h, 0)
+        const uniqueTradersPrev7d = finite(score7d?.uniqueTradersPrev7d, 0)
+        const uniqueTraderGrowth24h = finite(score7d?.uniqueTraderGrowth24h, 1)
+        const uniqueTraderGrowth7d = finite(score7d?.uniqueTraderGrowth7d, 1)
         const holders = finite(score7d?.holders, 0)
         const volume7d = finite(score7d?.volumeUsd7d, 0)
         const up7d = Math.max(0, finite(score7d?.priceChange7dPct, 0))
         const up30d = Math.max(0, finite(score7d?.priceChange30dPct, 0))
+        const up90d = Math.max(0, finite(score7d?.priceChange90dPct, 0))
 
         const up5m = Math.max(0, finite(token.chg5mPct))
         const up1h = Math.max(0, finite(token.chg1hPct))
         const up24h = Math.max(0, finite(token.chg24hPct))
         const abs1h = Math.abs(finite(token.chg1hPct))
         const abs24h = Math.abs(finite(token.chg24hPct))
+        const growthDelta24h = Math.max(0, uniqueTraderGrowth24h - 1)
+        const growthDelta7d = Math.max(0, uniqueTraderGrowth7d - 1)
 
         // Momentum is primary signal: prioritize growth, not just liquidity/volume.
         const growthScore = (
@@ -1284,6 +1301,15 @@ class LaunchpadMarketDataRuntime {
           + 0.8 * Math.log(up5m + 1)
           + 1.8 * Math.log(up7d + 1)
           + 1.2 * Math.log(up30d + 1)
+          + 1.0 * Math.log(up90d + 1)
+        )
+
+        // Organic hype: unique users growth now vs previous periods.
+        const userGrowthScore = (
+          1.6 * Math.log((growthDelta24h * 5) + 1)
+          + 1.2 * Math.log((growthDelta7d * 3) + 1)
+          + 0.6 * Math.log(uniqueTradersPrev24h + 1)
+          + 0.4 * Math.log(uniqueTradersPrev7d + 1)
         )
 
         // Adoption by unique users is more important than raw volume.
@@ -1296,6 +1322,13 @@ class LaunchpadMarketDataRuntime {
           + 0.2 * Math.log(finite(token.trades1h) + 1)
         )
 
+        // Stable long growth should keep token trending even without short spikes.
+        const persistenceScore = (
+          1.1 * Math.log(up90d + 1)
+          + 0.9 * Math.log(up30d + 1)
+          + 0.7 * Math.log(up7d + 1)
+        )
+
         const liquidityScore = 0.12 * Math.log(finite(token.liquidityUsd) + 1)
         const qualityScore7d = (
           0.18 * Math.log(qualityScore + 1)
@@ -1306,7 +1339,16 @@ class LaunchpadMarketDataRuntime {
         // For genuinely new tokens, volume helps more.
         const newVolumeBonus = clamp01((21 - ageDays) / 21) * (1.0 * Math.log(finite(token.volume24hUsd) + 1))
 
-        const baseScore = growthScore + activityScore + liquidityScore + qualityScore7d + freshnessBoost + newVolumeBonus
+        const baseScore = (
+          growthScore
+          + userGrowthScore
+          + activityScore
+          + persistenceScore
+          + liquidityScore
+          + qualityScore7d
+          + freshnessBoost
+          + newVolumeBonus
+        )
 
         // If token_scores are missing, keep only a small dampener to not hide fresh valid tokens.
         const qualityMultiplier = qualityScore > 0
@@ -1322,15 +1364,17 @@ class LaunchpadMarketDataRuntime {
             || up1h >= TRENDING_OLD_PUMP_1H_PCT
             || up7d >= 12
             || up30d >= 30
+            || up90d >= 60
+            || growthDelta24h >= 0.4
           )
           if (hasOldPump) ageMomentumMultiplier *= 2.4
-          if (abs24h < TRENDING_FLAT_24H_PCT && abs1h < TRENDING_FLAT_1H_PCT && up7d < 2 && up30d < 5) {
+          if (abs24h < TRENDING_FLAT_24H_PCT && abs1h < TRENDING_FLAT_1H_PCT && up7d < 2 && up30d < 5 && up90d < 10) {
             ageMomentumMultiplier *= 0.25
           }
         }
 
         // Flat legacy coins should almost never dominate top trending.
-        if (ageDays > 30 && up24h < 1 && up1h < 0.3 && up5m < 0.1 && up7d < 2 && up30d < 5) {
+        if (ageDays > 30 && up24h < 1 && up1h < 0.3 && up5m < 0.1 && up7d < 2 && up30d < 5 && up90d < 10) {
           ageMomentumMultiplier *= 0.2
         }
 
