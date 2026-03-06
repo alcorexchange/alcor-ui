@@ -35,6 +35,18 @@ const TRENDING_OLD_PUMP_24H_PCT = Number(process.env.LAUNCHPAD_TRENDING_OLD_PUMP
 const TRENDING_OLD_PUMP_1H_PCT = Number(process.env.LAUNCHPAD_TRENDING_OLD_PUMP_1H_PCT || 4)
 const TRENDING_FLAT_24H_PCT = Number(process.env.LAUNCHPAD_TRENDING_FLAT_24H_PCT || 0.8)
 const TRENDING_FLAT_1H_PCT = Number(process.env.LAUNCHPAD_TRENDING_FLAT_1H_PCT || 0.3)
+const TRENDING_EXCLUDED_TOKEN_IDS = new Set(
+  String(process.env.LAUNCHPAD_TRENDING_EXCLUDED_TOKEN_IDS || 'xusdc-xtokens')
+    .split(',')
+    .map((v) => v.trim().toLowerCase())
+    .filter(Boolean)
+)
+const TRENDING_EXCLUDED_SYMBOLS = new Set(
+  String(process.env.LAUNCHPAD_TRENDING_EXCLUDED_SYMBOLS || 'USDT')
+    .split(',')
+    .map((v) => v.trim().toUpperCase())
+    .filter(Boolean)
+)
 const LIQUIDITY_GRADUATION_USD = Number(process.env.LAUNCHPAD_GRADUATION_LIQ_USD || 250_000)
 const VOLUME_GRADUATION_USD = Number(process.env.LAUNCHPAD_GRADUATION_VOL24_USD || 500_000)
 
@@ -1229,6 +1241,9 @@ class LaunchpadMarketDataRuntime {
 
     const scored = [...state.tokens.values()]
       .filter((token) => {
+        if (token.tokenId === state.baseTokenId) return false
+        if (TRENDING_EXCLUDED_TOKEN_IDS.has(token.tokenId)) return false
+        if (TRENDING_EXCLUDED_SYMBOLS.has(String(token.symbol || '').toUpperCase())) return false
         if (!token.lastTrade) return false
         if (TRENDING_MIN_LIQ_USD > 0 && finite(token.liquidityUsd) < TRENDING_MIN_LIQ_USD) return false
 
