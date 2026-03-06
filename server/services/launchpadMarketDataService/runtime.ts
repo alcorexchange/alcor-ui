@@ -35,14 +35,14 @@ const TRENDING_OLD_PUMP_24H_PCT = Number(process.env.LAUNCHPAD_TRENDING_OLD_PUMP
 const TRENDING_OLD_PUMP_1H_PCT = Number(process.env.LAUNCHPAD_TRENDING_OLD_PUMP_1H_PCT || 4)
 const TRENDING_FLAT_24H_PCT = Number(process.env.LAUNCHPAD_TRENDING_FLAT_24H_PCT || 0.8)
 const TRENDING_FLAT_1H_PCT = Number(process.env.LAUNCHPAD_TRENDING_FLAT_1H_PCT || 0.3)
-const TRENDING_EXCLUDED_TOKEN_IDS = new Set(
-  String(process.env.LAUNCHPAD_TRENDING_EXCLUDED_TOKEN_IDS || 'xusdc-xtokens')
+const TRENDING_DOWNRANK_TOKEN_IDS = new Set(
+  String(process.env.LAUNCHPAD_TRENDING_DOWNRANK_TOKEN_IDS || 'xusdc-xtokens')
     .split(',')
     .map((v) => v.trim().toLowerCase())
     .filter(Boolean)
 )
-const TRENDING_EXCLUDED_SYMBOLS = new Set(
-  String(process.env.LAUNCHPAD_TRENDING_EXCLUDED_SYMBOLS || 'USDT')
+const TRENDING_DOWNRANK_SYMBOLS = new Set(
+  String(process.env.LAUNCHPAD_TRENDING_DOWNRANK_SYMBOLS || 'USDC,USDT')
     .split(',')
     .map((v) => v.trim().toUpperCase())
     .filter(Boolean)
@@ -325,7 +325,9 @@ class LaunchpadMarketDataRuntime {
     state.tokenPrices.clear()
     for (const token of items) {
       if (!token?.id) continue
-      state.tokenPrices.set(String(token.id), token)
+      const tokenId = String(token.id)
+      state.tokenPrices.set(tokenId, token)
+      state.tokenPrices.set(tokenId.toLowerCase(), token)
     }
 
     state.baseUsd = finite(await redis.get(`${state.chain}_price`), 0)
@@ -526,7 +528,7 @@ class LaunchpadMarketDataRuntime {
         if (Number.isFinite(pool.createdAt) && pool.createdAt > 0 && pool.createdAt < earliest) {
           earliest = pool.createdAt
         }
-        if (finite(pool.tvlUSD) > 0) liquidityUsd += finite(pool.tvlUSD) / 2
+        if (finite(pool.tvlUSD) > 0) liquidityUsd += finite(pool.tvlUSD)
       }
 
       const globalFirstSeen = finite(state.tokenFirstSeenById.get(tokenId) as any, 0)
@@ -623,13 +625,14 @@ class LaunchpadMarketDataRuntime {
     const tokenAId = String(pool?.tokenA?.id || '').toLowerCase()
     const tokenBId = String(pool?.tokenB?.id || '').toLowerCase()
     if (!tokenAId || !tokenBId) return
-    if (!isBasePair(state.baseTokenId, tokenAId, tokenBId)) return
 
     const prev = state.pools.get(poolId)
     const createdAt = pool?.firstSeenAt
       ? parseTsOrZero(pool.firstSeenAt)
       : (Number.isFinite(prev?.createdAt) ? Number(prev?.createdAt) : 0)
-    const launchTokenId = tokenAId === state.baseTokenId ? tokenBId : tokenAId
+    const launchTokenId = isBasePair(state.baseTokenId, tokenAId, tokenBId)
+      ? (tokenAId === state.baseTokenId ? tokenBId : tokenAId)
+      : null
 
     state.pools.set(poolId, {
       id: poolId,
@@ -641,14 +644,30 @@ class LaunchpadMarketDataRuntime {
       createdAt,
     })
 
-    if (!state.tokenPools.has(launchTokenId)) state.tokenPools.set(launchTokenId, new Set())
-    state.tokenPools.get(launchTokenId)?.add(poolId)
+    if (launchTokenId) {
+      if (!state.tokenPools.has(launchTokenId)) {
+        const poolIds = new Set<number>()
+        state.tokenPools.set(launchTokenId, poolIds)
 
-    if (createdAt > 0) {
-      this.ensureTokenState(state, launchTokenId, { createdAt })
-    } else {
-      this.ensureTokenState(state, launchTokenId)
+        // Add all already known pools for this launch token so liquidity is based on full token TVL.
+        for (const existingPool of state.pools.values()) {
+          if (existingPool.tokenAId === launchTokenId || existingPool.tokenBId === launchTokenId) {
+            poolIds.add(existingPool.id)
+          }
+        }
+      }
+
+      state.tokenPools.get(launchTokenId)?.add(poolId)
+
+      if (createdAt > 0) {
+        this.ensureTokenState(state, launchTokenId, { createdAt })
+      } else {
+        this.ensureTokenState(state, launchTokenId)
+      }
     }
+
+    if (state.tokenPools.has(tokenAId)) state.tokenPools.get(tokenAId)?.add(poolId)
+    if (state.tokenPools.has(tokenBId)) state.tokenPools.get(tokenBId)?.add(poolId)
   }
 
   private async processAction(state: ChainRuntimeState, action: any) {
@@ -755,36 +774,74 @@ class LaunchpadMarketDataRuntime {
     pool: PoolRuntimeState,
     swap: { poolId: number, trxId: string, ts: number, amountA: number, amountB: number }
   ) {
-    if (!isBasePair(state.baseTokenId, pool.tokenAId, pool.tokenBId)) return []
+    const baseUsd = this.getUsdPriceForQuote(state, state.baseTokenId)
+    const candidates = [
+      {
+        tokenId: pool.tokenAId,
+        tokenAmount: swap.amountA,
+        counterTokenId: pool.tokenBId,
+        counterAmount: swap.amountB,
+      },
+      {
+        tokenId: pool.tokenBId,
+        tokenAmount: swap.amountB,
+        counterTokenId: pool.tokenAId,
+        counterAmount: swap.amountA,
+      },
+    ]
 
-    const baseOnA = pool.tokenAId === state.baseTokenId
-    const tokenId = baseOnA ? pool.tokenBId : pool.tokenAId
-    const tokenAmount = baseOnA ? swap.amountB : swap.amountA
-    const baseAmount = baseOnA ? swap.amountA : swap.amountB
+    const trades: any[] = []
 
-    if (!Number.isFinite(tokenAmount) || !Number.isFinite(baseAmount) || tokenAmount === 0) {
-      return []
+    for (const c of candidates) {
+      if (c.tokenId === state.baseTokenId) continue
+      if (!state.tokenPools.has(c.tokenId)) continue
+      if (!Number.isFinite(c.tokenAmount) || c.tokenAmount === 0) continue
+      if (!Number.isFinite(c.counterAmount) || c.counterAmount === 0) continue
+
+      const tokenAmountAbs = Math.abs(c.tokenAmount)
+      const counterAmountAbs = Math.abs(c.counterAmount)
+      const tokenUsd = this.getUsdPriceForQuote(state, c.tokenId)
+      const counterUsd = this.getUsdPriceForQuote(state, c.counterTokenId)
+
+      let volumeUsd = 0
+      if (counterUsd > 0) {
+        volumeUsd = counterAmountAbs * counterUsd
+      } else if (tokenUsd > 0) {
+        volumeUsd = tokenAmountAbs * tokenUsd
+      }
+      if (!Number.isFinite(volumeUsd) || volumeUsd < 0) volumeUsd = 0
+
+      let priceUsd = 0
+      if (tokenUsd > 0) {
+        priceUsd = tokenUsd
+      } else if (volumeUsd > 0 && tokenAmountAbs > 0) {
+        priceUsd = volumeUsd / tokenAmountAbs
+      }
+
+      let priceBase = 0
+      if (priceUsd > 0 && baseUsd > 0) {
+        priceBase = priceUsd / baseUsd
+      }
+      if (!Number.isFinite(priceBase) || priceBase <= 0) continue
+
+      const volumeQuote = baseUsd > 0 ? (volumeUsd / baseUsd) : 0
+
+      trades.push({
+        chain: state.chain,
+        token_id: c.tokenId,
+        pool_id: swap.poolId,
+        ts: swap.ts,
+        price: priceBase,
+        amount: tokenAmountAbs,
+        side: c.tokenAmount < 0 ? 'buy' : 'sell',
+        tx_id: swap.trxId,
+        quote_token_id: state.baseTokenId,
+        volume_quote: volumeQuote,
+        volume_usd: volumeUsd,
+      })
     }
 
-    const price = Math.abs(baseAmount / tokenAmount)
-    if (!Number.isFinite(price) || price <= 0) return []
-
-    const volumeBase = Math.abs(baseAmount)
-    const baseUsd = this.getUsdPriceForQuote(state, state.baseTokenId)
-
-    return [{
-      chain: state.chain,
-      token_id: tokenId,
-      pool_id: swap.poolId,
-      ts: swap.ts,
-      price,
-      amount: Math.abs(tokenAmount),
-      side: tokenAmount < 0 ? 'buy' : 'sell',
-      tx_id: swap.trxId,
-      quote_token_id: state.baseTokenId,
-      volume_quote: volumeBase,
-      volume_usd: volumeBase * baseUsd,
-    }]
+    return trades
   }
 
   private applyTradeToToken(state: ChainRuntimeState, token: TokenRuntimeState, trade: any) {
@@ -1161,9 +1218,10 @@ class LaunchpadMarketDataRuntime {
   }
 
   private async refreshPoolLiquidity(state: ChainRuntimeState, pool: PoolRuntimeState) {
-    if (!isBasePair(state.baseTokenId, pool.tokenAId, pool.tokenBId)) return
-
-    const changedTokens = [pool.tokenAId === state.baseTokenId ? pool.tokenBId : pool.tokenAId]
+    const changedTokens = [pool.tokenAId, pool.tokenBId]
+      .filter((tokenId, index, arr) => arr.indexOf(tokenId) === index)
+      .filter((tokenId) => state.tokenPools.has(tokenId))
+    if (!changedTokens.length) return
 
     for (const tokenId of changedTokens) {
       const token = pool.createdAt > 0
@@ -1176,7 +1234,7 @@ class LaunchpadMarketDataRuntime {
       for (const pid of poolIds) {
         const p = state.pools.get(pid)
         if (!p) continue
-        if (p.tvlUSD > 0) liquidityUsd += p.tvlUSD / 2
+        if (p.tvlUSD > 0) liquidityUsd += p.tvlUSD
       }
 
       const liquidityBase = state.baseUsd > 0 ? (liquidityUsd / state.baseUsd) : 0
@@ -1220,6 +1278,14 @@ class LaunchpadMarketDataRuntime {
   private getUsdPriceForQuote(state: ChainRuntimeState, quoteTokenId: string) {
     if (!quoteTokenId) return 0
     if (quoteTokenId === state.baseTokenId) return state.baseUsd > 0 ? state.baseUsd : 0
+
+    const token = state.tokenPrices.get(String(quoteTokenId).toLowerCase()) || state.tokenPrices.get(String(quoteTokenId))
+    const safeUsd = finite(token?.safe_usd_price)
+    if (safeUsd > 0) return safeUsd
+
+    const usd = finite(token?.usd_price)
+    if (usd > 0) return usd
+
     return 0
   }
 
@@ -1252,8 +1318,6 @@ class LaunchpadMarketDataRuntime {
     const scored = [...state.tokens.values()]
       .filter((token) => {
         if (token.tokenId === state.baseTokenId) return false
-        if (TRENDING_EXCLUDED_TOKEN_IDS.has(token.tokenId)) return false
-        if (TRENDING_EXCLUDED_SYMBOLS.has(String(token.symbol || '').toUpperCase())) return false
         if (!token.lastTrade) return false
         if (TRENDING_MIN_LIQ_USD > 0 && finite(token.liquidityUsd) < TRENDING_MIN_LIQ_USD) return false
 
@@ -1266,6 +1330,8 @@ class LaunchpadMarketDataRuntime {
         return true
       })
       .map((token) => {
+        const tokenSymbol = String(token.symbol || '').toUpperCase()
+        const isDownranked = TRENDING_DOWNRANK_TOKEN_IDS.has(token.tokenId) || TRENDING_DOWNRANK_SYMBOLS.has(tokenSymbol)
         const ageMinutes = token.createdAt > 0
           ? Math.max(0, (now - token.createdAt) / 60000)
           : Number.POSITIVE_INFINITY
@@ -1378,7 +1444,14 @@ class LaunchpadMarketDataRuntime {
           ageMomentumMultiplier *= 0.2
         }
 
-        const score = baseScore * qualityMultiplier * ageMomentumMultiplier
+        // Keep stable assets in list, but usually below momentum tokens unless they genuinely pump.
+        let downrankMultiplier = 1
+        if (isDownranked) {
+          const hasStrongPump = up24h >= 5 || up7d >= 20 || up30d >= 40 || growthDelta24h >= 0.8
+          downrankMultiplier = hasStrongPump ? 0.65 : 0.2
+        }
+
+        const score = baseScore * qualityMultiplier * ageMomentumMultiplier * downrankMultiplier
 
         return {
           token,
