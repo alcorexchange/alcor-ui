@@ -20,7 +20,7 @@ const MAX_LIMIT = 200
 const MAX_SEARCH_SCAN = 5000
 const TOKENS_DEFAULT_LIMIT = 100
 const TOKENS_TRENDING_TOP = Number(process.env.LAUNCHPAD_TOKENS_TRENDING_TOP || 50)
-const TOKENS_NEW_WINDOW_MS = Number(process.env.LAUNCHPAD_TOKENS_NEW_WINDOW_MS || (24 * 60 * 60 * 1000))
+const TOKENS_NEW_WINDOW_MS = Number(process.env.LAUNCHPAD_TOKENS_NEW_WINDOW_MS || (7 * 24 * 60 * 60 * 1000))
 
 type ScamFilters = {
   scamContracts: Set<string>
@@ -165,20 +165,34 @@ async function readRankedList(
   limit: number,
   cursor: number,
   search = '',
-  scamFilters: ScamFilters | null = null
+  scamFilters: ScamFilters | null = null,
+  options: { minScore?: number } = {}
 ) {
   const redis: any = getRedis()
   const baseTokenId = String((config as any)?.networks?.[chain]?.baseToken?.id || '').toLowerCase()
   const hasSearch = Boolean(search)
+  const minScore = Number.isFinite(Number(options.minScore)) ? Number(options.minScore) : null
   const start = hasSearch ? 0 : cursor
+  const pageSize = hasSearch ? MAX_SEARCH_SCAN : Math.max(0, limit)
   const end = hasSearch ? Math.max(0, MAX_SEARCH_SCAN - 1) : (cursor + Math.max(0, limit - 1))
-  const raw: string[] = await redis.sendCommand([
-    'ZREVRANGE',
-    key,
-    String(start),
-    String(end),
-    'WITHSCORES',
-  ])
+  const raw: string[] = minScore === null
+    ? await redis.sendCommand([
+      'ZREVRANGE',
+      key,
+      String(start),
+      String(end),
+      'WITHSCORES',
+    ])
+    : await redis.sendCommand([
+      'ZREVRANGEBYSCORE',
+      key,
+      '+inf',
+      String(minScore),
+      'WITHSCORES',
+      'LIMIT',
+      String(start),
+      String(pageSize),
+    ])
 
   const tokenIds: string[] = []
   const scoreByToken = new Map<string, number>()
@@ -216,7 +230,11 @@ async function readRankedList(
     ? matchedItems.slice(cursor, cursor + limit)
     : matchedItems
 
-  const totalMatched = hasSearch ? matchedItems.length : Number(await redis.zCard(key))
+  const totalMatched = hasSearch
+    ? matchedItems.length
+    : (minScore === null
+        ? Number(await redis.zCard(key))
+        : Number(await redis.sendCommand(['ZCOUNT', key, String(minScore), '+inf'])))
   const nextCursor = (cursor + items.length) < totalMatched ? (cursor + items.length) : null
   return { items, nextCursor, totalMatched }
 }
@@ -442,7 +460,8 @@ launchpad.get('/new', async (req, res) => {
       limit,
       cursor,
       search,
-      scamFilters
+      scamFilters,
+      { minScore: Date.now() - TOKENS_NEW_WINDOW_MS }
     )
 
     res.json({
@@ -570,7 +589,15 @@ launchpad.get('/search', async (req, res) => {
           ? listGraduatedKey(chain)
           : (list === 'organic' ? listOrganicKey(chain) : listTrendingKey(chain)))
 
-    const { items, nextCursor, totalMatched } = await readRankedList(chain, key, limit, cursor, q, scamFilters)
+    const { items, nextCursor, totalMatched } = await readRankedList(
+      chain,
+      key,
+      limit,
+      cursor,
+      q,
+      scamFilters,
+      list === 'new' ? { minScore: Date.now() - TOKENS_NEW_WINDOW_MS } : {}
+    )
 
     res.json({
       meta: { chain, ts: Date.now(), list, q, limit, cursor, hide_scam: hideScam },

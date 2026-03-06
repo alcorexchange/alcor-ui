@@ -396,7 +396,7 @@ Notes:
 - Example for Proton: only `token/XPR` pools are included.
 
 ### GET `/launchpad/new`
-New launchpad tokens list (sorted by newest first).
+New launchpad tokens list for the last 7 days (sorted by newest first).
 
 Query:
 - `limit` (default: `50`, max: `200`)
@@ -419,7 +419,7 @@ Query:
 Selection rules:
 - `trending`: limited universe, top `50` by weekly trend score (focus on growth of traders/trades/liquidity/price).
 - `organic`: limited universe, top `50` by organic momentum score (previous trending logic).
-- `new`: tokens from last `24h` window.
+- `new`: tokens from last `7d` window.
 - `all`: full launchpad index.
 - `graduated`: graduated list.
 
