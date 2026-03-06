@@ -143,6 +143,9 @@ type TokenScoreSnapshot = {
   holders: number
   volumeUsd7d: number
   uniqueTraders7d: number
+  uniqueTraders24h: number
+  priceChange7dPct: number
+  priceChange30dPct: number
   ageDays: number
 }
 
@@ -329,6 +332,9 @@ class LaunchpadMarketDataRuntime {
         holders: finite((score as any)?.holders),
         volumeUsd7d: finite((score as any)?.volumeUsd7d),
         uniqueTraders7d: finite((score as any)?.uniqueTraders7d),
+        uniqueTraders24h: finite((score as any)?.uniqueTraders24h),
+        priceChange7dPct: finite((score as any)?.priceChange7dPct),
+        priceChange30dPct: finite((score as any)?.priceChange30dPct),
         ageDays: finite((score as any)?.ageDays),
       }
 
@@ -1244,8 +1250,11 @@ class LaunchpadMarketDataRuntime {
         const score7d = state.tokenScoresById.get(token.tokenId)
         const qualityScore = finite(score7d?.score, 0)
         const uniqueTraders7d = finite(score7d?.uniqueTraders7d, 0)
+        const uniqueTraders24h = finite(score7d?.uniqueTraders24h, 0)
         const holders = finite(score7d?.holders, 0)
         const volume7d = finite(score7d?.volumeUsd7d, 0)
+        const up7d = Math.max(0, finite(score7d?.priceChange7dPct, 0))
+        const up30d = Math.max(0, finite(score7d?.priceChange30dPct, 0))
 
         const up5m = Math.max(0, finite(token.chg5mPct))
         const up1h = Math.max(0, finite(token.chg1hPct))
@@ -1255,30 +1264,32 @@ class LaunchpadMarketDataRuntime {
 
         // Momentum is primary signal: prioritize growth, not just liquidity/volume.
         const growthScore = (
-          3.2 * Math.log(up24h + 1)
-          + 2.0 * Math.log(up1h + 1)
-          + 1.0 * Math.log(up5m + 1)
+          2.8 * Math.log(up24h + 1)
+          + 1.8 * Math.log(up1h + 1)
+          + 0.8 * Math.log(up5m + 1)
+          + 1.8 * Math.log(up7d + 1)
+          + 1.2 * Math.log(up30d + 1)
         )
 
-        // Activity is secondary and has reduced weights.
+        // Adoption by unique users is more important than raw volume.
         const activityScore = (
-          0.7 * Math.log(finite(token.volume24hUsd) + 1)
-          + 0.35 * Math.log(finite(token.volume1hUsd) + 1)
-          + 0.15 * Math.log(finite(token.volume5mUsd) + 1)
-          + 0.35 * Math.log(finite(token.trades24h) + 1)
+          1.1 * Math.log(uniqueTraders24h + 1)
+          + 0.9 * Math.log(uniqueTraders7d + 1)
+          + 0.35 * Math.log(finite(token.volume24hUsd) + 1)
+          + 0.2 * Math.log(finite(token.volume1hUsd) + 1)
+          + 0.25 * Math.log(finite(token.trades24h) + 1)
           + 0.2 * Math.log(finite(token.trades1h) + 1)
         )
 
-        const liquidityScore = 0.2 * Math.log(finite(token.liquidityUsd) + 1)
+        const liquidityScore = 0.12 * Math.log(finite(token.liquidityUsd) + 1)
         const qualityScore7d = (
-          0.25 * Math.log(qualityScore + 1)
-          + 0.15 * Math.log(uniqueTraders7d + 1)
-          + 0.1 * Math.log(volume7d + 1)
-          + 0.08 * Math.log(holders + 1)
+          0.18 * Math.log(qualityScore + 1)
+          + 0.08 * Math.log(volume7d + 1)
+          + 0.06 * Math.log(holders + 1)
         )
 
         // For genuinely new tokens, volume helps more.
-        const newVolumeBonus = clamp01((14 - ageDays) / 14) * (0.9 * Math.log(finite(token.volume24hUsd) + 1))
+        const newVolumeBonus = clamp01((21 - ageDays) / 21) * (1.0 * Math.log(finite(token.volume24hUsd) + 1))
 
         const baseScore = growthScore + activityScore + liquidityScore + qualityScore7d + freshnessBoost + newVolumeBonus
 
@@ -1291,15 +1302,20 @@ class LaunchpadMarketDataRuntime {
         let ageMomentumMultiplier = 1
         if (ageDays >= TRENDING_OLD_TOKEN_DAYS) {
           ageMomentumMultiplier *= 0.45
-          const hasOldPump = up24h >= TRENDING_OLD_PUMP_24H_PCT || up1h >= TRENDING_OLD_PUMP_1H_PCT
+          const hasOldPump = (
+            up24h >= TRENDING_OLD_PUMP_24H_PCT
+            || up1h >= TRENDING_OLD_PUMP_1H_PCT
+            || up7d >= 12
+            || up30d >= 30
+          )
           if (hasOldPump) ageMomentumMultiplier *= 2.4
-          if (abs24h < TRENDING_FLAT_24H_PCT && abs1h < TRENDING_FLAT_1H_PCT) {
+          if (abs24h < TRENDING_FLAT_24H_PCT && abs1h < TRENDING_FLAT_1H_PCT && up7d < 2 && up30d < 5) {
             ageMomentumMultiplier *= 0.25
           }
         }
 
         // Flat legacy coins should almost never dominate top trending.
-        if (ageDays > 30 && up24h < 1 && up1h < 0.3 && up5m < 0.1) {
+        if (ageDays > 30 && up24h < 1 && up1h < 0.3 && up5m < 0.1 && up7d < 2 && up30d < 5) {
           ageMomentumMultiplier *= 0.2
         }
 
