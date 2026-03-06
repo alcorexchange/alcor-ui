@@ -404,8 +404,36 @@ Query:
 - `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
 - `hide_scam=true|false` (default: `true`)
 
+### GET `/launchpad/tokens`
+Unified launchpad tokens list for tabs (`trending/organic/all/new/graduated`) with server-side sorting and keyset cursor.
+
+Query:
+- `list=trending|organic|all|new|graduated` (default: `trending`)
+- `sort=score|age|vol24h|liq|mcap` (default: `score`)
+- `dir=desc|asc` (default: `desc`)
+- `limit` (default: `100`, max: `200`)
+- `cursor` (opaque keyset cursor from previous response)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+Selection rules:
+- `trending`: limited universe, top `50` by weekly trend score (focus on growth of traders/trades/liquidity/price).
+- `organic`: limited universe, top `50` by organic momentum score (previous trending logic).
+- `new`: tokens from last `24h` window.
+- `all`: full launchpad index.
+- `graduated`: graduated list.
+
 ### GET `/launchpad/trending`
-Trending launchpad list (score based on 5m volume/trades/change/liquidity).
+Trending launchpad list (weekly growth score; traders/trades/liquidity/price focused).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/organic`
+Organic launchpad list (previous trending momentum logic).
 
 Query:
 - `limit` (default: `50`, max: `200`)
@@ -427,7 +455,7 @@ Search tokens by word.
 
 Query:
 - `q` or `search` (required)
-- `list=trending|new|graduated` (default: `trending`)
+- `list=trending|organic|new|graduated` (default: `trending`)
 - `limit` (default: `50`, max: `200`)
 - `cursor` (offset pagination; optional)
 - `hide_scam=true|false` (default: `true`)

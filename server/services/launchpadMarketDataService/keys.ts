@@ -32,6 +32,10 @@ export function listTrendingKey(chain: string) {
   return `${chainPrefix(chain)}:list:trending`
 }
 
+export function listOrganicKey(chain: string) {
+  return `${chainPrefix(chain)}:list:organic`
+}
+
 export function listGraduatedKey(chain: string) {
   return `${chainPrefix(chain)}:list:graduated`
 }

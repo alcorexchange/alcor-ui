@@ -7,6 +7,7 @@ import {
   dedupeEventKey,
   listGraduatedKey,
   listNewKey,
+  listOrganicKey,
   listTrendingKey,
   tokenBucketsKey,
   tokenSummaryKey,
@@ -184,6 +185,7 @@ type ChainRuntimeState = {
   tokenPools: Map<string, Set<number>>
   seededTokenIds: Set<string>
   rankByToken: Map<string, number>
+  rankByOrganicToken: Map<string, number>
   queue: Promise<void>
   hydrated: boolean
   hydratePromise: Promise<void> | null
@@ -273,6 +275,7 @@ class LaunchpadMarketDataRuntime {
       tokenPools: new Map(),
       seededTokenIds: new Set(),
       rankByToken: new Map(),
+      rankByOrganicToken: new Map(),
       queue: Promise.resolve(),
       hydrated: false,
       hydratePromise: null,
@@ -1364,7 +1367,7 @@ class LaunchpadMarketDataRuntime {
       await this.refreshScamFilters(state)
     }
 
-    const scored = [...state.tokens.values()]
+    const candidates = [...state.tokens.values()]
       .filter((token) => {
         if (token.tokenId === state.baseTokenId) return false
 
@@ -1376,6 +1379,8 @@ class LaunchpadMarketDataRuntime {
 
         return true
       })
+
+    const organicScored = candidates
       .map((token) => {
         const tokenSymbol = String(token.symbol || '').toUpperCase()
         const isDownranked = TRENDING_DOWNRANK_TOKEN_IDS.has(token.tokenId) || TRENDING_DOWNRANK_SYMBOLS.has(tokenSymbol)
@@ -1507,16 +1512,140 @@ class LaunchpadMarketDataRuntime {
       })
       .sort((a, b) => b.score - a.score)
 
+    const trendingScored = candidates
+      .map((token) => {
+        const tokenSymbol = String(token.symbol || '').toUpperCase()
+        const isDownranked = TRENDING_DOWNRANK_TOKEN_IDS.has(token.tokenId) || TRENDING_DOWNRANK_SYMBOLS.has(tokenSymbol)
+        const ageMinutes = token.createdAt > 0
+          ? Math.max(0, (now - token.createdAt) / 60000)
+          : Number.POSITIVE_INFINITY
+        const ageDays = Number.isFinite(ageMinutes) ? (ageMinutes / 1440) : Number.POSITIVE_INFINITY
+
+        const score7d = state.tokenScoresById.get(token.tokenId)
+        const qualityScore = finite(score7d?.score, 0)
+        const uniqueTraders7d = finite(score7d?.uniqueTraders7d, 0)
+        const uniqueTraders24h = finite(score7d?.uniqueTraders24h, 0)
+        const uniqueTradersPrev24h = finite(score7d?.uniqueTradersPrev24h, 0)
+        const uniqueTradersPrev7d = finite(score7d?.uniqueTradersPrev7d, 0)
+        const uniqueTraderGrowth24h = Math.max(0, finite(score7d?.uniqueTraderGrowth24h, 1) - 1)
+        const uniqueTraderGrowth7d = Math.max(0, finite(score7d?.uniqueTraderGrowth7d, 1) - 1)
+        const up7d = Math.max(0, finite(score7d?.priceChange7dPct, 0))
+        const up30d = Math.max(0, finite(score7d?.priceChange30dPct, 0))
+        const up24h = Math.max(0, finite(token.chg24hPct))
+
+        const trades24h = Math.max(0, finite(token.trades24h))
+        const trades1h = Math.max(0, finite(token.trades1h))
+        const vol24h = Math.max(0, finite(token.volume24hUsd))
+        const vol7d = Math.max(0, finite(score7d?.volumeUsd7d))
+        const liqUsd = Math.max(0, finite(token.liquidityUsd))
+        const liqVelocity = liqUsd > 0 ? (vol24h / liqUsd) : (vol24h > 0 ? 1 : 0)
+
+        const userGrowthScore = (
+          2.4 * Math.log((uniqueTraderGrowth7d * 8) + 1)
+          + 2.0 * Math.log((uniqueTraderGrowth24h * 10) + 1)
+          + 1.4 * Math.log(uniqueTraders24h + 1)
+          + 1.2 * Math.log(uniqueTraders7d + 1)
+          + 0.5 * Math.log(uniqueTradersPrev24h + 1)
+          + 0.4 * Math.log(uniqueTradersPrev7d + 1)
+        )
+
+        const priceMomentumScore = (
+          2.0 * Math.log(up7d + 1)
+          + 0.8 * Math.log(up24h + 1)
+          + 0.5 * Math.log(up30d + 1)
+        )
+
+        const activityScore = (
+          2.2 * Math.log(trades24h + 1)
+          + 0.9 * Math.log(trades1h + 1)
+          + 1.0 * Math.log(vol24h + 1)
+          + 0.5 * Math.log(vol7d + 1)
+        )
+
+        // Favor tokens where current flow can actually move price (high volume vs backing liquidity).
+        const liquidityGrowthScore = (
+          1.7 * Math.log((liqVelocity * 100) + 1)
+          + 0.8 * Math.log(liqUsd + 1)
+        )
+
+        const hasWeeklySignal = (
+          uniqueTraders7d > 0
+          || vol7d > 0
+          || up7d > 0
+          || trades24h > 0
+        )
+
+        let score = (
+          userGrowthScore
+          + priceMomentumScore
+          + activityScore
+          + liquidityGrowthScore
+        )
+
+        const qualityMultiplier = qualityScore > 0
+          ? (0.75 + 0.25 * clamp01(qualityScore / 100))
+          : 0.85
+        score *= qualityMultiplier
+
+        if (!hasWeeklySignal) score *= 0.35
+
+        // Old flat tokens should have lower weekly trend priority.
+        if (ageDays > 120 && up7d < 3 && uniqueTraderGrowth7d < 0.2) {
+          score *= 0.6
+        }
+
+        // Keep stable assets in list, but usually below actual movers.
+        let downrankMultiplier = 1
+        if (isDownranked) {
+          const hasStrongPump = up24h >= 5 || up7d >= 20 || up30d >= 40 || uniqueTraderGrowth24h >= 0.8
+          downrankMultiplier = hasStrongPump ? 0.65 : 0.2
+        }
+        score *= downrankMultiplier
+
+        return {
+          token,
+          score: Number.isFinite(score) ? score : 0,
+        }
+      })
+      .sort((a, b) => b.score - a.score)
+
     const redis: any = getRedis()
     const multi = redis.multi()
+    multi.del(listOrganicKey(state.chain))
     multi.del(listTrendingKey(state.chain))
 
-    for (const row of scored) {
+    for (const row of organicScored) {
+      multi.zAdd(listOrganicKey(state.chain), [{ score: row.score, value: row.token.tokenId }])
+    }
+    for (const row of trendingScored) {
       multi.zAdd(listTrendingKey(state.chain), [{ score: row.score, value: row.token.tokenId }])
     }
 
     await multi.exec()
 
+    state.rankByOrganicToken = await this.publishRankedListIfChanged(
+      state,
+      'organic',
+      organicScored,
+      state.rankByOrganicToken,
+      now
+    )
+    state.rankByToken = await this.publishRankedListIfChanged(
+      state,
+      'trending',
+      trendingScored,
+      state.rankByToken,
+      now
+    )
+  }
+
+  private async publishRankedListIfChanged(
+    state: ChainRuntimeState,
+    list: 'trending' | 'organic',
+    scored: Array<{ token: TokenRuntimeState, score: number }>,
+    prevRanks: Map<string, number>,
+    now: number
+  ) {
     const top = scored.slice(0, TRENDING_TOP_N).map((row, index) => ({
       token_id: row.token.tokenId,
       rank: index + 1,
@@ -1532,27 +1661,28 @@ class LaunchpadMarketDataRuntime {
     const nextRanks = new Map<string, number>()
     top.forEach((row) => nextRanks.set(row.token_id, row.rank))
 
-    let changed = nextRanks.size !== state.rankByToken.size
+    let changed = nextRanks.size !== prevRanks.size
     if (!changed) {
       for (const [tokenId, rank] of nextRanks.entries()) {
-        if (state.rankByToken.get(tokenId) !== rank) {
+        if (prevRanks.get(tokenId) !== rank) {
           changed = true
           break
         }
       }
     }
 
-    if (changed) {
-      state.rankByToken = nextRanks
-      await this.publishEvent(LAUNCHPAD_EVENT_CHANNELS.listUpdate, {
-        type: 'list_update',
-        chain: state.chain,
-        list: 'trending',
-        channel: `list:trending:${state.chain}`,
-        items: top,
-        ts: now,
-      })
-    }
+    if (!changed) return prevRanks
+
+    await this.publishEvent(LAUNCHPAD_EVENT_CHANNELS.listUpdate, {
+      type: 'list_update',
+      chain: state.chain,
+      list,
+      channel: `list:${list}:${state.chain}`,
+      items: top,
+      ts: now,
+    })
+
+    return nextRanks
   }
 
   private async readListItems(state: ChainRuntimeState, key: string, limit: number) {
