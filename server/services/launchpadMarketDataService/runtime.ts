@@ -292,8 +292,10 @@ class LaunchpadMarketDataRuntime {
       const tokenId = String(meta.token_id || '').toLowerCase()
       if (!tokenId || tokenId === state.baseTokenId) continue
 
+      const rawCreatedAt = (meta?.created_at ?? meta?.createdAt)
+      const createdAt = rawCreatedAt ? parseTs(rawCreatedAt) : 0
       const token = this.ensureTokenState(state, tokenId, {
-        createdAt: parseTs(meta.created_at || meta.createdAt || Date.now()),
+        createdAt,
       })
 
       if (meta.symbol) token.symbol = String(meta.symbol)
@@ -327,8 +329,10 @@ class LaunchpadMarketDataRuntime {
       if (!summary) continue
       if (String(summary.quote_token_id || '').toLowerCase() !== state.baseTokenId) continue
 
+      const rawCreatedAt = (summary?.created_at ?? summary?.createdAt)
+      const createdAt = rawCreatedAt ? parseTs(rawCreatedAt) : 0
       const token = this.ensureTokenState(state, normalizedTokenId, {
-        createdAt: parseTs(summary.created_at || summary.createdAt || Date.now()),
+        createdAt,
       })
 
       token.quoteTokenId = state.baseTokenId
@@ -383,7 +387,7 @@ class LaunchpadMarketDataRuntime {
     for (const [tokenId, poolIds] of state.tokenPools.entries()) {
       if (!tokenId || tokenId === state.baseTokenId) continue
 
-      const token = this.ensureTokenState(state, tokenId, { createdAt: Date.now() })
+      const token = this.ensureTokenState(state, tokenId)
 
       let earliest = Number.POSITIVE_INFINITY
       let liquidityUsd = 0
@@ -398,9 +402,10 @@ class LaunchpadMarketDataRuntime {
         if (finite(pool.tvlUSD) > 0) liquidityUsd += finite(pool.tvlUSD) / 2
       }
 
-      if (!Number.isFinite(earliest) || earliest <= 0) {
-        earliest = token.createdAt
-      }
+      const hasEarliestFromPools = Number.isFinite(earliest) && earliest > 0
+      const effectiveCreatedAt = hasEarliestFromPools
+        ? earliest
+        : (Number.isFinite(token.createdAt) ? token.createdAt : 0)
 
       const liquidityBase = state.baseUsd > 0 ? (liquidityUsd / state.baseUsd) : 0
 
@@ -409,7 +414,7 @@ class LaunchpadMarketDataRuntime {
       const prevQuoteTokenId = token.quoteTokenId
       const prevStatus = token.status
 
-      token.createdAt = earliest
+      token.createdAt = effectiveCreatedAt
       token.quoteTokenId = state.baseTokenId
       token.liquidityUsd = liquidityUsd
       token.liquidityBase = liquidityBase
@@ -432,7 +437,11 @@ class LaunchpadMarketDataRuntime {
   private ensureTokenState(state: ChainRuntimeState, tokenId: string, options: { createdAt?: number } = {}) {
     let token = state.tokens.get(tokenId)
     if (token) {
-      if (options.createdAt && options.createdAt < token.createdAt) token.createdAt = options.createdAt
+      if (options.createdAt && options.createdAt > 0) {
+        if (!token.createdAt || token.createdAt <= 0 || options.createdAt < token.createdAt) {
+          token.createdAt = options.createdAt
+        }
+      }
       return token
     }
 
@@ -446,7 +455,7 @@ class LaunchpadMarketDataRuntime {
       name: tokenPrice?.name ? String(tokenPrice.name) : null,
       status: 'LAUNCH',
       statusSource: 'auto',
-      createdAt: options.createdAt || Date.now(),
+      createdAt: (options.createdAt && options.createdAt > 0) ? options.createdAt : 0,
       totalSupply: null,
       quoteTokenId: null,
       lastPriceQuote: null,
@@ -825,7 +834,11 @@ class LaunchpadMarketDataRuntime {
     multi.set(tokenSummaryKey(state.chain, token.tokenId), JSON.stringify(summary), { EX: SUMMARY_TTL_SECONDS })
     multi.set(tokenBucketsKey(state.chain, token.tokenId), JSON.stringify(bucketsObj), { EX: SUMMARY_TTL_SECONDS })
     multi.sAdd(tokensSetKey(state.chain), token.tokenId)
-    multi.zAdd(listNewKey(state.chain), [{ score: token.createdAt, value: token.tokenId }])
+    if (token.createdAt > 0) {
+      multi.zAdd(listNewKey(state.chain), [{ score: token.createdAt, value: token.tokenId }])
+    } else {
+      multi.zRem(listNewKey(state.chain), token.tokenId)
+    }
 
     if (token.status === 'GRADUATED') {
       multi.zAdd(listGraduatedKey(state.chain), [{ score: token.updatedAt, value: token.tokenId }])
@@ -854,25 +867,29 @@ class LaunchpadMarketDataRuntime {
       return
     }
 
+    const hasCreatedAt = Number.isFinite(token.createdAt) && token.createdAt > 0
+    const updateDoc: any = {
+      $set: {
+        chain: state.chain,
+        token_id: token.tokenId,
+        symbol: token.symbol,
+        name: token.name,
+        contract: token.contract,
+        decimals: token.decimals,
+        status: token.status,
+        total_supply: supply,
+        updated_at: new Date(token.updatedAt),
+      },
+    }
+
+    if (hasCreatedAt) {
+      updateDoc.$min = { created_at: new Date(token.createdAt) }
+    }
+
     await LaunchpadTokenMeta.updateOne(
       { chain: state.chain, token_id: token.tokenId },
-      {
-        $set: {
-          chain: state.chain,
-          token_id: token.tokenId,
-          symbol: token.symbol,
-          name: token.name,
-          contract: token.contract,
-          decimals: token.decimals,
-          status: token.status,
-          total_supply: supply,
-          updated_at: new Date(token.updatedAt),
-        },
-        $min: {
-          created_at: new Date(token.createdAt),
-        },
-      },
-      { upsert: true }
+      updateDoc,
+      { upsert: hasCreatedAt }
     )
 
     this.metaPersistState.set(key, {
@@ -928,7 +945,7 @@ class LaunchpadMarketDataRuntime {
       pool_tvl_usd: topPool ? finite(topPool.tvlUSD) : 0,
       icon_url: tokenPrice?.logo || null,
       status: token.status,
-      created_at: token.createdAt,
+      created_at: token.createdAt || null,
       updated_at: token.updatedAt,
       quote_token_id: token.quoteTokenId,
       price_quote: token.lastPriceQuote,
