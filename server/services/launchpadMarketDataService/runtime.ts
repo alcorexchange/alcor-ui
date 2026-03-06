@@ -30,6 +30,11 @@ const SCAM_FILTER_REFRESH_MS = Number(process.env.LAUNCHPAD_SCAM_FILTER_REFRESH_
 const TRENDING_MIN_LIQ_USD = Number(process.env.LAUNCHPAD_TRENDING_MIN_LIQ_USD || 100)
 const TRENDING_NEW_BOOST_MINUTES = Number(process.env.LAUNCHPAD_TRENDING_NEW_BOOST_MINUTES || (24 * 60))
 const TRENDING_HIDE_SCAM = !['false', '0', 'no'].includes(String(process.env.LAUNCHPAD_TRENDING_HIDE_SCAM || 'true').toLowerCase())
+const TRENDING_OLD_TOKEN_DAYS = Number(process.env.LAUNCHPAD_TRENDING_OLD_TOKEN_DAYS || 120)
+const TRENDING_OLD_PUMP_24H_PCT = Number(process.env.LAUNCHPAD_TRENDING_OLD_PUMP_24H_PCT || 15)
+const TRENDING_OLD_PUMP_1H_PCT = Number(process.env.LAUNCHPAD_TRENDING_OLD_PUMP_1H_PCT || 4)
+const TRENDING_FLAT_24H_PCT = Number(process.env.LAUNCHPAD_TRENDING_FLAT_24H_PCT || 0.8)
+const TRENDING_FLAT_1H_PCT = Number(process.env.LAUNCHPAD_TRENDING_FLAT_1H_PCT || 0.3)
 const LIQUIDITY_GRADUATION_USD = Number(process.env.LAUNCHPAD_GRADUATION_LIQ_USD || 250_000)
 const VOLUME_GRADUATION_USD = Number(process.env.LAUNCHPAD_GRADUATION_VOL24_USD || 500_000)
 
@@ -1233,7 +1238,8 @@ class LaunchpadMarketDataRuntime {
         const ageMinutes = token.createdAt > 0
           ? Math.max(0, (now - token.createdAt) / 60000)
           : Number.POSITIVE_INFINITY
-        const freshnessBoost = 0.6 * (1 - clamp01(ageMinutes / Math.max(1, TRENDING_NEW_BOOST_MINUTES)))
+        const ageDays = Number.isFinite(ageMinutes) ? (ageMinutes / 1440) : Number.POSITIVE_INFINITY
+        const freshnessBoost = 1.2 * (1 - clamp01(ageMinutes / Math.max(1, TRENDING_NEW_BOOST_MINUTES)))
 
         const score7d = state.tokenScoresById.get(token.tokenId)
         const qualityScore = finite(score7d?.score, 0)
@@ -1241,36 +1247,63 @@ class LaunchpadMarketDataRuntime {
         const holders = finite(score7d?.holders, 0)
         const volume7d = finite(score7d?.volumeUsd7d, 0)
 
-        const fastMoveScore = (
-          1.4 * Math.log(finite(token.volume5mUsd) + 1)
-          + 1.1 * Math.log(finite(token.trades5m) + 1)
-          + 0.8 * Math.log(Math.abs(finite(token.chg5mPct)) + 1)
+        const up5m = Math.max(0, finite(token.chg5mPct))
+        const up1h = Math.max(0, finite(token.chg1hPct))
+        const up24h = Math.max(0, finite(token.chg24hPct))
+        const abs1h = Math.abs(finite(token.chg1hPct))
+        const abs24h = Math.abs(finite(token.chg24hPct))
+
+        // Momentum is primary signal: prioritize growth, not just liquidity/volume.
+        const growthScore = (
+          3.2 * Math.log(up24h + 1)
+          + 2.0 * Math.log(up1h + 1)
+          + 1.0 * Math.log(up5m + 1)
         )
 
-        const dayMomentumScore = (
-          1.4 * Math.log(finite(token.volume24hUsd) + 1)
-          + 1.0 * Math.log(finite(token.trades24h) + 1)
-          + 0.7 * Math.log(Math.abs(finite(token.chg24hPct)) + 1)
-          + 0.8 * Math.log(finite(token.volume1hUsd) + 1)
-          + 0.5 * Math.log(Math.abs(finite(token.chg1hPct)) + 1)
+        // Activity is secondary and has reduced weights.
+        const activityScore = (
+          0.7 * Math.log(finite(token.volume24hUsd) + 1)
+          + 0.35 * Math.log(finite(token.volume1hUsd) + 1)
+          + 0.15 * Math.log(finite(token.volume5mUsd) + 1)
+          + 0.35 * Math.log(finite(token.trades24h) + 1)
+          + 0.2 * Math.log(finite(token.trades1h) + 1)
         )
 
-        const longTermScore = (
-          1.2 * Math.log(qualityScore + 1)
-          + 0.7 * Math.log(uniqueTraders7d + 1)
-          + 0.6 * Math.log(volume7d + 1)
-          + 0.3 * Math.log(holders + 1)
+        const liquidityScore = 0.2 * Math.log(finite(token.liquidityUsd) + 1)
+        const qualityScore7d = (
+          0.25 * Math.log(qualityScore + 1)
+          + 0.15 * Math.log(uniqueTraders7d + 1)
+          + 0.1 * Math.log(volume7d + 1)
+          + 0.08 * Math.log(holders + 1)
         )
 
-        const liquidityScore = 1.0 * Math.log(finite(token.liquidityUsd) + 1)
-        const baseScore = fastMoveScore + dayMomentumScore + longTermScore + liquidityScore + freshnessBoost
+        // For genuinely new tokens, volume helps more.
+        const newVolumeBonus = clamp01((14 - ageDays) / 14) * (0.9 * Math.log(finite(token.volume24hUsd) + 1))
+
+        const baseScore = growthScore + activityScore + liquidityScore + qualityScore7d + freshnessBoost + newVolumeBonus
 
         // If token_scores are missing, keep only a small dampener to not hide fresh valid tokens.
         const qualityMultiplier = qualityScore > 0
           ? (0.65 + 0.35 * clamp01(qualityScore / 100))
           : 0.85
 
-        const score = baseScore * qualityMultiplier
+        // Old tokens are down-ranked unless they are truly pumping.
+        let ageMomentumMultiplier = 1
+        if (ageDays >= TRENDING_OLD_TOKEN_DAYS) {
+          ageMomentumMultiplier *= 0.45
+          const hasOldPump = up24h >= TRENDING_OLD_PUMP_24H_PCT || up1h >= TRENDING_OLD_PUMP_1H_PCT
+          if (hasOldPump) ageMomentumMultiplier *= 2.4
+          if (abs24h < TRENDING_FLAT_24H_PCT && abs1h < TRENDING_FLAT_1H_PCT) {
+            ageMomentumMultiplier *= 0.25
+          }
+        }
+
+        // Flat legacy coins should almost never dominate top trending.
+        if (ageDays > 30 && up24h < 1 && up1h < 0.3 && up5m < 0.1) {
+          ageMomentumMultiplier *= 0.2
+        }
+
+        const score = baseScore * qualityMultiplier * ageMomentumMultiplier
 
         return {
           token,
