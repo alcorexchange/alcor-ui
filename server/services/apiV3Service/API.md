@@ -42,6 +42,33 @@ Response:
 }
 ```
 
+### GET `/analytics/bans/accounts`
+On-chain banned accounts aggregated from platform contracts.
+
+Sources:
+- DEX: table `ban` (singleton, `accounts[]`)
+- SWAP: table `banlist` (`account`)
+- OTC: table `banned` (`account`)
+
+Response:
+```
+{
+  "meta": { "chain", "ts", "window" },
+  "contracts": { "dex", "swap", "otc" },
+  "totals": { "unique", "dex", "swap", "otc" },
+  "bySource": {
+    "dex": ["account1", "account2"],
+    "swap": ["account3"],
+    "otc": []
+  },
+  "items": [
+    { "account": "account1", "sources": ["dex"] },
+    { "account": "account3", "sources": ["swap", "otc"] }
+  ],
+  "errors": [{ "source": "swap", "message": "..." }]
+}
+```
+
 ### GET `/analytics/tokens`
 Token list (scored, with volumes/TVL).
 

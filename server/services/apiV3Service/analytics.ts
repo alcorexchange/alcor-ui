@@ -9,6 +9,7 @@ import { getScamLists } from '../apiV2Service/config'
 import { getSwapBarPriceAsString } from '../../../utils/amm'
 import { resolutions as candleResolutions, normalizeResolution } from '../updaterService/charts'
 import { getIncentives } from '../apiV2Service/farms'
+import { getChainRpc } from '../../../utils/eosjs'
 import { getOrderbook } from '../orderbookService/start'
 import { sqrt } from '../../../utils/bigint'
 import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
@@ -39,6 +40,9 @@ const DEFAULT_DEPTH_PRICE_FACTOR = 20
 const MIN_STAKED_TVL_USD = 1
 const APR_PERIOD_DAYS = 7
 const OVERVIEW_CACHE_SECONDS = 900
+const ACCOUNT_NAME_REGEX = /^[a-z1-5.]{1,12}$/
+const BANNED_ACCOUNTS_CACHE_SECONDS = 30
+const MAX_BAN_TABLE_PAGES = 200
 
 type TokenInfo = {
   id?: string
@@ -78,6 +82,52 @@ function safeNumber(value: any, fallback = 0) {
 
 function getSafeUsdPrice(token: any, fallback = 0) {
   return safeNumber(token?.safe_usd_price, fallback)
+}
+
+function normalizeAccountName(raw: any) {
+  const account = String(raw || '').trim().toLowerCase()
+  if (!account) return null
+  return ACCOUNT_NAME_REGEX.test(account) ? account : null
+}
+
+function normalizeAccountList(accounts: any[]) {
+  const unique = new Set<string>()
+  for (const raw of accounts || []) {
+    const account = normalizeAccountName(raw)
+    if (account) unique.add(account)
+  }
+  return [...unique].sort((a, b) => a.localeCompare(b))
+}
+
+async function fetchAllContractRows(rpc: any, params: { code: string, scope: string, table: string }) {
+  const rows: any[] = []
+  let lowerBound: string | undefined = undefined
+
+  for (let i = 0; i < MAX_BAN_TABLE_PAGES; i += 1) {
+    const batch = await rpc.get_table_rows({
+      json: true,
+      code: params.code,
+      scope: params.scope,
+      table: params.table,
+      limit: 1000,
+      ...(lowerBound ? { lower_bound: lowerBound } : {}),
+    })
+
+    const chunk = Array.isArray(batch?.rows) ? batch.rows : []
+    rows.push(...chunk)
+
+    const hasMore = Boolean(batch?.more)
+    if (!hasMore || chunk.length === 0) break
+
+    const nextKey = (typeof batch?.next_key !== 'undefined' && String(batch.next_key).length > 0)
+      ? String(batch.next_key)
+      : (typeof batch?.more === 'string' && batch.more.length > 0 ? String(batch.more) : null)
+
+    if (!nextKey || nextKey === lowerBound) break
+    lowerBound = nextKey
+  }
+
+  return rows
 }
 
 function getPoolLpFeeRate(pool: any) {
@@ -1225,6 +1275,112 @@ function buildMeta(network, window: string) {
     usdToken: network?.USD_TOKEN || null,
   }
 }
+
+analytics.get('/bans/accounts', cacheSeconds(BANNED_ACCOUNTS_CACHE_SECONDS, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+  const rpc = getChainRpc(network.name)
+
+  const contracts = {
+    dex: String(network?.contract || '').trim(),
+    swap: String(network?.amm?.contract || '').trim(),
+    otc: String(network?.otc?.contract || '').trim(),
+  }
+
+  const errors: Array<{ source: 'dex' | 'swap' | 'otc', message: string }> = []
+
+  const [dexAccounts, swapAccounts, otcAccounts] = await Promise.all([
+    (async () => {
+      if (!contracts.dex) return []
+      try {
+        const result = await rpc.get_table_rows({
+          json: true,
+          code: contracts.dex,
+          scope: contracts.dex,
+          table: 'ban',
+          limit: 1,
+        })
+        const rows = Array.isArray(result?.rows) ? result.rows : []
+        const raw = Array.isArray(rows?.[0]?.accounts) ? rows[0].accounts : []
+        return normalizeAccountList(raw)
+      } catch (e: any) {
+        errors.push({ source: 'dex', message: e?.message || 'Failed to read ban table' })
+        return []
+      }
+    })(),
+    (async () => {
+      if (!contracts.swap) return []
+      try {
+        const rows = await fetchAllContractRows(rpc, {
+          code: contracts.swap,
+          scope: contracts.swap,
+          table: 'banlist',
+        })
+        return normalizeAccountList(rows.map((row) => row?.account))
+      } catch (e: any) {
+        errors.push({ source: 'swap', message: e?.message || 'Failed to read banlist table' })
+        return []
+      }
+    })(),
+    (async () => {
+      if (!contracts.otc) return []
+      try {
+        const rows = await fetchAllContractRows(rpc, {
+          code: contracts.otc,
+          scope: contracts.otc,
+          table: 'banned',
+        })
+        return normalizeAccountList(rows.map((row) => row?.account))
+      } catch (e: any) {
+        errors.push({ source: 'otc', message: e?.message || 'Failed to read banned table' })
+        return []
+      }
+    })(),
+  ])
+
+  const bySource = {
+    dex: dexAccounts,
+    swap: swapAccounts,
+    otc: otcAccounts,
+  }
+
+  const map = new Map<string, Set<'dex' | 'swap' | 'otc'>>()
+
+  for (const account of bySource.dex) {
+    if (!map.has(account)) map.set(account, new Set())
+    map.get(account)?.add('dex')
+  }
+  for (const account of bySource.swap) {
+    if (!map.has(account)) map.set(account, new Set())
+    map.get(account)?.add('swap')
+  }
+  for (const account of bySource.otc) {
+    if (!map.has(account)) map.set(account, new Set())
+    map.get(account)?.add('otc')
+  }
+
+  const items = [...map.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([account, sources]) => ({
+      account,
+      sources: [...sources].sort(),
+    }))
+
+  res.json({
+    meta: buildMeta(network, 'all'),
+    contracts,
+    totals: {
+      unique: items.length,
+      dex: bySource.dex.length,
+      swap: bySource.swap.length,
+      otc: bySource.otc.length,
+    },
+    bySource,
+    items,
+    errors,
+  })
+})
 
 analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
   return getOverviewCacheKey(req)
