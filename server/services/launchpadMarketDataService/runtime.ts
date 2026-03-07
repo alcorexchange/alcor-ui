@@ -708,12 +708,17 @@ class LaunchpadMarketDataRuntime {
     }
 
     if (name === 'logswap') {
+      const sender = typeof data?.sender === 'string' ? String(data.sender).trim() : ''
+      const recipient = typeof data?.recipient === 'string' ? String(data.recipient).trim() : ''
       await this.processSwap(state, {
         poolId,
         trxId: String(action?.trx_id || ''),
         ts: parseTs(action?.block_time),
         amountA: parseAmount(data?.tokenA),
         amountB: parseAmount(data?.tokenB),
+        sender: sender || null,
+        recipient: recipient || null,
+        account: sender || recipient || null,
       })
       return
     }
@@ -754,7 +759,16 @@ class LaunchpadMarketDataRuntime {
 
   private async processSwap(
     state: ChainRuntimeState,
-    swap: { poolId: number, trxId: string, ts: number, amountA: number, amountB: number }
+    swap: {
+      poolId: number
+      trxId: string
+      ts: number
+      amountA: number
+      amountB: number
+      sender: string | null
+      recipient: string | null
+      account: string | null
+    }
   ) {
     if (!Number.isFinite(swap.poolId) || !Number.isFinite(swap.ts)) return
     if (swap.amountA === 0 && swap.amountB === 0) return
@@ -794,7 +808,16 @@ class LaunchpadMarketDataRuntime {
   private buildTokenTrades(
     state: ChainRuntimeState,
     pool: PoolRuntimeState,
-    swap: { poolId: number, trxId: string, ts: number, amountA: number, amountB: number }
+    swap: {
+      poolId: number
+      trxId: string
+      ts: number
+      amountA: number
+      amountB: number
+      sender: string | null
+      recipient: string | null
+      account: string | null
+    }
   ) {
     const baseUsd = this.getUsdPriceForQuote(state, state.baseTokenId)
     const candidates = [
@@ -857,6 +880,9 @@ class LaunchpadMarketDataRuntime {
         amount: tokenAmountAbs,
         side: c.tokenAmount < 0 ? 'buy' : 'sell',
         tx_id: swap.trxId,
+        account: swap.account,
+        sender: swap.sender,
+        recipient: swap.recipient,
         quote_token_id: state.baseTokenId,
         volume_quote: volumeQuote,
         volume_usd: volumeUsd,
@@ -884,6 +910,9 @@ class LaunchpadMarketDataRuntime {
         amount: trade.amount,
         side: trade.side,
         tx_id: trade.tx_id,
+        account: trade.account ?? null,
+        sender: trade.sender ?? null,
+        recipient: trade.recipient ?? null,
       }
     }
 
@@ -912,6 +941,9 @@ class LaunchpadMarketDataRuntime {
       amount: trade.amount,
       side: trade.side,
       tx_id: trade.tx_id,
+      account: trade.account ?? null,
+      sender: trade.sender ?? null,
+      recipient: trade.recipient ?? null,
       quote_token_id: trade.quote_token_id,
       volume_quote: trade.volume_quote,
       volume_usd: trade.volume_usd,

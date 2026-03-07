@@ -84,6 +84,7 @@ function parseTokensSort(raw: any): TokensSort {
   if (normalized === 'age') return 'age'
   if (normalized === 'vol24h') return 'vol24h'
   if (normalized === 'liq') return 'liq'
+  if (normalized === 'market_cap' || normalized === 'marketcap' || normalized === 'fdv') return 'mcap'
   if (normalized === 'mcap') return 'mcap'
   return 'score'
 }
@@ -247,7 +248,9 @@ launchpad.get('/tokens', async (req, res) => {
     const baseTokenId = String(network?.baseToken?.id || '').toLowerCase()
 
     const list = parseTokensList(req.query.list)
-    const sort = parseTokensSort(req.query.sort)
+    const sort = (req.query.sort === undefined || req.query.sort === null || req.query.sort === '')
+      ? (list === 'all' ? 'liq' : 'score')
+      : parseTokensSort(req.query.sort)
     const dir = parseTokensDir(req.query.dir)
     const limit = parseLimit(req.query.limit, TOKENS_DEFAULT_LIMIT)
     const search = normalizeSearch(req.query.search || req.query.q)
@@ -367,7 +370,17 @@ launchpad.get('/tokens', async (req, res) => {
         const createdAt = parseTsOrZero(summary?.created_at ?? summary?.createdAt)
         const vol24h = safeNumber(summary?.volume_usd?.h24, 0)
         const liq = safeNumber(summary?.liquidity?.usd, 0)
-        const mcap = safeNumber(summary?.market_cap, 0)
+        const marketCap = safeNumber(summary?.market_cap, NaN)
+        const fdv = safeNumber(summary?.fdv, NaN)
+        const supply = safeNumber(summary?.supply, NaN)
+        const priceUsd = safeNumber(summary?.price_usd, NaN)
+        const mcap = Number.isFinite(marketCap) && marketCap > 0
+          ? marketCap
+          : (Number.isFinite(fdv) && fdv > 0
+              ? fdv
+              : (Number.isFinite(supply) && supply > 0 && Number.isFinite(priceUsd) && priceUsd > 0
+                  ? (supply * priceUsd)
+                  : 0))
 
         let sortValue = score
         if (sort === 'age') sortValue = createdAt
@@ -691,6 +704,12 @@ launchpad.get('/token/:tokenId/trades', async (req, res) => {
     const items = rows
       .map((row) => safeJsonParse<any>(row, null))
       .filter(Boolean)
+      .map((trade: any) => ({
+        ...trade,
+        sender: trade?.sender || null,
+        recipient: trade?.recipient || null,
+        account: trade?.account || trade?.sender || trade?.recipient || null,
+      }))
 
     res.json({
       meta: { chain, ts: Date.now(), token_id: tokenId, limit, hide_scam: hideScam },

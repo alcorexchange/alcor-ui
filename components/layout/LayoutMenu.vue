@@ -271,12 +271,12 @@ export default {
         ],
       }
 
-      const perpetuals = { name: 'Perpetuals', contentKey: null, href: 'https://perp.alcor.exchange/', isNew: true }
+      const newUI = { name: 'New UI', contentKey: null, href: 'https://alcor.exchange/', isNew: true }
 
       this.cachedItems = [
         swap,
         trade,
-        perpetuals,
+        newUI,
         earn,
         { name: 'Analytics', contentKey: null, to: '/analytics' },
         { name: 'Wallet', contentKey: null, to: '/wallet' },

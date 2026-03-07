@@ -409,7 +409,7 @@ Unified launchpad tokens list for tabs (`trending/organic/all/new/graduated`) wi
 
 Query:
 - `list=trending|organic|all|new|graduated` (default: `trending`)
-- `sort=score|age|vol24h|liq|mcap` (default: `score`)
+- `sort=score|age|vol24h|liq|mcap` (default: `score`, but for `list=all` default is `liq`)
 - `dir=desc|asc` (default: `desc`)
 - `limit` (default: `100`, max: `200`)
 - `cursor` (opaque keyset cursor from previous response)
@@ -474,6 +474,7 @@ Query:
 
 ### GET `/launchpad/token/:tokenId/trades`
 Recent token trades (Redis-backed).
+Each item includes trader fields from swap action: `account` (preferred trader), `sender`, `recipient`.
 
 Query:
 - `limit` (default: `100`, max: `200`)
