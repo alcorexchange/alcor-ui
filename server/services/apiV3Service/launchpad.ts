@@ -17,6 +17,7 @@ export const launchpad = Router()
 
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 200
+const TRADES_MAX_LIMIT = 500
 const MAX_SEARCH_SCAN = 5000
 const TOKENS_DEFAULT_LIMIT = 100
 const TOKENS_TRENDING_TOP = Number(process.env.LAUNCHPAD_TOKENS_TRENDING_TOP || 500)
@@ -47,10 +48,10 @@ function safeJsonParse<T>(value: string | null, fallback: T): T {
   }
 }
 
-function parseLimit(raw: any, fallback = DEFAULT_LIMIT) {
+function parseLimit(raw: any, fallback = DEFAULT_LIMIT, max = MAX_LIMIT) {
   const n = Number(raw)
   if (!Number.isFinite(n) || n <= 0) return fallback
-  return Math.min(Math.floor(n), MAX_LIMIT)
+  return Math.min(Math.floor(n), max)
 }
 
 function safeNumber(value: any, fallback = 0) {
@@ -679,7 +680,7 @@ launchpad.get('/token/:tokenId/trades', async (req, res) => {
     const network = req.app.get('network')
     const chain = network?.name
     const tokenId = decodeURIComponent(String(req.params.tokenId || '')).toLowerCase()
-    const limit = parseLimit(req.query.limit, 100)
+    const limit = parseLimit(req.query.limit, 100, TRADES_MAX_LIMIT)
     const cursor = parseCursor(req.query.cursor)
     const hideScam = parseHideScam(req.query.hide_scam)
     const scamFilters = hideScam ? normalizeScamFilters(await getScamLists(network)) : null
