@@ -504,14 +504,14 @@ Recent token trades (Redis-backed).
 Each item includes trader fields from swap action: `account` (preferred trader), `sender`, `recipient`.
 
 Query:
-- `limit` (default: `100`, max: `500`)
+- `limit` (default: `100`, max: `1000`)
 - `cursor` (offset, default: `0`)
 - `hide_scam=true|false` (default: `true`)
 
 Response:
 - `items`: current page
 - `next_cursor`: next offset or `null`
-- `total`: available rows in Redis list (max `500`)
+- `total`: available rows in Redis list (max `1000`)
 
 ### GET `/launchpad/token/:tokenId/holders`
 Optional holders endpoint (top-holders source may be unavailable; returns stats + empty `items` in that case).

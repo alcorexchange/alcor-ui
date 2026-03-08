@@ -17,7 +17,7 @@ export const launchpad = Router()
 
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 200
-const TRADES_MAX_LIMIT = 500
+const TRADES_MAX_LIMIT = 1000
 const MAX_SEARCH_SCAN = 5000
 const TOKENS_DEFAULT_LIMIT = 100
 const TOKENS_TRENDING_TOP = Number(process.env.LAUNCHPAD_TOKENS_TRENDING_TOP || 500)
