@@ -1022,5 +1022,19 @@
       "https://t.me/yeetwax"
     ],
     "description": "PURR is the reward token in the YEET ecosystem on the WAX blockchain, exclusively distributed via DeFi rewards to YEET holders currently, and planned as staking rewards for YEET NFTs in the future. With +99% of supply locked, it powers memery, community engagement, and enhances the stupidly fun YEET experience without any team allocations or TX taxes."
-  }
+  }, 
+  "GTAP@goldtaptoken": {
+  "name": "Gold Tap Token",
+  "website": {
+    "link": "https://goldtap.website/",
+    "name": "goldtap.website"
+  },
+  "tags": ["Gaming", "P2E", "Deflationary", "NFT"],
+  "socials": [
+    "https://t.me/GTAPOfficialChannel",
+    "https://t.me/gtapcommunity",
+    "https://www.youtube.com/@GOLDTAPOfficial"
+  ],
+  "description": "Gold Tap Token (GTAP) is a deflationary gaming token built on the WAX blockchain, designed to drive game distribution and farming-based ecosystem activity. No buy fee applies, while a 5% sell fee is collected: 3% for gaming/farming rewards, 0.5% for development, and 1.5% is permanently burned to reduce supply and strengthen scarcity."
+}
 }
