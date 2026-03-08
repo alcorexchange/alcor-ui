@@ -19,7 +19,7 @@ const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 200
 const MAX_SEARCH_SCAN = 5000
 const TOKENS_DEFAULT_LIMIT = 100
-const TOKENS_TRENDING_TOP = Number(process.env.LAUNCHPAD_TOKENS_TRENDING_TOP || 50)
+const TOKENS_TRENDING_TOP = Number(process.env.LAUNCHPAD_TOKENS_TRENDING_TOP || 500)
 const TOKENS_NEW_WINDOW_MS = Number(process.env.LAUNCHPAD_TOKENS_NEW_WINDOW_MS || (7 * 24 * 60 * 60 * 1000))
 
 type ScamFilters = {
@@ -680,6 +680,7 @@ launchpad.get('/token/:tokenId/trades', async (req, res) => {
     const chain = network?.name
     const tokenId = decodeURIComponent(String(req.params.tokenId || '')).toLowerCase()
     const limit = parseLimit(req.query.limit, 100)
+    const cursor = parseCursor(req.query.cursor)
     const hideScam = parseHideScam(req.query.hide_scam)
     const scamFilters = hideScam ? normalizeScamFilters(await getScamLists(network)) : null
 
@@ -700,7 +701,11 @@ launchpad.get('/token/:tokenId/trades', async (req, res) => {
       }
     }
 
-    const rows = await redis.lRange(tokenTradesKey(chain, tokenId), 0, Math.max(0, limit - 1))
+    const tradesKey = tokenTradesKey(chain, tokenId)
+    const [rows, total] = await Promise.all([
+      redis.lRange(tradesKey, cursor, Math.max(cursor, cursor + limit - 1)),
+      redis.lLen(tradesKey),
+    ])
     const items = rows
       .map((row) => safeJsonParse<any>(row, null))
       .filter(Boolean)
@@ -710,10 +715,13 @@ launchpad.get('/token/:tokenId/trades', async (req, res) => {
         recipient: trade?.recipient || null,
         account: trade?.account || trade?.sender || trade?.recipient || null,
       }))
+    const nextCursor = (cursor + items.length) < Number(total || 0) ? (cursor + items.length) : null
 
     res.json({
-      meta: { chain, ts: Date.now(), token_id: tokenId, limit, hide_scam: hideScam },
+      meta: { chain, ts: Date.now(), token_id: tokenId, limit, cursor, hide_scam: hideScam },
       items,
+      next_cursor: nextCursor,
+      total: Number(total || 0),
     })
   } catch (e: any) {
     res.status(500).json({ error: e.message || 'Failed to fetch launchpad token trades' })

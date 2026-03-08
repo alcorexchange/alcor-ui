@@ -41,6 +41,7 @@ const MarketSchema = new mongoose.Schema({
   volume24: { type: Number },
   volumeWeek: { type: Number },
   volumeMonth: { type: Number },
+  volume90d: { type: Number },
 
   change24: { type: Number },
   changeWeek: { type: Number },
@@ -263,9 +264,13 @@ const SwapPoolSchema = new mongoose.Schema({
   volumeAMonth: { type: Number, default: 0 },
   volumeBMonth: { type: Number, default: 0 },
 
+  volumeA90: { type: Number, default: 0 },
+  volumeB90: { type: Number, default: 0 },
+
   volumeUSD24: { type: Number, default: 0 },
   volumeUSDWeek: { type: Number, default: 0 },
   volumeUSDMonth: { type: Number, default: 0 },
+  volumeUSD90: { type: Number, default: 0 },
 
   change24: { type: Number, default: 0 },
   changeWeek: { type: Number, default: 0 },

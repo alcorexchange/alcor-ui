@@ -685,7 +685,13 @@ function pickPoolVolumes(pool: any, window: string) {
   if (window === '24h') return { a: safeNumber(pool.volumeA24), b: safeNumber(pool.volumeB24), usd: safeNumber(pool.volumeUSD24) }
   if (window === '7d') return { a: safeNumber(pool.volumeAWeek), b: safeNumber(pool.volumeBWeek), usd: safeNumber(pool.volumeUSDWeek) }
   if (window === '30d') return { a: safeNumber(pool.volumeAMonth), b: safeNumber(pool.volumeBMonth), usd: safeNumber(pool.volumeUSDMonth) }
-  if (window === '90d') return { a: safeNumber(pool.volumeAMonth), b: safeNumber(pool.volumeBMonth), usd: safeNumber(pool.volumeUSDMonth) }
+  if (window === '90d') {
+    return {
+      a: safeNumber(pool.volumeA90 ?? pool.volumeAMonth),
+      b: safeNumber(pool.volumeB90 ?? pool.volumeBMonth),
+      usd: safeNumber(pool.volumeUSD90 ?? pool.volumeUSDMonth),
+    }
+  }
   return { a: safeNumber(pool.volumeAMonth), b: safeNumber(pool.volumeBMonth), usd: safeNumber(pool.volumeUSDMonth) }
 }
 
@@ -693,7 +699,7 @@ function pickMarketVolume(market: any, window: string) {
   if (window === '24h') return safeNumber(market.volume24)
   if (window === '7d') return safeNumber(market.volumeWeek)
   if (window === '30d') return safeNumber(market.volumeMonth)
-  if (window === '90d') return safeNumber(market.volumeMonth)
+  if (window === '90d') return safeNumber(market.volume90d ?? market.volumeMonth)
   return safeNumber(market.volumeMonth)
 }
 

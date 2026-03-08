@@ -78,21 +78,26 @@ export async function updatePoolsStats(chain) {
     const dayAgo = now - ONEDAY
     const weekAgo = now - WEEK
     const monthAgo = now - ONEDAY * 30
+    const ninetyDaysAgo = now - ONEDAY * 90
 
     const dayAgoDate = new Date(dayAgo)
     const weekAgoDate = new Date(weekAgo)
     const monthAgoDate = new Date(monthAgo)
+    const ninetyDaysAgoDate = new Date(ninetyDaysAgo)
     const absField = (field: string) => ({ $abs: { $ifNull: [field, 0] } })
 
-    // Single-pass aggregation for 24h/7d/30d
+    // Single-pass aggregation for 24h/7d/30d/90d
     const volumeStats = await Swap.aggregate([
-      { $match: { chain, time: { $gte: monthAgoDate } } },
+      { $match: { chain, time: { $gte: ninetyDaysAgoDate } } },
       {
         $group: {
           _id: '$pool',
-          volumeUSDMonth: { $sum: absField('$totalUSDVolume') },
-          volumeAMonth: { $sum: absField('$tokenA') },
-          volumeBMonth: { $sum: absField('$tokenB') },
+          volumeUSD90: { $sum: absField('$totalUSDVolume') },
+          volumeA90: { $sum: absField('$tokenA') },
+          volumeB90: { $sum: absField('$tokenB') },
+          volumeUSDMonth: { $sum: { $cond: [{ $gte: ['$time', monthAgoDate] }, absField('$totalUSDVolume'), 0] } },
+          volumeAMonth: { $sum: { $cond: [{ $gte: ['$time', monthAgoDate] }, absField('$tokenA'), 0] } },
+          volumeBMonth: { $sum: { $cond: [{ $gte: ['$time', monthAgoDate] }, absField('$tokenB'), 0] } },
           volumeUSDWeek: { $sum: { $cond: [{ $gte: ['$time', weekAgoDate] }, absField('$totalUSDVolume'), 0] } },
           volumeAWeek: { $sum: { $cond: [{ $gte: ['$time', weekAgoDate] }, absField('$tokenA'), 0] } },
           volumeBWeek: { $sum: { $cond: [{ $gte: ['$time', weekAgoDate] }, absField('$tokenB'), 0] } },
@@ -130,6 +135,7 @@ async function updatePoolData(pool, chain, statsByPool, tokenMap, network) {
     const dayStats = { volumeUSD: stats.volumeUSD24 || 0, volumeA: stats.volumeA24 || 0, volumeB: stats.volumeB24 || 0 }
     const weekStats = { volumeUSD: stats.volumeUSDWeek || 0, volumeA: stats.volumeAWeek || 0, volumeB: stats.volumeBWeek || 0 }
     const monthStats = { volumeUSD: stats.volumeUSDMonth || 0, volumeA: stats.volumeAMonth || 0, volumeB: stats.volumeBMonth || 0 }
+    const ninetyDayStats = { volumeUSD: stats.volumeUSD90 || 0, volumeA: stats.volumeA90 || 0, volumeB: stats.volumeB90 || 0 }
 
     // Get price changes separately (these still need individual queries due to sorting)
     const [change24, changeWeek] = await Promise.all([
@@ -140,12 +146,15 @@ async function updatePoolData(pool, chain, statsByPool, tokenMap, network) {
     pool.volumeUSD24 = dayStats.volumeUSD
     pool.volumeUSDWeek = weekStats.volumeUSD
     pool.volumeUSDMonth = monthStats.volumeUSD
+    pool.volumeUSD90 = ninetyDayStats.volumeUSD
     pool.volumeA24 = dayStats.volumeA
     pool.volumeAWeek = weekStats.volumeA
     pool.volumeAMonth = monthStats.volumeA
+    pool.volumeA90 = ninetyDayStats.volumeA
     pool.volumeB24 = dayStats.volumeB
     pool.volumeBWeek = weekStats.volumeB
     pool.volumeBMonth = monthStats.volumeB
+    pool.volumeB90 = ninetyDayStats.volumeB
     pool.change24 = change24
     pool.changeWeek = changeWeek
     pool.tvlUSD = computeSafePoolTvlUSD(pool, tokenMap, network)

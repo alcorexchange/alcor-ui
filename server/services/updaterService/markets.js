@@ -131,12 +131,6 @@ export async function getMarketStats(network, market_id) {
     stats.last_price = 0
   }
 
-  const oneMonthAgo = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() - 1,
-    new Date().getDate()
-  )
-
   const [base_volume, target_volume] = await getVolumeFrom(Date.now() - ONEDAY, market_id, network.name)
 
   stats.volume24 = target_volume
@@ -144,7 +138,8 @@ export async function getMarketStats(network, market_id) {
   stats.base_volume = base_volume
 
   stats.volumeWeek = (await getVolumeFrom(Date.now() - WEEK, market_id, network.name))[1]
-  stats.volumeMonth = (await getVolumeFrom(oneMonthAgo, market_id, network.name))[1]
+  stats.volumeMonth = (await getVolumeFrom(Date.now() - ONEDAY * 30, market_id, network.name))[1]
+  stats.volume90d = (await getVolumeFrom(Date.now() - ONEDAY * 90, market_id, network.name))[1]
 
   stats.change24 = await getChangeFrom(Date.now() - ONEDAY, market_id, network.name)
   stats.changeWeek = await getChangeFrom(Date.now() - WEEK, market_id, network.name)
