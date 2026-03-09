@@ -136,16 +136,7 @@ export async function makeAllTokensWithPrices(network: Network) {
     return 0
   }
 
-  const poolHasEnoughReferenceLiquidity = (p) => {
-    for (const referenceId of referenceTokenIds) {
-      const liquidityUSD = getReferenceLiquidityUSD(p, referenceId)
-      if (liquidityUSD >= minimumUSDAmount) return true
-    }
-    return false
-  }
-
   const pools = await SwapPool.find({ chain: network.name }).lean()
-  const enough_liquidity_pools = pools.filter(poolHasEnoughReferenceLiquidity)
 
   // Sorting by more ticks means more liquidity
   // pools.sort((a, b) => {
@@ -166,12 +157,17 @@ export async function makeAllTokensWithPrices(network: Network) {
     }
   }
 
-  const priceCandidatesByToken = new Map<string, Array<{
+  const rawPriceCandidatesByToken = new Map<string, Array<{
     usdPrice: number
     liquidityUSD: number
   }>>()
+  const safePriceCandidatesByToken = new Map<string, Array<{
+    usdPrice: number
+    liquidityUSD: number
+  }>>()
+  const safePriceByToken = new Map<string, { usdPrice: number, systemPrice: number }>()
 
-  for (const p of enough_liquidity_pools) {
+  for (const p of pools) {
     if (isScam(p.tokenA.id, p.tokenA.contract) || isScam(p.tokenB.id, p.tokenB.contract)) continue
     if (!referenceTokenSet.has(p.tokenA.id) && !referenceTokenSet.has(p.tokenB.id)) continue
 
@@ -193,13 +189,18 @@ export async function makeAllTokensWithPrices(network: Network) {
       if (!Number.isFinite(referenceUsdPrice) || referenceUsdPrice <= 0) continue
 
       const usdPrice = rawPrice * referenceUsdPrice
-      if (!Number.isFinite(usdPrice) || usdPrice <= 0 || usdPrice > MAX_SANE_PRICE) continue
+      if (!Number.isFinite(usdPrice) || usdPrice <= 0) continue
 
       const liquidityUSD = getReferenceLiquidityUSD(p, referenceId)
-      if (!Number.isFinite(liquidityUSD) || liquidityUSD < minimumUSDAmount) continue
+      if (!Number.isFinite(liquidityUSD) || liquidityUSD <= 0) continue
 
-      if (!priceCandidatesByToken.has(tokenId)) priceCandidatesByToken.set(tokenId, [])
-      priceCandidatesByToken.get(tokenId)?.push({ usdPrice, liquidityUSD })
+      if (!rawPriceCandidatesByToken.has(tokenId)) rawPriceCandidatesByToken.set(tokenId, [])
+      rawPriceCandidatesByToken.get(tokenId)?.push({ usdPrice, liquidityUSD })
+
+      if (liquidityUSD >= minimumUSDAmount) {
+        if (!safePriceCandidatesByToken.has(tokenId)) safePriceCandidatesByToken.set(tokenId, [])
+        safePriceCandidatesByToken.get(tokenId)?.push({ usdPrice, liquidityUSD })
+      }
     }
   }
 
@@ -207,12 +208,14 @@ export async function makeAllTokensWithPrices(network: Network) {
     if (t.id == system_token) {
       t.system_price = 1
       t.usd_price = systemPrice
+      safePriceByToken.set(t.id, { usdPrice: systemPrice, systemPrice: 1 })
       continue
     }
 
     if (stableTokenSet.has(t.id)) {
       t.system_price = systemPrice > 0 ? (1 / systemPrice) : 0
       t.usd_price = 1
+      safePriceByToken.set(t.id, { usdPrice: 1, systemPrice: t.system_price })
       continue
     }
 
@@ -225,16 +228,21 @@ export async function makeAllTokensWithPrices(network: Network) {
     t.usd_price = 0.0
     t.system_price = 0.0
 
-    const candidates = priceCandidatesByToken.get(t.id) || []
-    if (candidates.length > 0) {
-      const usdPrice = weightedMedianUsdPrice(candidates)
+    const rawCandidates = rawPriceCandidatesByToken.get(t.id) || []
+    if (rawCandidates.length > 0) {
+      const usdPrice = weightedMedianUsdPrice(rawCandidates)
       t.usd_price = usdPrice
       t.system_price = systemPrice > 0 ? usdPrice / systemPrice : 0
+    }
 
-      // Cap unrealistic prices (likely from low liquidity pools)
-      if (t.usd_price > MAX_SANE_PRICE) {
-        t.usd_price = 0
-        t.system_price = 0
+    const safeCandidates = safePriceCandidatesByToken.get(t.id) || []
+    if (safeCandidates.length > 0) {
+      const safeUsdPrice = weightedMedianUsdPrice(safeCandidates)
+      if (Number.isFinite(safeUsdPrice) && safeUsdPrice > 0) {
+        safePriceByToken.set(t.id, {
+          usdPrice: safeUsdPrice,
+          systemPrice: systemPrice > 0 ? safeUsdPrice / systemPrice : 0
+        })
       }
     }
 
@@ -293,13 +301,9 @@ export async function makeAllTokensWithPrices(network: Network) {
         ) {
           t.system_price = unitPrice
           t.usd_price = t.system_price * systemPrice
+          safePriceByToken.set(t.id, { usdPrice: t.usd_price, systemPrice: t.system_price })
         }
       }
-    }
-
-    if (t.usd_price > MAX_SANE_PRICE) {
-      t.usd_price = 0
-      t.system_price = 0
     }
 
     tokens.push(t)
@@ -318,12 +322,16 @@ export async function makeAllTokensWithPrices(network: Network) {
 
     const usdPrice = Number.isFinite(Number(t.usd_price)) ? Number(t.usd_price) : 0
     const systemTokenPrice = Number.isFinite(Number(t.system_price)) ? Number(t.system_price) : 0
+    const safeCandidate = safePriceByToken.get(t.id)
+    const safeUsdCandidate = Number.isFinite(Number(safeCandidate?.usdPrice)) ? Number(safeCandidate?.usdPrice) : 0
+    const safeSystemCandidate = Number.isFinite(Number(safeCandidate?.systemPrice)) ? Number(safeCandidate?.systemPrice) : 0
+    const isSaneUsdPrice = safeUsdCandidate > 0 && safeUsdCandidate <= MAX_SANE_PRICE
 
     t.score = score
     t.is_scam = scam
     t.is_trusted = trusted
-    t.safe_usd_price = trusted ? usdPrice : 0
-    t.safe_system_price = trusted ? systemTokenPrice : 0
+    t.safe_usd_price = trusted && isSaneUsdPrice ? safeUsdCandidate : 0
+    t.safe_system_price = trusted && isSaneUsdPrice ? safeSystemCandidate : 0
   }
 
   return tokens

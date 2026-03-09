@@ -36,6 +36,31 @@ type SwapBatch = {
 
 const chainBatches: Map<string, SwapBatch> = new Map()
 
+function getSafeUsdPrice(token: any) {
+  const safe = Number(token?.safe_usd_price)
+  return Number.isFinite(safe) && safe > 0 ? safe : 0
+}
+
+function parseActionTime(value: any): Date | null {
+  const ts = new Date(value)
+  return Number.isFinite(ts.getTime()) ? ts : null
+}
+
+async function markPoolFirstSeen(chain: string, poolId: any, blockTime: any) {
+  const id = Number(poolId)
+  const firstSeenAt = parseActionTime(blockTime)
+  if (!Number.isFinite(id) || !firstSeenAt) return
+
+  try {
+    await SwapPool.updateOne(
+      { chain, id },
+      { $min: { firstSeenAt } }
+    )
+  } catch (e: any) {
+    console.error(`[${chain}] firstSeenAt update failed for pool ${id}:`, e?.message || e)
+  }
+}
+
 // Flush all pending batches (for graceful shutdown)
 export async function flushAllSwapBatches() {
   for (const [chain, batch] of chainBatches) {
@@ -112,9 +137,8 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
     const tokenA = tokensMap.get(pool.tokenA.id)
     const tokenB = tokensMap.get(pool.tokenB.id)
 
-    const MAX_SANE_PRICE = 100000
-    const tokenAUSDPrice = (tokenA?.usd_price && tokenA.usd_price < MAX_SANE_PRICE) ? tokenA.usd_price : 0
-    const tokenBUSDPrice = (tokenB?.usd_price && tokenB.usd_price < MAX_SANE_PRICE) ? tokenB.usd_price : 0
+    const tokenAUSDPrice = getSafeUsdPrice(tokenA)
+    const tokenBUSDPrice = getSafeUsdPrice(tokenB)
 
     const totalUSDVolume = (Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)) / 2
     const swapTime = new Date(block_time as any)
@@ -354,13 +378,13 @@ async function handlePoolChart(
   const tokenAprice = tokenCache.find(t => t.id === tokenA_id)
   const tokenBprice = tokenCache.find(t => t.id === tokenB_id)
 
-  const usdReserveA = reserveA * (tokenAprice?.usd_price || 0)
-  const usdReserveB = reserveB * (tokenBprice?.usd_price || 0)
+  const usdReserveA = reserveA * getSafeUsdPrice(tokenAprice)
+  const usdReserveB = reserveB * getSafeUsdPrice(tokenBprice)
 
   const last_point = await SwapChartPoint.findOne({ chain: network.name, pool: poolId }, {}, { sort: { time: -1 } })
 
-  const volumeTokenA = tokenAprice ? volumeA * tokenAprice?.usd_price : 0
-  const volumeTokenB = tokenBprice ? volumeB * tokenBprice?.usd_price : 0
+  const volumeTokenA = volumeA * getSafeUsdPrice(tokenAprice)
+  const volumeTokenB = volumeB * getSafeUsdPrice(tokenBprice)
 
   const volumeUSD = volumeTokenA + volumeTokenB
 
@@ -396,7 +420,7 @@ async function handlePoolChart(
 
 // Get pool and wait for pool lock while pool might be creating
 async function getPool(filter) {
-  const pool = await SwapPool.findOne(filter).lean()
+  let pool = await SwapPool.findOne(filter).lean()
 
   if (pool === null) {
     console.warn(`WARNING: Updating(and creating) non existing pool ${filter.id} action`)
@@ -405,8 +429,11 @@ async function getPool(filter) {
     // It might be first position of just created pool
     // Update token prices in that case
     await updateTokensPrices(networks[filter.chain])
+
+    pool = await SwapPool.findOne(filter).lean()
   }
 
+  if (pool === null) throw new Error(`NOT FOUND POOL ${filter.chain}:${filter.id}`)
   return pool
 }
 
@@ -730,13 +757,18 @@ function parsePool(pool: { [key: string]: any }) {
   const tokenA = { ...parseToken(pool.tokenA), quantity: pool.tokenA.quantity.split(' ')[0] }
   const tokenB = { ...parseToken(pool.tokenB), quantity: pool.tokenB.quantity.split(' ')[0] }
 
-  pool.protocolFeeA = parseFloat(pool.protocolFeeA)
-  pool.protocolFeeB = parseFloat(pool.protocolFeeB)
+  const parsed: any = { ...pool }
+  parsed.protocolFeeA = parseFloat(parsed.protocolFeeA)
+  parsed.protocolFeeB = parseFloat(parsed.protocolFeeB)
 
-  const { sqrtPriceX64, tick } = pool.currSlot
-  delete pool.currSlot
+  const { sqrtPriceX64, tick } = parsed.currSlot || {}
+  delete parsed.currSlot
 
-  return { ...pool, tokenA, tokenB, sqrtPriceX64, tick }
+  // Keep firstSeenAt controlled by Mongo events-derived logic (mint/swap/logpool),
+  // do not overwrite it from raw on-chain pool snapshot payload.
+  delete parsed.firstSeenAt
+
+  return { ...parsed, tokenA, tokenB, sqrtPriceX64, tick }
 }
 
 export async function updatePools(chain: string, forceAll = false) {
@@ -847,8 +879,8 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
   const tokenA = await getToken(chain, pool.tokenA.id)
   const tokenB = await getToken(chain, pool.tokenB.id)
 
-  const tokenAUSDPrice = Number.isFinite(Number(tokenA?.safe_usd_price)) ? Number(tokenA.safe_usd_price) : (tokenA?.usd_price || 0)
-  const tokenBUSDPrice = Number.isFinite(Number(tokenB?.safe_usd_price)) ? Number(tokenB.safe_usd_price) : (tokenB?.usd_price || 0)
+  const tokenAUSDPrice = getSafeUsdPrice(tokenA)
+  const tokenBUSDPrice = getSafeUsdPrice(tokenB)
 
   const totalUSDValue = ((tokenAamount * tokenAUSDPrice) + (tokenBamount * tokenBUSDPrice)).toFixed(4)
 
@@ -882,11 +914,8 @@ export async function handleSwap({ chain, data, trx_id, block_time, block_num })
   const tokenA = await getToken(chain, pool.tokenA.id)
   const tokenB = await getToken(chain, pool.tokenB.id)
 
-  const MAX_SANE_PRICE = 100000
-  const tokenARawPrice = Number.isFinite(Number(tokenA?.safe_usd_price)) ? Number(tokenA.safe_usd_price) : Number(tokenA?.usd_price || 0)
-  const tokenBRawPrice = Number.isFinite(Number(tokenB?.safe_usd_price)) ? Number(tokenB.safe_usd_price) : Number(tokenB?.usd_price || 0)
-  const tokenAUSDPrice = (tokenARawPrice > 0 && tokenARawPrice < MAX_SANE_PRICE) ? tokenARawPrice : 0
-  const tokenBUSDPrice = (tokenBRawPrice > 0 && tokenBRawPrice < MAX_SANE_PRICE) ? tokenBRawPrice : 0
+  const tokenAUSDPrice = getSafeUsdPrice(tokenA)
+  const tokenBUSDPrice = getSafeUsdPrice(tokenB)
 
   const totalUSDVolume = (Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)) / 2
 
@@ -919,6 +948,7 @@ export async function onSwapAction(message: string) {
 
   if (name == 'logpool') {
     await throttledPoolUpdate(chain, data.poolId)
+    await markPoolFirstSeen(chain, data.poolId, block_time)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
 
     // Lead to high load
@@ -957,6 +987,7 @@ export async function onSwapAction(message: string) {
 
   if (name == 'logmint') {
     console.log(`[${chain}] mint pos #${data.posId} owner:${data.owner} pool:${data.poolId}`)
+    await markPoolFirstSeen(chain, data.poolId, block_time)
     await saveMintOrBurn({ chain, trx_id, data, type: 'mint', block_time })
   }
 

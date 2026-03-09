@@ -42,6 +42,33 @@ Response:
 }
 ```
 
+### GET `/analytics/bans/accounts`
+On-chain banned accounts aggregated from platform contracts.
+
+Sources:
+- DEX: table `ban` (singleton, `accounts[]`)
+- SWAP: table `banlist` (`account`)
+- OTC: table `banned` (`account`)
+
+Response:
+```
+{
+  "meta": { "chain", "ts", "window" },
+  "contracts": { "dex", "swap", "otc" },
+  "totals": { "unique", "dex", "swap", "otc" },
+  "bySource": {
+    "dex": ["account1", "account2"],
+    "swap": ["account3"],
+    "otc": []
+  },
+  "items": [
+    { "account": "account1", "sources": ["dex"] },
+    { "account": "account3", "sources": ["swap", "otc"] }
+  ],
+  "errors": [{ "source": "swap", "message": "..." }]
+}
+```
+
 ### GET `/analytics/tokens`
 Token list (scored, with volumes/TVL).
 
@@ -386,6 +413,112 @@ Notes:
 - Bins are sorted by price, contiguous, and without overlaps.
 - `liquidity >= 0`; `NaN`/`Infinity` are not returned.
 - If no liquidity is available, `bins` is empty while `currentPrice/minPrice/maxPrice` stay valid.
+
+## Launchpad
+
+Base path: `/api/v3/launchpad`
+
+Notes:
+- Launchpad indexes only `token/baseToken` pools for current chain.
+- Example for Proton: only `token/XPR` pools are included.
+
+### GET `/launchpad/new`
+New launchpad tokens list for the last 7 days (sorted by newest first).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/tokens`
+Unified launchpad tokens list for tabs (`trending/organic/all/new/graduated`) with server-side sorting and keyset cursor.
+
+Query:
+- `list=trending|organic|all|new|graduated` (default: `trending`)
+- `sort=score|age|vol24h|liq|mcap` (default: `score`, but for `list=all` default is `liq`)
+- `dir=desc|asc` (default: `desc`)
+- `limit` (default: `100`, max: `200`)
+- `cursor` (opaque keyset cursor from previous response)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+Selection rules:
+- `trending`: limited universe, top `50` by weekly trend score (focus on growth of traders/trades/liquidity/price).
+- `organic`: limited universe, top `50` by organic momentum score (previous trending logic).
+- `new`: tokens from last `7d` window.
+- `all`: full launchpad index.
+- `graduated`: graduated list.
+
+### GET `/launchpad/trending`
+Trending launchpad list (weekly growth score; traders/trades/liquidity/price focused).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/organic`
+Organic launchpad list (previous trending momentum logic).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/graduated`
+Graduated tokens list.
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/search`
+Search tokens by word.
+
+Query:
+- `q` or `search` (required)
+- `list=trending|organic|new|graduated` (default: `trending`)
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/token/:tokenId/summary`
+Live token summary:
+- `price` (quote/base/usd)
+- `liquidity` (base/usd)
+- `volume` and `trades_count` (`5m/1h/24h`)
+- `price_change_pct` (`5m/1h/24h`)
+- `last_trade`
+- `status` (`LAUNCH|OPEN|GRADUATED|UNKNOWN`)
+
+Query:
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/token/:tokenId/trades`
+Recent token trades (Redis-backed).
+Each item includes trader fields from swap action: `account` (preferred trader), `sender`, `recipient`.
+
+Query:
+- `limit` (default: `100`, max: `1000`)
+- `cursor` (offset, default: `0`)
+- `hide_scam=true|false` (default: `true`)
+
+Response:
+- `items`: current page
+- `next_cursor`: next offset or `null`
+- `total`: available rows in Redis list (max `1000`)
+
+### GET `/launchpad/token/:tokenId/holders`
+Optional holders endpoint (top-holders source may be unavailable; returns stats + empty `items` in that case).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `hide_scam=true|false` (default: `true`)
 
 ---
 

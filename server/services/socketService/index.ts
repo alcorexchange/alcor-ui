@@ -17,6 +17,7 @@ import { subscribe, unsubscribe } from './sockets'
 import { pushDeal, pushAccountNewMatch } from './pushes'
 import { initAccountUpdates } from './accountUpdates'
 import { makeSwapTickerV2Key, setSwapTickerV2Snapshot } from './swapTickerV2State'
+import { LAUNCHPAD_EVENT_CHANNELS } from '../launchpadMarketDataService/keys'
 
 const httpServer = createServer()
 const io = new Server(httpServer, { cors: { origin: '*' } })
@@ -39,6 +40,46 @@ type RealtimeSwapBar = {
 }
 
 const realtimeBars = new Map<string, RealtimeSwapBar>()
+const LAUNCHPAD_TOKEN_UPDATE_FLUSH_MS = 120
+const pendingLaunchpadTokenUpdates = new Map<string, any>()
+let launchpadTokenFlushTimer: NodeJS.Timeout | null = null
+
+function emitLaunchpadPayload(payload: any) {
+  const channel = String(payload?.channel || '').trim()
+  if (!channel) return
+
+  io.to(`launchpad:${channel}`).emit(payload.type, payload)
+  io.to(`launchpad:${channel}`).emit('launchpad:event', payload)
+
+  if (channel.startsWith('list:')) {
+    const parts = channel.split(':')
+    if (parts.length >= 3) {
+      const globalListChannel = `${parts[0]}:${parts[1]}`
+      io.to(`launchpad:${globalListChannel}`).emit(payload.type, payload)
+      io.to(`launchpad:${globalListChannel}`).emit('launchpad:event', payload)
+    }
+  }
+}
+
+function flushPendingLaunchpadTokenUpdates() {
+  launchpadTokenFlushTimer = null
+
+  for (const payload of pendingLaunchpadTokenUpdates.values()) {
+    emitLaunchpadPayload(payload)
+  }
+
+  pendingLaunchpadTokenUpdates.clear()
+}
+
+function queueLaunchpadTokenUpdate(payload: any) {
+  const channel = String(payload?.channel || '').trim()
+  if (!channel) return
+
+  pendingLaunchpadTokenUpdates.set(channel, payload)
+
+  if (launchpadTokenFlushTimer) return
+  launchpadTokenFlushTimer = setTimeout(flushPendingLaunchpadTokenUpdates, LAUNCHPAD_TOKEN_UPDATE_FLUSH_MS)
+}
 
 async function getPoolCached(chain: string, poolId: number) {
   const key = `${chain}:${poolId}`
@@ -580,6 +621,51 @@ async function main() {
 
     // Push to room with all swap events
     io.to(`swap:${chain}`).emit('swap:pool:update', update)
+  })
+
+  getSubscriber().subscribe(LAUNCHPAD_EVENT_CHANNELS.newPool, msg => {
+    try {
+      const payload = JSON.parse(msg)
+      emitLaunchpadPayload(payload)
+    } catch (e) {
+      console.error('[launchpad-ws] bad new_pool payload', e)
+    }
+  })
+
+  getSubscriber().subscribe(LAUNCHPAD_EVENT_CHANNELS.trade, msg => {
+    try {
+      const payload = JSON.parse(msg)
+      emitLaunchpadPayload(payload)
+    } catch (e) {
+      console.error('[launchpad-ws] bad trade payload', e)
+    }
+  })
+
+  getSubscriber().subscribe(LAUNCHPAD_EVENT_CHANNELS.poolLiquidityUpdate, msg => {
+    try {
+      const payload = JSON.parse(msg)
+      emitLaunchpadPayload(payload)
+    } catch (e) {
+      console.error('[launchpad-ws] bad pool_liquidity payload', e)
+    }
+  })
+
+  getSubscriber().subscribe(LAUNCHPAD_EVENT_CHANNELS.listUpdate, msg => {
+    try {
+      const payload = JSON.parse(msg)
+      emitLaunchpadPayload(payload)
+    } catch (e) {
+      console.error('[launchpad-ws] bad list_update payload', e)
+    }
+  })
+
+  getSubscriber().subscribe(LAUNCHPAD_EVENT_CHANNELS.tokenUpdate, msg => {
+    try {
+      const payload = JSON.parse(msg)
+      queueLaunchpadTokenUpdate(payload)
+    } catch (e) {
+      console.error('[launchpad-ws] bad token_update payload', e)
+    }
   })
 
   // ChainAction-based account updates (v2)

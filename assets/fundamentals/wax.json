@@ -829,7 +829,7 @@
       "https://waxdao.io/v2/daos/democraticmx",
       "https://zora.co/@cilfun"
     ],
-    "description": "CILFUN is the Community Integration & Leadership Functional Unity Network, the token powering the CILOK MASTER community and DAO. Used for voting, community contribution, event rewards, staking, and access to exclusive ecosystem features."
+    "description": "CILFUN (Community Integration & Leadership Functional Unity Network) is the governance and community utility token powering the CILOK MASTER Funverse. It enables voting, staking, contribution rewards, event incentives, and access to exclusive ecosystem features."
   },
 
   "CILBORN@masterxtoken": {
@@ -848,7 +848,7 @@
       "https://discord.gg/5ZApzNVZkJ",
       "https://zora.co/@cilokmaster"
     ],
-    "description": "CILBORN is the Conversion-Integrated Limited-Burn Optimized Redistribution Network, a deflationary token designed to maintain ecosystem supply balance. Each conversion of CILBORN → CILMAST triggers an automatic burn on CILMAST, creating long-term scarcity and economic stability."
+    "description": "CILBORN (Conversion-Integrated Limited-Burn Optimized Redistribution Network) is the deflationary mechanism token of the CILOK MASTER ecosystem. Each CILBORN → CILMAST conversion triggers a corresponding reduction in CILMAST supply, reinforcing long-term scarcity and systematic supply balance. "
   },
   "LOLK@cilfunxtoken": {
     "name": {
@@ -1022,5 +1022,19 @@
       "https://t.me/yeetwax"
     ],
     "description": "PURR is the reward token in the YEET ecosystem on the WAX blockchain, exclusively distributed via DeFi rewards to YEET holders currently, and planned as staking rewards for YEET NFTs in the future. With +99% of supply locked, it powers memery, community engagement, and enhances the stupidly fun YEET experience without any team allocations or TX taxes."
-  }
+  }, 
+  "GTAP@goldtaptoken": {
+  "name": "Gold Tap Token",
+  "website": {
+    "link": "https://goldtap.website/",
+    "name": "goldtap.website"
+  },
+  "tags": ["Gaming", "P2E", "Deflationary", "NFT"],
+  "socials": [
+    "https://t.me/GTAPOfficialChannel",
+    "https://t.me/gtapcommunity",
+    "https://www.youtube.com/@GOLDTAPOfficial"
+  ],
+  "description": "Gold Tap Token (GTAP) is a deflationary gaming token built on the WAX blockchain, designed to drive game distribution and farming-based ecosystem activity. No buy fee applies, while a 5% sell fee is collected: 3% for gaming/farming rewards, 0.5% for development, and 1.5% is permanently burned to reduce supply and strengthen scarcity."
+}
 }

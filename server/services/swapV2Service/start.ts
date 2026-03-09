@@ -3,6 +3,10 @@ require('dotenv').config()
 import { mongoConnect, initRedis } from '../../utils'
 import { getSubscriber, getPublisher } from '../redis'
 import { throttledPoolUpdate } from '.'
+import {
+  initLaunchpadMarketDataRuntime,
+  ingestLaunchpadChainAction,
+} from '../launchpadMarketDataService/runtime'
 
 export async function connectAll() {
   await mongoConnect()
@@ -12,13 +16,28 @@ export async function connectAll() {
 export async function main() {
   await connectAll()
   console.log('SwapService started!')
+  initLaunchpadMarketDataRuntime()
 
   // Track pool updates per chain for periodic logging
   const poolUpdateCounts: Record<string, number> = {}
   let lastLogTime = Date.now()
 
-  getSubscriber().pSubscribe('chainAction:*:swap.alcor:*', action => {
-    const { chain, name, data } = JSON.parse(action)
+  getSubscriber().pSubscribe('chainAction:*:*:*', action => {
+    let parsed: any
+    try {
+      parsed = JSON.parse(action)
+    } catch (e) {
+      console.error('[swap-service] bad chainAction payload', e)
+      return
+    }
+
+    const { chain, name, data } = parsed
+
+    if (['logpool', 'logswap', 'logmint', 'logburn', 'logcollect', 'logtransfer'].includes(name)) {
+      ingestLaunchpadChainAction(parsed).catch((e) => {
+        console.error(`[launchpad:${chain}] ingest error`, e)
+      })
+    }
 
     if (['logmint', 'logburn', 'logswap', 'logcollect', 'transferpos', 'logtransfer', 'logpool'].includes(name)) {
       throttledPoolUpdate(chain, Number(data.poolId))

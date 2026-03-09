@@ -271,12 +271,13 @@ export default {
         ],
       }
 
-      const perpetuals = { name: 'Perpetuals', contentKey: null, href: 'https://perp.alcor.exchange/', isNew: true }
+      const chain = this.$store.state.network.name === 'proton' ? 'xpr' : this.$store.state.network.name
+      const terminal = { name: 'Terminal', contentKey: null, href: `https://alcor.exchange/v/${chain}/terminal`, isNew: true }
 
       this.cachedItems = [
         swap,
         trade,
-        perpetuals,
+        terminal,
         earn,
         { name: 'Analytics', contentKey: null, to: '/analytics' },
         { name: 'Wallet', contentKey: null, to: '/wallet' },

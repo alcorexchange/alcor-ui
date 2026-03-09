@@ -9,6 +9,7 @@ import { getScamLists } from '../apiV2Service/config'
 import { getSwapBarPriceAsString } from '../../../utils/amm'
 import { resolutions as candleResolutions, normalizeResolution } from '../updaterService/charts'
 import { getIncentives } from '../apiV2Service/farms'
+import { getChainRpc } from '../../../utils/eosjs'
 import { getOrderbook } from '../orderbookService/start'
 import { sqrt } from '../../../utils/bigint'
 import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
@@ -39,6 +40,9 @@ const DEFAULT_DEPTH_PRICE_FACTOR = 20
 const MIN_STAKED_TVL_USD = 1
 const APR_PERIOD_DAYS = 7
 const OVERVIEW_CACHE_SECONDS = 900
+const ACCOUNT_NAME_REGEX = /^[a-z1-5.]{1,12}$/
+const BANNED_ACCOUNTS_CACHE_SECONDS = 30
+const MAX_BAN_TABLE_PAGES = 200
 
 type TokenInfo = {
   id?: string
@@ -46,6 +50,7 @@ type TokenInfo = {
   contract?: string
   name?: string
   usd_price?: number
+  safe_usd_price?: number
 }
 
 function getWindow(queryWindow: any) {
@@ -73,6 +78,56 @@ function normalizeCandleResolution(input: any) {
 function safeNumber(value: any, fallback = 0) {
   const n = Number(value)
   return Number.isFinite(n) ? n : fallback
+}
+
+function getSafeUsdPrice(token: any, fallback = 0) {
+  return safeNumber(token?.safe_usd_price, fallback)
+}
+
+function normalizeAccountName(raw: any) {
+  const account = String(raw || '').trim().toLowerCase()
+  if (!account) return null
+  return ACCOUNT_NAME_REGEX.test(account) ? account : null
+}
+
+function normalizeAccountList(accounts: any[]) {
+  const unique = new Set<string>()
+  for (const raw of accounts || []) {
+    const account = normalizeAccountName(raw)
+    if (account) unique.add(account)
+  }
+  return [...unique].sort((a, b) => a.localeCompare(b))
+}
+
+async function fetchAllContractRows(rpc: any, params: { code: string, scope: string, table: string }) {
+  const rows: any[] = []
+  let lowerBound: string | undefined = undefined
+
+  for (let i = 0; i < MAX_BAN_TABLE_PAGES; i += 1) {
+    const batch = await rpc.get_table_rows({
+      json: true,
+      code: params.code,
+      scope: params.scope,
+      table: params.table,
+      limit: 1000,
+      ...(lowerBound ? { lower_bound: lowerBound } : {}),
+    })
+
+    const chunk = Array.isArray(batch?.rows) ? batch.rows : []
+    rows.push(...chunk)
+
+    const hasMore = Boolean(batch?.more)
+    if (!hasMore || chunk.length === 0) break
+
+    const nextKey = (typeof batch?.next_key !== 'undefined' && String(batch.next_key).length > 0)
+      ? String(batch.next_key)
+      : (typeof batch?.more === 'string' && batch.more.length > 0 ? String(batch.more) : null)
+
+    if (!nextKey || nextKey === lowerBound) break
+    lowerBound = nextKey
+  }
+
+  return rows
 }
 
 function getPoolLpFeeRate(pool: any) {
@@ -109,6 +164,156 @@ function getOverviewCacheKey(req: any) {
   const window = getWindow(req.query.window)
   const include = Array.from(parseIncludes(req.query.include)).sort().join(',')
   return `overview|${network?.name || 'unknown'}|window:${window.label}|include:${include}`
+}
+
+const ANALYTICS_RESPONSE_SWR_STALE_MS = 60 * 60 * 1000
+const OVERVIEW_RESPONSE_SWR_FRESH_MS = OVERVIEW_CACHE_SECONDS * 1000
+const TOKENS_RESPONSE_SWR_FRESH_MS = 60 * 1000
+const ANALYTICS_RESPONSE_SWR_LOCK_TTL_SECONDS = 120
+const ANALYTICS_RESPONSE_SWR_WAIT_MS = 12000
+
+type SwrEnvelope<T> = {
+  ts: number
+  payload: T
+}
+
+function buildAnalyticsResponseSwrKey(route: string, req: any) {
+  const network = req.app.get('network')
+  return `analytics_v3_swr|${route}|${network?.name || 'unknown'}|${req.originalUrl}`
+}
+
+function buildAnalyticsResponseSwrLockKey(cacheKey: string) {
+  return `${cacheKey}|lock`
+}
+
+async function readSwrEnvelope<T>(cacheKey: string): Promise<SwrEnvelope<T> | null> {
+  const redis = getRedis()
+  try {
+    const raw = await redis.get(cacheKey)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    const ts = safeNumber(parsed?.ts, 0)
+    if (!ts || typeof parsed?.payload === 'undefined') return null
+    return { ts, payload: parsed.payload as T }
+  } catch (e) {
+    return null
+  }
+}
+
+async function writeSwrEnvelope<T>(cacheKey: string, payload: T, staleMs: number) {
+  const redis = getRedis()
+  try {
+    const ttlSeconds = Math.max(1, Math.ceil(staleMs / 1000))
+    await redis.set(cacheKey, JSON.stringify({ ts: Date.now(), payload }), { EX: ttlSeconds })
+  } catch (e) {
+    // ignore redis cache write errors
+  }
+}
+
+async function tryAcquireSwrLock(lockKey: string) {
+  const redis = getRedis()
+  const token = `${process.pid}:${Date.now()}:${Math.random().toString(36).slice(2)}`
+  try {
+    const result = await redis.set(lockKey, token, {
+      NX: true,
+      EX: ANALYTICS_RESPONSE_SWR_LOCK_TTL_SECONDS,
+    })
+    return result === 'OK' ? token : null
+  } catch (e) {
+    return null
+  }
+}
+
+async function releaseSwrLock(lockKey: string, token: string | null) {
+  if (!token) return
+  const redis = getRedis()
+  try {
+    const current = await redis.get(lockKey)
+    if (current === token) {
+      await redis.del(lockKey)
+    }
+  } catch (e) {
+    // rely on lock TTL when release fails
+  }
+}
+
+async function waitForSwrEnvelope<T>(cacheKey: string, timeoutMs = ANALYTICS_RESPONSE_SWR_WAIT_MS) {
+  const startedAt = Date.now()
+  while ((Date.now() - startedAt) < timeoutMs) {
+    const cached = await readSwrEnvelope<T>(cacheKey)
+    if (cached) return cached
+    await new Promise((resolve) => setTimeout(resolve, 150))
+  }
+  return null
+}
+
+async function getSwrPayload<T>(
+  cacheKey: string,
+  build: () => Promise<T>,
+  freshMs: number,
+  staleMs: number
+): Promise<T> {
+  const now = Date.now()
+  const lockKey = buildAnalyticsResponseSwrLockKey(cacheKey)
+  const cached = await readSwrEnvelope<T>(cacheKey)
+
+  const refreshInBackground = async () => {
+    let token: string | null = null
+    try {
+      token = await tryAcquireSwrLock(lockKey)
+      if (!token) return
+      const payload = await build()
+      await writeSwrEnvelope(cacheKey, payload, staleMs)
+    } catch (e) {
+      // ignore background refresh errors; stale payload is still served
+    } finally {
+      await releaseSwrLock(lockKey, token)
+    }
+  }
+
+  if (cached) {
+    const age = now - cached.ts
+    if (age <= freshMs) return cached.payload
+    if (age <= staleMs) {
+      void refreshInBackground()
+      return cached.payload
+    }
+  }
+
+  let token: string | null = await tryAcquireSwrLock(lockKey)
+  if (token) {
+    try {
+      const payload = await build()
+      await writeSwrEnvelope(cacheKey, payload, staleMs)
+      return payload
+    } finally {
+      await releaseSwrLock(lockKey, token)
+    }
+  }
+
+  if (cached) {
+    const age = now - cached.ts
+    if (age <= staleMs) return cached.payload
+  }
+
+  const warmed = await waitForSwrEnvelope<T>(cacheKey)
+  if (warmed) return warmed.payload
+
+  token = await tryAcquireSwrLock(lockKey)
+  if (token) {
+    try {
+      const payload = await build()
+      await writeSwrEnvelope(cacheKey, payload, staleMs)
+      return payload
+    } finally {
+      await releaseSwrLock(lockKey, token)
+    }
+  }
+
+  const fallback = await readSwrEnvelope<T>(cacheKey)
+  if (fallback) return fallback.payload
+
+  return await build()
 }
 
 function parseSearchTerms(input: any) {
@@ -179,7 +384,237 @@ async function getLogoUrl(network: any, token: any, protonRegistryToken: ProtonT
   return await getEosAirdropLogo(network.name, symbol, contract)
 }
 
+type TokenPresentation = {
+  protonRegistryToken: ProtonTokenRegistryEntry | null
+  logoUrl: string | null
+}
+
+const tokenPresentationCache = new Map<string, {
+  expiresAt: number
+  data: TokenPresentation
+}>()
+const TOKEN_PRESENTATION_CACHE_MS = 5 * 60 * 1000
+
+async function getTokenPresentationCached(network: any, token: any): Promise<TokenPresentation> {
+  if (!token || !network?.name) {
+    return { protonRegistryToken: null, logoUrl: null }
+  }
+
+  const key = `${String(network.name)}:${String(token.id || '').toLowerCase()}`
+  const now = Date.now()
+  const cached = tokenPresentationCache.get(key)
+  if (cached && cached.expiresAt > now) return cached.data
+
+  const protonRegistryToken = await getProtonTokenRegistryEntry(network, token.symbol, token.contract)
+  const logoUrl = await getLogoUrl(network, token, protonRegistryToken)
+  const data = { protonRegistryToken, logoUrl }
+
+  tokenPresentationCache.set(key, { expiresAt: now + TOKEN_PRESENTATION_CACHE_MS, data })
+  return data
+}
+
 const fundamentalsCache = new Map<string, any>()
+type PlatformBalancesData = { tokenTvlMap: Map<string, number>, contractTvlMap: Map<string, number> }
+const platformBalancesCache = new Map<string, {
+  expiresAt: number
+  data: PlatformBalancesData
+  refreshPromise?: Promise<void>
+}>()
+const PLATFORM_BALANCES_CACHE_MS = 60 * 1000
+const PLATFORM_BALANCES_REDIS_TTL_SECONDS = 10 * 60
+const PLATFORM_BALANCES_REFRESH_LOCK_TTL_SECONDS = 55
+const PLATFORM_BALANCES_REFRESH_WAIT_MS = 8000
+
+function serializePlatformBalances(data: PlatformBalancesData) {
+  return {
+    tokenTvl: Object.fromEntries(data.tokenTvlMap.entries()),
+    contractTvl: Object.fromEntries(data.contractTvlMap.entries()),
+  }
+}
+
+function deserializePlatformBalances(raw: any): PlatformBalancesData | null {
+  if (!raw || typeof raw !== 'object') return null
+
+  const tokenEntries = Object.entries(raw?.tokenTvl || {})
+    .map(([k, v]) => [String(k), safeNumber(v)] as [string, number])
+  const contractEntries = Object.entries(raw?.contractTvl || {})
+    .map(([k, v]) => [String(k), safeNumber(v)] as [string, number])
+
+  return {
+    tokenTvlMap: new Map<string, number>(tokenEntries),
+    contractTvlMap: new Map<string, number>(contractEntries),
+  }
+}
+
+async function readPlatformBalancesFromRedis(redisKey: string) {
+  const redis = getRedis()
+  try {
+    const raw = await redis.get(redisKey)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    const fetchedAt = safeNumber(parsed?.fetchedAt, 0)
+    const data = deserializePlatformBalances(parsed?.data)
+    if (!data) return null
+    return { fetchedAt, expiresAt: fetchedAt + PLATFORM_BALANCES_CACHE_MS, data }
+  } catch (e) {
+    return null
+  }
+}
+
+async function writePlatformBalancesToRedis(redisKey: string, fetchedAt: number, data: PlatformBalancesData) {
+  const redis = getRedis()
+  try {
+    await redis.set(
+      redisKey,
+      JSON.stringify({
+        fetchedAt,
+        data: serializePlatformBalances(data),
+      }),
+      { EX: PLATFORM_BALANCES_REDIS_TTL_SECONDS }
+    )
+  } catch (e) {
+    // ignore redis write errors; in-memory cache still works
+  }
+}
+
+function getPlatformBalancesRefreshLockKey(networkKey: string) {
+  return `${networkKey}_platform_balances_refresh_lock_v1`
+}
+
+async function tryAcquirePlatformBalancesRefreshLock(lockKey: string) {
+  const redis = getRedis()
+  const lockToken = `${process.pid}:${Date.now()}:${Math.random().toString(36).slice(2)}`
+  try {
+    const result = await redis.set(lockKey, lockToken, {
+      NX: true,
+      EX: PLATFORM_BALANCES_REFRESH_LOCK_TTL_SECONDS,
+    })
+    return result === 'OK' ? lockToken : null
+  } catch (e) {
+    return null
+  }
+}
+
+async function releasePlatformBalancesRefreshLock(lockKey: string, lockToken: string | null) {
+  if (!lockToken) return
+  const redis = getRedis()
+  try {
+    const current = await redis.get(lockKey)
+    if (current === lockToken) {
+      await redis.del(lockKey)
+    }
+  } catch (e) {
+    // rely on lock TTL on failure
+  }
+}
+
+async function waitForPlatformBalancesFromRedis(redisKey: string, timeoutMs = PLATFORM_BALANCES_REFRESH_WAIT_MS) {
+  const startedAt = Date.now()
+  while ((Date.now() - startedAt) < timeoutMs) {
+    const redisCached = await readPlatformBalancesFromRedis(redisKey)
+    if (redisCached?.data) return redisCached
+    await new Promise((resolve) => setTimeout(resolve, 150))
+  }
+  return null
+}
+
+async function getPlatformBalancesCached(network: any, tokens: any[]) {
+  const key = String(network?.name || '')
+  const redisKey = `${key}_platform_balances_cache_v1`
+  const lockKey = getPlatformBalancesRefreshLockKey(key)
+  const now = Date.now()
+  const cached = platformBalancesCache.get(key)
+  if (cached && cached.expiresAt > now) return cached.data
+
+  const refreshAndPersist = async () => {
+    const fetchedAt = Date.now()
+    const data = await fetchPlatformBalances(network, tokens)
+    platformBalancesCache.set(key, {
+      expiresAt: fetchedAt + PLATFORM_BALANCES_CACHE_MS,
+      data,
+      refreshPromise: undefined,
+    })
+    await writePlatformBalancesToRedis(redisKey, fetchedAt, data)
+    return data
+  }
+
+  const redisCached = await readPlatformBalancesFromRedis(redisKey)
+  if (redisCached && redisCached.expiresAt > now) {
+    platformBalancesCache.set(key, {
+      expiresAt: redisCached.expiresAt,
+      data: redisCached.data,
+      refreshPromise: cached?.refreshPromise,
+    })
+    return redisCached.data
+  }
+
+  const staleEntry = cached?.data
+    ? cached
+    : (redisCached ? { expiresAt: redisCached.expiresAt, data: redisCached.data, refreshPromise: undefined } : null)
+
+  if (staleEntry?.data) {
+    if (!staleEntry.refreshPromise) {
+      const refreshPromise = (async () => {
+        let lockToken: string | null = null
+        try {
+          lockToken = await tryAcquirePlatformBalancesRefreshLock(lockKey)
+          if (!lockToken) return
+          await refreshAndPersist()
+        } catch (e) {
+          platformBalancesCache.set(key, { ...staleEntry, refreshPromise: undefined })
+        } finally {
+          await releasePlatformBalancesRefreshLock(lockKey, lockToken)
+        }
+      })()
+      platformBalancesCache.set(key, { ...staleEntry, refreshPromise })
+    }
+    return staleEntry.data
+  }
+
+  let lockToken: string | null = await tryAcquirePlatformBalancesRefreshLock(lockKey)
+  if (lockToken) {
+    try {
+      return await refreshAndPersist()
+    } finally {
+      await releasePlatformBalancesRefreshLock(lockKey, lockToken)
+    }
+  }
+
+  const waited = await waitForPlatformBalancesFromRedis(redisKey)
+  if (waited?.data) {
+    platformBalancesCache.set(key, {
+      expiresAt: waited.expiresAt,
+      data: waited.data,
+      refreshPromise: undefined,
+    })
+    return waited.data
+  }
+
+  // Fallback path: if lock owner failed to refresh, retry lock once to avoid long outage.
+  lockToken = await tryAcquirePlatformBalancesRefreshLock(lockKey)
+  if (lockToken) {
+    try {
+      return await refreshAndPersist()
+    } finally {
+      await releasePlatformBalancesRefreshLock(lockKey, lockToken)
+    }
+  }
+
+  const staleAfterWait = await readPlatformBalancesFromRedis(redisKey)
+  if (staleAfterWait?.data) {
+    platformBalancesCache.set(key, {
+      expiresAt: staleAfterWait.expiresAt,
+      data: staleAfterWait.data,
+      refreshPromise: undefined,
+    })
+    return staleAfterWait.data
+  }
+
+  return {
+    tokenTvlMap: new Map<string, number>(),
+    contractTvlMap: new Map<string, number>(),
+  }
+}
 
 function loadFundamentals(networkName: string) {
   if (fundamentalsCache.has(networkName)) return fundamentalsCache.get(networkName)
@@ -250,7 +685,13 @@ function pickPoolVolumes(pool: any, window: string) {
   if (window === '24h') return { a: safeNumber(pool.volumeA24), b: safeNumber(pool.volumeB24), usd: safeNumber(pool.volumeUSD24) }
   if (window === '7d') return { a: safeNumber(pool.volumeAWeek), b: safeNumber(pool.volumeBWeek), usd: safeNumber(pool.volumeUSDWeek) }
   if (window === '30d') return { a: safeNumber(pool.volumeAMonth), b: safeNumber(pool.volumeBMonth), usd: safeNumber(pool.volumeUSDMonth) }
-  if (window === '90d') return { a: safeNumber(pool.volumeAMonth), b: safeNumber(pool.volumeBMonth), usd: safeNumber(pool.volumeUSDMonth) }
+  if (window === '90d') {
+    return {
+      a: safeNumber(pool.volumeA90 ?? pool.volumeAMonth),
+      b: safeNumber(pool.volumeB90 ?? pool.volumeBMonth),
+      usd: safeNumber(pool.volumeUSD90 ?? pool.volumeUSDMonth),
+    }
+  }
   return { a: safeNumber(pool.volumeAMonth), b: safeNumber(pool.volumeBMonth), usd: safeNumber(pool.volumeUSDMonth) }
 }
 
@@ -258,7 +699,7 @@ function pickMarketVolume(market: any, window: string) {
   if (window === '24h') return safeNumber(market.volume24)
   if (window === '7d') return safeNumber(market.volumeWeek)
   if (window === '30d') return safeNumber(market.volumeMonth)
-  if (window === '90d') return safeNumber(market.volumeMonth)
+  if (window === '90d') return safeNumber(market.volume90d ?? market.volumeMonth)
   return safeNumber(market.volumeMonth)
 }
 
@@ -336,7 +777,7 @@ async function loadTokenHoldersStats(chain: string, tokenIds: string[]) {
 
 function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: string, tokenTvlMap?: Map<string, number>) {
   const tokenStats = new Map<string, any>()
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
 
   for (const token of tokens) {
     tokenStats.set(token.id, {
@@ -484,9 +925,17 @@ async function buildOrderbookDepth(chain: string, market: any, priceMap: Map<str
   }
 }
 
-async function buildTokenTxStats(chain: string, tokens: any[], pools: any[], markets: any[], since?: Date | null) {
+async function buildTokenTxStats(
+  chain: string,
+  tokens: any[],
+  pools: any[],
+  markets: any[],
+  since?: Date | null,
+  options: { restrictToProvidedSources?: boolean } = {}
+) {
   const tokenStats = new Map<string, { swapTx: number, spotTx: number }>()
   const tokenIds = new Set(tokens.map((t) => t.id))
+  const restrictToProvidedSources = options.restrictToProvidedSources === true
 
   for (const t of tokens) {
     tokenStats.set(t.id, { swapTx: 0, spotTx: 0 })
@@ -502,11 +951,24 @@ async function buildTokenTxStats(chain: string, tokens: any[], pools: any[], mar
 
   const swapMatch: any = { chain }
   if (since) swapMatch.time = { $gte: since }
+  let canQuerySwaps = true
+  if (restrictToProvidedSources) {
+    const poolIds = pools
+      .map((p) => Number(p?.id))
+      .filter((id) => Number.isFinite(id))
+    if (poolIds.length === 0) {
+      canQuerySwaps = false
+    } else {
+      swapMatch.pool = { $in: poolIds }
+    }
+  }
 
-  const swapByPool = await Swap.aggregate([
-    { $match: swapMatch },
-    { $group: { _id: '$pool', trades: { $sum: 1 } } },
-  ])
+  const swapByPool = canQuerySwaps
+    ? await Swap.aggregate([
+      { $match: swapMatch },
+      { $group: { _id: '$pool', trades: { $sum: 1 } } },
+    ])
+    : []
 
   for (const row of swapByPool) {
     const tokensPair = poolTokens.get(row._id)
@@ -521,11 +983,24 @@ async function buildTokenTxStats(chain: string, tokens: any[], pools: any[], mar
 
   const spotMatch: any = { chain }
   if (since) spotMatch.time = { $gte: since }
+  let canQuerySpot = true
+  if (restrictToProvidedSources) {
+    const marketIds = markets
+      .map((m) => Number(m?.id))
+      .filter((id) => Number.isFinite(id))
+    if (marketIds.length === 0) {
+      canQuerySpot = false
+    } else {
+      spotMatch.market = { $in: marketIds }
+    }
+  }
 
-  const matchByMarket = await Match.aggregate([
-    { $match: spotMatch },
-    { $group: { _id: '$market', trades: { $sum: 1 } } },
-  ])
+  const matchByMarket = canQuerySpot
+    ? await Match.aggregate([
+      { $match: spotMatch },
+      { $group: { _id: '$market', trades: { $sum: 1 } } },
+    ])
+    : []
 
   for (const row of matchByMarket) {
     const tokensPair = marketTokens.get(row._id)
@@ -580,7 +1055,7 @@ function toFarmCard(incentive: any, pool: any, tokensMap: Map<string, TokenInfo>
   const rewardTokenId =
     rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
   const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
-  const rewardTokenPrice = safeNumber(rewardToken?.usd_price, 0)
+  const rewardTokenPrice = getSafeUsdPrice(rewardToken)
 
   const rewardPerDay = safeNumber(incentive.rewardPerDay, 0)
   const rewardPerDayUSD = rewardPerDay * rewardTokenPrice
@@ -648,7 +1123,7 @@ function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, Toke
     const rewardContract = incentive?.reward?.contract
     const rewardTokenId = rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
     const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
-    const rewardTokenPrice = rewardToken?.usd_price ?? 0
+    const rewardTokenPrice = getSafeUsdPrice(rewardToken)
     const dayRewardInUSD = rewardPerDay * rewardTokenPrice
 
     const apr = (dayRewardInUSD / effectiveTvlUSD) * 365 * 100
@@ -701,8 +1176,9 @@ function toMarketCard(market: any, window: string, priceMap: Map<string, number>
 
   return {
     id: market.id,
-    base: market.base_token,
-    quote: market.quote_token,
+    // Keep spot pair sides aligned with /api/v2/tickers ticker_id ordering.
+    base: market.quote_token,
+    quote: market.base_token,
     price: {
       last: lastPrice,
       change24h: safeNumber(market.change24),
@@ -750,7 +1226,7 @@ function attachIncentives(poolCard: any, pool: any, incentivesByPool: Map<number
     const rewardContract = i?.reward?.contract
     const rewardTokenId = rewardSymbol && rewardContract ? `${String(rewardSymbol).toLowerCase()}-${rewardContract}` : null
     const rewardToken = rewardTokenId ? tokensMap.get(rewardTokenId) : null
-    const rewardTokenPrice = safeNumber(rewardToken?.usd_price, 0)
+    const rewardTokenPrice = getSafeUsdPrice(rewardToken)
     const rewardPerDay = safeNumber(i?.rewardPerDay)
     const rewardPerDayUSD = rewardPerDay * rewardTokenPrice
     const utilizationPct = calcIncentiveStakePercent(i, pool)
@@ -806,6 +1282,112 @@ function buildMeta(network, window: string) {
   }
 }
 
+analytics.get('/bans/accounts', cacheSeconds(BANNED_ACCOUNTS_CACHE_SECONDS, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+  const rpc = getChainRpc(network.name)
+
+  const contracts = {
+    dex: String(network?.contract || '').trim(),
+    swap: String(network?.amm?.contract || '').trim(),
+    otc: String(network?.otc?.contract || '').trim(),
+  }
+
+  const errors: Array<{ source: 'dex' | 'swap' | 'otc', message: string }> = []
+
+  const [dexAccounts, swapAccounts, otcAccounts] = await Promise.all([
+    (async () => {
+      if (!contracts.dex) return []
+      try {
+        const result = await rpc.get_table_rows({
+          json: true,
+          code: contracts.dex,
+          scope: contracts.dex,
+          table: 'ban',
+          limit: 1,
+        })
+        const rows = Array.isArray(result?.rows) ? result.rows : []
+        const raw = Array.isArray(rows?.[0]?.accounts) ? rows[0].accounts : []
+        return normalizeAccountList(raw)
+      } catch (e: any) {
+        errors.push({ source: 'dex', message: e?.message || 'Failed to read ban table' })
+        return []
+      }
+    })(),
+    (async () => {
+      if (!contracts.swap) return []
+      try {
+        const rows = await fetchAllContractRows(rpc, {
+          code: contracts.swap,
+          scope: contracts.swap,
+          table: 'banlist',
+        })
+        return normalizeAccountList(rows.map((row) => row?.account))
+      } catch (e: any) {
+        errors.push({ source: 'swap', message: e?.message || 'Failed to read banlist table' })
+        return []
+      }
+    })(),
+    (async () => {
+      if (!contracts.otc) return []
+      try {
+        const rows = await fetchAllContractRows(rpc, {
+          code: contracts.otc,
+          scope: contracts.otc,
+          table: 'banned',
+        })
+        return normalizeAccountList(rows.map((row) => row?.account))
+      } catch (e: any) {
+        errors.push({ source: 'otc', message: e?.message || 'Failed to read banned table' })
+        return []
+      }
+    })(),
+  ])
+
+  const bySource = {
+    dex: dexAccounts,
+    swap: swapAccounts,
+    otc: otcAccounts,
+  }
+
+  const map = new Map<string, Set<'dex' | 'swap' | 'otc'>>()
+
+  for (const account of bySource.dex) {
+    if (!map.has(account)) map.set(account, new Set())
+    map.get(account)?.add('dex')
+  }
+  for (const account of bySource.swap) {
+    if (!map.has(account)) map.set(account, new Set())
+    map.get(account)?.add('swap')
+  }
+  for (const account of bySource.otc) {
+    if (!map.has(account)) map.set(account, new Set())
+    map.get(account)?.add('otc')
+  }
+
+  const items = [...map.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([account, sources]) => ({
+      account,
+      sources: [...sources].sort(),
+    }))
+
+  res.json({
+    meta: buildMeta(network, 'all'),
+    contracts,
+    totals: {
+      unique: items.length,
+      dex: bySource.dex.length,
+      swap: bySource.swap.length,
+      otc: bySource.otc.length,
+    },
+    bySource,
+    items,
+    errors,
+  })
+})
+
 analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
   return getOverviewCacheKey(req)
 }), async (req, res) => {
@@ -816,209 +1398,236 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
   const includeTx = includes.has('tx')
   const includeDepth = includes.has('depth')
 
-  const tokens = (await getTokens(network.name)) || []
-  const holdersStats = await loadTokenHoldersStats(network.name, tokens.map((t) => t.id))
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const swrKey = buildAnalyticsResponseSwrKey('overview', req)
+  const payload = await getSwrPayload(
+    swrKey,
+    async () => {
+      const tokens = (await getTokens(network.name)) || []
+      const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
+      const [pools, markets, tokenScores] = await Promise.all([
+        SwapPool.find({ chain: network.name }).lean(),
+        Market.find({ chain: network.name }).lean(),
+        loadTokenScores(network.name),
+      ])
 
-  const pools = await SwapPool.find({ chain: network.name }).lean()
-  const markets = await Market.find({ chain: network.name }).lean()
+      const topTokensRaw = [...tokens]
+        .sort((a, b) => safeNumber(tokenScores?.[b.id]?.score) - safeNumber(tokenScores?.[a.id]?.score))
+        .slice(0, 10)
+      const topTokenIds = topTokensRaw.map((t) => t.id).filter(Boolean)
+      const topTokenIdSet = new Set(topTokenIds)
+      const topTokenPools = pools.filter((p) => topTokenIdSet.has(p?.tokenA?.id) || topTokenIdSet.has(p?.tokenB?.id))
+      const topTokenMarkets = markets.filter((m) => topTokenIdSet.has(m?.base_token?.id) || topTokenIdSet.has(m?.quote_token?.id))
+      const [holdersStats, { tokenTvlMap }, tokenTxStats] = await Promise.all([
+        loadTokenHoldersStats(network.name, topTokenIds),
+        getPlatformBalancesCached(network, tokens),
+        buildTokenTxStats(
+          network.name,
+          topTokensRaw,
+          topTokenPools,
+          topTokenMarkets,
+          window.since,
+          { restrictToProvidedSources: true }
+        ),
+      ])
+      const tokenStats = buildTokenStats(topTokensRaw, topTokenPools, topTokenMarkets, window.label, tokenTvlMap)
 
-  const { tokenTvlMap } = await fetchPlatformBalances(network, tokens)
-  const tokenStats = buildTokenStats(tokens, pools, markets, window.label, tokenTvlMap)
-  const tokenTxStats = await buildTokenTxStats(network.name, tokens, pools, markets, window.since)
-  const tokenScores = await loadTokenScores(network.name)
+      const topPoolsRaw = [...pools]
+        .sort((a, b) => pickPoolVolumes(b, window.label).usd - pickPoolVolumes(a, window.label).usd)
+        .slice(0, 10)
 
-  const topPoolsRaw = [...pools]
-    .sort((a, b) => pickPoolVolumes(b, window.label).usd - pickPoolVolumes(a, window.label).usd)
-    .slice(0, 10)
+      const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
+      const tokensMap = includeIncentives ? new Map<string, TokenInfo>(
+        tokens.map((t) => [t.id, t])
+      ) : new Map()
 
-  const incentivesByPool = includeIncentives ? await loadIncentivesByPool(network) : new Map()
-  const tokensMap = includeIncentives ? new Map<string, TokenInfo>(
-    tokens.map((t) => [t.id, t])
-  ) : new Map()
+      const poolTxStats = includeTx ? await buildPoolTxStats(network.name, topPoolsRaw.map((p) => p.id), window.since) : new Map()
 
-  const poolTxStats = includeTx ? await buildPoolTxStats(network.name, topPoolsRaw.map((p) => p.id), window.since) : new Map()
+      const topPools = topPoolsRaw.map((p) => {
+        let card = toPoolCard(p, window.label)
+        if (includeIncentives) card = attachIncentives(card, p, incentivesByPool, tokensMap)
+        if (includeTx) card = attachPoolTx(card, poolTxStats.get(p.id) ?? 0)
+        return card
+      })
 
-  const topPools = topPoolsRaw.map((p) => {
-    let card = toPoolCard(p, window.label)
-    if (includeIncentives) card = attachIncentives(card, p, incentivesByPool, tokensMap)
-    if (includeTx) card = attachPoolTx(card, poolTxStats.get(p.id) ?? 0)
-    return card
-  })
+      const topSpotPairsRaw = [...markets]
+        .sort((a, b) => pickMarketVolumeUsd(b, window.label, priceMap) - pickMarketVolumeUsd(a, window.label, priceMap))
+        .slice(0, 10)
 
-  const topSpotPairsRaw = [...markets]
-    .sort((a, b) => pickMarketVolumeUsd(b, window.label, priceMap) - pickMarketVolumeUsd(a, window.label, priceMap))
-    .slice(0, 10)
+      const marketTxStats = includeTx ? await buildMarketTxStats(network.name, topSpotPairsRaw.map((m) => m.id), window.since) : new Map()
 
-  const marketTxStats = includeTx ? await buildMarketTxStats(network.name, topSpotPairsRaw.map((m) => m.id), window.since) : new Map()
+      const topSpotPairs = await Promise.all(topSpotPairsRaw.map(async (m) => {
+        let card = toMarketCard(m, window.label, priceMap)
+        if (includeTx) card = attachMarketTxAndDepth(card, marketTxStats.get(m.id) ?? 0, null)
+        if (includeDepth) {
+          const depth = await buildOrderbookDepth(network.name, m, priceMap)
+          card = attachMarketTxAndDepth(card, includeTx ? (marketTxStats.get(m.id) ?? 0) : null, depth)
+        }
+        return card
+      }))
 
-  const topSpotPairs = await Promise.all(topSpotPairsRaw.map(async (m) => {
-    let card = toMarketCard(m, window.label, priceMap)
-    if (includeTx) card = attachMarketTxAndDepth(card, marketTxStats.get(m.id) ?? 0, null)
-    if (includeDepth) {
-      const depth = await buildOrderbookDepth(network.name, m, priceMap)
-      card = attachMarketTxAndDepth(card, includeTx ? (marketTxStats.get(m.id) ?? 0) : null, depth)
-    }
-    return card
-  }))
+      const baseTokenId = network?.baseToken ? `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase() : null
+      const usdTokenId = network?.USD_TOKEN || null
 
-  const baseTokenId = network?.baseToken ? `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase() : null
-  const usdTokenId = network?.USD_TOKEN || null
-
-  const poolsByToken = new Map<string, any[]>()
-  for (const pool of pools) {
-    const tokenAId = pool?.tokenA?.id
-    const tokenBId = pool?.tokenB?.id
-    if (tokenAId) {
-      if (!poolsByToken.has(tokenAId)) poolsByToken.set(tokenAId, [])
-      poolsByToken.get(tokenAId)?.push(pool)
-    }
-    if (tokenBId) {
-      if (!poolsByToken.has(tokenBId)) poolsByToken.set(tokenBId, [])
-      poolsByToken.get(tokenBId)?.push(pool)
-    }
-  }
-
-  const topTokens = (await Promise.all(tokens.map(async (t) => {
-      const stats = tokenStats.get(t.id) || {}
-      const score = tokenScores?.[t.id]?.score ?? null
-      const firstSeenAt = tokenScores?.[t.id]?.firstSeenAt ?? null
-      const holders = holdersStats.get(t.id) || null
-      const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
-      const volumeSwap = safeNumber(stats.swapVolumeUSD)
-      const volumeSpot = safeNumber(stats.spotVolumeUSD)
-      const protonRegistryToken = await getProtonTokenRegistryEntry(network, t.symbol, t.contract)
-      const logoUrl = await getLogoUrl(network, t, protonRegistryToken)
-
-      const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
-      const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
-
-      return {
-        id: t.id,
-        symbol: t.symbol,
-        contract: t.contract,
-        name: t.name || protonRegistryToken?.name || null,
-        decimals: t.decimals,
-        logo: logoUrl,
-        logoUrl,
-        price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
-        liquidity: { tvl: safeNumber(stats.tvlUSD) },
-        volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
-        pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
-        createdAt: firstSeenAt,
-        tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
-        holders: holders ? {
-          count: holders.holders ?? null,
-          change1h: holders.change1h ?? null,
-          change6h: holders.change6h ?? null,
-          change24h: holders.change24h ?? null,
-          truncated: holders.truncated ?? false,
-        } : null,
-        scores: { total: score },
+      const poolsByToken = new Map<string, any[]>()
+      for (const pool of pools) {
+        const tokenAId = pool?.tokenA?.id
+        const tokenBId = pool?.tokenB?.id
+        if (tokenAId) {
+          if (!poolsByToken.has(tokenAId)) poolsByToken.set(tokenAId, [])
+          poolsByToken.get(tokenAId)?.push(pool)
+        }
+        if (tokenBId) {
+          if (!poolsByToken.has(tokenBId)) poolsByToken.set(tokenBId, [])
+          poolsByToken.get(tokenBId)?.push(pool)
+        }
       }
-    })))
-    .sort((a, b) => safeNumber(b.scores.total) - safeNumber(a.scores.total))
-    .slice(0, 10)
 
-  const resolution = window.ms ? Math.max(Math.floor(window.ms / 30), 60 * 60 * 1000) : 24 * 60 * 60 * 1000
-  const $match = {
-    chain: network.name,
-    ...(window.since ? { time: { $gte: window.since } } : {}),
-  }
+      const topTokens = await Promise.all(topTokensRaw.map(async (t) => {
+          const stats = tokenStats.get(t.id) || {}
+          const score = tokenScores?.[t.id]?.score ?? null
+          const firstSeenAt = tokenScores?.[t.id]?.firstSeenAt ?? null
+          const holders = holdersStats.get(t.id) || null
+          const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
+          const volumeSwap = safeNumber(stats.swapVolumeUSD)
+          const volumeSpot = safeNumber(stats.spotVolumeUSD)
+          const protonRegistryToken = await getProtonTokenRegistryEntry(network, t.symbol, t.contract)
+          const logoUrl = await getLogoUrl(network, t, protonRegistryToken)
 
-  const $group = {
-    _id: {
-      $toDate: {
-        $subtract: [
-          { $toLong: '$time' },
-          { $mod: [{ $toLong: '$time' }, resolution] },
-        ],
-      },
-    },
-    totalValueLocked: { $last: '$totalValueLocked' },
-    swapTradingVolume: { $sum: '$swapTradingVolume' },
-    spotTradingVolume: { $sum: '$spotTradingVolume' },
-    swapFees: { $sum: '$swapFees' },
-    spotFees: { $sum: '$spotFees' },
-  }
+          const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
+          const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
 
-  const chart = await GlobalStats.aggregate([
-    { $match },
-    { $sort: { time: 1 } },
-    { $group },
-    { $sort: { _id: 1 } },
-  ])
+          return {
+            id: t.id,
+            symbol: t.symbol,
+            contract: t.contract,
+            name: t.name || protonRegistryToken?.name || null,
+            decimals: t.decimals,
+            logo: logoUrl,
+            logoUrl,
+            price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
+            liquidity: { tvl: safeNumber(stats.tvlUSD) },
+            volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
+            pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
+            createdAt: firstSeenAt,
+            tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
+            holders: holders ? {
+              count: holders.holders ?? null,
+              change1h: holders.change1h ?? null,
+              change6h: holders.change6h ?? null,
+              change24h: holders.change24h ?? null,
+              truncated: holders.truncated ?? false,
+            } : null,
+            scores: { total: score },
+          }
+        }))
 
-  const [stats] = await GlobalStats.aggregate([
-    { $match },
-    { $sort: { time: 1 } },
-    {
-      $group: {
-        _id: '$chain',
+      const resolution = window.ms ? Math.max(Math.floor(window.ms / 30), 60 * 60 * 1000) : 24 * 60 * 60 * 1000
+      const $match = {
+        chain: network.name,
+        ...(window.since ? { time: { $gte: window.since } } : {}),
+      }
+
+      const $group = {
+        _id: {
+          $toDate: {
+            $subtract: [
+              { $toLong: '$time' },
+              { $mod: [{ $toLong: '$time' }, resolution] },
+            ],
+          },
+        },
         totalValueLocked: { $last: '$totalValueLocked' },
         swapTradingVolume: { $sum: '$swapTradingVolume' },
         spotTradingVolume: { $sum: '$spotTradingVolume' },
         swapFees: { $sum: '$swapFees' },
         spotFees: { $sum: '$spotFees' },
-        dailyActiveUsers: { $avg: '$dailyActiveUsers' },
-        swapTransactions: { $sum: '$swapTransactions' },
-        spotTransactions: { $sum: '$spotTransactions' },
-        totalLiquidityPools: { $max: '$totalLiquidityPools' },
-        totalSpotPairs: { $max: '$totalSpotPairs' },
-      },
-    },
-  ])
+      }
 
-  const chartPoints = chart.map((i) => {
-    const swapVolume = safeNumber(i.swapTradingVolume)
-    const spotVolume = safeNumber(i.spotTradingVolume)
-    const swapFees = safeNumber(i.swapFees)
-    const spotFees = safeNumber(i.spotFees)
-    const volume = swapVolume + spotVolume
-    const fees = swapFees + spotFees
+      const [chart, statsRows] = await Promise.all([
+        GlobalStats.aggregate([
+          { $match },
+          { $sort: { time: 1 } },
+          { $group },
+          { $sort: { _id: 1 } },
+        ]),
+        GlobalStats.aggregate([
+          { $match },
+          { $sort: { time: 1 } },
+          {
+            $group: {
+              _id: '$chain',
+              totalValueLocked: { $last: '$totalValueLocked' },
+              swapTradingVolume: { $sum: '$swapTradingVolume' },
+              spotTradingVolume: { $sum: '$spotTradingVolume' },
+              swapFees: { $sum: '$swapFees' },
+              spotFees: { $sum: '$spotFees' },
+              dailyActiveUsers: { $avg: '$dailyActiveUsers' },
+              swapTransactions: { $sum: '$swapTransactions' },
+              spotTransactions: { $sum: '$spotTransactions' },
+              totalLiquidityPools: { $max: '$totalLiquidityPools' },
+              totalSpotPairs: { $max: '$totalSpotPairs' },
+            },
+          },
+        ]),
+      ])
+      const [stats] = statsRows
 
-    return {
-      t: i._id,
-      tvl: safeNumber(i.totalValueLocked),
-      volume,
-      fees,
-      swapVolume,
-      spotVolume,
-      swapFees,
-      spotFees,
-    }
-  })
+      const chartPoints = chart.map((i) => {
+        const swapVolume = safeNumber(i.swapTradingVolume)
+        const spotVolume = safeNumber(i.spotTradingVolume)
+        const swapFees = safeNumber(i.swapFees)
+        const spotFees = safeNumber(i.spotFees)
+        const volume = swapVolume + spotVolume
+        const fees = swapFees + spotFees
 
-  res.json({
-    meta: buildMeta(network, window.label),
-    stats: {
-      tvl: safeNumber(stats?.totalValueLocked),
-      volume: safeNumber(stats?.swapTradingVolume) + safeNumber(stats?.spotTradingVolume),
-      fees: safeNumber(stats?.swapFees) + safeNumber(stats?.spotFees),
-      swapVolume: safeNumber(stats?.swapTradingVolume),
-      spotVolume: safeNumber(stats?.spotTradingVolume),
-      swapFees: safeNumber(stats?.swapFees),
-      spotFees: safeNumber(stats?.spotFees),
-      swapTx: safeNumber(stats?.swapTransactions),
-      spotTx: safeNumber(stats?.spotTransactions),
-      dauAvg: safeNumber(stats?.dailyActiveUsers),
-      poolsTotal: safeNumber(stats?.totalLiquidityPools),
-      spotPairsTotal: safeNumber(stats?.totalSpotPairs),
+        return {
+          t: i._id,
+          tvl: safeNumber(i.totalValueLocked),
+          volume,
+          fees,
+          swapVolume,
+          spotVolume,
+          swapFees,
+          spotFees,
+        }
+      })
+
+      return {
+        meta: buildMeta(network, window.label),
+        stats: {
+          tvl: safeNumber(stats?.totalValueLocked),
+          volume: safeNumber(stats?.swapTradingVolume) + safeNumber(stats?.spotTradingVolume),
+          fees: safeNumber(stats?.swapFees) + safeNumber(stats?.spotFees),
+          swapVolume: safeNumber(stats?.swapTradingVolume),
+          spotVolume: safeNumber(stats?.spotTradingVolume),
+          swapFees: safeNumber(stats?.swapFees),
+          spotFees: safeNumber(stats?.spotFees),
+          swapTx: safeNumber(stats?.swapTransactions),
+          spotTx: safeNumber(stats?.spotTransactions),
+          dauAvg: safeNumber(stats?.dailyActiveUsers),
+          poolsTotal: safeNumber(stats?.totalLiquidityPools),
+          spotPairsTotal: safeNumber(stats?.totalSpotPairs),
+        },
+        charts: {
+          tvl: chartPoints.map((i) => ({ t: i.t, v: i.tvl })),
+          volume: chartPoints.map((i) => ({ t: i.t, v: i.volume })),
+          fees: chartPoints.map((i) => ({ t: i.t, v: i.fees })),
+          swapVolume: chartPoints.map((i) => ({ t: i.t, v: i.swapVolume })),
+          spotVolume: chartPoints.map((i) => ({ t: i.t, v: i.spotVolume })),
+          swapFees: chartPoints.map((i) => ({ t: i.t, v: i.swapFees })),
+          spotFees: chartPoints.map((i) => ({ t: i.t, v: i.spotFees })),
+          items: chartPoints,
+        },
+        topPools,
+        topTokens,
+        topSpotPairs,
+      }
     },
-    charts: {
-      tvl: chartPoints.map((i) => ({ t: i.t, v: i.tvl })),
-      volume: chartPoints.map((i) => ({ t: i.t, v: i.volume })),
-      fees: chartPoints.map((i) => ({ t: i.t, v: i.fees })),
-      swapVolume: chartPoints.map((i) => ({ t: i.t, v: i.swapVolume })),
-      spotVolume: chartPoints.map((i) => ({ t: i.t, v: i.spotVolume })),
-      swapFees: chartPoints.map((i) => ({ t: i.t, v: i.swapFees })),
-      spotFees: chartPoints.map((i) => ({ t: i.t, v: i.spotFees })),
-      items: chartPoints,
-    },
-    topPools,
-    topTokens,
-    topSpotPairs,
-  })
+    OVERVIEW_RESPONSE_SWR_FRESH_MS,
+    ANALYTICS_RESPONSE_SWR_STALE_MS
+  )
+
+  res.json(payload)
 })
 
 analytics.get('/tokens', cacheSeconds(60, (req, res) => {
@@ -1030,138 +1639,257 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
   const includeFundamental = includes.has('fundamental')
   const hasLogo = String(req.query.hasLogo || '').toLowerCase()
   const search = String(req.query.search || '').toLowerCase()
-
-  let tokens = (await getTokens(network.name)) || []
-  if (search) {
-    tokens = tokens.filter((t) =>
-      String(t.symbol || '').toLowerCase().includes(search) ||
-      String(t.contract || '').toLowerCase().includes(search) ||
-      String(t.id || '').toLowerCase().includes(search)
-    )
-  }
-
-  const pools = await SwapPool.find({ chain: network.name }).lean()
-  const markets = await Market.find({ chain: network.name }).lean()
-
-  const baseTokenId = network?.baseToken ? `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase() : null
-  const usdTokenId = network?.USD_TOKEN || null
-
-  const poolsByToken = new Map<string, any[]>()
-  for (const pool of pools) {
-    const tokenAId = pool?.tokenA?.id
-    const tokenBId = pool?.tokenB?.id
-    if (tokenAId) {
-      if (!poolsByToken.has(tokenAId)) poolsByToken.set(tokenAId, [])
-      poolsByToken.get(tokenAId)?.push(pool)
-    }
-    if (tokenBId) {
-      if (!poolsByToken.has(tokenBId)) poolsByToken.set(tokenBId, [])
-      poolsByToken.get(tokenBId)?.push(pool)
-    }
-  }
-
-  const { tokenTvlMap } = await fetchPlatformBalances(network, tokens)
-  const tokenStats = buildTokenStats(tokens, pools, markets, window.label, tokenTvlMap)
-  const tokenTxStats = await buildTokenTxStats(network.name, tokens, pools, markets, window.since)
-  const tokenScores = await loadTokenScores(network.name)
-  const holdersStats = await loadTokenHoldersStats(network.name, tokens.map((t) => t.id))
-
-  const result = await Promise.all(tokens.map(async (t) => {
-    const stats = tokenStats.get(t.id) || {}
-    const score = tokenScores?.[t.id]?.score ?? null
-    const firstSeenAt = tokenScores?.[t.id]?.firstSeenAt ?? null
-    const holders = holdersStats.get(t.id) || null
-    const tx = tokenTxStats.get(t.id) || { swapTx: 0, spotTx: 0 }
-    const volumeSwap = safeNumber(stats.swapVolumeUSD)
-    const volumeSpot = safeNumber(stats.spotVolumeUSD)
-    const protonRegistryToken = await getProtonTokenRegistryEntry(network, t.symbol, t.contract)
-    const logoUrl = await getLogoUrl(network, t, protonRegistryToken)
-
-    const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
-    const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
-
-    const fundamental = includeFundamental ? await getFundamental(network, t, protonRegistryToken) : null
-
-    return {
-      id: t.id,
-      symbol: t.symbol,
-      contract: t.contract,
-      name: t.name || protonRegistryToken?.name || null,
-      decimals: t.decimals,
-      logo: logoUrl,
-      logoUrl,
-      price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
-      liquidity: { tvl: safeNumber(stats.tvlUSD) },
-      volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
-      pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
-      createdAt: firstSeenAt,
-      tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
-      holders: holders ? {
-        count: holders.holders ?? null,
-        change1h: holders.change1h ?? null,
-        change6h: holders.change6h ?? null,
-        change24h: holders.change24h ?? null,
-        truncated: holders.truncated ?? false,
-      } : null,
-      fundamental,
-      scores: { total: score },
-    }
-  }))
-
-  let filtered = result
-  if (hasLogo === 'true') {
-    filtered = filtered.filter((t) => Boolean(t.logoUrl))
-  } else if (hasLogo === 'false') {
-    filtered = filtered.filter((t) => !t.logoUrl)
-  }
-
   const sort = String(req.query.sort || 'score').toLowerCase()
   const order = String(req.query.order || 'desc').toLowerCase()
   const dir = order === 'asc' ? 1 : -1
-
-  filtered.sort((a, b) => {
-    let av = 0
-    let bv = 0
-    if (sort === 'volume') {
-      av = a.volume.total
-      bv = b.volume.total
-    } else if (sort === 'tvl') {
-      av = a.liquidity.tvl
-      bv = b.liquidity.tvl
-    } else if (sort === 'holders') {
-      av = a.holders?.count ?? 0
-      bv = b.holders?.count ?? 0
-    } else if (sort === 'created' || sort === 'createdat' || sort === 'age') {
-      const aHas = Boolean(a.createdAt)
-      const bHas = Boolean(b.createdAt)
-      if (!aHas && bHas) return 1
-      if (aHas && !bHas) return -1
-      av = aHas ? new Date(a.createdAt).getTime() : 0
-      bv = bHas ? new Date(b.createdAt).getTime() : 0
-    } else if (sort === 'tx') {
-      av = a.tx?.total ?? 0
-      bv = b.tx?.total ?? 0
-    } else if (sort === 'price') {
-      av = a.price.usd
-      bv = b.price.usd
-    } else {
-      av = safeNumber(a.scores.total)
-      bv = safeNumber(b.scores.total)
-    }
-    return (av - bv) * dir
-  })
-
   const limit = Math.min(Math.max(parseInt(String(req.query.limit || '50')), 1), 500)
   const page = Math.max(parseInt(String(req.query.page || '1')), 1)
   const start = (page - 1) * limit
 
-  res.json({
-    meta: buildMeta(network, window.label),
-    items: filtered.slice(start, start + limit),
-    page,
-    limit,
-    total: filtered.length,
-  })
+  const swrKey = buildAnalyticsResponseSwrKey('tokens', req)
+  const payload = await getSwrPayload(
+    swrKey,
+    async () => {
+      let tokens = (await getTokens(network.name)) || []
+      if (search) {
+        tokens = tokens.filter((t) =>
+          String(t.symbol || '').toLowerCase().includes(search) ||
+          String(t.contract || '').toLowerCase().includes(search) ||
+          String(t.id || '').toLowerCase().includes(search)
+        )
+      }
+
+      if (tokens.length === 0) {
+        return {
+          meta: buildMeta(network, window.label),
+          items: [],
+          page: 1,
+          limit,
+          total: 0,
+        }
+      }
+
+      const tokenIds = tokens.map((t) => t.id)
+      const useScopedSources = Boolean(search) && tokenIds.length > 0 && tokenIds.length <= 200
+      const needsAllTxForSort = sort === 'tx'
+      const needsAllHoldersForSort = sort === 'holders'
+      const needsLogoFilter = hasLogo === 'true' || hasLogo === 'false'
+      const poolsQuery: any = useScopedSources
+        ? {
+          chain: network.name,
+          $or: [{ 'tokenA.id': { $in: tokenIds } }, { 'tokenB.id': { $in: tokenIds } }],
+        }
+        : { chain: network.name }
+      const marketsQuery: any = useScopedSources
+        ? {
+          chain: network.name,
+          $or: [{ 'base_token.id': { $in: tokenIds } }, { 'quote_token.id': { $in: tokenIds } }],
+        }
+        : { chain: network.name }
+
+      const [pools, markets, tokenScores, { tokenTvlMap }] = await Promise.all([
+        SwapPool.find(poolsQuery).lean(),
+        Market.find(marketsQuery).lean(),
+        loadTokenScores(network.name),
+        getPlatformBalancesCached(network, tokens),
+      ])
+
+      const baseTokenId = network?.baseToken ? `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase() : null
+      const usdTokenId = network?.USD_TOKEN || null
+
+      const poolsByToken = new Map<string, any[]>()
+      for (const pool of pools) {
+        const tokenAId = pool?.tokenA?.id
+        const tokenBId = pool?.tokenB?.id
+        if (tokenAId) {
+          if (!poolsByToken.has(tokenAId)) poolsByToken.set(tokenAId, [])
+          poolsByToken.get(tokenAId)?.push(pool)
+        }
+        if (tokenBId) {
+          if (!poolsByToken.has(tokenBId)) poolsByToken.set(tokenBId, [])
+          poolsByToken.get(tokenBId)?.push(pool)
+        }
+      }
+
+      const tokenStats = buildTokenStats(tokens, pools, markets, window.label, tokenTvlMap)
+      const tokensById = new Map<string, any>(tokens.map((t) => [t.id, t]))
+
+      const [tokenTxStatsAll, holdersStatsAll] = await Promise.all([
+        needsAllTxForSort
+          ? buildTokenTxStats(
+            network.name,
+            tokens,
+            pools,
+            markets,
+            window.since,
+            { restrictToProvidedSources: useScopedSources }
+          )
+          : Promise.resolve(new Map()),
+        needsAllHoldersForSort
+          ? loadTokenHoldersStats(network.name, tokenIds)
+          : Promise.resolve(new Map()),
+      ])
+
+      let filtered = tokens.map((t) => {
+        const stats = tokenStats.get(t.id) || {}
+        const score = tokenScores?.[t.id]?.score ?? null
+        const firstSeenAt = tokenScores?.[t.id]?.firstSeenAt ?? null
+        const holders = holdersStatsAll.get(t.id) || null
+        const tx = tokenTxStatsAll.get(t.id) || { swapTx: 0, spotTx: 0 }
+        const volumeSwap = safeNumber(stats.swapVolumeUSD)
+        const volumeSpot = safeNumber(stats.spotVolumeUSD)
+        const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
+        const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
+
+        return {
+          id: t.id,
+          symbol: t.symbol,
+          contract: t.contract,
+          name: t.name || null,
+          decimals: t.decimals,
+          logo: null,
+          logoUrl: null,
+          price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
+          liquidity: { tvl: safeNumber(stats.tvlUSD) },
+          volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
+          pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
+          createdAt: firstSeenAt,
+          tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
+          holders: holders ? {
+            count: holders.holders ?? null,
+            change1h: holders.change1h ?? null,
+            change6h: holders.change6h ?? null,
+            change24h: holders.change24h ?? null,
+            truncated: holders.truncated ?? false,
+          } : null,
+          fundamental: null,
+          scores: { total: score },
+        }
+      })
+
+      if (needsLogoFilter) {
+        const logos = await Promise.all(filtered.map(async (item) => {
+          const token = tokensById.get(item.id)
+          const { logoUrl } = await getTokenPresentationCached(network, token)
+          return { id: item.id, logoUrl }
+        }))
+        const logoById = new Map<string, string | null>(logos.map((l) => [l.id, l.logoUrl || null]))
+
+        filtered = filtered
+          .map((item) => {
+            const logoUrl = logoById.get(item.id) || null
+            return { ...item, logo: logoUrl, logoUrl }
+          })
+          .filter((item) => hasLogo === 'true' ? Boolean(item.logoUrl) : !item.logoUrl)
+      }
+
+      filtered.sort((a, b) => {
+        let av = 0
+        let bv = 0
+        if (sort === 'volume') {
+          av = a.volume.total
+          bv = b.volume.total
+        } else if (sort === 'tvl') {
+          av = a.liquidity.tvl
+          bv = b.liquidity.tvl
+        } else if (sort === 'holders') {
+          av = a.holders?.count ?? 0
+          bv = b.holders?.count ?? 0
+        } else if (sort === 'created' || sort === 'createdat' || sort === 'age') {
+          const aHas = Boolean(a.createdAt)
+          const bHas = Boolean(b.createdAt)
+          if (!aHas && bHas) return 1
+          if (aHas && !bHas) return -1
+          av = aHas ? new Date(a.createdAt).getTime() : 0
+          bv = bHas ? new Date(b.createdAt).getTime() : 0
+        } else if (sort === 'tx') {
+          av = a.tx?.total ?? 0
+          bv = b.tx?.total ?? 0
+        } else if (sort === 'price') {
+          av = a.price.usd
+          bv = b.price.usd
+        } else {
+          av = safeNumber(a.scores.total)
+          bv = safeNumber(b.scores.total)
+        }
+        return (av - bv) * dir
+      })
+
+      const pageItems = filtered.slice(start, start + limit)
+      const pageTokenIds = pageItems.map((i) => i.id).filter(Boolean)
+      const pageTokenIdSet = new Set(pageTokenIds)
+      const pageTokens = tokens.filter((t) => pageTokenIdSet.has(t.id))
+      const pagePools = pools.filter((p) => pageTokenIdSet.has(p?.tokenA?.id) || pageTokenIdSet.has(p?.tokenB?.id))
+      const pageMarkets = markets.filter((m) => pageTokenIdSet.has(m?.base_token?.id) || pageTokenIdSet.has(m?.quote_token?.id))
+
+      const [pageTxStats, pageHoldersStats] = await Promise.all([
+        needsAllTxForSort
+          ? Promise.resolve(tokenTxStatsAll)
+          : buildTokenTxStats(
+            network.name,
+            pageTokens,
+            pagePools,
+            pageMarkets,
+            window.since,
+            { restrictToProvidedSources: true }
+          ),
+        needsAllHoldersForSort
+          ? Promise.resolve(holdersStatsAll)
+          : loadTokenHoldersStats(network.name, pageTokenIds),
+      ])
+
+      const enrichedItems = await Promise.all(pageItems.map(async (item) => {
+        const token = tokensById.get(item.id)
+        const tx = pageTxStats.get(item.id) || { swapTx: 0, spotTx: 0 }
+        const holders = pageHoldersStats.get(item.id) || null
+
+        if (!token) {
+          return {
+            ...item,
+            tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
+            holders: holders ? {
+              count: holders.holders ?? null,
+              change1h: holders.change1h ?? null,
+              change6h: holders.change6h ?? null,
+              change24h: holders.change24h ?? null,
+              truncated: holders.truncated ?? false,
+            } : null,
+          }
+        }
+
+        const { protonRegistryToken, logoUrl } = await getTokenPresentationCached(network, token)
+        const fundamental = includeFundamental ? await getFundamental(network, token, protonRegistryToken) : null
+
+        return {
+          ...item,
+          name: token.name || protonRegistryToken?.name || null,
+          logo: logoUrl,
+          logoUrl,
+          tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
+          holders: holders ? {
+            count: holders.holders ?? null,
+            change1h: holders.change1h ?? null,
+            change6h: holders.change6h ?? null,
+            change24h: holders.change24h ?? null,
+            truncated: holders.truncated ?? false,
+          } : null,
+          fundamental,
+        }
+      }))
+
+      return {
+        meta: buildMeta(network, window.label),
+        items: enrichedItems,
+        page,
+        limit,
+        total: filtered.length,
+      }
+    },
+    TOKENS_RESPONSE_SWR_FRESH_MS,
+    ANALYTICS_RESPONSE_SWR_STALE_MS
+  )
+
+  res.json(payload)
 })
 
 analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
@@ -1180,8 +1908,11 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
 
   if (!token) return res.status(404).send('Token is not found')
 
-  const pools = await SwapPool.find({ chain: network.name, $or: [{ 'tokenA.id': token.id }, { 'tokenB.id': token.id }] }).lean()
-  let markets = await Market.find({ chain: network.name, $or: [{ 'base_token.id': token.id }, { 'quote_token.id': token.id }] }).lean()
+  const [pools, rawMarkets] = await Promise.all([
+    SwapPool.find({ chain: network.name, $or: [{ 'tokenA.id': token.id }, { 'tokenB.id': token.id }] }).lean(),
+    Market.find({ chain: network.name, $or: [{ 'base_token.id': token.id }, { 'quote_token.id': token.id }] }).lean(),
+  ])
+  let markets = rawMarkets
   if (hideScam) {
     const { scam_contracts, scam_tokens } = await getScamLists(network)
     markets = markets.filter((m) =>
@@ -1192,26 +1923,28 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
     )
   }
 
-  const { tokenTvlMap } = await fetchPlatformBalances(network, tokens)
-  const tokenStats = buildTokenStats([token], pools, markets, window.label, tokenTvlMap).get(token.id)
-  const tokenScores = await loadTokenScores(network.name)
-  const tokenTxStats = await buildTokenTxStats(network.name, [token], pools, markets, window.since)
-  const holdersStats = await loadTokenHoldersStats(network.name, [token.id])
-  const score = tokenScores?.[token.id] || null
-  const firstSeenAt = tokenScores?.[token.id]?.firstSeenAt ?? null
-  const holders = holdersStats.get(token.id) || null
-  const tx = tokenTxStats.get(token.id) || { swapTx: 0, spotTx: 0 }
-
   const baseTokenId = network?.baseToken ? `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase() : null
   const usdTokenId = network?.USD_TOKEN || null
   const tokenPool = pickPoolForToken(new Map([[token.id, pools]]), token.id, baseTokenId, usdTokenId)
   const priceChange24h = computeTokenPriceChange24(tokenPool, token.id)
-  const protonRegistryToken = await getProtonTokenRegistryEntry(network, token.symbol, token.contract)
+  const [{ tokenTvlMap }, tokenScores, tokenTxStats, holdersStats, protonRegistryToken] = await Promise.all([
+    getPlatformBalancesCached(network, tokens),
+    loadTokenScores(network.name),
+    buildTokenTxStats(network.name, [token], pools, markets, window.since, { restrictToProvidedSources: true }),
+    loadTokenHoldersStats(network.name, [token.id]),
+    getProtonTokenRegistryEntry(network, token.symbol, token.contract),
+  ])
+  const tokenStats = buildTokenStats([token], pools, markets, window.label, tokenTvlMap).get(token.id)
+  const score = tokenScores?.[token.id] || null
+  const firstSeenAt = tokenScores?.[token.id]?.firstSeenAt ?? null
+  const holders = holdersStats.get(token.id) || null
+  const tx = tokenTxStats.get(token.id) || { swapTx: 0, spotTx: 0 }
+  const [fundamental, logoUrl] = await Promise.all([
+    getFundamental(network, token, protonRegistryToken),
+    getLogoUrl(network, token, protonRegistryToken),
+  ])
 
-  const fundamental = await getFundamental(network, token, protonRegistryToken)
-  const logoUrl = await getLogoUrl(network, token, protonRegistryToken)
-
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
   const marketTxStats = includeTx ? await buildMarketTxStats(network.name, markets.map((m) => m.id), window.since) : new Map()
 
   const spotPairs = await Promise.all(markets.map(async (m) => {
@@ -1316,7 +2049,7 @@ analytics.get('/tokens/:id/spot-pairs', cacheSeconds(60, (req, res) => {
   }
 
   const tokens = (await getTokens(network.name)) || []
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
   const marketTxStats = includeTx ? await buildMarketTxStats(network.name, markets.map((m) => m.id), window.since) : new Map()
 
   const items = await Promise.all(markets.map(async (m) => {
@@ -1614,7 +2347,7 @@ analytics.get('/spot-pairs', cacheSeconds(60, (req, res) => {
     )
   }
   const tokens = (await getTokens(network.name)) || []
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
 
   const sort = String(req.query.sort || 'volume').toLowerCase()
   const order = String(req.query.order || 'desc').toLowerCase()
@@ -1676,7 +2409,7 @@ analytics.get('/spot-pairs/:id', cacheSeconds(60, (req, res) => {
   if (!market) return res.status(404).send('Market is not found')
 
   const tokens = (await getTokens(network.name)) || []
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, safeNumber(t.usd_price)]))
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
 
   let card = toMarketCard(market, window.label, priceMap)
   if (includeTx) {
