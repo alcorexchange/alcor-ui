@@ -166,5 +166,24 @@
           "https://t.me/flextokens"
         ],
         "description": "We WON ⓦ We're already living on a paradise planet, teeming with life, beauty, and happy free beings. WON has a 3% transfer tax, with 0.8% democratically distributed in bi-weeky contributors' club meetings, and 2.2% reflected to holders in the token of an ecovillage or another planet-positive project. WON can change which token you get by default, or you can choose yourself anytime. You can also choose to direct a portion or all reflections to any project or account in perpetuity, or change anytime. WON is based on EASY's revolutionary reflection mechanism, expanding to new horizons. WON is 100% backed in EASY via pools on Alcor, and EASY is 100% backed by USD(c). For spiritual purposes only, not an investment vehicle. No promises of return, no expectations with supported projects, no guarantees operations will remain the same. Collaboration between Flex Tokens and Temple Earth. WON is a token to circulate a winning future for everywon."
-      }
+      },
+    "GRAMS@gold.mon3y": {
+      "name": "GRAMS",
+      "website": {
+        "link": "https://flex.report",
+        "name": "Flex Report: Tokenomics for GRAMS"
+      },
+      "tags": [
+        "GRAMS",
+        "GOLD",
+        "goldfi",
+        "defi"
+      ],
+      "socials": [
+        "https://t.me/flextokens",
+        "https://flex.report",
+        "https://x.com/flextokens"
+      ],
+      "description": "GRAMS is EASY for rich folk, each GRAMS is liquid-backed by 1 gram of real gold via XPAXG pools on Alcor. GRAMS is reflexive (flexibly reflective) you can change which token you get anytime via the gold.mon3y contract. You can also choose inheritance by giving a portion or all reflections to any account in perpetuity, and change anytime. GRAMS is based on EASY's revolutionary reflection mechanism, expanding to new horizons. 1.21 % transfer tax, 1.1% reflected, 0.11% for project. GRAMS is 100% backed in XPAXG via pools on Alcor, and PAXG is 100% backed by gold: paxos.com/pax-gold. For spiritual and entertainment purposes only, experimentally transforming the energy of money, not an investment vehicle. No promises of return, no guarantees operations will remain the same. We are public, non-anon volunteers doing honest work to advance token technology. Meet us + join us at flex.town (t.me/flextokens) to get involved."
+  }
 }
