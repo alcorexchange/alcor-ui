@@ -6,7 +6,7 @@ import { getRedis } from '../redis'
 import { getScamLists } from '../apiV2Service/config'
 
 const MAX_SANE_PRICE = 100000
-const DEFAULT_MIN_POOL_BASE_LIQUIDITY_USD = 10
+const DEFAULT_MIN_POOL_BASE_LIQUIDITY_USD = 150
 const DEFAULT_MARKET_PRICE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
 const DEFAULT_MIN_MARKET_DEAL_NOTIONAL_USD = 10
 
