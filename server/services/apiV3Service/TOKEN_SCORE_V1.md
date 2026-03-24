@@ -99,10 +99,14 @@ volume_points = turnover_score * 20
 
 ### 3. Liquidity Depth
 
+Liquidity uses a piecewise scale tuned for smaller-chain markets:
+
 ```txt
-liquidity_ratio = min(tvl_usd / 50000, 1)
-liquidity_points = liquidity_ratio * 15
+tvl_usd breakpoints:
+20 / 50 / 100 / 200 / 300 / 500 / 1000 / 1500 / 3000 / 5000 / 10000 / 15000 / 20000 / 50000
 ```
+
+The score interpolates between those points and reaches full liquidity points at roughly `50000 USD` of token-side AMM liquidity.
 
 ### 4. Holder Base
 
@@ -187,7 +191,10 @@ This normalization keeps tokens scoreable even when holders, stability, or age d
 Caps are applied after normalization:
 - `trades_count_30d == 0` -> final score `0`
 - `unique_traders_30d < 20` -> final score `<= 30`
-- `tvl_usd < 2500` -> final score `<= 40`
+- `tvl_usd < 20` -> final score `<= 15`
+- `tvl_usd < 50` -> final score `<= 25`
+- `tvl_usd < 100` -> final score `<= 40`
+- `tvl_usd < 200` -> final score `<= 55`
 
 Applied caps are emitted in `capsApplied`.
 

@@ -15,9 +15,11 @@ const SCORE_WINDOW_LABEL = '30d'
 const SCORE_TIMEFRAME = '1D'
 
 const TRADERS_FULL_SCORE_AT = 500
-const LIQUIDITY_FULL_SCORE_AT_USD = 50_000
 const TRADERS_HARD_CAP_MIN = 20
-const TVL_HARD_CAP_MIN_USD = 2_500
+const TVL_HARD_CAP_TINY_USD = 20
+const TVL_HARD_CAP_VERY_LOW_USD = 50
+const TVL_HARD_CAP_LOW_USD = 100
+const TVL_HARD_CAP_MEDIUM_USD = 200
 const TURNOVER_SCORE_MIN = 0.1
 const TURNOVER_SCORE_MAX = 3
 
@@ -33,6 +35,23 @@ const COMPONENT_WEIGHTS = {
 
 const MAX_SANE_PRICE = 100000
 const MAX_SANE_VOLUME = 1_000_000_000
+const LIQUIDITY_SCORE_POINTS = [
+  { x: 0, y: 0 },
+  { x: 20, y: 0.1 },
+  { x: 50, y: 0.18 },
+  { x: 100, y: 0.28 },
+  { x: 200, y: 0.42 },
+  { x: 300, y: 0.52 },
+  { x: 500, y: 0.64 },
+  { x: 1000, y: 0.78 },
+  { x: 1500, y: 0.86 },
+  { x: 3000, y: 0.9 },
+  { x: 5000, y: 0.94 },
+  { x: 10000, y: 0.97 },
+  { x: 15000, y: 0.985 },
+  { x: 20000, y: 0.995 },
+  { x: 50000, y: 1 },
+]
 
 type TokenStat = {
   volumeUsd30d: number
@@ -76,6 +95,28 @@ function safeNumber(value: any, fallback = 0) {
 function roundTo(value: number, digits = 2) {
   if (!Number.isFinite(value)) return 0
   return Number(value.toFixed(digits))
+}
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t
+}
+
+function scoreByPoints(value: number, points: Array<{ x: number, y: number }>) {
+  if (points.length === 0) return 0
+  if (value <= points[0].x) return points[0].y
+
+  for (let i = 1; i < points.length; i += 1) {
+    const prev = points[i - 1]
+    const curr = points[i]
+    if (value <= curr.x) {
+      const span = curr.x - prev.x
+      if (span <= 0) return curr.y
+      const t = (value - prev.x) / span
+      return lerp(prev.y, curr.y, t)
+    }
+  }
+
+  return points[points.length - 1].y
 }
 
 function linearScore(value: number, maxValue: number) {
@@ -669,7 +710,7 @@ export async function updateTokenScores(network: Network) {
       const components = {
         traders: roundTo(linearScore(uniqueTraders30d, TRADERS_FULL_SCORE_AT) * COMPONENT_WEIGHTS.traders),
         volume: roundTo(computeTurnoverScore(turnover) * COMPONENT_WEIGHTS.volume),
-        liquidity: roundTo(linearScore(tvlUsd, LIQUIDITY_FULL_SCORE_AT_USD) * COMPONENT_WEIGHTS.liquidity),
+        liquidity: roundTo(scoreByPoints(tvlUsd, LIQUIDITY_SCORE_POINTS) * COMPONENT_WEIGHTS.liquidity),
         holders: roundTo(stat.holders === null ? 0 : linearScore(stat.holders, 1000) * COMPONENT_WEIGHTS.holders),
         activity: roundTo(boundedLinearScore(avgDailyTrades, 10, 100) * COMPONENT_WEIGHTS.activity),
         stability: roundTo(drawdown === null ? 0 : boundedLinearScore(drawdown, 0.3, 1) * COMPONENT_WEIGHTS.stability),
@@ -698,9 +739,18 @@ export async function updateTokenScores(network: Network) {
           score = Math.min(score, 30)
           capsApplied.push('unique_traders_lt_20')
         }
-        if (tvlUsd < TVL_HARD_CAP_MIN_USD) {
+        if (tvlUsd < TVL_HARD_CAP_TINY_USD) {
+          score = Math.min(score, 15)
+          capsApplied.push('tvl_usd_lt_20')
+        } else if (tvlUsd < TVL_HARD_CAP_VERY_LOW_USD) {
+          score = Math.min(score, 25)
+          capsApplied.push('tvl_usd_lt_50')
+        } else if (tvlUsd < TVL_HARD_CAP_LOW_USD) {
           score = Math.min(score, 40)
-          capsApplied.push('tvl_usd_lt_2500')
+          capsApplied.push('tvl_usd_lt_100')
+        } else if (tvlUsd < TVL_HARD_CAP_MEDIUM_USD) {
+          score = Math.min(score, 55)
+          capsApplied.push('tvl_usd_lt_200')
         }
       }
 
