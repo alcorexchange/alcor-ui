@@ -72,6 +72,8 @@ Response:
 ### GET `/analytics/tokens`
 Token list (scored, with volumes/TVL).
 
+Token score details are documented in [TOKEN_SCORE_V1.md](./TOKEN_SCORE_V1.md).
+
 Query:
 - `window` (default: `30d`)
 - `search` (symbol/contract/id)
@@ -106,6 +108,13 @@ Response:
   "spotPairs": [SpotPairCard]
 }
 ```
+
+`token.scores.details` currently includes:
+- `version`, `window`
+- `components.{traders,volume,liquidity,holders,activity,stability,age}`
+- `capsApplied`
+- `metrics.{uniqueTraders,volumeUsd,tvlUsd,turnover,holdersCount,tradesCount,avgDailyTrades,currentPrice,rollingHigh30d,drawdown30d,stabilityPoolId,ageDays}`
+- compatibility fields used by other server consumers (`holders`, `volumeUsd7d`, `trades7d`, `uniqueTraders7d`, growth and age fields)
 
 ### GET `/analytics/tokens/:id/pools`
 Pools for token.

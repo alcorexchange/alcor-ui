@@ -125,7 +125,8 @@ export async function updateTokenHoldersHistory(network: Network) {
   }
 }
 
-export function startTokenHoldersUpdater(network: Network) {
-  updateTokenHoldersHistory(network)
+export async function startTokenHoldersUpdater(network: Network, options: { awaitInitial?: boolean } = {}) {
+  if (options.awaitInitial) await updateTokenHoldersHistory(network)
+  else updateTokenHoldersHistory(network)
   setInterval(() => updateTokenHoldersHistory(network), HOLDERS_INTERVAL_MS)
 }

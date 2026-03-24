@@ -97,12 +97,12 @@ export async function updater(chain: string, services: string[]) {
       .catch(e => { console.log(`[${chain}:${network.amm.contract}] Streamer error:`, e.message); process.exit(1) })
   }
 
+  console.log(`[${chain}] Starting token holders updater...`)
+  await startTokenHoldersUpdater(network, { awaitInitial: true })
+
   console.log(`[${chain}] Starting token score updater...`)
   await updateTokenScores(network)
   setInterval(() => updateTokenScores(network), 15 * 60 * 1000)
-
-  console.log(`[${chain}] Starting token holders updater...`)
-  startTokenHoldersUpdater(network)
 
   console.log(`[${chain}] Starting token logos updater...`)
   startTokenLogosUpdater()
