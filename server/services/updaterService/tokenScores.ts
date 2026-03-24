@@ -14,10 +14,12 @@ const SCORE_WINDOW_DAYS = 30
 const SCORE_WINDOW_LABEL = '30d'
 const SCORE_TIMEFRAME = '1D'
 
-const TRADERS_FULL_SCORE_AT = 1000
-const LIQUIDITY_FULL_SCORE_AT_USD = 100_000
+const TRADERS_FULL_SCORE_AT = 500
+const LIQUIDITY_FULL_SCORE_AT_USD = 50_000
 const TRADERS_HARD_CAP_MIN = 20
-const TVL_HARD_CAP_MIN_USD = 10_000
+const TVL_HARD_CAP_MIN_USD = 2_500
+const TURNOVER_SCORE_MIN = 0.1
+const TURNOVER_SCORE_MAX = 3
 
 const COMPONENT_WEIGHTS = {
   traders: 25,
@@ -329,9 +331,9 @@ async function collectPriceStabilityMap(
 }
 
 function computeTurnoverScore(turnover: number) {
-  if (!Number.isFinite(turnover) || turnover < 0.5) return 0
-  if (turnover >= 5) return 1
-  return (turnover - 0.5) / 4.5
+  if (!Number.isFinite(turnover) || turnover <= TURNOVER_SCORE_MIN) return 0
+  if (turnover >= TURNOVER_SCORE_MAX) return 1
+  return (turnover - TURNOVER_SCORE_MIN) / (TURNOVER_SCORE_MAX - TURNOVER_SCORE_MIN)
 }
 
 export async function updateTokenScores(network: Network) {
@@ -383,6 +385,16 @@ export async function updateTokenScores(network: Network) {
     const marketTokens = new Map<number, { base: string, quote: string }>(
       markets.map((m) => [Number(m.id), { base: m.base_token.id, quote: m.quote_token.id }])
     )
+    const poolLiquidityUsdByToken = new Map<string, number>()
+
+    for (const pool of poolTokens.values()) {
+      const shareUsd = safeNumber(pool.tvlUSD) / 2
+      if (shareUsd <= 0) continue
+
+      for (const tokenId of [pool.tokenA.id, pool.tokenB.id]) {
+        poolLiquidityUsdByToken.set(tokenId, safeNumber(poolLiquidityUsdByToken.get(tokenId)) + shareUsd)
+      }
+    }
 
     const swapByPool = await Swap.aggregate([
       { $match: { chain, time: { $gte: since30d } } },
@@ -645,7 +657,10 @@ export async function updateTokenScores(network: Network) {
       const priceChange7dPct = priceChange7d.get(token.id) ?? 0
       const priceChange30dPct = priceChange30d.get(token.id) ?? 0
       const priceChange90dPct = priceChange90d.get(token.id) ?? 0
-      const tvlUsd = safeNumber(tokenTvlMap.get(token.id), 0)
+      const tvlUsd = Math.max(
+        safeNumber(tokenTvlMap.get(token.id), 0),
+        safeNumber(poolLiquidityUsdByToken.get(token.id), 0)
+      )
       const turnover = cappedVolumeUsd30d / Math.max(tvlUsd, 1)
       const avgDailyTrades = stat.trades30d / SCORE_WINDOW_DAYS
       const stability = priceStabilityByToken.get(token.id) || null
@@ -685,7 +700,7 @@ export async function updateTokenScores(network: Network) {
         }
         if (tvlUsd < TVL_HARD_CAP_MIN_USD) {
           score = Math.min(score, 40)
-          capsApplied.push('tvl_usd_lt_10000')
+          capsApplied.push('tvl_usd_lt_2500')
         }
       }
 

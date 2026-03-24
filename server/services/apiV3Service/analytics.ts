@@ -781,7 +781,7 @@ function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: st
 
   for (const token of tokens) {
     tokenStats.set(token.id, {
-      tvlUSD: tokenTvlMap?.get(token.id) ?? 0,
+      tvlUSD: 0,
       swapVolumeUSD: 0,
       spotVolumeUSD: 0,
       poolsCount: 0,
@@ -795,10 +795,12 @@ function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: st
     if (!tokenStats.has(tokenAId) && !tokenStats.has(tokenBId)) continue
 
     const volumes = pickPoolVolumes(pool, window)
+    const poolTvlShareUsd = safeNumber(pool?.tvlUSD) / 2
 
     if (tokenStats.has(tokenAId)) {
       const stats = tokenStats.get(tokenAId)
       const price = priceMap.get(tokenAId) || 0
+      stats.tvlUSD += poolTvlShareUsd
       stats.swapVolumeUSD += volumes.a * price
       stats.poolsCount += 1
     }
@@ -806,6 +808,7 @@ function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: st
     if (tokenStats.has(tokenBId)) {
       const stats = tokenStats.get(tokenBId)
       const price = priceMap.get(tokenBId) || 0
+      stats.tvlUSD += poolTvlShareUsd
       stats.swapVolumeUSD += volumes.b * price
       stats.poolsCount += 1
     }
@@ -828,6 +831,14 @@ function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: st
       const stats = tokenStats.get(quoteId)
       stats.spotVolumeUSD += volumeUSD
       stats.spotPairsCount += 1
+    }
+  }
+
+  if (tokenTvlMap) {
+    for (const token of tokens) {
+      const stats = tokenStats.get(token.id)
+      if (!stats) continue
+      stats.tvlUSD = Math.max(safeNumber(stats.tvlUSD), safeNumber(tokenTvlMap.get(token.id)))
     }
   }
 

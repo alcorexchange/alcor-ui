@@ -51,7 +51,7 @@ Per token:
 
 The score uses only data already present in current analytics infrastructure:
 - `volumeUsd`: swap + spot volume aggregated over `30d`
-- `tvlUsd`: analytics token liquidity value from platform balances cache
+- `tvlUsd`: token-side AMM liquidity, computed as `sum(pool_tvl_usd / 2)` across token pools, with platform-balance liquidity used as fallback floor when higher
 - `holdersCount`: `${chain}_token_holders_stats`
 - `uniqueTraders`: unique swap + spot traders over `30d`
 - `tradesCount`: swap + spot trade count over `30d`
@@ -76,7 +76,7 @@ Weights:
 Formula:
 
 ```txt
-traders_ratio = min(unique_traders_30d / 1000, 1)
+traders_ratio = min(unique_traders_30d / 500, 1)
 traders_points = traders_ratio * 25
 ```
 
@@ -89,9 +89,9 @@ turnover = volume_usd_30d / max(tvl_usd, 1)
 ```
 
 Turnover score:
-- `< 0.5` -> `0`
-- `0.5 .. 5` -> linear scale to `1`
-- `> 5` -> `1`
+- `<= 0.1` -> `0`
+- `0.1 .. 3` -> linear scale to `1`
+- `> 3` -> `1`
 
 ```txt
 volume_points = turnover_score * 20
@@ -100,7 +100,7 @@ volume_points = turnover_score * 20
 ### 3. Liquidity Depth
 
 ```txt
-liquidity_ratio = min(tvl_usd / 100000, 1)
+liquidity_ratio = min(tvl_usd / 50000, 1)
 liquidity_points = liquidity_ratio * 15
 ```
 
@@ -187,7 +187,7 @@ This normalization keeps tokens scoreable even when holders, stability, or age d
 Caps are applied after normalization:
 - `trades_count_30d == 0` -> final score `0`
 - `unique_traders_30d < 20` -> final score `<= 30`
-- `tvl_usd < 10000` -> final score `<= 40`
+- `tvl_usd < 2500` -> final score `<= 40`
 
 Applied caps are emitted in `capsApplied`.
 
