@@ -703,11 +703,19 @@ function pickMarketVolume(market: any, window: string) {
   return safeNumber(market.volumeMonth)
 }
 
+function getMarketDisplayBaseToken(market: any) {
+  return market?.quote_token
+}
+
+function getMarketDisplayQuoteToken(market: any) {
+  return market?.base_token
+}
+
 function pickMarketVolumeUsd(market: any, window: string, priceMap: Map<string, number>) {
-  const volumeQuote = pickMarketVolume(market, window)
-  const quoteId = market?.quote_token?.id
-  const quotePrice = safeNumber(priceMap.get(quoteId), 0)
-  return volumeQuote * quotePrice
+  const volumeInDisplayQuote = pickMarketVolume(market, window)
+  const displayQuoteId = getMarketDisplayQuoteToken(market)?.id
+  const displayQuotePrice = safeNumber(priceMap.get(displayQuoteId), 0)
+  return volumeInDisplayQuote * displayQuotePrice
 }
 
 function computeInverseChangePercent(changePercent: number) {
@@ -775,9 +783,15 @@ async function loadTokenHoldersStats(chain: string, tokenIds: string[]) {
   return result
 }
 
-function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: string, tokenTvlMap?: Map<string, number>) {
+function buildTokenStats(
+  tokens: any[],
+  pools: any[],
+  markets: any[],
+  window: string,
+  tokenTvlMap?: Map<string, number>,
+  priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
+) {
   const tokenStats = new Map<string, any>()
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
 
   for (const token of tokens) {
     tokenStats.set(token.id, {
@@ -817,9 +831,7 @@ function buildTokenStats(tokens: any[], pools: any[], markets: any[], window: st
   for (const market of markets) {
     const baseId = market?.base_token?.id
     const quoteId = market?.quote_token?.id
-    const volumeQuote = pickMarketVolume(market, window)
-    const quotePrice = priceMap.get(quoteId) || 0
-    const volumeUSD = volumeQuote * quotePrice
+    const volumeUSD = pickMarketVolumeUsd(market, window, priceMap)
 
     if (tokenStats.has(baseId)) {
       const stats = tokenStats.get(baseId)
@@ -1188,8 +1200,8 @@ function toMarketCard(market: any, window: string, priceMap: Map<string, number>
   return {
     id: market.id,
     // Keep spot pair sides aligned with /api/v2/tickers ticker_id ordering.
-    base: market.quote_token,
-    quote: market.base_token,
+    base: getMarketDisplayBaseToken(market),
+    quote: getMarketDisplayQuoteToken(market),
     price: {
       last: lastPrice,
       change24h: safeNumber(market.change24),
@@ -1440,7 +1452,7 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
           { restrictToProvidedSources: true }
         ),
       ])
-      const tokenStats = buildTokenStats(topTokensRaw, topTokenPools, topTokenMarkets, window.label, tokenTvlMap)
+      const tokenStats = buildTokenStats(topTokensRaw, topTokenPools, topTokenMarkets, window.label, tokenTvlMap, priceMap)
 
       const topPoolsRaw = [...pools]
         .sort((a, b) => pickPoolVolumes(b, window.label).usd - pickPoolVolumes(a, window.label).usd)
@@ -1722,7 +1734,8 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
         }
       }
 
-      const tokenStats = buildTokenStats(tokens, pools, markets, window.label, tokenTvlMap)
+      const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
+      const tokenStats = buildTokenStats(tokens, pools, markets, window.label, tokenTvlMap, priceMap)
       const tokensById = new Map<string, any>(tokens.map((t) => [t.id, t]))
 
       const [tokenTxStatsAll, holdersStatsAll] = await Promise.all([
@@ -1945,7 +1958,8 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
     loadTokenHoldersStats(network.name, [token.id]),
     getProtonTokenRegistryEntry(network, token.symbol, token.contract),
   ])
-  const tokenStats = buildTokenStats([token], pools, markets, window.label, tokenTvlMap).get(token.id)
+  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
+  const tokenStats = buildTokenStats([token], pools, markets, window.label, tokenTvlMap, priceMap).get(token.id)
   const score = tokenScores?.[token.id] || null
   const firstSeenAt = tokenScores?.[token.id]?.firstSeenAt ?? null
   const holders = holdersStats.get(token.id) || null
@@ -1955,7 +1969,6 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
     getLogoUrl(network, token, protonRegistryToken),
   ])
 
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
   const marketTxStats = includeTx ? await buildMarketTxStats(network.name, markets.map((m) => m.id), window.since) : new Map()
 
   const spotPairs = await Promise.all(markets.map(async (m) => {

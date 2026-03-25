@@ -16,6 +16,10 @@ function floorToHour(date: Date) {
   return d
 }
 
+function getMarketDisplayQuoteTokenId(market: any) {
+  return market?.base_token?.id
+}
+
 export async function updateGlobalStats(network, day = null) {
   console.log('fetching global stats for', network.name)
 
@@ -40,7 +44,7 @@ export async function updateGlobalStats(network, day = null) {
   const marketById = new Map<number, any>(markets.map((m) => [Number(m.id), m]))
   const poolById = new Map<number, any>(pools.map((p) => [Number(p.id), p]))
 
-  // Use trusted prices to avoid inflating global spot volume by untrusted/scam quote tokens.
+  // Match volumes are stored in the market base_token units, which is the displayed quote side in spot pairs.
   const tokenPriceMap = new Map<string, number>(tokens.map(t => [t.id, safeNumber(t?.safe_usd_price)]))
 
   let spotTradingVolume = 0
@@ -56,7 +60,7 @@ export async function updateGlobalStats(network, day = null) {
     {
       $group: {
         _id: '$market',
-        volumeQuote: {
+        volumeInDisplayQuote: {
           $sum: {
             $switch: {
               branches: [
@@ -75,10 +79,10 @@ export async function updateGlobalStats(network, day = null) {
     const market = marketById.get(Number(row._id))
     if (!market) continue
 
-    const quoteTokenId = market?.quote_token?.id
-    const quotePrice = safeNumber(tokenPriceMap.get(quoteTokenId) ?? 0)
-    const volumeQuote = safeNumber(row?.volumeQuote)
-    const volumeUsd = volumeQuote * quotePrice
+    const displayQuoteTokenId = getMarketDisplayQuoteTokenId(market)
+    const displayQuotePrice = safeNumber(tokenPriceMap.get(displayQuoteTokenId) ?? 0)
+    const volumeInDisplayQuote = safeNumber(row?.volumeInDisplayQuote)
+    const volumeUsd = volumeInDisplayQuote * displayQuotePrice
     if (!Number.isFinite(volumeUsd) || volumeUsd <= 0) continue
 
     const feeRate = safeNumber(market?.fee) / SPOT_FEE_SCALE
