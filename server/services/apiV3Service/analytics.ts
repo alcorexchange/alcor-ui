@@ -84,6 +84,10 @@ function getSafeUsdPrice(token: any, fallback = 0) {
   return safeNumber(token?.safe_usd_price, fallback)
 }
 
+function getRawUsdPrice(token: any, fallback = 0) {
+  return safeNumber(token?.usd_price, fallback)
+}
+
 function normalizeAccountName(raw: any) {
   const account = String(raw || '').trim().toLowerCase()
   if (!account) return null
@@ -518,17 +522,24 @@ async function waitForPlatformBalancesFromRedis(redisKey: string, timeoutMs = PL
   return null
 }
 
-async function getPlatformBalancesCached(network: any, tokens: any[]) {
-  const key = String(network?.name || '')
-  const redisKey = `${key}_platform_balances_cache_v1`
-  const lockKey = getPlatformBalancesRefreshLockKey(key)
+async function getPlatformBalancesCached(
+  network: any,
+  tokens: any[],
+  options: { priceField?: 'safe_usd_price' | 'usd_price' } = {}
+) {
+  const priceField = options.priceField === 'usd_price' ? 'usd_price' : 'safe_usd_price'
+  const cacheVariant = priceField === 'usd_price' ? 'raw' : 'safe'
+  const networkKey = String(network?.name || '')
+  const key = `${networkKey}:${cacheVariant}`
+  const redisKey = `${networkKey}_platform_balances_cache_v2_${cacheVariant}`
+  const lockKey = getPlatformBalancesRefreshLockKey(`${networkKey}_${cacheVariant}`)
   const now = Date.now()
   const cached = platformBalancesCache.get(key)
   if (cached && cached.expiresAt > now) return cached.data
 
   const refreshAndPersist = async () => {
     const fetchedAt = Date.now()
-    const data = await fetchPlatformBalances(network, tokens)
+    const data = await fetchPlatformBalances(network, tokens, { priceField })
     platformBalancesCache.set(key, {
       expiresAt: fetchedAt + PLATFORM_BALANCES_CACHE_MS,
       data,
@@ -789,7 +800,8 @@ function buildTokenStats(
   markets: any[],
   window: string,
   tokenTvlMap?: Map<string, number>,
-  priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
+  priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)])),
+  options: { useTokenPriceForPoolTvl?: boolean } = {}
 ) {
   const tokenStats = new Map<string, any>()
 
@@ -810,11 +822,13 @@ function buildTokenStats(
 
     const volumes = pickPoolVolumes(pool, window)
     const poolTvlShareUsd = safeNumber(pool?.tvlUSD) / 2
+    const tokenAQty = safeNumber(pool?.tokenA?.quantity)
+    const tokenBQty = safeNumber(pool?.tokenB?.quantity)
 
     if (tokenStats.has(tokenAId)) {
       const stats = tokenStats.get(tokenAId)
       const price = priceMap.get(tokenAId) || 0
-      stats.tvlUSD += poolTvlShareUsd
+      stats.tvlUSD += options.useTokenPriceForPoolTvl ? tokenAQty * price : poolTvlShareUsd
       stats.swapVolumeUSD += volumes.a * price
       stats.poolsCount += 1
     }
@@ -822,7 +836,7 @@ function buildTokenStats(
     if (tokenStats.has(tokenBId)) {
       const stats = tokenStats.get(tokenBId)
       const price = priceMap.get(tokenBId) || 0
-      stats.tvlUSD += poolTvlShareUsd
+      stats.tvlUSD += options.useTokenPriceForPoolTvl ? tokenBQty * price : poolTvlShareUsd
       stats.swapVolumeUSD += volumes.b * price
       stats.poolsCount += 1
     }
@@ -1951,15 +1965,23 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const usdTokenId = network?.USD_TOKEN || null
   const tokenPool = pickPoolForToken(new Map([[token.id, pools]]), token.id, baseTokenId, usdTokenId)
   const priceChange24h = computeTokenPriceChange24(tokenPool, token.id)
+  const rawPriceMap = new Map<string, number>(tokens.map((t) => [t.id, getRawUsdPrice(t)]))
   const [{ tokenTvlMap }, tokenScores, tokenTxStats, holdersStats, protonRegistryToken] = await Promise.all([
-    getPlatformBalancesCached(network, tokens),
+    getPlatformBalancesCached(network, tokens, { priceField: 'usd_price' }),
     loadTokenScores(network.name),
     buildTokenTxStats(network.name, [token], pools, markets, window.since, { restrictToProvidedSources: true }),
     loadTokenHoldersStats(network.name, [token.id]),
     getProtonTokenRegistryEntry(network, token.symbol, token.contract),
   ])
-  const priceMap = new Map<string, number>(tokens.map((t) => [t.id, getSafeUsdPrice(t)]))
-  const tokenStats = buildTokenStats([token], pools, markets, window.label, tokenTvlMap, priceMap).get(token.id)
+  const tokenStats = buildTokenStats(
+    [token],
+    pools,
+    markets,
+    window.label,
+    tokenTvlMap,
+    rawPriceMap,
+    { useTokenPriceForPoolTvl: true }
+  ).get(token.id)
   const score = tokenScores?.[token.id] || null
   const firstSeenAt = tokenScores?.[token.id]?.firstSeenAt ?? null
   const holders = holdersStats.get(token.id) || null
@@ -1972,10 +1994,10 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const marketTxStats = includeTx ? await buildMarketTxStats(network.name, markets.map((m) => m.id), window.since) : new Map()
 
   const spotPairs = await Promise.all(markets.map(async (m) => {
-    let card = toMarketCard(m, window.label, priceMap)
+    let card = toMarketCard(m, window.label, rawPriceMap)
     if (includeTx) card = attachMarketTxAndDepth(card, marketTxStats.get(m.id) ?? 0, null)
     if (includeDepth) {
-      const depth = await buildOrderbookDepth(network.name, m, priceMap)
+      const depth = await buildOrderbookDepth(network.name, m, rawPriceMap)
       card = attachMarketTxAndDepth(card, includeTx ? (marketTxStats.get(m.id) ?? 0) : null, depth)
     }
     return card

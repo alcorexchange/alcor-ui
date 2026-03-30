@@ -140,11 +140,16 @@ async function fetchLightApiBalances(network, account: string): Promise<any[]> {
   }
 }
 
-export async function fetchPlatformBalances(network, tokens: any[]) {
+export async function fetchPlatformBalances(
+  network,
+  tokens: any[],
+  options: { priceField?: 'safe_usd_price' | 'usd_price' } = {}
+) {
   const contracts = getPlatformContracts(network)
+  const priceField = options.priceField === 'usd_price' ? 'usd_price' : 'safe_usd_price'
   const tokenPriceMap = new Map<string, number>(tokens.map(t => [
     t.id,
-    Number.isFinite(Number(t.safe_usd_price)) ? Number(t.safe_usd_price) : 0
+    Number.isFinite(Number(t?.[priceField])) ? Number(t[priceField]) : 0
   ]))
 
   const results = await Promise.all(
