@@ -166,5 +166,25 @@
           "https://t.me/flextokens"
         ],
         "description": "We WON ⓦ We're already living on a paradise planet, teeming with life, beauty, and happy free beings. WON has a 3% transfer tax, with 0.8% democratically distributed in bi-weeky contributors' club meetings, and 2.2% reflected to holders in the token of an ecovillage or another planet-positive project. WON can change which token you get by default, or you can choose yourself anytime. You can also choose to direct a portion or all reflections to any project or account in perpetuity, or change anytime. WON is based on EASY's revolutionary reflection mechanism, expanding to new horizons. WON is 100% backed in EASY via pools on Alcor, and EASY is 100% backed by USD(c). For spiritual purposes only, not an investment vehicle. No promises of return, no expectations with supported projects, no guarantees operations will remain the same. Collaboration between Flex Tokens and Temple Earth. WON is a token to circulate a winning future for everywon."
+      },
+      "XBOT@nodebot": {
+        "name": "XBOT",
+        "website": {
+          "link": "",
+          "name": ""
+        },
+        "tags": [
+          "DeFi",
+          "Deflationary",
+          "Community",
+          "XPR Network",
+          "Burn"
+        ],
+        "socials": [
+          "",
+          "",
+          ""
+        ],
+        "description": "XBOT is a deflationary community token built on XPR Network 🌐. Every buy and sell on Alcor Exchange automatically burns 1% of the transaction 🔥, permanently reducing the supply over time. With a maximum supply of 1,000,000,000 XBOT and a built-in burn mechanic ⚙️, XBOT becomes scarcer with every trade 📉. Join the community and be part of a token that gets more valuable the more it's traded 🚀."
       }
 }
