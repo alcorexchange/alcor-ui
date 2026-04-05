@@ -1,8 +1,7 @@
 import { Api } from 'enf-eosjs'
 import posthog from 'posthog-js'
+import { getMultyEndRpc } from '../utils/eosjs'
 import { op } from '~/plugins/openpanel'
-import { getChainRpc, getMultyEndRpc } from '../utils/eosjs'
-
 
 import config from '~/config'
 
@@ -147,7 +146,6 @@ export const actions = {
       window.location = window.location.origin
       return
     }
-
 
     console.log('logout..')
     state?.wallet?.logout?.()

@@ -238,6 +238,15 @@ module.exports = {
         config.devtool = 'source-map'
       }
 
+      if (!isClient) {
+        config.externals = config.externals || []
+        config.externals.push({
+          '@openpanel/web': 'commonjs @openpanel/web',
+          '@openpanel/sdk': 'commonjs @openpanel/sdk',
+          '@msgpack/msgpack': 'commonjs @msgpack/msgpack',
+        })
+      }
+
       // Run ESLint on save
       if (isDev && isClient) {
         config.module.rules.push({
