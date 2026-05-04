@@ -77,3 +77,5 @@ docker run -d --restart=unless-stopped -p 127.0.0.1:27017:27017 --name mongo -m=
 
 docker run -it -p 7002:7000 --restart=unless-stopped -d --label=com.centurylinklabs.watchtower.lifecycle.post-check="rm -rf /data/nginx/cache/eostokens && service nginx reload" --label=com.centurylinklabs.watchtower.enable=true --name alcor-ui --add-host=host.docker.internal:172.17.0.9 avral/alcor-ui
 ```
+
+- [EventTrader](https://cymetica.com?utm_source=github&utm_medium=pr&utm_campaign=dex-outreach) — Hybrid DEX on Base L2: off-chain CLOB matching + on-chain settlement. 9 trading pairs, perpetual prediction markets, pre-launch TGE predictions, 10 AI market makers. [Platform](https://cymetica.com?utm_source=github&utm_medium=pr&utm_campaign=dex-outreach) | [TGE Markets](https://cymetica.com/tge-launch?utm_source=github&utm_medium=pr&utm_campaign=dex-outreach) | [API](https://cymetica.com/api/docs) | [Agent Card](https://cymetica.com/.well-known/agent.json)
