@@ -72,6 +72,8 @@ Response:
 ### GET `/analytics/tokens`
 Token list (scored, with volumes/TVL).
 
+Token score details are documented in [TOKEN_SCORE_V1.md](./TOKEN_SCORE_V1.md).
+
 Query:
 - `window` (default: `30d`)
 - `search` (symbol/contract/id)
@@ -106,6 +108,13 @@ Response:
   "spotPairs": [SpotPairCard]
 }
 ```
+
+`token.scores.details` currently includes:
+- `version`, `window`
+- `components.{traders,volume,liquidity,holders,activity,stability,age}`
+- `capsApplied`
+- `metrics.{uniqueTraders,volumeUsd,tvlUsd,turnover,holdersCount,tradesCount,avgDailyTrades,currentPrice,rollingHigh30d,drawdown30d,stabilityPoolId,ageDays}`
+- compatibility fields used by other server consumers (`holders`, `volumeUsd7d`, `trades7d`, `uniqueTraders7d`, growth and age fields)
 
 ### GET `/analytics/tokens/:id/pools`
 Pools for token.
@@ -436,10 +445,11 @@ Unified launchpad tokens list for tabs (`trending/organic/all/new/graduated`) wi
 
 Query:
 - `list=trending|organic|all|new|graduated` (default: `trending`)
+- `token_ids=tokenA,tokenB,...` (optional, comma-separated `token_id` list; when present, filters to these tokens, ignores `list` selection and returns all matches in one page)
 - `sort=score|age|vol24h|liq|mcap` (default: `score`, but for `list=all` default is `liq`)
 - `dir=desc|asc` (default: `desc`)
 - `limit` (default: `100`, max: `200`)
-- `cursor` (opaque keyset cursor from previous response)
+- `cursor` (opaque keyset cursor from previous response; ignored when `token_ids` is present)
 - `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
 - `hide_scam=true|false` (default: `true`)
 
@@ -449,6 +459,7 @@ Selection rules:
 - `new`: tokens from last `7d` window.
 - `all`: full launchpad index.
 - `graduated`: graduated list.
+- `token_ids`: after explicit `token_id` filtering, `search`, `hide_scam`, `sort`, and `dir` still apply; `next_cursor` is always `null`.
 
 ### GET `/launchpad/trending`
 Trending launchpad list (weekly growth score; traders/trades/liquidity/price focused).

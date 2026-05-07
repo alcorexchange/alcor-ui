@@ -95,6 +95,26 @@ function parseTokensDir(raw: any): TokensDir {
   return normalized === 'asc' ? 'asc' : 'desc'
 }
 
+function parseTokenIds(raw: any): string[] | null {
+  if (raw === undefined || raw === null) return null
+
+  const normalized = String(raw).trim().toLowerCase()
+  if (!normalized) return null
+
+  const seen = new Set<string>()
+  const tokenIds = normalized
+    .split(',')
+    .map((tokenId) => tokenId.trim())
+    .filter((tokenId) => {
+      if (!tokenId) return false
+      if (seen.has(tokenId)) return false
+      seen.add(tokenId)
+      return true
+    })
+
+  return tokenIds
+}
+
 function encodeTokensCursor(cursor: TokensCursor) {
   return Buffer.from(JSON.stringify(cursor), 'utf8').toString('base64url')
 }
@@ -257,12 +277,16 @@ launchpad.get('/tokens', async (req, res) => {
     const search = normalizeSearch(req.query.search || req.query.q)
     const hideScam = parseHideScam(req.query.hide_scam)
     const scamFilters = hideScam ? normalizeScamFilters(await getScamLists(network)) : null
-    const cursor = decodeTokensCursor(req.query.cursor, list, sort, dir)
+    const requestedTokenIds = parseTokenIds(req.query.token_ids)
+    const hasTokenIdsFilter = requestedTokenIds !== null
+    const cursor = hasTokenIdsFilter ? null : decodeTokensCursor(req.query.cursor, list, sort, dir)
 
-    let tokenIds: string[] = []
+    let tokenIds: string[] = requestedTokenIds || []
     const scoreByToken = new Map<string, number>()
 
-    if (list === 'trending') {
+    if (hasTokenIdsFilter) {
+      tokenIds = requestedTokenIds || []
+    } else if (list === 'trending') {
       const raw: string[] = await redis.sendCommand([
         'ZREVRANGE',
         listTrendingKey(chain),
@@ -424,13 +448,20 @@ launchpad.get('/tokens', async (req, res) => {
         })
       : entries
 
-    const pageWithOneExtra = filtered.slice(0, limit + 1)
-    const hasMore = pageWithOneExtra.length > limit
-    const pageEntries = hasMore ? pageWithOneExtra.slice(0, limit) : pageWithOneExtra
+    const pageEntries = hasTokenIdsFilter
+      ? filtered
+      : (() => {
+          const pageWithOneExtra = filtered.slice(0, limit + 1)
+          const hasMore = pageWithOneExtra.length > limit
+          if (!hasMore) return pageWithOneExtra
+          return pageWithOneExtra.slice(0, limit)
+        })()
     const last = pageEntries.length ? pageEntries[pageEntries.length - 1] : null
-    const nextCursor = (hasMore && last)
-      ? encodeTokensCursor({ l: list, s: sort, d: dir, v: last.sortValue, id: last.tokenId })
-      : null
+    const nextCursor = hasTokenIdsFilter
+      ? null
+      : ((filtered.length > limit && last)
+          ? encodeTokensCursor({ l: list, s: sort, d: dir, v: last.sortValue, id: last.tokenId })
+          : null)
 
     res.json({
       meta: {

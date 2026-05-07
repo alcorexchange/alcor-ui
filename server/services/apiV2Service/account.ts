@@ -69,11 +69,21 @@ async function getCurrentPositionState(chain, plainPosition, tokenPrices = null)
   const tokenAUSDPrice = tokenA?.usd_price || 0
   const tokenBUSDPrice = tokenB?.usd_price || 0
 
-  const totalFeesUSD = parseFloat(feesA) * tokenAUSDPrice + parseFloat(feesB) * tokenBUSDPrice
-  const totalValue =
+  const positionValueUSD =
     parseFloat(position.amountA.toFixed()) * tokenAUSDPrice +
-    parseFloat(position.amountB.toFixed()) * tokenBUSDPrice +
-    totalFeesUSD
+    parseFloat(position.amountB.toFixed()) * tokenBUSDPrice
+
+  let totalFeesUSD = parseFloat(feesA) * tokenAUSDPrice + parseFloat(feesB) * tokenBUSDPrice
+
+  // Sanity check: non-atomic reads (MongoDB pool + Redis ticks/positions) can cause
+  // SDK's subIn128 to wrap around, producing astronomical fee values.
+  // Cap: fees should never exceed 100x the position's principal value (and at least $1B hard cap).
+  const maxSaneFees = Math.max(positionValueUSD * 100, 1_000_000_000)
+  if (!Number.isFinite(totalFeesUSD) || totalFeesUSD < 0 || totalFeesUSD > maxSaneFees) {
+    totalFeesUSD = 0
+  }
+
+  const totalValue = positionValueUSD + totalFeesUSD
 
   return {
     inRange,
