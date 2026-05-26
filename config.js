@@ -272,6 +272,81 @@ const networks = {
     GLOBAL_TOKENS: [],
   },
 
+  xprtest: {
+    name: 'xprtest',
+    desc: 'XPR Testnet',
+    contract: 'alcor',
+
+    baseToken: {
+      contract: 'eosio.token',
+      symbol: 'XPR',
+      precision: 4,
+      id: 'xpr-eosio.token'
+    },
+
+    marketCreationFee: '50000.0000 XPR',
+    feeAccount: 'avral',
+
+    chainId: '71ee83bcf52142d61019d95f9cc5427ba6a0d7ff8accd9e2088ae2abeaf3d3dd',
+
+    host: 'testnet.rockerone.io',
+    port: 443,
+    protocol: 'https',
+    monitor: 'https://testnet.explorer.xprnetwork.org',
+    monitor_params: '',
+    lightapi: null,
+    hyperion: 'https://test.proton.eosusa.io',
+    backEnd: 'http://localhost:8000/api/',
+
+    client_nodes: {
+      'http://116.202.36.122:5555': 'Local sync',
+      'https://testnet.rockerone.io': 'RockerOne',
+      'https://test.proton.eosusa.io': 'EOS USA',
+      'https://api-xprnetwork-test.saltant.io': 'Saltant',
+    },
+
+    otc: {
+      contract: 'alcorotc',
+      divs: 'avral',
+    },
+
+    pools: {
+      contract: null,
+      fee: 'avral',
+    },
+
+    amm: {
+      contract: 'swap.alcor',
+    },
+
+    staking: {
+      contract: 'liquid.alcor',
+      token: {
+        contract: 'lsw.alcor',
+        symbol: 'LSW',
+        precision: 8,
+        decimals: 8,
+        id: 'lsw-lsw.alcor'
+      }
+    },
+
+    RECOMMENDED_MARKETS: [],
+    PINNED_MARKETS: [],
+    BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
+    SCAM_CONTRACTS: [],
+    CEX_CONTRACTS: [],
+
+    nftMarket: {
+      contract: 'alcornftswap',
+    },
+
+    USD_TOKEN: '',
+
+    popularTokens: ['xpr-eosio.token'],
+    GLOBAL_TOKENS: [],
+  },
+
   ux: {
     name: 'ux',
     desc: 'UX Network',

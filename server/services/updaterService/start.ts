@@ -20,7 +20,7 @@ const limit = pLimit(2)
 export function startUpdaters() {
   const chains = process.env.NETWORK
     ? [process.env.NETWORK]
-    : ['eos', 'wax', 'proton', 'telos', 'ultra', 'waxtest']
+    : ['eos', 'wax', 'proton', 'telos', 'ultra', 'waxtest', 'xprtest']
 
   chains.forEach(chain => {
     limit(() => updater(chain, ['markets', 'prices', 'swap']))

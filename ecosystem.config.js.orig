@@ -64,6 +64,11 @@ module.exports = {
       script: './lib/server/services/updaterService/index.js',
       env: { NETWORK: 'telos' }
     },
+    {
+      name: 'Alcor-updater-xprtest',
+      script: './lib/server/services/updaterService/index.js',
+      env: { NETWORK: 'xprtest' }
+    },
 
     {
       name: 'Alcor-orderbook-service',

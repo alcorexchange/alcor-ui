@@ -36,6 +36,7 @@ export function start() {
     eventStreamer('proton', handleAction)
     eventStreamer('telos', handleAction)
     eventStreamer('ultra', handleAction)
+    eventStreamer('xprtest', handleAction)
   }
 }
 

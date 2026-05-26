@@ -51,6 +51,7 @@ export async function updateSystemPrice(network: Network) {
   let network_name = network.name
 
   if (network_name === 'waxtest') network_name = 'wax'
+  if (network_name === 'xprtest') network_name = 'proton'
 
   try {
     const { data } = await axios.get(
