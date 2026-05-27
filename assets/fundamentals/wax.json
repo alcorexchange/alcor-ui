@@ -7,6 +7,17 @@
     "tags": ["MEME", "ALGO", "DEX"],
     "socials": ["https://t.me/Shinchankidverify", "https://bsky.app/profile/shinchankid.bsky.social"],
     "description": "This is a meme token of a decentralized platform fund based on the Proof of Deflation Coin Burning consensus mechanism and the Buy Back concept using the LSTM algorithm."
+  },"MINTY@token.minty": {
+    "name": "Minty Blocks",
+    "website": {
+      "link": "https://mintyblocks.com/",
+      "name": "Minty Blocks"
+    },
+    "tags": ["Marketplace"],
+    "socials": ["https://t.me/MintyBlocks/", 
+      "https://x.com/MintyBlocks", 
+      "https://discord.gg/gAfuUwkSY"],
+    "description": "Minty Blocks is the ultimate NFT marketplace for trading collectibles, P2E assets, crafting and NFT drops."
   },
   "MNK@monkeybored1": {
     "name": "MonkeyBored",
