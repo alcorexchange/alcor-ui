@@ -10,14 +10,15 @@ export const icons = Router()
 
 const MAX_FILE_SIZE = 128 * 1024
 const PINATA_ENDPOINT = 'https://api.pinata.cloud/pinning/pinFileToIPFS'
-const PINATA_JWT = process.env.PINATA_JWT
+const PINATA_API_KEY = process.env.PINATA_API_KEY
+const PINATA_API_SECRET = process.env.PINATA_API_SECRET
 
 const allowedMimeTypes = new Set(['image/png', 'image/jpeg', 'image/webp'])
 
 icons.post('/upload', formidable(), async (req, res) => {
   try {
-    if (!PINATA_JWT) {
-      return res.status(500).json({ error: 'PINATA_JWT is not configured' })
+    if (!PINATA_API_KEY || !PINATA_API_SECRET) {
+      return res.status(500).json({ error: 'Pinata credentials are not configured' })
     }
 
     const file = (req as any).files?.file
@@ -63,7 +64,8 @@ async function pinToPinata(buffer: Buffer, file: any): Promise<string> {
     maxBodyLength: Infinity,
     headers: {
       ...form.getHeaders(),
-      Authorization: `Bearer ${PINATA_JWT}`
+      pinata_api_key: PINATA_API_KEY,
+      pinata_secret_api_key: PINATA_API_SECRET
     }
   })
 
