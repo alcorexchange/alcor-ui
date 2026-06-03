@@ -8,6 +8,7 @@ import { getRedis } from '../redis'
 import { getScamLists } from './config'
 import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import { getSimpleTokenLogoUrl } from '../simpleTokenLogoService'
+import { getTokenRegistryLogo } from '../tokenRegistryService'
 
 export const tokens = Router()
 
@@ -58,6 +59,15 @@ tokens.get('/tokens/:id/logo', async (req, res) => {
   const network: Network = req.app.get('network')
   const id = req.params.id.toLowerCase()
   const [symbol, contract] = id.split('-')
+
+  // Highest priority: on-chain token_registry metadata (mutable, so use a
+  // temporary redirect with a short cache instead of a permanent 301).
+  const registryLogo = await getTokenRegistryLogo(network, symbol, contract)
+  if (registryLogo) {
+    res.set('Cache-Control', 'public, max-age=300')
+    res.redirect(302, registryLogo)
+    return
+  }
 
   const iconPath = join(
     process.cwd(),

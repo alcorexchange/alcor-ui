@@ -277,6 +277,10 @@ const networks = {
     desc: 'XPR Testnet',
     contract: 'alcor',
 
+    // On-chain token metadata registry (token_registry contract).
+    // Highest-priority source for token logos in /api/v2/tokens/:id/logo.
+    tokenRegistry: 'alcortokens',
+
     baseToken: {
       contract: 'eosio.token',
       symbol: 'XPR',
