@@ -21,6 +21,7 @@ import { spot } from './spot'
 import { swap } from './swap'
 import { ibc } from './ibc'
 import { tokens } from './tokens'
+import { icons } from './icons'
 import { account } from './account'
 import { swapRouter, initSwapRouterSubscriptions } from './swapRouter'
 import { analytics } from './analytics'
@@ -61,6 +62,7 @@ async function start () {
   // Server routes
   app.use('/api/v2/', spot)
   app.use('/api/v2/', tokens)
+  app.use('/api/v2/icons', icons)
   app.use('/api/v2/ibc', ibc)
   app.use('/api/v2/analytics', analytics)
   app.use('/api/v2/swap', swap)
