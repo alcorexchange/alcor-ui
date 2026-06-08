@@ -14,7 +14,7 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # Устанавливаем PM2
-RUN yarn global add @socket.io/pm2
+RUN yarn global add @socket.io/pm2 socket.io-adapter@2.5.5
 
 # Building
 RUN yarn build-server
