@@ -263,15 +263,46 @@ async function waitForSwrEnvelope<T>(cacheKey: string, timeoutMs = ANALYTICS_RES
   return null
 }
 
+// Process-local cache of the already-parsed SWR payload. Reading a large
+// payload from Redis costs a JSON.parse on every request (the /tokens heavy
+// payload is ~1MB); under the bot upstream's request volume that pins Node CPU.
+// This memo lets each worker parse a hot key at most once per fresh window.
+const SWR_LOCAL_CACHE_MAX = 300
+const swrLocalCache = new Map<string, { ts: number; payload: any }>()
+
+function readLocalSwr<T>(cacheKey: string, freshMs: number): T | null {
+  const entry = swrLocalCache.get(cacheKey)
+  if (!entry) return null
+  if (Date.now() - entry.ts > freshMs) return null
+  // refresh LRU position
+  swrLocalCache.delete(cacheKey)
+  swrLocalCache.set(cacheKey, entry)
+  return entry.payload as T
+}
+
+function writeLocalSwr(cacheKey: string, ts: number, payload: any) {
+  swrLocalCache.delete(cacheKey)
+  swrLocalCache.set(cacheKey, { ts, payload })
+  while (swrLocalCache.size > SWR_LOCAL_CACHE_MAX) {
+    const oldest = swrLocalCache.keys().next().value
+    swrLocalCache.delete(oldest)
+  }
+}
+
 async function getSwrPayload<T>(
   cacheKey: string,
   build: () => Promise<T>,
   freshMs: number,
   staleMs: number
 ): Promise<T> {
+  // Fast path: serve a process-local parsed payload without touching Redis.
+  const local = readLocalSwr<T>(cacheKey, freshMs)
+  if (local !== null) return local
+
   const now = Date.now()
   const lockKey = buildAnalyticsResponseSwrLockKey(cacheKey)
   const cached = await readSwrEnvelope<T>(cacheKey)
+  if (cached) writeLocalSwr(cacheKey, cached.ts, cached.payload)
 
   const refreshInBackground = async () => {
     let token: string | null = null
@@ -280,6 +311,7 @@ async function getSwrPayload<T>(
       if (!token) return
       const payload = await build()
       await writeSwrEnvelope(cacheKey, payload, staleMs)
+      writeLocalSwr(cacheKey, Date.now(), payload)
     } catch (e) {
       // ignore background refresh errors; stale payload is still served
     } finally {
@@ -301,6 +333,7 @@ async function getSwrPayload<T>(
     try {
       const payload = await build()
       await writeSwrEnvelope(cacheKey, payload, staleMs)
+      writeLocalSwr(cacheKey, Date.now(), payload)
       return payload
     } finally {
       await releaseSwrLock(lockKey, token)
@@ -313,13 +346,17 @@ async function getSwrPayload<T>(
   }
 
   const warmed = await waitForSwrEnvelope<T>(cacheKey)
-  if (warmed) return warmed.payload
+  if (warmed) {
+    writeLocalSwr(cacheKey, warmed.ts, warmed.payload)
+    return warmed.payload
+  }
 
   token = await tryAcquireSwrLock(lockKey)
   if (token) {
     try {
       const payload = await build()
       await writeSwrEnvelope(cacheKey, payload, staleMs)
+      writeLocalSwr(cacheKey, Date.now(), payload)
       return payload
     } finally {
       await releaseSwrLock(lockKey, token)
@@ -1892,12 +1929,20 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
   const txAlreadyResolved = sort === 'tx'
   const holdersAlreadyResolved = sort === 'holders'
 
-  const allTokens = (await getTokens(network.name)) || []
-  const tokensById = new Map<string, any>(allTokens.map((t) => [t.id, t]))
+  // Build minimal token objects from the page items themselves. The enrichment
+  // helpers (presentation, fundamental, tx stats) only read id/symbol/contract/name,
+  // all already present on each item — so we avoid re-parsing the full
+  // token-prices blob (getTokens) on every request.
+  const pageTokens = pageItems.map((i) => ({
+    id: i.id,
+    symbol: i.symbol,
+    contract: i.contract,
+    name: i.name,
+  }))
+  const tokensById = new Map<string, any>(pageTokens.map((t) => [t.id, t]))
 
   let pageTxStats = new Map<string, any>()
   if (!txAlreadyResolved) {
-    const pageTokens = pageTokenIds.map((id) => tokensById.get(id)).filter(Boolean)
     const [pagePools, pageMarkets] = await Promise.all([
       SwapPool.find({
         chain: network.name,
