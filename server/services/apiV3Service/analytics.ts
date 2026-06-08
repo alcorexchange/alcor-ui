@@ -186,6 +186,18 @@ function buildAnalyticsResponseSwrKey(route: string, req: any) {
   return `analytics_v3_swr|${route}|${network?.name || 'unknown'}|${req.originalUrl}`
 }
 
+function buildTokensHeavySwrKey(req: any) {
+  // Page-agnostic key: the heavy aggregation (full sorted token list) does not
+  // depend on page/limit, so all pages of the same view share one build.
+  const network = req.app.get('network')
+  const window = getWindow(req.query.window)
+  const sort = String(req.query.sort || 'score').toLowerCase()
+  const order = String(req.query.order || 'desc').toLowerCase()
+  const search = String(req.query.search || '').toLowerCase()
+  const hasLogo = String(req.query.hasLogo || '').toLowerCase()
+  return `analytics_v3_swr|tokens_heavy|${network?.name || 'unknown'}|window:${window.label}|sort:${sort}|order:${order}|search:${search}|hasLogo:${hasLogo}`
+}
+
 function buildAnalyticsResponseSwrLockKey(cacheKey: string) {
   return `${cacheKey}|lock`
 }
@@ -1683,9 +1695,12 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
   const page = Math.max(parseInt(String(req.query.page || '1')), 1)
   const start = (page - 1) * limit
 
-  const swrKey = buildAnalyticsResponseSwrKey('tokens', req)
-  const payload = await getSwrPayload(
-    swrKey,
+  // Heavy layer (SWR-cached, page-agnostic): build the full sorted token list.
+  // page=1..N all share this single build instead of re-running the aggregation
+  // per page. See buildTokensHeavySwrKey.
+  const heavyKey = buildTokensHeavySwrKey(req)
+  const heavy = await getSwrPayload(
+    heavyKey,
     async () => {
       let tokens = (await getTokens(network.name)) || []
       if (search) {
@@ -1699,9 +1714,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
       if (tokens.length === 0) {
         return {
           meta: buildMeta(network, window.label),
-          items: [],
-          page: 1,
-          limit,
+          filtered: [],
           total: 0,
         }
       }
@@ -1853,73 +1866,9 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
         return (av - bv) * dir
       })
 
-      const pageItems = filtered.slice(start, start + limit)
-      const pageTokenIds = pageItems.map((i) => i.id).filter(Boolean)
-      const pageTokenIdSet = new Set(pageTokenIds)
-      const pageTokens = tokens.filter((t) => pageTokenIdSet.has(t.id))
-      const pagePools = pools.filter((p) => pageTokenIdSet.has(p?.tokenA?.id) || pageTokenIdSet.has(p?.tokenB?.id))
-      const pageMarkets = markets.filter((m) => pageTokenIdSet.has(m?.base_token?.id) || pageTokenIdSet.has(m?.quote_token?.id))
-
-      const [pageTxStats, pageHoldersStats] = await Promise.all([
-        needsAllTxForSort
-          ? Promise.resolve(tokenTxStatsAll)
-          : buildTokenTxStats(
-            network.name,
-            pageTokens,
-            pagePools,
-            pageMarkets,
-            window.since,
-            { restrictToProvidedSources: true }
-          ),
-        needsAllHoldersForSort
-          ? Promise.resolve(holdersStatsAll)
-          : loadTokenHoldersStats(network.name, pageTokenIds),
-      ])
-
-      const enrichedItems = await Promise.all(pageItems.map(async (item) => {
-        const token = tokensById.get(item.id)
-        const tx = pageTxStats.get(item.id) || { swapTx: 0, spotTx: 0 }
-        const holders = pageHoldersStats.get(item.id) || null
-
-        if (!token) {
-          return {
-            ...item,
-            tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
-            holders: holders ? {
-              count: holders.holders ?? null,
-              change1h: holders.change1h ?? null,
-              change6h: holders.change6h ?? null,
-              change24h: holders.change24h ?? null,
-              truncated: holders.truncated ?? false,
-            } : null,
-          }
-        }
-
-        const { protonRegistryToken, logoUrl } = await getTokenPresentationCached(network, token)
-        const fundamental = includeFundamental ? await getFundamental(network, token, protonRegistryToken) : null
-
-        return {
-          ...item,
-          name: token.name || protonRegistryToken?.name || null,
-          logo: logoUrl,
-          logoUrl,
-          tx: { swap: tx.swapTx, spot: tx.spotTx, total: tx.swapTx + tx.spotTx },
-          holders: holders ? {
-            count: holders.holders ?? null,
-            change1h: holders.change1h ?? null,
-            change6h: holders.change6h ?? null,
-            change24h: holders.change24h ?? null,
-            truncated: holders.truncated ?? false,
-          } : null,
-          fundamental,
-        }
-      }))
-
       return {
         meta: buildMeta(network, window.label),
-        items: enrichedItems,
-        page,
-        limit,
+        filtered,
         total: filtered.length,
       }
     },
@@ -1927,7 +1876,94 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
     ANALYTICS_RESPONSE_SWR_STALE_MS
   )
 
-  res.json(payload)
+  // Light layer (per request): slice the shared sorted list and enrich only the
+  // ~limit items of the requested page (logos, fundamentals, page-scoped tx/holders).
+  const filtered = heavy.filtered || []
+  const pageItems = filtered.slice(start, start + limit)
+  const pageTokenIds = pageItems.map((i) => i.id).filter(Boolean)
+
+  if (pageItems.length === 0) {
+    res.json({ meta: heavy.meta, items: [], page, limit, total: heavy.total })
+    return
+  }
+
+  // When sorting by tx/holders the heavy layer already baked the full stats into
+  // each item, so the page enrichment reuses them instead of recomputing.
+  const txAlreadyResolved = sort === 'tx'
+  const holdersAlreadyResolved = sort === 'holders'
+
+  const allTokens = (await getTokens(network.name)) || []
+  const tokensById = new Map<string, any>(allTokens.map((t) => [t.id, t]))
+
+  let pageTxStats = new Map<string, any>()
+  if (!txAlreadyResolved) {
+    const pageTokens = pageTokenIds.map((id) => tokensById.get(id)).filter(Boolean)
+    const [pagePools, pageMarkets] = await Promise.all([
+      SwapPool.find({
+        chain: network.name,
+        $or: [{ 'tokenA.id': { $in: pageTokenIds } }, { 'tokenB.id': { $in: pageTokenIds } }],
+      }).lean(),
+      Market.find({
+        chain: network.name,
+        $or: [{ 'base_token.id': { $in: pageTokenIds } }, { 'quote_token.id': { $in: pageTokenIds } }],
+      }).lean(),
+    ])
+    pageTxStats = await buildTokenTxStats(
+      network.name,
+      pageTokens,
+      pagePools,
+      pageMarkets,
+      window.since,
+      { restrictToProvidedSources: true }
+    )
+  }
+
+  const pageHoldersStats = holdersAlreadyResolved
+    ? new Map<string, any>()
+    : await loadTokenHoldersStats(network.name, pageTokenIds)
+
+  const enrichedItems = await Promise.all(pageItems.map(async (item) => {
+    const token = tokensById.get(item.id)
+    const txStat = pageTxStats.get(item.id) || { swapTx: 0, spotTx: 0 }
+    const tx = txAlreadyResolved
+      ? item.tx
+      : { swap: txStat.swapTx, spot: txStat.spotTx, total: txStat.swapTx + txStat.spotTx }
+    const holdersStat = holdersAlreadyResolved ? null : (pageHoldersStats.get(item.id) || null)
+    const holders = holdersAlreadyResolved
+      ? item.holders
+      : (holdersStat ? {
+        count: holdersStat.holders ?? null,
+        change1h: holdersStat.change1h ?? null,
+        change6h: holdersStat.change6h ?? null,
+        change24h: holdersStat.change24h ?? null,
+        truncated: holdersStat.truncated ?? false,
+      } : null)
+
+    if (!token) {
+      return { ...item, tx, holders }
+    }
+
+    const { protonRegistryToken, logoUrl } = await getTokenPresentationCached(network, token)
+    const fundamental = includeFundamental ? await getFundamental(network, token, protonRegistryToken) : null
+
+    return {
+      ...item,
+      name: token.name || protonRegistryToken?.name || null,
+      logo: logoUrl,
+      logoUrl,
+      tx,
+      holders,
+      fundamental,
+    }
+  }))
+
+  res.json({
+    meta: heavy.meta,
+    items: enrichedItems,
+    page,
+    limit,
+    total: heavy.total,
+  })
 })
 
 analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
