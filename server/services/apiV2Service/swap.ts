@@ -6,6 +6,14 @@ import { getSwapBarPriceAsString, getLiquidityRangeChart } from '../../../utils/
 import { resolutions, normalizeResolution } from '../updaterService/charts'
 import { getPositionStats } from './account'
 import { getScamLists } from './config'
+import { getSwrString } from '../swrCache'
+
+// SWR windows for heavy JSON endpoints: serve a process-local serialized string
+// for FRESH_MS, then serve stale + refresh in background up to STALE_MS.
+const POOLS_SWR_FRESH_MS = 15 * 1000
+const POOLS_SWR_STALE_MS = 5 * 60 * 1000
+const TICKS_SWR_FRESH_MS = 10 * 1000
+const TICKS_SWR_STALE_MS = 5 * 60 * 1000
 
 function formatCandle(candle, volumeField, tokenA, tokenB, reverse) {
   candle.volume = candle[volumeField]
@@ -173,39 +181,43 @@ function positionIdHandler(req, res, next) {
   next()
 }
 
-swap.get('/pools', cacheSeconds(60, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name
-}), async (req, res) => {
+swap.get('/pools', async (req, res) => {
   const network: Network = req.app.get('network')
   const hide_scam = req.query.hide_scam === 'true'
 
-  const query: any = { chain: network.name }
+  const cacheKey = `swap_pools_swr|${network.name}|${req.originalUrl}`
 
-  const { tokenA, tokenB } = req.query
+  const body = await getSwrString(cacheKey, async () => {
+    const query: any = { chain: network.name }
 
-  if (tokenA && tokenB) {
-    query.$or = [
-      { 'tokenA.id': tokenA, 'tokenB.id': tokenB },
-      { 'tokenA.id': tokenB, 'tokenB.id': tokenA },
-    ]
-  } else {
-    if (tokenA) query['tokenA.id'] = tokenA
-    if (tokenB) query['tokenB.id'] = tokenB
-  }
+    const { tokenA, tokenB } = req.query
 
-  let pools = await SwapPool.find(query).select('-_id -__v').lean()
+    if (tokenA && tokenB) {
+      query.$or = [
+        { 'tokenA.id': tokenA, 'tokenB.id': tokenB },
+        { 'tokenA.id': tokenB, 'tokenB.id': tokenA },
+      ]
+    } else {
+      if (tokenA) query['tokenA.id'] = tokenA
+      if (tokenB) query['tokenB.id'] = tokenB
+    }
 
-  if (hide_scam) {
-    const { scam_contracts, scam_tokens } = await getScamLists(network)
-    pools = pools.filter(p =>
-      !scam_contracts.has(p.tokenA.contract) &&
-      !scam_contracts.has(p.tokenB.contract) &&
-      !scam_tokens.has(p.tokenA.id) &&
-      !scam_tokens.has(p.tokenB.id)
-    )
-  }
+    let pools = await SwapPool.find(query).select('-_id -__v').lean()
 
-  res.json(pools)
+    if (hide_scam) {
+      const { scam_contracts, scam_tokens } = await getScamLists(network)
+      pools = pools.filter(p =>
+        !scam_contracts.has(p.tokenA.contract) &&
+        !scam_contracts.has(p.tokenB.contract) &&
+        !scam_tokens.has(p.tokenA.id) &&
+        !scam_tokens.has(p.tokenB.id)
+      )
+    }
+
+    return pools
+  }, POOLS_SWR_FRESH_MS, POOLS_SWR_STALE_MS)
+
+  res.type('application/json').send(body)
 })
 
 //swap.get('/:id/charts', defCache, async (req, res) => {
@@ -345,8 +357,13 @@ swap.get('/pools/:id/table-positions', async (req, res) => {
 swap.get('/pools/:id/ticks', async (req, res) => {
   const network: Network = req.app.get('network')
 
-  const ticks = await getRedisTicks(network.name, req.params.id)
-  res.json(Array.from(ticks.values()))
+  const cacheKey = `swap_ticks_swr|${network.name}|${req.params.id}`
+  const body = await getSwrString(cacheKey, async () => {
+    const ticks = await getRedisTicks(network.name, req.params.id)
+    return Array.from(ticks.values())
+  }, TICKS_SWR_FRESH_MS, TICKS_SWR_STALE_MS)
+
+  res.type('application/json').send(body)
 })
 
 swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {

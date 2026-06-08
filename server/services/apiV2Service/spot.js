@@ -6,6 +6,12 @@ import { resolutions, normalizeResolution } from '../updaterService/charts'
 import { SwapPool, Bar, Match, Market } from '../../models'
 import { getTokens } from '../../utils'
 import { getScamLists } from './config'
+import { getSwrString } from '../swrCache'
+
+// SWR windows for /tickers: serve a process-local serialized string for
+// FRESH_MS, then serve stale + refresh in background up to STALE_MS.
+const TICKERS_SWR_FRESH_MS = 15 * 1000
+const TICKERS_SWR_STALE_MS = 5 * 60 * 1000
 
 const depthHandler = (req, res, next) => {
   if (req.query.depth && isNaN(parseInt(req.query.depth))) return res.status(403).send('Invalid depth')
@@ -123,54 +129,58 @@ function formatMarket(m, market_pools = [], tokenById = new Map()) {
 }
 
 // Tickers with merged volumes from pools
-spot.get('/tickers', cacheSeconds(60, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name
-}), async (req, res) => {
+spot.get('/tickers', async (req, res) => {
   const network = req.app.get('network')
   const hide_scam = req.query.hide_scam === 'true'
-  const [tokens, pools, rawMarkets] = await Promise.all([
-    getTokens(network.name),
-    SwapPool.find({ chain: network.name })
-      .select('tokenA.id tokenA.quantity tokenB.id tokenB.quantity volumeA24 volumeB24 volumeUSD24')
-      .lean(),
-    Market.find({ chain: network.name })
-      .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek')
-      .lean(),
-  ])
 
-  let markets = rawMarkets
+  const cacheKey = `spot_tickers_swr|${network.name}|${req.originalUrl}`
+  const body = await getSwrString(cacheKey, async () => {
+    const [tokens, pools, rawMarkets] = await Promise.all([
+      getTokens(network.name),
+      SwapPool.find({ chain: network.name })
+        .select('tokenA.id tokenA.quantity tokenB.id tokenB.quantity volumeA24 volumeB24 volumeUSD24')
+        .lean(),
+      Market.find({ chain: network.name })
+        .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek')
+        .lean(),
+    ])
 
-  // Depth 2/-2%
-  // > baseTokenLiquidity * (Math.sqrt(1 / 1.02) - 1)
-  // > baseTokenLiquidity * (1 - Math.sqrt(1 / 0.98))
+    let markets = rawMarkets
 
-  if (hide_scam) {
-    const { scam_contracts, scam_tokens } = await getScamLists(network)
-    markets = markets.filter(m => {
-      const [baseCurrency, targetCurrency] = String(m.ticker_id || '').toLowerCase().split('_')
-      const baseContract = String(baseCurrency || '').split('-')[1]
-      const targetContract = String(targetCurrency || '').split('-')[1]
-      return !scam_contracts.has(baseContract) &&
-             !scam_contracts.has(targetContract) &&
-             !scam_tokens.has(baseCurrency) &&
-             !scam_tokens.has(targetCurrency)
+    // Depth 2/-2%
+    // > baseTokenLiquidity * (Math.sqrt(1 / 1.02) - 1)
+    // > baseTokenLiquidity * (1 - Math.sqrt(1 / 0.98))
+
+    if (hide_scam) {
+      const { scam_contracts, scam_tokens } = await getScamLists(network)
+      markets = markets.filter(m => {
+        const [baseCurrency, targetCurrency] = String(m.ticker_id || '').toLowerCase().split('_')
+        const baseContract = String(baseCurrency || '').split('-')[1]
+        const targetContract = String(targetCurrency || '').split('-')[1]
+        return !scam_contracts.has(baseContract) &&
+               !scam_contracts.has(targetContract) &&
+               !scam_tokens.has(baseCurrency) &&
+               !scam_tokens.has(targetCurrency)
+      })
+    }
+
+    const tokenById = new Map((tokens || []).map(t => [t.id, t]))
+    const poolsByPair = new Map()
+    for (const p of pools) {
+      const key = getPairKey(p.tokenA.id, p.tokenB.id)
+      if (!poolsByPair.has(key)) poolsByPair.set(key, [])
+      poolsByPair.get(key).push(p)
+    }
+
+    markets.forEach(m => {
+      const pairKey = formatTicker(m, tokenById, network.GLOBAL_TOKENS)
+      formatMarket(m, poolsByPair.get(pairKey) || [], tokenById)
     })
-  }
 
-  const tokenById = new Map((tokens || []).map(t => [t.id, t]))
-  const poolsByPair = new Map()
-  for (const p of pools) {
-    const key = getPairKey(p.tokenA.id, p.tokenB.id)
-    if (!poolsByPair.has(key)) poolsByPair.set(key, [])
-    poolsByPair.get(key).push(p)
-  }
+    return markets
+  }, TICKERS_SWR_FRESH_MS, TICKERS_SWR_STALE_MS)
 
-  markets.forEach(m => {
-    const pairKey = formatTicker(m, tokenById, network.GLOBAL_TOKENS)
-    formatMarket(m, poolsByPair.get(pairKey) || [], tokenById)
-  })
-
-  res.json(markets)
+  res.type('application/json').send(body)
 })
 
 spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
