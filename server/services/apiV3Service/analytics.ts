@@ -3,7 +3,8 @@ import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 
 import { SwapPool, Market, GlobalStats, SwapBar, Bar, Swap, Match, SwapChartPoint } from '../../models'
-import { getTokens, fetchPlatformBalances } from '../../utils'
+import { getTokens, fetchPlatformBalances, upsertTokenPrice } from '../../utils'
+import { buildOnDemandToken } from '../updaterService/prices'
 import { getRedis } from '../redis'
 import { getSwrPayload } from '../swrCache'
 import { getScamLists } from '../apiV2Service/config'
@@ -1846,14 +1847,22 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const tokenId = String(req.params.id || '').toLowerCase()
 
   const tokens = (await getTokens(network.name)) || []
-  const token = tokens.find((t) => String(t.id).toLowerCase() === tokenId)
-
-  if (!token) return res.status(404).send('Token is not found')
+  let token = tokens.find((t) => String(t.id).toLowerCase() === tokenId)
 
   const [pools, rawMarkets] = await Promise.all([
-    SwapPool.find({ chain: network.name, $or: [{ 'tokenA.id': token.id }, { 'tokenB.id': token.id }] }).lean(),
-    Market.find({ chain: network.name, $or: [{ 'base_token.id': token.id }, { 'quote_token.id': token.id }] }).lean(),
+    SwapPool.find({ chain: network.name, $or: [{ 'tokenA.id': tokenId }, { 'tokenB.id': tokenId }] }).lean(),
+    Market.find({ chain: network.name, $or: [{ 'base_token.id': tokenId }, { 'quote_token.id': tokenId }] }).lean(),
   ])
+
+  // Token just created and not yet in the 5-minute `{chain}_token_prices` cache: build its
+  // analytics on the fly from pools/markets (already real-time in Mongo) and warm the cache.
+  if (!token) {
+    token = await buildOnDemandToken(network, tokenId, pools, rawMarkets)
+    if (!token) return res.status(404).send('Token is not found')
+    tokens.push(token)
+    upsertTokenPrice(network.name, token).catch((e) =>
+      console.error('upsertTokenPrice failed', tokenId, e?.message || e))
+  }
   let markets = rawMarkets
   if (hideScam) {
     const { scam_contracts, scam_tokens } = await getScamLists(network)

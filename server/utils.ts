@@ -24,6 +24,18 @@ export async function getToken(chain: string, id: string) {
   return tokens.find(t => t.id == id)
 }
 
+// Insert or replace a single token in the `{chain}_token_prices` cache, so an on-the-fly
+// generated token is served from the fast path until the next full price update rebuilds it.
+export async function upsertTokenPrice(chain: string, token: any) {
+  const tokens = (await getTokens(chain)) || []
+  const idx = tokens.findIndex(t => t.id === token.id)
+
+  if (idx >= 0) tokens[idx] = token
+  else tokens.push(token)
+
+  await getRedis().set(`${chain}_token_prices`, JSON.stringify(tokens))
+}
+
 export function getFailOverAlcorOnlyRpc(network) {
   // Try alcore's node first for updating orderbook
   let nodes = [network.protocol + '://' + network.host + ':' + network.port]
