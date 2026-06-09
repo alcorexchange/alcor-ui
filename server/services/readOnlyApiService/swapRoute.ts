@@ -1,10 +1,11 @@
 import { performance } from 'perf_hooks'
 
-import { TradeType, Percent, computeAllRoutes } from '@alcorexchange/alcor-swap-sdk'
+import { TradeType, Percent, Route, computeAllRoutes } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 
 import { getMultyEndRpc } from '../../../utils/eosjs'
 import { tryParseCurrencyAmount } from '../../../utils/amm'
+import { fetchRustRoutes } from '../rustRouter'
 import { getPools, getBestTradeByReadOnly } from './routeCalculation'
 
 export const swapRouter = Router()
@@ -49,6 +50,18 @@ function getCachedRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
   setTimeout(() => delete ROUTES[cache_key], ROUTES_CACHE_TIMEOUT * 1000)
 
   return routes
+}
+
+// Rebuild SDK Route objects from the bare poolIds the Rust router returns.
+// Pools are taken from the in-process POOLS cache by id; a route is dropped if
+// any of its pools is missing (stale cache), so the caller can fall back.
+function buildRoutesFromPoolIds(rustRoutes, pools, inputToken, outputToken) {
+  const poolById = new Map(pools.map(p => [p.id, p]))
+
+  return rustRoutes
+    .map(r => r.poolIds.map(id => poolById.get(id)))
+    .filter(routePools => routePools.every(Boolean))
+    .map(routePools => new Route(routePools, inputToken, outputToken))
 }
 
 async function getCachedPools(rpc, chain) {
@@ -99,7 +112,25 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   const startTime = performance.now()
 
-  const routes = getCachedRoutes(network.name, input, output, Math.min(maxHops, 5))
+  // Prefer the Rust route-finder service when it's up; fall back to the legacy
+  // in-process enumeration if it's unreachable or returns nothing usable.
+  let routes
+  const rustRoutes = await fetchRustRoutes({
+    chain: network.name,
+    tokenIn: input,
+    tokenOut: output,
+    amount: amount.quotient.toString(),
+    exactIn,
+    maxHops: Math.min(maxHops, 5),
+  })
+
+  if (rustRoutes) {
+    routes = buildRoutesFromPoolIds(rustRoutes, POOLS, inputToken, outputToken)
+  }
+
+  if (!routes || routes.length === 0) {
+    routes = getCachedRoutes(network.name, input, output, Math.min(maxHops, 5))
+  }
 
   const [trade] = await getBestTradeByReadOnly(
     amount,

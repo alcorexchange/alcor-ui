@@ -4,8 +4,9 @@ import { TradeType, Trade, Percent, Token, Pool, Route, computeAllRoutes } from 
 import { Router } from 'express'
 import { tryParseCurrencyAmount } from '../../../utils/amm'
 import { getPools } from '../swapV2Service/utils'
-import { parseTrade } from './utils'
 import { getRedis, getSubscriber } from '../redis'
+import { fetchRustRoutes } from '../rustRouter'
+import { parseTrade } from './utils'
 
 export const swapRouter = Router()
 
@@ -180,9 +181,17 @@ function parseRoutesFromRedis(cacheKey, redisRoutes, allPools, inputToken, outpu
     return routes
   }
 
-  for (const route of parsedRoutes) {
-    // Backward compatibility: старый формат {pools: [id]} | новый формат [id, id]
-    const poolIds = Array.isArray(route) ? route : route.pools
+  // Backward compatibility: старый формат {pools: [id]} | новый формат [id, id]
+  const poolIdLists = parsedRoutes.map(route => Array.isArray(route) ? route : route.pools)
+  return buildRoutesFromPoolIdLists(poolIdLists, allPools, inputToken, outputToken)
+}
+
+// Build SDK Route objects from lists of pool ids, skipping any route whose pools
+// are missing/inactive/tickless. Shared by the Redis cache and the Rust router.
+function buildRoutesFromPoolIdLists(poolIdLists, allPools, inputToken, outputToken) {
+  const routes = []
+
+  for (const poolIds of poolIdLists) {
     const pools = poolIds.map(p => allPools.get(p))
     const poolsValid = pools.every(p => p != undefined && p.active && p.tickDataProvider.ticks.length > 0)
 
@@ -567,19 +576,42 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   let cachedRoutes = []
   let cacheKey = ''
-  try {
-    const cachedRoutesInfo = await getCachedRoutes(
-      network.name,
+
+  // Prefer the Rust route-finder service; on any miss fall back to the Redis
+  // cache + on-demand enumeration below.
+  const rustRoutes = await fetchRustRoutes({
+    chain: network.name,
+    tokenIn: input,
+    tokenOut: output,
+    amount: amount.quotient.toString(),
+    exactIn,
+    maxHops,
+  })
+
+  if (rustRoutes) {
+    cachedRoutes = buildRoutesFromPoolIdLists(
+      rustRoutes.map(r => r.poolIds),
+      allPools,
       inputToken,
-      outputToken,
-      maxHops,
-      allPools
+      outputToken
     )
-    cachedRoutes = cachedRoutesInfo.routes
-    cacheKey = cachedRoutesInfo.cacheKey
-  } catch (e) {
-    console.error('Error getting cached routes:', e.message)
-    return res.status(500).send('Service temporarily unavailable')
+  }
+
+  if (cachedRoutes.length === 0) {
+    try {
+      const cachedRoutesInfo = await getCachedRoutes(
+        network.name,
+        inputToken,
+        outputToken,
+        maxHops,
+        allPools
+      )
+      cachedRoutes = cachedRoutesInfo.routes
+      cacheKey = cachedRoutesInfo.cacheKey
+    } catch (e) {
+      console.error('Error getting cached routes:', e.message)
+      return res.status(500).send('Service temporarily unavailable')
+    }
   }
 
   if (cachedRoutes.length == 0) {
