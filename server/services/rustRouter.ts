@@ -15,6 +15,13 @@ const ROUTER_SERVICE_TIMEOUT = Number(process.env.ROUTER_SERVICE_TIMEOUT) || 150
 const ROUTER_BREAKER_COOLDOWN = Number(process.env.ROUTER_SERVICE_COOLDOWN) || 5000
 let breakerOpenUntil = 0
 
+// Canary rollout: only route this fraction of requests (0..1) through Rust; the
+// rest fall straight back to the legacy path. Set to 1 for full traffic, 0 to
+// disable. Defaults to 0.1 (10%) while we validate the service in production.
+const ROUTER_SERVICE_SAMPLE_RATE = process.env.ROUTER_SERVICE_SAMPLE_RATE !== undefined
+  ? Number(process.env.ROUTER_SERVICE_SAMPLE_RATE)
+  : 0.1
+
 export interface RustRoute {
   poolIds: number[]
   tokenPath: string[]
@@ -50,6 +57,9 @@ export async function fetchRustRoutes({
   maxResults?: number
   marketFee?: number
 }): Promise<RustRoute[] | null> {
+  // Canary: send only a sampled fraction of traffic to Rust, rest go legacy.
+  if (Math.random() >= ROUTER_SERVICE_SAMPLE_RATE) return null
+
   // Breaker open: service is known-down, skip it and fall back immediately.
   if (Date.now() < breakerOpenUntil) return null
 
