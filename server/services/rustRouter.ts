@@ -17,10 +17,10 @@ let breakerOpenUntil = 0
 
 // Canary rollout: only route this fraction of requests (0..1) through Rust; the
 // rest fall straight back to the legacy path. Set to 1 for full traffic, 0 to
-// disable. Defaults to 0.1 (10%) while we validate the service in production.
+// disable. Defaults to 0.2 (20%) while we validate the service in production.
 const ROUTER_SERVICE_SAMPLE_RATE = process.env.ROUTER_SERVICE_SAMPLE_RATE !== undefined
   ? Number(process.env.ROUTER_SERVICE_SAMPLE_RATE)
-  : 0.1
+  : 0.2
 
 export interface RustRoute {
   poolIds: number[]
