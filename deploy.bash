@@ -36,14 +36,11 @@ docker run -d --name alcor-api-v2-humans --network=host --restart always \
   -v /var/log/nginx:/var/log/nginx:ro \
   alcor-api-humans:v2
 
-# Обновить Route Cache Updater
-echo "Building Route Cache Updater Docker container..."
-docker build -f Dockerfile.routecache-simple -t alcor-routecache:latest .
-
-echo "Restarting Route Cache Updater container..."
+# Route Cache Updater decommissioned — routes are now served by the Rust route-finder.
+# Tear down the old container if it's still running (these lines can be removed after one deploy).
+echo "Removing decommissioned Route Cache Updater container..."
 docker stop alcor-routecache || true
 docker rm alcor-routecache || true
-docker run -d --name alcor-routecache --network=host --restart always alcor-routecache:latest
 
 echo "Cleaning up old Docker images..."
 docker image prune -af --filter "until=24h"

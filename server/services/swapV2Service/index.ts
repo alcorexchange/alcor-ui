@@ -12,7 +12,7 @@ import { updateTokensPrices } from '../updaterService/prices'
 import { computeSafePoolTvlUSD } from '../updaterService/poolValuation'
 import { makeSwapBars, resolutions, getBarTimes } from '../updaterService/charts'
 import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
-import { deleteKeysByPattern, getFailOverAlcorOnlyRpc, getToken, getTokens, initRedis, mongoConnect } from './../../utils'
+import { getFailOverAlcorOnlyRpc, getToken, getTokens, initRedis, mongoConnect } from './../../utils'
 import { getRedis, getPublisher } from '../redis'
 
 // Used to wait for pool creation and fetching prices
@@ -950,24 +950,6 @@ export async function onSwapAction(message: string) {
     await throttledPoolUpdate(chain, data.poolId)
     await markPoolFirstSeen(chain, data.poolId, block_time)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
-
-    // Lead to high load
-    try {
-      const quantityA = data.tokenA.quantity || data.tokenA.asset
-      const quantityB = data.tokenB.quantity || data.tokenB.asset
-
-      const contractA = data.tokenA.contract || data.tokenA.Contract
-      const contractB = data.tokenB.contract || data.tokenB.Contract
-
-      const tokenA_id = quantityA.split(' ')[1].toLowerCase() + '-' + contractA
-      const tokenB_id = quantityB.split(' ')[1].toLowerCase() + '-' + contractB
-
-      // Removing cache to re-generate swap routes
-      deleteKeysByPattern(getRedis(), `routes_expiration_${chain}-*${tokenA_id}*`)
-      deleteKeysByPattern(getRedis(), `routes_expiration_${chain}-*${tokenB_id}*`)
-    } catch (e) {
-      console.error('REMOVE CACHE ROUTES ERR', e, data)
-    }
   }
 
   if (name == 'logswap') {

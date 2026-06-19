@@ -1,40 +1,21 @@
 import { performance } from 'perf_hooks'
 
-import { TradeType, Trade, Percent, Token, Pool, Route, computeAllRoutes } from '@alcorexchange/alcor-swap-sdk'
+import { TradeType, Trade, Percent, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 import { tryParseCurrencyAmount } from '../../../utils/amm'
 import { getPools } from '../swapV2Service/utils'
-import { getRedis, getSubscriber } from '../redis'
+import { getSubscriber } from '../redis'
 import { fetchRustRoutes } from '../rustRouter'
 import { parseTrade } from './utils'
 
 export const swapRouter = Router()
 
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
-const ROUTES_CACHE_TIMEOUT_SECONDS = 60 * 60 * 24 * 20 // 20 дней
-const ROUTES_UPDATING_TIMEOUT_SECONDS = 60 * 15
-const ON_DEMAND_QUEUE_KEY = 'routes_on_demand_queue'
-const ON_DEMAND_QUEUE_LOCK_KEY = 'routes_on_demand_queue_lock'
-const ON_DEMAND_QUEUE_LOCK_TTL_SECONDS = 120
-const ON_DEMAND_QUEUE_JOB_TTL_SECONDS = 60 * 5
-const ON_DEMAND_WAIT_TIMEOUT_MS = 300000
-const ON_DEMAND_WAIT_STEP_MS = 500
-const ON_DEMAND_EMPTY_COOLDOWN_SECONDS = 20
-const PROCESS_INSTANCE_ID = `${process.pid}-${Math.random().toString(36).slice(2, 10)}`
 const POOLS = {}
 const POOLS_LOADING_PROMISES = {}
 const TOKEN_INDEX = {} // { chain: Map<tokenId, Token> }
 const TRADE_CACHE = new Map() // Кеш для результатов trade
 const CACHE_TTL = 5000 // 3 секунды TTL для кеша
-let queueProcessorPromise: Promise<void> | null = null
-
-interface OnDemandRouteJob {
-  chain: string
-  inputTokenId: string
-  outputTokenId: string
-  maxHops: number
-  cacheKey: string
-}
 
 // Статистика по источникам запросов
 const REQUEST_STATS = new Map() // origin -> { count, lastSeen, routes: Map }
@@ -140,54 +121,8 @@ async function getAllPools(chain) {
   return POOLS[chain]
 }
 
-async function getCachedRoutes(chain, inputToken, outputToken, maxHops = 2, allPoolsMap: Map<any, Pool> | null = null) {
-  const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
-  const redisRoutes = await getRedis().get('routes_' + cacheKey)
-
-  if (!redisRoutes) {
-    // Создаем пустой кеш с истекшим временем, чтобы updater подхватил его
-    console.log(`[CACHE] Creating empty cache entry for: ${cacheKey}`)
-    await getRedis().set('routes_' + cacheKey, JSON.stringify([]))
-    // Устанавливаем время истечения в прошлое (1 час назад)
-    await getRedis().set('routes_expiration_' + cacheKey, (Date.now() - 60 * 60 * 1000).toString())
-    return { routes: [], cacheKey, cacheMiss: true, cacheEmpty: true }
-  }
-
-  const allPools = allPoolsMap || await getAllPools(chain)
-  const routes = parseRoutesFromRedis(cacheKey, redisRoutes, allPools, inputToken, outputToken)
-
-  // Если кеш пустой, помечаем как expired для пересчёта и возвращаем
-  if (routes.length === 0) {
-    // Устанавливаем время истечения в прошлое чтобы updater пересчитал
-    await getRedis().set('routes_expiration_' + cacheKey, (Date.now() - 60 * 60 * 1000).toString())
-    return { routes, cacheKey, cacheMiss: false, cacheEmpty: true }
-  }
-
-  return { routes, cacheKey, cacheMiss: false, cacheEmpty: false }
-}
-
-function parseRoutesFromRedis(cacheKey, redisRoutes, allPools, inputToken, outputToken) {
-  let parsedRoutes = []
-  const routes = []
-
-  try {
-    parsedRoutes = JSON.parse(redisRoutes)
-  } catch (e) {
-    console.error(`[ROUTES] Failed to parse routes from redis for ${cacheKey}:`, e.message)
-    return routes
-  }
-
-  if (!parsedRoutes || parsedRoutes.length === 0) {
-    return routes
-  }
-
-  // Backward compatibility: старый формат {pools: [id]} | новый формат [id, id]
-  const poolIdLists = parsedRoutes.map(route => Array.isArray(route) ? route : route.pools)
-  return buildRoutesFromPoolIdLists(poolIdLists, allPools, inputToken, outputToken)
-}
-
 // Build SDK Route objects from lists of pool ids, skipping any route whose pools
-// are missing/inactive/tickless. Shared by the Redis cache and the Rust router.
+// are missing/inactive/tickless. Fed by the Rust route-finder service.
 function buildRoutesFromPoolIdLists(poolIdLists, allPools, inputToken, outputToken) {
   const routes = []
 
@@ -203,17 +138,6 @@ function buildRoutesFromPoolIdLists(poolIdLists, allPools, inputToken, outputTok
   return routes
 }
 
-async function readCachedRoutesWithoutTouchingExpiration(chain, inputToken, outputToken, maxHops = 2, allPoolsMap: Map<any, Pool> | null = null) {
-  const cacheKey = `${chain}-${inputToken.id}-${outputToken.id}-${maxHops}`
-  const redisRoutes = await getRedis().get('routes_' + cacheKey)
-  if (!redisRoutes) {
-    return []
-  }
-
-  const allPools = allPoolsMap || await getAllPools(chain)
-  return parseRoutesFromRedis(cacheKey, redisRoutes, allPools, inputToken, outputToken)
-}
-
 // Оптимизированный поиск токенов через индекс O(1)
 function findToken(chain, tokenID) {
   return TOKEN_INDEX[chain]?.get(tokenID)
@@ -227,256 +151,6 @@ function cleanTradeCache() {
       TRADE_CACHE.delete(key)
     }
   }
-}
-
-async function computeRoutesOnDemand(
-  chain,
-  inputToken,
-  outputToken,
-  maxHops,
-  allPools: Map<any, Pool>,
-  cacheKey
-) {
-  const startTime = performance.now()
-
-  const pools = (Array.from(allPools.values()) as any[]).filter(
-    (p) => Boolean(p && p.active && p.tickDataProvider?.ticks?.length > 0)
-  )
-  const poolsForRoutes = pools as Pool[]
-
-  const inputTokenId = inputToken.id
-  const outputTokenId = outputToken.id
-  const adjacency = new Map<string, Set<string>>()
-  let inputPoolCount = 0
-  let outputPoolCount = 0
-
-  for (const pool of poolsForRoutes) {
-    const tokenAId = pool.tokenA.id
-    const tokenBId = pool.tokenB.id
-
-    if (!adjacency.has(tokenAId)) adjacency.set(tokenAId, new Set())
-    if (!adjacency.has(tokenBId)) adjacency.set(tokenBId, new Set())
-    adjacency.get(tokenAId)!.add(tokenBId)
-    adjacency.get(tokenBId)!.add(tokenAId)
-
-    if (tokenAId === inputTokenId || tokenBId === inputTokenId) inputPoolCount++
-    if (tokenAId === outputTokenId || tokenBId === outputTokenId) outputPoolCount++
-  }
-
-  if (inputPoolCount === 0 || outputPoolCount === 0) {
-    const endTime = performance.now()
-    console.log(
-      `[ROUTES] On-demand precheck: ${cacheKey} -> 0 routes (no attached pools: input=${inputPoolCount}, output=${outputPoolCount}, total=${poolsForRoutes.length}) in ${Math.round(endTime - startTime)}ms`
-    )
-    return []
-  }
-
-  const visited = new Set<string>([inputTokenId])
-  const queue: Array<{ tokenId: string; hops: number }> = [{ tokenId: inputTokenId, hops: 0 }]
-  let hasPathWithinHops = inputTokenId === outputTokenId
-
-  for (let i = 0; i < queue.length && !hasPathWithinHops; i++) {
-    const { tokenId, hops } = queue[i]
-    if (hops >= maxHops) continue
-
-    const neighbors = adjacency.get(tokenId)
-    if (!neighbors) continue
-
-    for (const nextTokenId of neighbors) {
-      if (nextTokenId === outputTokenId) {
-        hasPathWithinHops = true
-        break
-      }
-
-      if (visited.has(nextTokenId)) continue
-      visited.add(nextTokenId)
-      queue.push({ tokenId: nextTokenId, hops: hops + 1 })
-    }
-  }
-
-  if (!hasPathWithinHops) {
-    const endTime = performance.now()
-    console.log(
-      `[ROUTES] On-demand precheck: ${cacheKey} -> 0 routes (graph disconnected within ${maxHops} hops, total pools=${poolsForRoutes.length}) in ${Math.round(endTime - startTime)}ms`
-    )
-    return []
-  }
-
-  let routes: Route<Token, Token>[] = []
-  try {
-    routes = computeAllRoutes(inputToken, outputToken, poolsForRoutes, maxHops) as Route<Token, Token>[]
-  } catch (e) {
-    console.error(`[ROUTES] On-demand compute failed for ${cacheKey}:`, e.message)
-    return []
-  }
-
-  if (routes.length > 0) {
-    const redisRoutes = routes.map(({ pools }) => pools.map(p => p.id))
-    await getRedis().set('routes_' + cacheKey, JSON.stringify(redisRoutes))
-    await getRedis().set('routes_expiration_' + cacheKey, (Date.now() + ROUTES_CACHE_TIMEOUT_SECONDS * 1000).toString())
-  }
-
-  const endTime = performance.now()
-  console.log(`[ROUTES] On-demand compute: ${cacheKey} -> ${routes.length} routes in ${Math.round(endTime - startTime)}ms`)
-
-  return routes
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
-function onDemandEnqueuedKey(cacheKey: string) {
-  return `routes_on_demand_enqueued_${cacheKey}`
-}
-
-function onDemandCooldownKey(cacheKey: string) {
-  return `routes_on_demand_cooldown_${cacheKey}`
-}
-
-async function enqueueOnDemandRoute(job: OnDemandRouteJob) {
-  const redis = getRedis()
-  const enqueuedKey = onDemandEnqueuedKey(job.cacheKey)
-
-  // Если недавно уже считали и не нашли роутов, не заспамливаем очередь.
-  if (await redis.get(onDemandCooldownKey(job.cacheKey))) {
-    console.log(`[ROUTES] On-demand skip (cooldown): ${job.cacheKey}`)
-    return { enqueued: false, reason: 'cooldown' }
-  }
-
-  const setResult = await redis.set(enqueuedKey, PROCESS_INSTANCE_ID, { EX: ON_DEMAND_QUEUE_JOB_TTL_SECONDS, NX: true })
-  if (setResult !== 'OK') {
-    const queueSize = await redis.lLen(ON_DEMAND_QUEUE_KEY)
-    console.log(`[ROUTES] On-demand already queued: ${job.cacheKey} | queue size: ${queueSize}`)
-    return { enqueued: false, reason: 'already_queued' }
-  }
-
-  try {
-    const queueSize = await redis.rPush(ON_DEMAND_QUEUE_KEY, JSON.stringify(job))
-    const position = queueSize
-    console.log(`[ROUTES] On-demand queued: ${job.cacheKey} | position: ${position}/${queueSize}`)
-    return { enqueued: true, reason: 'queued' }
-  } catch (e) {
-    await redis.del(enqueuedKey)
-    throw e
-  }
-}
-
-async function releaseQueueLock(lockValue: string) {
-  const redis = getRedis()
-  const current = await redis.get(ON_DEMAND_QUEUE_LOCK_KEY)
-  if (current === lockValue) {
-    await redis.del(ON_DEMAND_QUEUE_LOCK_KEY)
-  }
-}
-
-async function processQueuedOnDemandRoute(job: OnDemandRouteJob) {
-  const redis = getRedis()
-  const { chain, inputTokenId, outputTokenId, maxHops, cacheKey } = job
-  const updatingKey = 'updating_' + cacheKey
-
-  try {
-    const allPools = await getAllPools(chain)
-    const inputToken = findToken(chain, inputTokenId)
-    const outputToken = findToken(chain, outputTokenId)
-
-    if (!inputToken || !outputToken || inputToken.equals(outputToken)) {
-      return
-    }
-
-    const routesInCache = await readCachedRoutesWithoutTouchingExpiration(chain, inputToken, outputToken, maxHops, allPools)
-    if (routesInCache.length > 0) {
-      return
-    }
-
-    const lockSet = await redis.set(updatingKey, PROCESS_INSTANCE_ID, { EX: ROUTES_UPDATING_TIMEOUT_SECONDS, NX: true })
-    if (lockSet !== 'OK') {
-      return
-    }
-
-    try {
-      const routes = await computeRoutesOnDemand(chain, inputToken, outputToken, maxHops, allPools, cacheKey)
-      if (routes.length === 0) {
-        await redis.set(onDemandCooldownKey(cacheKey), Date.now().toString(), { EX: ON_DEMAND_EMPTY_COOLDOWN_SECONDS })
-      }
-    } finally {
-      await redis.del(updatingKey)
-    }
-  } catch (e) {
-    console.error(`[ROUTES] Failed to process queued job ${cacheKey}:`, e.message)
-  } finally {
-    await redis.del(onDemandEnqueuedKey(cacheKey))
-  }
-}
-
-function startOnDemandQueueProcessor() {
-  if (queueProcessorPromise) return queueProcessorPromise
-
-  queueProcessorPromise = (async () => {
-    const redis = getRedis()
-    const lockValue = `${PROCESS_INSTANCE_ID}:${Date.now()}`
-    const lockSet = await redis.set(ON_DEMAND_QUEUE_LOCK_KEY, lockValue, { EX: ON_DEMAND_QUEUE_LOCK_TTL_SECONDS, NX: true })
-
-    if (lockSet !== 'OK') {
-      return
-    }
-
-    try {
-      while (true) {
-        const rawJob = await redis.lPop(ON_DEMAND_QUEUE_KEY)
-        if (!rawJob) break
-
-        await redis.expire(ON_DEMAND_QUEUE_LOCK_KEY, ON_DEMAND_QUEUE_LOCK_TTL_SECONDS)
-
-        let job: OnDemandRouteJob
-        try {
-          job = JSON.parse(rawJob)
-        } catch (e) {
-          console.error('[ROUTES] Invalid on-demand queue payload:', e.message)
-          continue
-        }
-
-        if (!job?.cacheKey || !job?.chain || !job?.inputTokenId || !job?.outputTokenId) {
-          continue
-        }
-
-        const queueLeft = await redis.lLen(ON_DEMAND_QUEUE_KEY)
-        console.log(`[ROUTES] On-demand processing: ${job.cacheKey} | left in queue: ${queueLeft}`)
-
-        await processQueuedOnDemandRoute(job)
-        await redis.expire(ON_DEMAND_QUEUE_LOCK_KEY, ON_DEMAND_QUEUE_LOCK_TTL_SECONDS)
-      }
-    } finally {
-      await releaseQueueLock(lockValue)
-    }
-  })()
-    .catch((e) => {
-      console.error('[ROUTES] On-demand queue processor failed:', e.message)
-    })
-    .finally(() => {
-      queueProcessorPromise = null
-    })
-
-  return queueProcessorPromise
-}
-
-async function waitForQueuedRoutes(chain, inputToken, outputToken, maxHops, cacheKey, allPools) {
-  const startAt = Date.now()
-  while (Date.now() - startAt < ON_DEMAND_WAIT_TIMEOUT_MS) {
-    const routesInCache = await readCachedRoutesWithoutTouchingExpiration(chain, inputToken, outputToken, maxHops, allPools)
-    if (routesInCache.length > 0) {
-      return routesInCache
-    }
-
-    const enqueued = await getRedis().get(onDemandEnqueuedKey(cacheKey))
-    if (!enqueued) {
-      break
-    }
-
-    await sleep(ON_DEMAND_WAIT_STEP_MS)
-  }
-
-  return []
 }
 
 // Эндпоинт для просмотра статистики
@@ -574,11 +248,7 @@ swapRouter.get('/getRoute', async (req, res) => {
     return res.status(403).send('Invalid amount')
   }
 
-  let cachedRoutes = []
-  let cacheKey = ''
-
-  // Prefer the Rust route-finder service; on any miss fall back to the Redis
-  // cache + on-demand enumeration below.
+  // Routes come exclusively from the Rust route-finder service.
   const rustRoutes = await fetchRustRoutes({
     chain: network.name,
     tokenIn: input,
@@ -588,75 +258,20 @@ swapRouter.get('/getRoute', async (req, res) => {
     maxHops,
   })
 
-  if (rustRoutes) {
-    cachedRoutes = buildRoutesFromPoolIdLists(
-      rustRoutes.map(r => r.poolIds),
-      allPools,
-      inputToken,
-      outputToken
-    )
-  }
+  const routes = rustRoutes
+    ? buildRoutesFromPoolIdLists(rustRoutes.map(r => r.poolIds), allPools, inputToken, outputToken)
+    : []
 
-  if (cachedRoutes.length === 0) {
-    try {
-      const cachedRoutesInfo = await getCachedRoutes(
-        network.name,
-        inputToken,
-        outputToken,
-        maxHops,
-        allPools
-      )
-      cachedRoutes = cachedRoutesInfo.routes
-      cacheKey = cachedRoutesInfo.cacheKey
-    } catch (e) {
-      console.error('Error getting cached routes:', e.message)
-      return res.status(500).send('Service temporarily unavailable')
-    }
-  }
-
-  if (cachedRoutes.length == 0) {
-    console.log(`[ROUTES] Cache empty: ${network.name} ${inputToken.symbol}(${inputToken.id}) -> ${outputToken.symbol}(${outputToken.id}) maxHops:${maxHops}`)
-    const effectiveCacheKey = cacheKey || `${network.name}-${inputToken.id}-${outputToken.id}-${maxHops}`
-
-    try {
-      const queueResult = await enqueueOnDemandRoute({
-        chain: network.name,
-        inputTokenId: inputToken.id,
-        outputTokenId: outputToken.id,
-        maxHops,
-        cacheKey: effectiveCacheKey
-      })
-
-      startOnDemandQueueProcessor()
-
-      if (queueResult.reason !== 'cooldown') {
-        cachedRoutes = await waitForQueuedRoutes(
-          network.name,
-          inputToken,
-          outputToken,
-          maxHops,
-          effectiveCacheKey,
-          allPools
-        )
-      }
-    } catch (e) {
-      console.error('Error computing routes on-demand:', e.message)
-    }
-  }
-
-  if (cachedRoutes.length == 0) {
-    // Более информативная ошибка
+  if (routes.length == 0) {
     console.log(`No routes available: ${network.name} ${inputToken.symbol}(${inputToken.id}) -> ${outputToken.symbol}(${outputToken.id}) maxHops:${maxHops}`)
     return res.status(404).send('No trading route available. Try again in a few moments.')
   }
-
-  //cachedRoutes.sort((a, b) => a.midPrice.greaterThan(b.midPrice) ? -1 : 1)
 
   let trade
   try {
     if (v2) {
       trade = Trade.bestTradeWithSplit(
-        cachedRoutes,
+        routes,
         amount,
         maxHops > 2 ? [25, 50, 75, 100] : [5, 10, 15, 25, 50, 75, 100],
         //[5, 10, 15, 25, 50, 75, 100],
@@ -665,8 +280,8 @@ swapRouter.get('/getRoute', async (req, res) => {
       )
     } else {
       ;[trade] = exactIn
-        ? Trade.bestTradeExactIn(cachedRoutes, amount)
-        : Trade.bestTradeExactOut(cachedRoutes, amount)
+        ? Trade.bestTradeExactIn(routes, amount)
+        : Trade.bestTradeExactOut(routes, amount)
     }
   } catch (e) {
     console.error('GET ROUTE ERROR', e)
