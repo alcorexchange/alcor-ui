@@ -1030,6 +1030,18 @@
     ],
     "description": "PURR is the reward token in the YEET ecosystem on the WAX blockchain, exclusively distributed via DeFi rewards to YEET holders currently, and planned as staking rewards for YEET NFTs in the future. With +99% of supply locked, it powers memery, community engagement, and enhances the stupidly fun YEET experience without any team allocations or TX taxes."
   }, 
+  "HAMSTER@hamster": {
+    "name": "hamster",
+    "website": {
+      "link": "https://hamster-token.com/",
+      "name": "hamster-token.com"
+    },
+    "tags": ["Meme", "DeFi", "NFT", "Gaming", "Rewards", "DAO", "Ecosystem"],
+    "socials": [
+      
+    ],
+    "description": "Hamster (HAMSTER) is a memecoin built on the WAX Blockchain, combining community spirit, humor, and meme culture with the benefits of a fast, efficient, and low-cost blockchain. Its goal is to build an active community that drives initiatives, events, and projects within the WAX ecosystem."
+  },
   
   "VLR@valora": {
     "name": "Valora Token",
