@@ -310,6 +310,70 @@ Response:
 { "meta": { ... }, "timeframe", "frame", "items": [ { "time", "open", "high", "low", "close", "volume" } ] }
 ```
 
+### GET `/analytics/lp-leaderboard`
+Top liquidity providers by fee earnings. Served from a precomputed snapshot
+(refreshed every ~10 minutes by the updater), returns `503` until the first snapshot is built.
+
+Notes:
+- `claimedUSD` is summed from on-chain `collect` events, USD-valued at claim time.
+- `unclaimedUSD` is computed from current open positions (safe token prices).
+- `apr[window]` is pragmatic: claimed fees for the window / current TVL, annualized.
+  Not defined for `all` (null); accounts with zero TVL have `null` APR.
+- `window` here is one of `24h | 7d | 30d | all` (no `90d`).
+
+Query:
+- `window` (default: `30d`) — affects `claimedUSD`/`apr` sorting
+- `sort=claimed|unclaimed|total|tvl|apr` (default: `claimed`)
+- `order=asc|desc` (default: `desc`)
+- `page` (default: `1`), `limit` (default: `100`, max: `500`)
+- `search` — substring filter on account name
+
+Response:
+```
+{
+  "meta": { "chain", "ts", "window", ... },
+  "updatedAt",
+  "totals": {
+    "accounts", "positions",
+    "claimedUSD": { "24h", "7d", "30d", "all" },
+    "unclaimedUSD", "tvlUSD"
+  },
+  "sort", "order",
+  "pagination": { "page", "limit", "total" },
+  "items": [
+    {
+      "rank",
+      "account",
+      "claimedUSD": { "24h", "7d", "30d", "all" },
+      "unclaimedUSD",
+      "totalFeesUSD",           // claimedUSD.all + unclaimedUSD
+      "tvlUSD",
+      "apr": { "24h", "7d", "30d" },  // % or null
+      "positionsCount", "poolsCount", "collectsCount",
+      "lastCollectTime",
+      "topPools": [
+        {
+          "id", "fee",
+          "tokenA": { "id", "symbol", "contract" },
+          "tokenB": { "id", "symbol", "contract" },
+          "claimedUSD": { "24h", "7d", "30d", "all" },
+          "unclaimedUSD", "tvlUSD", "positionsCount"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### GET `/analytics/lp-leaderboard/:account`
+Single leaderboard entry for an account. `404` if the account is not in the snapshot
+(snapshot keeps the union of top-1000 accounts per each metric).
+
+Response:
+```
+{ "meta": { ... }, "updatedAt", "item": { ...same shape as leaderboard item, "rank" is by all-time earnings } }
+```
+
 ## AMM
 
 ### GET `/amm/account/:account/positions`

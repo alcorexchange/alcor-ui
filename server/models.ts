@@ -375,6 +375,7 @@ const PositionHistorySchema = new mongoose.Schema({
   time: { type: Date, index: true },
 })
 PositionHistorySchema.index({ chain: 1, id: 1, owner: 1, time: 1 }, { background: true })
+PositionHistorySchema.index({ chain: 1, type: 1, time: -1 }, { background: true })
 PositionHistorySchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: 1 }, { background: true })
 PositionHistorySchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: -1, type: 1 }, { background: true })
 PositionHistorySchema.index({ chain: 1, owner: 1, time: -1 }, { background: true })

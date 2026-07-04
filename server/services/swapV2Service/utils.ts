@@ -65,6 +65,15 @@ export async function getRedisTicks(chain: string, poolId: number | string) {
   return ticks
 }
 
+// Non-atomic reads (MongoDB pool + Redis ticks/positions) can cause SDK's subIn128
+// to wrap around, producing astronomical fee values. Cap: fees should never exceed
+// 100x the position's principal value (and at least $1B hard cap).
+export function sanitizePositionFeesUSD(totalFeesUSD: number, positionValueUSD: number) {
+  const maxSaneFees = Math.max(positionValueUSD * 100, 1_000_000_000)
+  if (!Number.isFinite(totalFeesUSD) || totalFeesUSD < 0 || totalFeesUSD > maxSaneFees) return 0
+  return totalFeesUSD
+}
+
 export async function getRedisPosition(chain, id) {
   const positions = JSON.parse(await getRedis().get(`positions_${chain}`) || '[]')
   return positions.find(p => p.id == id)

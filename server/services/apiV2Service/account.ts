@@ -5,7 +5,7 @@ import { Position as PositionClass } from '@alcorexchange/alcor-swap-sdk'
 
 import { Router } from 'express'
 import { Match, Swap, PositionHistory, Position } from '../../models'
-import { getRedisPosition, getPoolInstance } from '../swapV2Service/utils'
+import { getRedisPosition, getPoolInstance, sanitizePositionFeesUSD } from '../swapV2Service/utils'
 import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
 import { updatePool } from '../swapV2Service'
 import { redis } from '../../utils'
@@ -73,15 +73,10 @@ async function getCurrentPositionState(chain, plainPosition, tokenPrices = null)
     parseFloat(position.amountA.toFixed()) * tokenAUSDPrice +
     parseFloat(position.amountB.toFixed()) * tokenBUSDPrice
 
-  let totalFeesUSD = parseFloat(feesA) * tokenAUSDPrice + parseFloat(feesB) * tokenBUSDPrice
-
-  // Sanity check: non-atomic reads (MongoDB pool + Redis ticks/positions) can cause
-  // SDK's subIn128 to wrap around, producing astronomical fee values.
-  // Cap: fees should never exceed 100x the position's principal value (and at least $1B hard cap).
-  const maxSaneFees = Math.max(positionValueUSD * 100, 1_000_000_000)
-  if (!Number.isFinite(totalFeesUSD) || totalFeesUSD < 0 || totalFeesUSD > maxSaneFees) {
-    totalFeesUSD = 0
-  }
+  const totalFeesUSD = sanitizePositionFeesUSD(
+    parseFloat(feesA) * tokenAUSDPrice + parseFloat(feesB) * tokenBUSDPrice,
+    positionValueUSD
+  )
 
   const totalValue = positionValueUSD + totalFeesUSD
 

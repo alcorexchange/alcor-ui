@@ -14,6 +14,7 @@ import { getIncentives } from '../apiV2Service/farms'
 import { getChainRpc } from '../../../utils/eosjs'
 import { getOrderbook } from '../orderbookService/start'
 import { sqrt } from '../../../utils/bigint'
+import { getLpLeaderboardRedisKey } from '../updaterService/lpLeaderboard'
 import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import type { ProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import { getSimpleTokenLogoUrl } from '../simpleTokenLogoService'
@@ -2644,5 +2645,93 @@ analytics.get('/spot-pairs/:id/candles', cacheSeconds(120, (req, res) => {
     timeframe: resolutionRaw,
     frame,
     items,
+  })
+})
+
+const LP_LEADERBOARD_WINDOWS = new Set(['24h', '7d', '30d', 'all'])
+const LP_LEADERBOARD_SORTS = new Set(['claimed', 'unclaimed', 'total', 'tvl', 'apr'])
+const LP_LEADERBOARD_MAX_LIMIT = 500
+
+async function readLpLeaderboardSnapshot(network: Network) {
+  const raw = await getRedis().get(getLpLeaderboardRedisKey(network.name))
+  return raw ? JSON.parse(raw) : null
+}
+
+function getLpLeaderboardSortValue(item: any, sort: string, window: string) {
+  if (sort === 'claimed') return safeNumber(item?.claimedUSD?.[window])
+  if (sort === 'unclaimed') return safeNumber(item?.unclaimedUSD)
+  if (sort === 'tvl') return safeNumber(item?.tvlUSD)
+  if (sort === 'apr') {
+    // APR is not defined for the 'all' window, fall back to 30d.
+    const aprWindow = window === 'all' ? '30d' : window
+    const apr = item?.apr?.[aprWindow]
+    // APR is never negative, so null (no TVL) sorts below every real value.
+    return apr === null || apr === undefined ? -1 : safeNumber(apr)
+  }
+  return safeNumber(item?.totalFeesUSD)
+}
+
+analytics.get('/lp-leaderboard', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+
+  const snapshot = await readLpLeaderboardSnapshot(network)
+  if (!snapshot) return res.status(503).json({ error: 'LP leaderboard is not ready yet' })
+
+  const windowRaw = String(req.query.window || '30d').toLowerCase()
+  const window = LP_LEADERBOARD_WINDOWS.has(windowRaw) ? windowRaw : '30d'
+
+  const sortRaw = String(req.query.sort || 'claimed').toLowerCase()
+  const sort = LP_LEADERBOARD_SORTS.has(sortRaw) ? sortRaw : 'claimed'
+  const order = String(req.query.order || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc'
+
+  const limit = Math.min(Math.max(parseInt(String(req.query.limit), 10) || 100, 1), LP_LEADERBOARD_MAX_LIMIT)
+  const page = Math.max(parseInt(String(req.query.page), 10) || 1, 1)
+  const search = String(req.query.search || '').trim().toLowerCase()
+
+  const direction = order === 'asc' ? 1 : -1
+  const ranked = [...(snapshot.accounts || [])]
+    .sort((a, b) => direction * (getLpLeaderboardSortValue(a, sort, window) - getLpLeaderboardSortValue(b, sort, window)))
+    .map((item, index) => ({ rank: index + 1, ...item }))
+
+  const filtered = search ? ranked.filter((item) => String(item.account).includes(search)) : ranked
+  const items = filtered.slice((page - 1) * limit, page * limit)
+
+  res.json({
+    meta: buildMeta(network, window),
+    updatedAt: snapshot.updatedAt,
+    totals: snapshot.totals,
+    sort,
+    order,
+    pagination: {
+      page,
+      limit,
+      total: filtered.length,
+    },
+    items,
+  })
+})
+
+analytics.get('/lp-leaderboard/:account', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+
+  const account = normalizeAccountName(req.params.account)
+  if (!account) return res.status(400).send('Invalid account name')
+
+  const snapshot = await readLpLeaderboardSnapshot(network)
+  if (!snapshot) return res.status(503).json({ error: 'LP leaderboard is not ready yet' })
+
+  const accounts = snapshot.accounts || []
+  const index = accounts.findIndex((item: any) => item.account === account)
+  if (index === -1) return res.status(404).json({ error: 'Account is not in the leaderboard' })
+
+  res.json({
+    meta: buildMeta(network, 'all'),
+    updatedAt: snapshot.updatedAt,
+    // Rank by all-time earnings (snapshot default ordering).
+    item: { rank: index + 1, ...accounts[index] },
   })
 })

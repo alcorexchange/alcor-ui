@@ -7,6 +7,7 @@ import { getSettings } from '../../utils'
 import { updateGlobalStats } from './analytics'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats, updatePositionsAggregation } from './swap'
+import { updateLpLeaderboard } from './lpLeaderboard'
 import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
 import { updateTokenScores } from './tokenScores'
 import { startTokenHoldersUpdater } from './tokenHolders'
@@ -82,10 +83,12 @@ export async function updater(chain: string, services: string[]) {
       .catch((e) => console.log(`[${chain}] Pool stats update error`, e))
     updatePositionsAggregation(chain)
       .then(() => console.log(`[${chain}] Positions aggregated`))
+      .then(() => updateLpLeaderboard(chain))
       .catch((e) => console.log(`[${chain}] Positions aggregation error`, e))
     console.log(`[${chain}] Starting streamer for ${network.amm.contract}...`)
     setInterval(() => updatePoolsStats(chain), 10 * 60 * 1000)
     setInterval(() => updatePositionsAggregation(chain), 2 * 60 * 1000) // Every 2 minutes
+    setInterval(() => updateLpLeaderboard(chain), 10 * 60 * 1000)
 
     streamByTrace(
       network,
