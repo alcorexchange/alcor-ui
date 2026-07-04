@@ -382,11 +382,20 @@ function safeNumber(value) {
 
 function buildPositionsSummary(items) {
   const totals = items.reduce((acc, item) => {
+    const totalValueUSD = safeNumber(item?.totalValueUSD)
+
     acc.estimatedFees24hUSD += safeNumber(item?.estimatedFees24hUSD)
     acc.estimatedFees7dUSD += safeNumber(item?.estimatedFees7dUSD)
-    acc.totalValueUSD += safeNumber(item?.totalValueUSD)
+    acc.totalValueUSD += totalValueUSD
     acc.totalFeesUSD += safeNumber(item?.totalFeesUSD)
     acc.pnlUSD += safeNumber(item?.pnlUSD)
+    acc.farmAprWeighted += totalValueUSD * safeNumber(item?.apr?.farm)
+
+    if (item?.inRange) {
+      acc.inRangePositions += 1
+      acc.inRangeValueUSD += totalValueUSD
+    }
+
     return acc
   }, {
     estimatedFees24hUSD: 0,
@@ -394,7 +403,19 @@ function buildPositionsSummary(items) {
     totalValueUSD: 0,
     totalFeesUSD: 0,
     pnlUSD: 0,
+    farmAprWeighted: 0,
+    inRangePositions: 0,
+    inRangeValueUSD: 0,
   })
+
+  const feeApr = calcAprFromFees(totals.estimatedFees7dUSD, totals.totalValueUSD, APR_PERIOD_DAYS)
+  const feeApr24h = calcAprFromFees(totals.estimatedFees24hUSD, totals.totalValueUSD, 1)
+  const farmApr = totals.totalValueUSD > 0
+    ? Number((totals.farmAprWeighted / totals.totalValueUSD).toFixed(2))
+    : 0
+  const inRangeValuePct = totals.totalValueUSD > 0
+    ? Number(((totals.inRangeValueUSD / totals.totalValueUSD) * 100).toFixed(2))
+    : 0
 
   return {
     positions: items.length,
@@ -403,6 +424,18 @@ function buildPositionsSummary(items) {
     totalValueUSD: Number(totals.totalValueUSD.toFixed(4)),
     totalFeesUSD: Number(totals.totalFeesUSD.toFixed(4)),
     pnlUSD: Number(totals.pnlUSD.toFixed(4)),
+    apr: {
+      periodDays: APR_PERIOD_DAYS,
+      fee: feeApr,
+      fee24h: feeApr24h,
+      farm: farmApr,
+      total: Number((feeApr + farmApr).toFixed(2)),
+    },
+    inRange: {
+      positions: totals.inRangePositions,
+      valueUSD: Number(totals.inRangeValueUSD.toFixed(4)),
+      valuePct: inRangeValuePct,
+    },
   }
 }
 
