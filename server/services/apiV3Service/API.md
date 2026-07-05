@@ -316,6 +316,8 @@ Top liquidity providers by fee earnings. Served from a precomputed snapshot
 
 Notes:
 - `claimedUSD` is summed from on-chain `collect` events, USD-valued at claim time.
+  For pools where a token currently has no safe price (scam/untrusted), claims are
+  re-valued from raw token amounts with current safe prices — the untrusted side counts as $0.
 - `unclaimedUSD` is computed from current open positions (safe token prices).
 - `apr[window]` is pragmatic: claimed fees for the window / current TVL, annualized.
   Not defined for `all` (null); accounts with zero TVL have `null` APR.

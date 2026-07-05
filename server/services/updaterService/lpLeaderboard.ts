@@ -61,11 +61,17 @@ function getPoolEntry(accountEntry: any, poolId: number) {
 }
 
 // Claimed fees per owner+pool for all windows in a single pass over 'collect' events.
-// USD values were fixed at claim time by the indexer (saveMintOrBurn).
+// USD values were fixed at claim time by the indexer (saveMintOrBurn), but old records
+// predate safe prices and may value scam tokens at their raw (manipulated) price —
+// so raw token amounts are aggregated too, for re-valuation with current safe prices.
 async function aggregateClaimedFees(chain: string, now: number) {
-  const sumSince = (since: Date) => ({
-    $sum: { $cond: [{ $gte: ['$time', since] }, { $ifNull: ['$totalUSDValue', 0] }, 0] },
+  const sumSince = (field: string, since: Date) => ({
+    $sum: { $cond: [{ $gte: ['$time', since] }, { $ifNull: [field, 0] }, 0] },
   })
+
+  const day = new Date(now - ONEDAY)
+  const week = new Date(now - 7 * ONEDAY)
+  const month = new Date(now - 30 * ONEDAY)
 
   return await PositionHistory.aggregate([
     { $match: { chain, type: 'collect' } },
@@ -73,9 +79,17 @@ async function aggregateClaimedFees(chain: string, now: number) {
       $group: {
         _id: { owner: '$owner', pool: '$pool' },
         claimedUSDAll: { $sum: { $ifNull: ['$totalUSDValue', 0] } },
-        claimedUSD24: sumSince(new Date(now - ONEDAY)),
-        claimedUSD7: sumSince(new Date(now - 7 * ONEDAY)),
-        claimedUSD30: sumSince(new Date(now - 30 * ONEDAY)),
+        claimedUSD24: sumSince('$totalUSDValue', day),
+        claimedUSD7: sumSince('$totalUSDValue', week),
+        claimedUSD30: sumSince('$totalUSDValue', month),
+        tokenAAll: { $sum: { $ifNull: ['$tokenA', 0] } },
+        tokenA24: sumSince('$tokenA', day),
+        tokenA7: sumSince('$tokenA', week),
+        tokenA30: sumSince('$tokenA', month),
+        tokenBAll: { $sum: { $ifNull: ['$tokenB', 0] } },
+        tokenB24: sumSince('$tokenB', day),
+        tokenB7: sumSince('$tokenB', week),
+        tokenB30: sumSince('$tokenB', month),
         collects: { $sum: 1 },
         lastCollectTime: { $max: '$time' },
       },
@@ -83,17 +97,37 @@ async function aggregateClaimedFees(chain: string, now: number) {
   ])
 }
 
-function applyClaimedFees(accounts: Map<string, any>, claimRows: any[]) {
+function applyClaimedFees(
+  accounts: Map<string, any>,
+  claimRows: any[],
+  poolsById: Map<number, any>,
+  priceMap: Map<string, number>
+) {
   for (const row of claimRows) {
     const { owner, pool } = row._id
     if (!owner || pool === undefined || pool === null) continue
 
-    const claimed = {
-      '24h': Number(row.claimedUSD24) || 0,
-      '7d': Number(row.claimedUSD7) || 0,
-      '30d': Number(row.claimedUSD30) || 0,
-      all: Number(row.claimedUSDAll) || 0,
-    }
+    const mongoPool = poolsById.get(Number(pool))
+    const priceA = mongoPool ? priceMap.get(mongoPool.tokenA.id) || 0 : 0
+    const priceB = mongoPool ? priceMap.get(mongoPool.tokenB.id) || 0 : 0
+
+    // Stored USD (price at claim time) is only trustworthy when both pool tokens
+    // currently have a safe price. Otherwise re-value claims from token amounts
+    // with current safe prices — the untrusted side contributes $0.
+    const bothTrusted = priceA > 0 && priceB > 0
+    const claimed = bothTrusted
+      ? {
+        '24h': Number(row.claimedUSD24) || 0,
+        '7d': Number(row.claimedUSD7) || 0,
+        '30d': Number(row.claimedUSD30) || 0,
+        all: Number(row.claimedUSDAll) || 0,
+      }
+      : {
+        '24h': (Number(row.tokenA24) || 0) * priceA + (Number(row.tokenB24) || 0) * priceB,
+        '7d': (Number(row.tokenA7) || 0) * priceA + (Number(row.tokenB7) || 0) * priceB,
+        '30d': (Number(row.tokenA30) || 0) * priceA + (Number(row.tokenB30) || 0) * priceB,
+        all: (Number(row.tokenAAll) || 0) * priceA + (Number(row.tokenBAll) || 0) * priceB,
+      }
 
     const accountEntry = getAccountEntry(accounts, owner)
     const poolEntry = getPoolEntry(accountEntry, Number(pool))
@@ -112,12 +146,15 @@ function applyClaimedFees(accounts: Map<string, any>, claimRows: any[]) {
 
 // Unclaimed fees and current position value for every open position on the chain.
 // Pure math over pool ticks (already in Redis), no RPC calls.
-async function applyLivePositions(chain: string, accounts: Map<string, any>, poolsById: Map<number, any>) {
+async function applyLivePositions(
+  chain: string,
+  accounts: Map<string, any>,
+  poolsById: Map<number, any>,
+  priceMap: Map<string, number>
+) {
   const redis = getRedis()
 
   const positions = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
-  const tokens = (await getTokens(chain)) || []
-  const priceMap = new Map<string, number>(tokens.map((t: any) => [t.id, Number(t.safe_usd_price) || 0]))
 
   const positionsByPool = new Map<number, any[]>()
   for (const position of positions) {
@@ -273,10 +310,13 @@ export async function updateLpLeaderboard(chain: string) {
     const mongoPools = await SwapPool.find({ chain }).lean()
     const poolsById = new Map<number, any>(mongoPools.map((p: any) => [p.id, p]))
 
-    const claimRows = await aggregateClaimedFees(chain, now)
-    applyClaimedFees(accounts, claimRows)
+    const tokens = (await getTokens(chain)) || []
+    const priceMap = new Map<string, number>(tokens.map((t: any) => [t.id, Number(t.safe_usd_price) || 0]))
 
-    const positionsTotal = await applyLivePositions(chain, accounts, poolsById)
+    const claimRows = await aggregateClaimedFees(chain, now)
+    applyClaimedFees(accounts, claimRows, poolsById, priceMap)
+
+    const positionsTotal = await applyLivePositions(chain, accounts, poolsById, priceMap)
 
     const allAccounts = [...accounts.values()]
       .map((entry) => finalizeAccount(entry, poolsById))
