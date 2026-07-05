@@ -319,9 +319,9 @@ Notes:
   For pools where a token currently has no safe price (scam/untrusted), claims are
   re-valued from raw token amounts with current safe prices — the untrusted side counts as $0.
 - `unclaimedUSD` is computed from current open positions (safe token prices).
-- `estimatedFees24hUSD` is a projection, not history: pool 24h volume × LP fee rate ×
-  position's share of active liquidity (same formula as `/amm/account/:account/positions`).
-  Out-of-range positions project $0. Window-independent.
+- `estimatedFees24hUSD` is a projection, not history: pool average daily volume
+  (7d volume / 7, smoother than raw 24h volume) × LP fee rate × position's share of
+  active liquidity. Out-of-range positions project $0. Window-independent.
 - `apr[window]` is pragmatic: claimed fees for the window / current TVL, annualized.
   Not defined for `all` (null); accounts with zero TVL have `null` APR.
   Claiming is manual and lumpy, so windowed APRs (especially `24h`) reflect the claim

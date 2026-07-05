@@ -196,10 +196,11 @@ async function applyLivePositions(
           positionValueUSD
         )
 
-        // Projected daily fees from the position's share of active liquidity and
-        // the pool's 24h USD volume (already safe-priced by the indexer).
+        // Projected daily fees from the position's share of active liquidity and the
+        // pool's average daily volume over 7d (24h volume is too noisy day-to-day).
+        // Volume USD is already safe-priced by the indexer.
         const sharePct = calcPoolSharePct(mongoPool.liquidity, plainPosition.liquidity, position.inRange)
-        const estimatedFees24hUSD = calcEstimatedFeesUSD(mongoPool, sharePct, 1)
+        const estimatedFees24hUSD = calcEstimatedFeesUSD(mongoPool, sharePct, 7) / 7
 
         const accountEntry = getAccountEntry(accounts, plainPosition.owner)
         const poolEntry = getPoolEntry(accountEntry, poolId)
