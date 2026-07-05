@@ -247,12 +247,16 @@ function finalizeAccount(accountEntry: any, poolsById: Map<number, any>) {
     all: round(accountEntry.claimedUSD.all),
   }
   const unclaimedUSD = round(accountEntry.unclaimedUSD)
+  const estimatedFees24hUSD = round(accountEntry.estimatedFees24hUSD)
   const tvlUSD = round(accountEntry.tvlUSD)
 
-  const apr = {}
+  const apr: Record<string, number | null> = {}
   for (const { key, days } of WINDOWS) {
     apr[key] = calcAprPct(claimedUSD[key], tvlUSD, days)
   }
+  // Windowed APRs annualize the claim rate, which is lumpy (claiming is manual and
+  // batches several days of fees). This one annualizes the current earning rate instead.
+  apr.estimated = calcAprPct(estimatedFees24hUSD, tvlUSD, 1)
 
   const topPools = [...accountEntry.pools.values()]
     .sort((a, b) => (b.claimedUSD.all + b.unclaimedUSD) - (a.claimedUSD.all + a.unclaimedUSD))
@@ -276,7 +280,7 @@ function finalizeAccount(accountEntry: any, poolsById: Map<number, any>) {
     account: accountEntry.account,
     claimedUSD,
     unclaimedUSD,
-    estimatedFees24hUSD: round(accountEntry.estimatedFees24hUSD),
+    estimatedFees24hUSD,
     totalFeesUSD: round(claimedUSD.all + unclaimedUSD),
     tvlUSD,
     apr,

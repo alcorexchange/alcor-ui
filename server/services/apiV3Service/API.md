@@ -324,11 +324,15 @@ Notes:
   Out-of-range positions project $0. Window-independent.
 - `apr[window]` is pragmatic: claimed fees for the window / current TVL, annualized.
   Not defined for `all` (null); accounts with zero TVL have `null` APR.
+  Claiming is manual and lumpy, so windowed APRs (especially `24h`) reflect the claim
+  rate, not the earning rate.
+- `apr.estimated` annualizes `estimatedFees24hUSD` / TVL — the current earning rate of
+  open positions. Prefer it as the displayed APR.
 - `window` here is one of `24h | 7d | 30d | all` (no `90d`).
 
 Query:
 - `window` (default: `30d`) — affects `claimedUSD`/`apr` sorting
-- `sort=claimed|unclaimed|estimated|total|tvl|apr` (default: `claimed`)
+- `sort=claimed|unclaimed|estimated|total|tvl|apr|apr_estimated` (default: `claimed`)
 - `order=asc|desc` (default: `desc`)
 - `page` (default: `1`), `limit` (default: `100`, max: `500`)
 - `search` — substring filter on account name
@@ -354,7 +358,7 @@ Response:
       "estimatedFees24hUSD",    // projected daily fees (see notes)
       "totalFeesUSD",           // claimedUSD.all + unclaimedUSD
       "tvlUSD",
-      "apr": { "24h", "7d", "30d" },  // % or null
+      "apr": { "24h", "7d", "30d", "estimated" },  // % or null
       "positionsCount", "poolsCount", "collectsCount",
       "lastCollectTime",
       "topPools": [
