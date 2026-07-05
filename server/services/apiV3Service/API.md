@@ -319,13 +319,16 @@ Notes:
   For pools where a token currently has no safe price (scam/untrusted), claims are
   re-valued from raw token amounts with current safe prices — the untrusted side counts as $0.
 - `unclaimedUSD` is computed from current open positions (safe token prices).
+- `estimatedFees24hUSD` is a projection, not history: pool 24h volume × LP fee rate ×
+  position's share of active liquidity (same formula as `/amm/account/:account/positions`).
+  Out-of-range positions project $0. Window-independent.
 - `apr[window]` is pragmatic: claimed fees for the window / current TVL, annualized.
   Not defined for `all` (null); accounts with zero TVL have `null` APR.
 - `window` here is one of `24h | 7d | 30d | all` (no `90d`).
 
 Query:
 - `window` (default: `30d`) — affects `claimedUSD`/`apr` sorting
-- `sort=claimed|unclaimed|total|tvl|apr` (default: `claimed`)
+- `sort=claimed|unclaimed|estimated|total|tvl|apr` (default: `claimed`)
 - `order=asc|desc` (default: `desc`)
 - `page` (default: `1`), `limit` (default: `100`, max: `500`)
 - `search` — substring filter on account name
@@ -338,7 +341,7 @@ Response:
   "totals": {
     "accounts", "positions",
     "claimedUSD": { "24h", "7d", "30d", "all" },
-    "unclaimedUSD", "tvlUSD"
+    "unclaimedUSD", "estimatedFees24hUSD", "tvlUSD"
   },
   "sort", "order",
   "pagination": { "page", "limit", "total" },
@@ -348,6 +351,7 @@ Response:
       "account",
       "claimedUSD": { "24h", "7d", "30d", "all" },
       "unclaimedUSD",
+      "estimatedFees24hUSD",    // projected daily fees (see notes)
       "totalFeesUSD",           // claimedUSD.all + unclaimedUSD
       "tvlUSD",
       "apr": { "24h", "7d", "30d" },  // % or null
@@ -359,7 +363,7 @@ Response:
           "tokenA": { "id", "symbol", "contract" },
           "tokenB": { "id", "symbol", "contract" },
           "claimedUSD": { "24h", "7d", "30d", "all" },
-          "unclaimedUSD", "tvlUSD", "positionsCount"
+          "unclaimedUSD", "estimatedFees24hUSD", "tvlUSD", "positionsCount"
         }
       ]
     }

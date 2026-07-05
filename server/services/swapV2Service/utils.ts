@@ -74,6 +74,52 @@ export function sanitizePositionFeesUSD(totalFeesUSD: number, positionValueUSD: 
   return totalFeesUSD
 }
 
+// Position's share of the pool's active liquidity, in percent (6 decimals precision).
+// Out-of-range positions hold none of the active liquidity, so their share is 0.
+export function calcPoolSharePct(poolLiquidityValue, posLiquidityValue, inRange: boolean) {
+  if (!inRange) return 0
+
+  let poolLiquidity: bigint
+  let posLiquidity: bigint
+  try {
+    poolLiquidity = BigInt(String(poolLiquidityValue ?? 0))
+    posLiquidity = BigInt(String(posLiquidityValue ?? 0))
+  } catch (e) {
+    return 0
+  }
+  if (poolLiquidity <= BigInt(0) || posLiquidity <= BigInt(0)) return 0
+
+  // Percent with 6 decimals precision: 100 * 1e6 = 1e8
+  const scaled = (posLiquidity * BigInt(100000000)) / poolLiquidity
+  return Number(scaled) / 1000000
+}
+
+export function getPoolVolumeUSD(pool, days: number) {
+  if (days === 1) return Number(pool?.volumeUSD24 ?? 0)
+  if (days === 7) return Number(pool?.volumeUSDWeek ?? 0)
+  if (days === 30) return Number(pool?.volumeUSDMonth ?? 0)
+  return Number(pool?.volumeUSD24 ?? 0)
+}
+
+export function getPoolLpFeeRate(pool) {
+  const feeRate = Number(pool?.fee ?? 0) / 1000000
+  if (!Number.isFinite(feeRate) || feeRate <= 0) return 0
+  return feeRate
+}
+
+// Projected LP fees for a position: pool volume over the period * LP fee rate * position share.
+export function calcEstimatedFeesUSD(pool, poolSharePct, days = 1) {
+  const volume = getPoolVolumeUSD(pool, days)
+  const lpFeeRate = getPoolLpFeeRate(pool)
+  const shareRate = Number(poolSharePct ?? 0) / 100
+
+  if (!Number.isFinite(volume) || volume <= 0) return 0
+  if (!Number.isFinite(lpFeeRate) || lpFeeRate <= 0) return 0
+  if (!Number.isFinite(shareRate) || shareRate <= 0) return 0
+
+  return Number((volume * lpFeeRate * shareRate).toFixed(4))
+}
+
 export async function getRedisPosition(chain, id) {
   const positions = JSON.parse(await getRedis().get(`positions_${chain}`) || '[]')
   return positions.find(p => p.id == id)

@@ -3,7 +3,7 @@ import { Position as PositionClass } from '@alcorexchange/alcor-swap-sdk'
 import { SwapPool, PositionHistory } from '../../models'
 import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
-import { poolInstanceFromMongoPool, sanitizePositionFeesUSD } from '../swapV2Service/utils'
+import { poolInstanceFromMongoPool, sanitizePositionFeesUSD, calcPoolSharePct, calcEstimatedFeesUSD } from '../swapV2Service/utils'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 
@@ -32,6 +32,7 @@ function newAccountEntry(account: string) {
     account,
     claimedUSD: { '24h': 0, '7d': 0, '30d': 0, all: 0 },
     unclaimedUSD: 0,
+    estimatedFees24hUSD: 0,
     tvlUSD: 0,
     positionsCount: 0,
     collectsCount: 0,
@@ -45,6 +46,7 @@ function newPoolEntry(poolId: number) {
     id: poolId,
     claimedUSD: { '24h': 0, '7d': 0, '30d': 0, all: 0 },
     unclaimedUSD: 0,
+    estimatedFees24hUSD: 0,
     tvlUSD: 0,
     positionsCount: 0,
   }
@@ -194,15 +196,22 @@ async function applyLivePositions(
           positionValueUSD
         )
 
+        // Projected daily fees from the position's share of active liquidity and
+        // the pool's 24h USD volume (already safe-priced by the indexer).
+        const sharePct = calcPoolSharePct(mongoPool.liquidity, plainPosition.liquidity, position.inRange)
+        const estimatedFees24hUSD = calcEstimatedFeesUSD(mongoPool, sharePct, 1)
+
         const accountEntry = getAccountEntry(accounts, plainPosition.owner)
         const poolEntry = getPoolEntry(accountEntry, poolId)
 
         accountEntry.tvlUSD += positionValueUSD
         accountEntry.unclaimedUSD += unclaimedUSD
+        accountEntry.estimatedFees24hUSD += estimatedFees24hUSD
         accountEntry.positionsCount += 1
 
         poolEntry.tvlUSD += positionValueUSD
         poolEntry.unclaimedUSD += unclaimedUSD
+        poolEntry.estimatedFees24hUSD += estimatedFees24hUSD
         poolEntry.positionsCount += 1
       } catch (e) {
         failed += 1
@@ -258,6 +267,7 @@ function finalizeAccount(accountEntry: any, poolsById: Map<number, any>) {
         all: round(poolEntry.claimedUSD.all),
       },
       unclaimedUSD: round(poolEntry.unclaimedUSD),
+      estimatedFees24hUSD: round(poolEntry.estimatedFees24hUSD),
       tvlUSD: round(poolEntry.tvlUSD),
       positionsCount: poolEntry.positionsCount,
     }))
@@ -266,6 +276,7 @@ function finalizeAccount(accountEntry: any, poolsById: Map<number, any>) {
     account: accountEntry.account,
     claimedUSD,
     unclaimedUSD,
+    estimatedFees24hUSD: round(accountEntry.estimatedFees24hUSD),
     totalFeesUSD: round(claimedUSD.all + unclaimedUSD),
     tvlUSD,
     apr,
@@ -285,6 +296,7 @@ function selectTopAccounts(allAccounts: any[]) {
     (a) => a.claimedUSD['7d'],
     (a) => a.claimedUSD['24h'],
     (a) => a.unclaimedUSD,
+    (a) => a.estimatedFees24hUSD,
     (a) => a.tvlUSD,
   ]
 
@@ -332,6 +344,7 @@ export async function updateLpLeaderboard(chain: string) {
         all: round(allAccounts.reduce((sum, a) => sum + a.claimedUSD.all, 0), 2),
       },
       unclaimedUSD: round(allAccounts.reduce((sum, a) => sum + a.unclaimedUSD, 0), 2),
+      estimatedFees24hUSD: round(allAccounts.reduce((sum, a) => sum + a.estimatedFees24hUSD, 0), 2),
       tvlUSD: round(allAccounts.reduce((sum, a) => sum + a.tvlUSD, 0), 2),
     }
 

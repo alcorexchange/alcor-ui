@@ -2649,7 +2649,7 @@ analytics.get('/spot-pairs/:id/candles', cacheSeconds(120, (req, res) => {
 })
 
 const LP_LEADERBOARD_WINDOWS = new Set(['24h', '7d', '30d', 'all'])
-const LP_LEADERBOARD_SORTS = new Set(['claimed', 'unclaimed', 'total', 'tvl', 'apr'])
+const LP_LEADERBOARD_SORTS = new Set(['claimed', 'unclaimed', 'estimated', 'total', 'tvl', 'apr'])
 const LP_LEADERBOARD_MAX_LIMIT = 500
 
 async function readLpLeaderboardSnapshot(network: Network) {
@@ -2660,6 +2660,7 @@ async function readLpLeaderboardSnapshot(network: Network) {
 function getLpLeaderboardSortValue(item: any, sort: string, window: string) {
   if (sort === 'claimed') return safeNumber(item?.claimedUSD?.[window])
   if (sort === 'unclaimed') return safeNumber(item?.unclaimedUSD)
+  if (sort === 'estimated') return safeNumber(item?.estimatedFees24hUSD)
   if (sort === 'tvl') return safeNumber(item?.tvlUSD)
   if (sort === 'apr') {
     // APR is not defined for the 'all' window, fall back to 30d.

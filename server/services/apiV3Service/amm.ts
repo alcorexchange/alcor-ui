@@ -8,7 +8,7 @@ import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
 import { parseAssetPlain } from '../../../utils'
 import { getIncentives } from '../apiV2Service/farms'
 import { getAccountPoolPositions, getPositionStats } from '../apiV2Service/account'
-import { getRedisPosition } from '../swapV2Service/utils'
+import { getRedisPosition, calcPoolSharePct, calcEstimatedFeesUSD } from '../swapV2Service/utils'
 import { PositionHistory, SwapPool } from '../../models'
 import { redis } from '../../utils'
 import { sqrt } from '../../../utils/bigint'
@@ -130,43 +130,6 @@ function calcIncentiveApr(incentive, pool, tokensMap) {
   } catch (e) {
     return null
   }
-}
-
-function calcPoolSharePct(poolLiquidityValue, posLiquidityValue, inRange) {
-  if (!inRange) return 0
-
-  const poolLiquidity = bigInt(String(poolLiquidityValue ?? 0))
-  const posLiquidity = bigInt(String(posLiquidityValue ?? 0))
-  if (poolLiquidity.leq(0) || posLiquidity.leq(0)) return 0
-
-  // Percent with 6 decimals precision: 100 * 1e6 = 1e8
-  const scaled = posLiquidity.multiply(100000000).divide(poolLiquidity)
-  return scaled.toJSNumber() / 1000000
-}
-
-function getPoolVolumeUSD(pool, days) {
-  if (days === 1) return Number(pool?.volumeUSD24 ?? 0)
-  if (days === 7) return Number(pool?.volumeUSDWeek ?? 0)
-  if (days === 30) return Number(pool?.volumeUSDMonth ?? 0)
-  return Number(pool?.volumeUSD24 ?? 0)
-}
-
-function getPoolLpFeeRate(pool) {
-  const feeRate = Number(pool?.fee ?? 0) / 1000000
-  if (!Number.isFinite(feeRate) || feeRate <= 0) return 0
-  return feeRate
-}
-
-function calcEstimatedFeesUSD(pool, poolSharePct, days = 1) {
-  const volume = getPoolVolumeUSD(pool, days)
-  const lpFeeRate = getPoolLpFeeRate(pool)
-  const shareRate = Number(poolSharePct ?? 0) / 100
-
-  if (!Number.isFinite(volume) || volume <= 0) return 0
-  if (!Number.isFinite(lpFeeRate) || lpFeeRate <= 0) return 0
-  if (!Number.isFinite(shareRate) || shareRate <= 0) return 0
-
-  return Number((volume * lpFeeRate * shareRate).toFixed(4))
 }
 
 function calcEstimatedFees24hUSD(pool, poolSharePct) {
