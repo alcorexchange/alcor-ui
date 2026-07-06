@@ -81,7 +81,10 @@ export function initSwapRouterSubscriptions() {
 
 async function getAllPools(chain) {
   if (!POOLS[chain]) {
-    // Если промис загрузки еще не существует, создаем его
+    // Если промис загрузки еще не существует, создаем его.
+    // ВАЖНО: промис удаляется из POOLS_LOADING_PROMISES и при ошибке (finally
+    // ниже) — иначе упавшая загрузка (например, Redis в LOADING после рестарта)
+    // кэшируется навсегда и все запросы чейна виснут до рестарта процесса.
     POOLS_LOADING_PROMISES[chain] =
       POOLS_LOADING_PROMISES[chain] ||
       (async () => {
@@ -112,9 +115,10 @@ async function getAllPools(chain) {
         }
 
         console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
-        delete POOLS_LOADING_PROMISES[chain] // Очищаем промис после завершения
         return POOLS[chain]
-      })()
+      })().finally(() => {
+        delete POOLS_LOADING_PROMISES[chain]
+      })
     // Ждем завершения загрузки
     POOLS[chain] = await POOLS_LOADING_PROMISES[chain]
   }
@@ -185,7 +189,10 @@ swapRouter.get('/stats', async (req, res) => {
   })
 })
 
-swapRouter.get('/getRoute', async (req, res) => {
+// Тело getRoute вынесено в функцию, а регистрация обёрнута в try/catch:
+// express 4 не ловит ошибки async-хендлеров, и любой throw оставлял запрос
+// висеть без ответа. Теперь клиент получает 500 сразу.
+async function handleGetRoute(req, res) {
   const network = req.app.get('network')
   let {
     v2,
@@ -330,6 +337,15 @@ swapRouter.get('/getRoute', async (req, res) => {
   }
 
   return res.json(parsedTrade)
+}
+
+swapRouter.get('/getRoute', async (req, res) => {
+  try {
+    await handleGetRoute(req, res)
+  } catch (e) {
+    console.error('getRoute failed:', e)
+    if (!res.headersSent) res.status(500).send('Internal error')
+  }
 })
 
 export default swapRouter
