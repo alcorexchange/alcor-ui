@@ -459,14 +459,21 @@ export async function throttledPoolUpdate(chain: string, poolId: number) {
 
 // Liquidity locks: single scope table keyed by global position id.
 // Absent row = not locked. Expired rows stay until the position is closed.
+// The locks table is not deployed on every chain yet — treat a failed read
+// as "no locks" so position updates keep working there.
 async function fetchLocks(rpc, contract): Promise<Map<number, number>> {
-  const rows = await fetchAllRows(rpc, {
-    code: contract,
-    scope: contract,
-    table: 'locks'
-  })
+  try {
+    const rows = await fetchAllRows(rpc, {
+      code: contract,
+      scope: contract,
+      table: 'locks'
+    })
 
-  return new Map(rows.map(r => [Number(r.pos_id), Number(r.unlockTime)]))
+    return new Map(rows.map(r => [Number(r.pos_id), Number(r.unlockTime)]))
+  } catch (e) {
+    console.warn(`fetchLocks failed for ${contract}:`, e.message)
+    return new Map()
+  }
 }
 
 function assignLocks(positions: any[], locks: Map<number, number>) {
