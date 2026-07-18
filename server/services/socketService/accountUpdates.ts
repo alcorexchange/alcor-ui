@@ -149,7 +149,7 @@ export function initAccountUpdates(io) {
         const poolId = Number(data?.poolId ?? data?.pool_id)
         const posId = Number(data?.posId ?? data?.pos_id)
 
-        if (['logswap', 'logmint', 'logburn', 'logcollect', 'logtransfer'].includes(name)) {
+        if (['logswap', 'logmint', 'logburn', 'logcollect', 'logtransfer', 'loglock'].includes(name)) {
           const pool = await getPool(chain, poolId)
 
           if (name === 'logswap') {
@@ -180,6 +180,14 @@ export function initAccountUpdates(io) {
             if (recipient && recipient !== owner) {
               const update = getUpdate(updates, recipient)
               addPoolBalances(update, pool)
+            }
+          }
+
+          if (name === 'loglock') {
+            const owner = data?.owner
+            if (owner) {
+              const update = getUpdate(updates, owner)
+              update.positions.add(posId)
             }
           }
 

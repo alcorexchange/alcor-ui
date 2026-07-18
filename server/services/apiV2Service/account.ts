@@ -5,7 +5,7 @@ import { Position as PositionClass } from '@alcorexchange/alcor-swap-sdk'
 
 import { Router } from 'express'
 import { Match, Swap, PositionHistory, Position } from '../../models'
-import { getRedisPosition, getPoolInstance, sanitizePositionFeesUSD } from '../swapV2Service/utils'
+import { getRedisPosition, getPoolInstance, sanitizePositionFeesUSD, getPositionLockStatus } from '../swapV2Service/utils'
 import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
 import { updatePool } from '../swapV2Service'
 import { redis } from '../../utils'
@@ -142,7 +142,7 @@ export async function getPositionStats(
   const depositedUSDTotal = +(mintedUSD - burnedUSD).toFixed(4)
   const closed = liquidity === BigInt(0)
 
-  const stats = { depositedUSDTotal, closed, collectedFees }
+  const stats = { depositedUSDTotal, closed, collectedFees, ...getPositionLockStatus(redisPosition) }
 
   let current: { feesA: string, feesB: string, totalValue: number, totalFeesUSD: number, pNl?: number } = {
     feesA: '0.0000',

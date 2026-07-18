@@ -47,7 +47,7 @@ export async function main() {
     }
 
     // Log position changes (rare events - log each one)
-    if (['logmint', 'logburn', 'logcollect', 'logtransfer'].includes(name)) {
+    if (['logmint', 'logburn', 'logcollect', 'logtransfer', 'loglock'].includes(name)) {
       const { posId, owner } = data
       console.log(`[${chain}] ${name.replace('log', '')} pos #${posId} pool:${data.poolId} owner:${owner}`)
 

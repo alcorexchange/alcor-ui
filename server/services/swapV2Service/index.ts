@@ -457,6 +457,22 @@ export async function throttledPoolUpdate(chain: string, poolId: number) {
   }, 500)
 }
 
+// Liquidity locks: single scope table keyed by global position id.
+// Absent row = not locked. Expired rows stay until the position is closed.
+async function fetchLocks(rpc, contract): Promise<Map<number, number>> {
+  const rows = await fetchAllRows(rpc, {
+    code: contract,
+    scope: contract,
+    table: 'locks'
+  })
+
+  return new Map(rows.map(r => [Number(r.pos_id), Number(r.unlockTime)]))
+}
+
+function assignLocks(positions: any[], locks: Map<number, number>) {
+  positions.forEach(p => p.lockedUntil = locks.get(Number(p.id)) ?? null)
+}
+
 async function updatePositions(chain: string, poolId: number) {
   const network = networks[chain]
   const rpc = getFailOverAlcorOnlyRpc(network)
@@ -466,14 +482,18 @@ async function updatePositions(chain: string, poolId: number) {
   const oldData = await redis.get(`positions_${chain}_${poolId}`)
   const oldPositions = oldData ? JSON.parse(oldData) : []
 
-  const positions = await fetchAllRows(rpc, {
-    code: network.amm.contract,
-    scope: poolId,
-    table: 'positions'
-  })
+  const [positions, locks] = await Promise.all([
+    fetchAllRows(rpc, {
+      code: network.amm.contract,
+      scope: poolId,
+      table: 'positions'
+    }),
+    fetchLocks(rpc, network.amm.contract)
+  ])
 
   // Mapping pool id to position
   positions.forEach(p => p.pool = poolId)
+  assignLocks(positions, locks)
 
   // Store positions per pool
   await redis.set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
@@ -520,6 +540,8 @@ export async function initializeAllPoolsData(chain: string) {
 
   console.log(`[${chain}] initializing ticks and positions for ${poolIds.length} pools...`)
 
+  const locks = await fetchLocks(rpc, network.amm.contract)
+
   let totalPositions = 0
   let totalTicks = 0
   const batchSize = 5
@@ -541,6 +563,7 @@ export async function initializeAllPoolsData(chain: string) {
           table: 'positions'
         })
         positions.forEach(p => p.pool = poolId)
+        assignLocks(positions, locks)
         await redis.set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
         totalPositions += positions.length
       } catch (e) {
@@ -566,6 +589,8 @@ export async function initializeAllPositions(chain: string) {
 
   console.log(`[${chain}] initializing positions for ${poolIds.length} pools...`)
 
+  const locks = await fetchLocks(rpc, network.amm.contract)
+
   let totalPositions = 0
   const batchSize = 10
 
@@ -581,6 +606,7 @@ export async function initializeAllPositions(chain: string) {
         })
 
         positions.forEach(p => p.pool = poolId)
+        assignLocks(positions, locks)
         await redis.set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
         totalPositions += positions.length
       } catch (e) {
@@ -987,17 +1013,25 @@ export async function onSwapAction(message: string) {
     console.log(`[${chain}] transfer pos #${data.fromPosId || data.posId} from:${data.from} to:${data.to} pool:${data.poolId}`)
   }
 
+  if (name == 'loglock') {
+    console.log(`[${chain}] lock pos #${data.posId} owner:${data.owner} until:${data.unlockTime}`)
+  }
+
   // Only publish realtime events (skip during catch-up to avoid flooding swap-service)
   const eventAge = Date.now() - new Date(block_time).getTime()
   const isRealtime = eventAge < 5 * 60 * 1000 // 5 minutes
 
   // Update pool and positions for position changes
   // Fire and forget - don't block updater
-  if (['logmint', 'logburn', 'logcollect', 'logtransfer'].includes(name)) {
+  if (['logmint', 'logburn', 'logcollect', 'logtransfer', 'loglock'].includes(name)) {
     const poolId = Number(data.poolId)
-    throttledPoolUpdate(chain, poolId).catch(e =>
-      console.error(`[${chain}] pool update error:`, e.message)
-    )
+
+    // loglock does not change pool state or ticks, only the position's lock
+    if (name !== 'loglock') {
+      throttledPoolUpdate(chain, poolId).catch(e =>
+        console.error(`[${chain}] pool update error:`, e.message)
+      )
+    }
 
     // Update positions, then send push to user (so API has fresh data when user fetches)
     updatePositions(chain, poolId)
@@ -1027,7 +1061,7 @@ export async function onSwapAction(message: string) {
       .catch(e => console.error(`[${chain}] position update error:`, e.message))
   }
 
-  if (isRealtime && ['logpool', 'logmint', 'logburn', 'logswap', 'logcollect', 'logtransfer'].includes(name)) {
+  if (isRealtime && ['logpool', 'logmint', 'logburn', 'logswap', 'logcollect', 'logtransfer', 'loglock'].includes(name)) {
     const account = networks[chain].amm.contract
     getPublisher().publish(`chainAction:${chain}:${account}:${name}`, message)
   }

@@ -94,7 +94,7 @@ export async function updater(chain: string, services: string[]) {
       network,
       network.amm.contract,
       newSwapAction,
-      ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect', 'transferpos', 'logtransfer'],
+      ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect', 'transferpos', 'logtransfer', 'loglock'],
       300
     )
       .catch(e => { console.log(`[${chain}:${network.amm.contract}] Streamer error:`, e.message); process.exit(1) })
