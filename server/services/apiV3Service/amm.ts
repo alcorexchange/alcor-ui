@@ -8,7 +8,7 @@ import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
 import { parseAssetPlain } from '../../../utils'
 import { getIncentives } from '../apiV2Service/farms'
 import { getAccountPoolPositions, getPositionStats } from '../apiV2Service/account'
-import { getRedisPosition, calcPoolSharePct, calcEstimatedFeesUSD } from '../swapV2Service/utils'
+import { getRedisPosition, getPositionLockStatus, calcPoolSharePct, calcEstimatedFeesUSD } from '../swapV2Service/utils'
 import { PositionHistory, SwapPool } from '../../models'
 import { redis } from '../../utils'
 import { sqrt } from '../../../utils/bigint'
@@ -598,6 +598,7 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
       ? feesBParsed.amount * getSafeUsdPrice(tokensMap.get(tokenB.id))
       : 0
 
+    const { lockedUntil, isLocked } = getPositionLockStatus(pos)
     const poolSharePct = calcPoolSharePct(pool.liquidity, pos.liquidity, Boolean(pos.inRange))
     const estimatedFees24hUSD = calcEstimatedFees24hUSD(pool, poolSharePct)
     const estimatedFees7dUSD = calcEstimatedFees7dUSD(pool, poolSharePct)
@@ -613,6 +614,8 @@ async function buildPositionsResponse(network, positions, incentivesFilter) {
       tickLower: hasTicks ? tickLower : null,
       tickUpper: hasTicks ? tickUpper : null,
       liquidity: pos.liquidity != null ? String(pos.liquidity) : '0',
+      lockedUntil,
+      isLocked,
       feeGrowthInsideALastX64: pos.feeGrowthInsideALastX64 != null ? String(pos.feeGrowthInsideALastX64) : null,
       feeGrowthInsideBLastX64: pos.feeGrowthInsideBLastX64 != null ? String(pos.feeGrowthInsideBLastX64) : null,
       feePct: pool.fee / 10000,
