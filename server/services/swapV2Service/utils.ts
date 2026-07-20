@@ -74,6 +74,15 @@ export function sanitizePositionFeesUSD(totalFeesUSD: number, positionValueUSD: 
   return totalFeesUSD
 }
 
+// Liquidity lock status of a redis position. lockedUntil is unix seconds (from the
+// contract's locks table); expired lock rows stay on chain until the position is
+// closed, so isLocked must be computed against current time on every read.
+export function getPositionLockStatus(position) {
+  const lockedUntil = Number(position?.lockedUntil) || null
+  const isLocked = lockedUntil !== null && lockedUntil > Math.floor(Date.now() / 1000)
+  return { lockedUntil, isLocked }
+}
+
 // Position's share of the pool's active liquidity, in percent (6 decimals precision).
 // Out-of-range positions hold none of the active liquidity, so their share is 0.
 export function calcPoolSharePct(poolLiquidityValue, posLiquidityValue, inRange: boolean) {
