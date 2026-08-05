@@ -15,6 +15,7 @@ import { getChainRpc } from '../../../utils/eosjs'
 import { getOrderbook } from '../orderbookService/start'
 import { sqrt } from '../../../utils/bigint'
 import { getLpLeaderboardRedisKey } from '../updaterService/lpLeaderboard'
+import { getLockedLiquidityByToken, buildLockedLiquidityCard } from './lockedLiquidity'
 import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import type { ProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import { getSimpleTokenLogoUrl } from '../simpleTokenLogoService'
@@ -1328,7 +1329,7 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
       const topTokenIdSet = new Set(topTokenIds)
       const topTokenPools = pools.filter((p) => topTokenIdSet.has(p?.tokenA?.id) || topTokenIdSet.has(p?.tokenB?.id))
       const topTokenMarkets = markets.filter((m) => topTokenIdSet.has(m?.base_token?.id) || topTokenIdSet.has(m?.quote_token?.id))
-      const [holdersStats, { tokenTvlMap }, tokenTxStats] = await Promise.all([
+      const [holdersStats, { tokenTvlMap }, tokenTxStats, lockedByToken] = await Promise.all([
         loadTokenHoldersStats(network.name, topTokenIds),
         getPlatformBalancesCached(network, tokens),
         buildTokenTxStats(
@@ -1339,6 +1340,7 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
           window.since,
           { restrictToProvidedSources: true }
         ),
+        getLockedLiquidityByToken(network.name),
       ])
       const tokenStats = buildTokenStats(topTokensRaw, topTokenPools, topTokenMarkets, window.label, tokenTvlMap, priceMap)
 
@@ -1406,6 +1408,8 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
 
           const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
           const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
+          const tvl = safeNumber(stats.tvlUSD)
+          const locked = buildLockedLiquidityCard(lockedByToken.get(t.id), priceMap.get(t.id) || 0, tvl)
 
           return {
             id: t.id,
@@ -1416,7 +1420,7 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
             logo: logoUrl,
             logoUrl,
             price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
-            liquidity: { tvl: safeNumber(stats.tvlUSD) },
+            liquidity: { tvl, locked },
             volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
             pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
             createdAt: firstSeenAt,
@@ -1599,11 +1603,12 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
         }
         : { chain: network.name }
 
-      const [pools, markets, tokenScores, { tokenTvlMap }] = await Promise.all([
+      const [pools, markets, tokenScores, { tokenTvlMap }, lockedByToken] = await Promise.all([
         SwapPool.find(poolsQuery).lean(),
         Market.find(marketsQuery).lean(),
         loadTokenScores(network.name),
         getPlatformBalancesCached(network, tokens),
+        getLockedLiquidityByToken(network.name),
       ])
 
       const baseTokenId = network?.baseToken ? `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase() : null
@@ -1653,6 +1658,8 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
         const volumeSpot = safeNumber(stats.spotVolumeUSD)
         const tokenPool = pickPoolForToken(poolsByToken, t.id, baseTokenId, usdTokenId)
         const priceChange24h = computeTokenPriceChange24(tokenPool, t.id)
+        const tvl = safeNumber(stats.tvlUSD)
+        const locked = buildLockedLiquidityCard(lockedByToken.get(t.id), priceMap.get(t.id) || 0, tvl)
 
         return {
           id: t.id,
@@ -1663,7 +1670,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
           logo: null,
           logoUrl: null,
           price: { usd: safeNumber(t.usd_price), change24h: priceChange24h },
-          liquidity: { tvl: safeNumber(stats.tvlUSD) },
+          liquidity: { tvl, locked },
           volume: { swap: volumeSwap, spot: volumeSpot, total: volumeSwap + volumeSpot },
           pairs: { pools: stats.poolsCount || 0, spots: stats.spotPairsCount || 0 },
           createdAt: firstSeenAt,
@@ -1705,6 +1712,9 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
         } else if (sort === 'tvl') {
           av = a.liquidity.tvl
           bv = b.liquidity.tvl
+        } else if (sort === 'locked') {
+          av = a.liquidity.locked.usd
+          bv = b.liquidity.locked.usd
         } else if (sort === 'holders') {
           av = a.holders?.count ?? 0
           bv = b.holders?.count ?? 0
@@ -1880,12 +1890,13 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const tokenPool = pickPoolForToken(new Map([[token.id, pools]]), token.id, baseTokenId, usdTokenId)
   const priceChange24h = computeTokenPriceChange24(tokenPool, token.id)
   const rawPriceMap = new Map<string, number>(tokens.map((t) => [t.id, getRawUsdPrice(t)]))
-  const [{ tokenTvlMap }, tokenScores, tokenTxStats, holdersStats, protonRegistryToken] = await Promise.all([
+  const [{ tokenTvlMap }, tokenScores, tokenTxStats, holdersStats, protonRegistryToken, lockedByToken] = await Promise.all([
     getPlatformBalancesCached(network, tokens, { priceField: 'usd_price' }),
     loadTokenScores(network.name),
     buildTokenTxStats(network.name, [token], pools, markets, window.since, { restrictToProvidedSources: true }),
     loadTokenHoldersStats(network.name, [token.id]),
     getProtonTokenRegistryEntry(network, token.symbol, token.contract),
+    getLockedLiquidityByToken(network.name),
   ])
   const tokenStats = buildTokenStats(
     [token],
@@ -1904,6 +1915,9 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
     getFundamental(network, token, protonRegistryToken),
     getLogoUrl(network, token, protonRegistryToken),
   ])
+
+  const tokenTvl = safeNumber(tokenStats?.tvlUSD)
+  const locked = buildLockedLiquidityCard(lockedByToken.get(token.id), rawPriceMap.get(token.id) || 0, tokenTvl)
 
   const marketTxStats = includeTx ? await buildMarketTxStats(network.name, markets.map((m) => m.id), window.since) : new Map()
 
@@ -1928,7 +1942,7 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
       logo: logoUrl,
       logoUrl,
       price: { usd: safeNumber(token.usd_price), change24h: priceChange24h },
-      liquidity: { tvl: safeNumber(tokenStats?.tvlUSD) },
+      liquidity: { tvl: tokenTvl, locked },
       volume: {
         swap: safeNumber(tokenStats?.swapVolumeUSD),
         spot: safeNumber(tokenStats?.spotVolumeUSD),

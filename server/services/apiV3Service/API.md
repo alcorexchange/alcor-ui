@@ -77,7 +77,7 @@ Token score details are documented in [TOKEN_SCORE_V1.md](./TOKEN_SCORE_V1.md).
 Query:
 - `window` (default: `30d`)
 - `search` (symbol/contract/id)
-- `sort=score|volume|tvl|price` (default: `score`)
+- `sort=score|volume|tvl|locked|price` (default: `score`)
 - `order=asc|desc` (default: `desc`)
 - `limit` (default: `50`, max: `500`)
 - `page` (default: `1`)
@@ -614,12 +614,27 @@ Query:
 {
   "id", "symbol", "contract", "name", "decimals", "logo",
   "price": { "usd" },
-  "liquidity": { "tvl" },
+  "liquidity": {
+    "tvl",
+    "locked": { "amount", "usd", "positions", "share", "nextUnlockAt", "lastUnlockAt" }
+  },
   "volume": { "swap", "spot", "total" },
   "pairs": { "pools", "spots" },
   "scores": { "total" }
 }
 ```
+
+`liquidity.locked` covers AMM positions locked in the swap contract (`lockpos` action): a
+locked position can't be burned, so its tokens stay in the pool until it unlocks.
+- `amount` — token units locked across every locked position holding this token
+- `usd` — `amount` valued at the same price used for `liquidity.tvl`
+- `positions` — number of locked positions
+- `share` — percent of `liquidity.tvl` that is locked
+- `nextUnlockAt` / `lastUnlockAt` — unix seconds of the earliest / latest unlock (`null` when nothing is locked)
+
+Expired locks are not counted: contract rows stay until the position is closed, so
+lock status is evaluated against current time on every read (same rule as a position's
+`isLocked`). Values refresh at most once a minute.
 
 ### PoolCard
 ```
