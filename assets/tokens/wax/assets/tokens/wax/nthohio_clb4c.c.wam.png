@@ -1,0 +1,10 @@
+echo "# nthohio_clb4c.c.wam.png" >> README.md 
+git init 
+git add README.md 
+git commit -m "primeiro commit" 
+git branch -M main 
+git remote add origin https://github.com/tudonovo/nthohio_clb4c.c.wam.png.git
+git push -u origin main
+git remote add origin https://github.com/tudonovo/nthohio_clb4c.c.wam.png.git
+git branch -M main 
+git push -u origin main
