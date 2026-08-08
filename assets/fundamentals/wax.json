@@ -1089,5 +1089,15 @@
     },
     "tags": ["Gaming", "P2E", "NFT", "RPG"],
     "description": "Realm of Aetherion is a hybrid on-chain/off-chain RPG-clicker on WAX: equip NFT loadouts, battle per-land boss ladders, and join clans that fight for monthly land control. AETHER powers weapon repairs, gear blending, healing, and land fees."
+  },
+  "VORA@growharvest1": {
+    "name": "VORA",
+    "tags": [
+      "DeFi",
+      "Liquidity Farming",
+      "Utility Token",
+      "Rewards",
+      "WAX"
+    ],
+    "description": "VORA is a community-driven utility token built to empower the WAX ecosystem by rewarding liquidity providers, strengthening market liquidity, and supporting sustainable farming rewards. Through community participation and long-term ecosystem growth, VORA aims to build a stronger, more active, and sustainable blockchain economy."
   }
-}
