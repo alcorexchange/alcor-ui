@@ -20,7 +20,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   })
 }
 
-function getAccountAsKey(account: string) {
+export function getAccountAsKey(account: string) {
   return account.replace('.', '-')
 }
 
@@ -147,7 +147,7 @@ async function getBlockNumByTrxId(network: any, trxId: string): Promise<number |
   return null
 }
 
-async function getStartingBlock(network: any, account: string, rpc: any): Promise<number> {
+export async function getStartingBlock(network: any, account: string, rpc: any): Promise<number> {
   console.log(`[${network.name}:${account}] Getting starting block...`)
   const settings = await getSettings(network)
   const key = getAccountAsKey(account)

@@ -4,6 +4,7 @@ import config from '../../../config'
 import { initialUpdate as swapInitialUpdate } from '../swapV2Service'
 
 import { getSettings } from '../../utils'
+import { getChain } from '../chain'
 import { updateGlobalStats } from './analytics'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats, updatePositionsAggregation } from './swap'
@@ -13,10 +14,10 @@ import { updateTokenScores } from './tokenScores'
 import { startTokenHoldersUpdater } from './tokenHolders'
 import { startTokenLogosUpdater } from './tokenLogos'
 
-import { streamByTrace, streamByGreymass } from './streamers'
-
 const pLimit = require('p-limit')
 const limit = pLimit(2)
+
+const ALL_SERVICES = ['markets', 'prices', 'swap']
 
 export function startUpdaters() {
   const chains = process.env.NETWORK
@@ -24,7 +25,11 @@ export function startUpdaters() {
     : ['eos', 'wax', 'proton', 'telos', 'ultra', 'waxtest', 'xprtest']
 
   chains.forEach(chain => {
-    limit(() => updater(chain, ['markets', 'prices', 'swap']))
+    // A chain runs everything unless it says otherwise — wiretest has no
+    // orderbook, so it opts out of 'markets'.
+    const services = config.networks[chain]?.services ?? ALL_SERVICES
+
+    limit(() => updater(chain, services))
       .catch(e => console.error(`Updater for ${chain} failed:`, e))
   })
 }
@@ -72,7 +77,7 @@ export async function updater(chain: string, services: string[]) {
     console.log(`[${chain}] Starting streamer for ${network.contract}...`)
     setInterval(() => updateMarkets(network), 3 * 60 * 1000)
 
-    streamByTrace(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
+    getChain(chain).streamActions(network.contract, config.CONTRACT_ACTIONS, newMatch)
       .catch(e => { console.log(`[${chain}:${network.contract}] Streamer error:`, e.message); process.exit(1) })
   }
 
@@ -90,11 +95,10 @@ export async function updater(chain: string, services: string[]) {
     setInterval(() => updatePositionsAggregation(chain), 2 * 60 * 1000) // Every 2 minutes
     setInterval(() => updateLpLeaderboard(chain), 10 * 60 * 1000)
 
-    streamByTrace(
-      network,
+    getChain(chain).streamActions(
       network.amm.contract,
-      newSwapAction,
       ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect', 'transferpos', 'logtransfer', 'loglock'],
+      newSwapAction,
       300
     )
       .catch(e => { console.log(`[${chain}:${network.amm.contract}] Streamer error:`, e.message); process.exit(1) })

@@ -1,4 +1,5 @@
-import { fetchAllRows, getChainRpc } from '../../utils/eosjs'
+import { fetchAllRows } from '../../utils/eosjs'
+import { getChain } from './chain'
 
 // On-chain token metadata registry (token_registry contract, `tokens` table).
 // The contract account is configured per network as `network.tokenRegistry`.
@@ -77,7 +78,7 @@ function normalizeRow(row: RegistryRow): RegistryEntry | null {
 
 async function fetchEntries(network: any): Promise<Map<string, RegistryEntry>> {
   const contract = network.tokenRegistry
-  const rpc = getChainRpc(network.name)
+  const rpc = getChain(network.name).rpc()
 
   const rows: RegistryRow[] = await fetchAllRows(
     rpc,

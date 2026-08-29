@@ -1,7 +1,8 @@
 import config from '../../../config'
 
 import { Swap, SwapBar, SwapPool, Match, Market } from '../../models'
-import { fetchPlatformBalances, getTokens } from '../../utils'
+import { getTokens } from '../../utils'
+import { fetchPlatformBalances } from '../chain/balances'
 import { getRedis } from '../redis'
 import { getSwapBarPriceAsString } from '../../../utils/amm'
 

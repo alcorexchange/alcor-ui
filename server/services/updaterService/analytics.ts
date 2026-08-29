@@ -1,5 +1,6 @@
 import { SwapPool, Market, Match, GlobalStats, PositionHistory, Swap } from '../../models'
-import { getTokens, fetchPlatformBalances } from '../../utils'
+import { getTokens } from '../../utils'
+import { fetchPlatformBalances } from '../chain/balances'
 
 const HOUR_MS = 60 * 60 * 1000
 const SPOT_FEE_SCALE = 1000

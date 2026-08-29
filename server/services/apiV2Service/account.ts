@@ -6,7 +6,8 @@ import { Position as PositionClass } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
 import { Match, Swap, PositionHistory, Position } from '../../models'
 import { getRedisPosition, getPoolInstance, sanitizePositionFeesUSD, getPositionLockStatus } from '../swapV2Service/utils'
-import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
+import { fetchAllRows } from '../../../utils/eosjs'
+import { getChain } from '../chain'
 import { updatePool } from '../swapV2Service'
 import { redis } from '../../utils'
 import { getIncentives } from './farms'
@@ -163,7 +164,7 @@ export async function getPositionStats(
 }
 
 async function loadUserFarms(network: Network, account: string) {
-  const rpc = getChainRpc(network.name)
+  const rpc = getChain(network.name).rpc()
   const positions = await getAccountPoolPositions(network.name, account)
 
   const positionIds = positions.map(p => Number(p.id))

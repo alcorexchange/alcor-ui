@@ -1,6 +1,6 @@
 import pLimit from 'p-limit'
 
-import { getChainRpc } from '../../../utils/eosjs'
+import { getChain } from '../chain'
 import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
 import { TokenHoldersHistory } from '../../models'
@@ -64,7 +64,7 @@ function computeChanges(series: number[]) {
 export async function updateTokenHoldersHistory(network: Network) {
   const chain = network.name
   const redis = getRedis()
-  const rpc = getChainRpc(chain)
+  const rpc = getChain(chain).rpc()
 
   try {
     const tokens = await getTokens(chain)

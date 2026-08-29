@@ -4,7 +4,8 @@ import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 import { Token, TickMath, TICK_SPACINGS, nearestUsableTick, tickToPrice } from '@alcorexchange/alcor-swap-sdk'
 
-import { getChainRpc, fetchAllRows } from '../../../utils/eosjs'
+import { fetchAllRows } from '../../../utils/eosjs'
+import { getChain } from '../chain'
 import { parseAssetPlain } from '../../../utils'
 import { getIncentives } from '../apiV2Service/farms'
 import { getAccountPoolPositions, getPositionStats } from '../apiV2Service/account'
@@ -404,7 +405,7 @@ function buildPositionsSummary(items) {
 
 async function loadUserStakes(network, positionIds) {
   if (!positionIds.length) return []
-  const rpc = getChainRpc(network.name)
+  const rpc = getChain(network.name).rpc()
 
   const stakingposRequests = positionIds.map((posId) =>
     fetchAllRows(rpc, {

@@ -2,6 +2,7 @@ import axios from 'axios'
 
 import { Market, Match, SwapPool } from '../../models'
 import { getTokens } from '../../utils'
+import { getChain } from '../chain'
 import { getRedis } from '../redis'
 import { getScamLists } from '../apiV2Service/config'
 
@@ -61,32 +62,15 @@ export async function updateCMSucid() {
 }
 
 export async function updateSystemPrice(network: Network) {
-  let network_name = network.name
+  const price = await getChain(network.name).getSystemUsdPrice()
 
-  if (network_name === 'waxtest') network_name = 'wax'
-  if (network_name === 'xprtest') network_name = 'proton'
+  // Where the price comes from is the adapter's business. A zero means it could
+  // not be established, and overwriting the last good value with it would be
+  // worse than leaving that value stale.
+  if (!Number.isFinite(price) || price <= 0) return
 
-  try {
-    const { data } = await axios.get(
-      'https://api.coingecko.com/api/v3/simple/price',
-      {
-        params: {
-          ids: network_name,
-          vs_currencies: 'usd',
-        },
-      }
-    )
-
-    const price = data[network_name].usd
-    await getRedis().set(`${network.name}_price`, String(price))
-    console.log(`Updated ${network.name} price: `, price)
-  } catch (e: any) {
-    if (e.response?.status === 429) {
-      console.log(`[${network.name}] CoinGecko rate limit (429)`)
-    } else {
-      console.error('SYSTEM PRICE UPDATE FAILED!', network.name, e.message || e)
-    }
-  }
+  await getRedis().set(`${network.name}_price`, String(price))
+  console.log(`Updated ${network.name} price: `, price)
 }
 
 // system token and their USD prices

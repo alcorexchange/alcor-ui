@@ -2,6 +2,14 @@ declare global {
   type Network = {
     name: string
     desc: string
+    /** Picks the chain adapter. Absent means a stock Antelope chain. */
+    chainType?: 'wire'
+    /** Updater services to run for this chain. Absent means all of them. */
+    services?: string[]
+    /** USD price of the system token when no pool or exchange can supply one. */
+    fixedSystemPrice?: number
+    /** Where a streamer starts when it has no saved progress. */
+    firstBlock?: number | 'head'
     contract: string
     baseToken: {
       contract: string

@@ -36,7 +36,9 @@ export const fetchAllRows = async (
 ) => {
   const mergedOptions = {
     json: true,
-    lower_bound: 0,
+    // Empty means "no bound" on every chain. A literal 0 works on Antelope but
+    // Wire rejects it with a 500 — its bounds are JSON objects, not scalars.
+    lower_bound: '',
     upper_bound: undefined,
     limit: 9999,
     ...options,

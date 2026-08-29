@@ -982,6 +982,70 @@ const networks = {
     },
   },
 
+  // Our own single-producer Wire chain. Not the public Wire testnet — that one
+  // cannot be synced. Chain notes: claude_cache/wire/wire-testnet-node/CHAIN_NOTES.md
+  wiretest: {
+    name: 'wiretest',
+    desc: 'Wire testnet',
+    chainType: 'wire',
+
+    // Only the AMM runs here for now; the orderbook is being rewritten from scratch.
+    services: ['prices', 'swap'],
+
+    baseToken: {
+      contract: 'sysio.token',
+      symbol: 'SYS',
+      precision: 4,
+      id: 'sys-sysio.token'
+    },
+
+    // SYS has no pool yet, so its USD price cannot be derived on-chain and no
+    // exchange lists it. Drop this line once a SYS/USDT pool exists.
+    fixedSystemPrice: 0.42,
+
+    // Traces are pruned to roughly the last million blocks and the pools were
+    // deployed well before that, so there is no history worth backfilling.
+    firstBlock: 'head',
+
+    marketCreationFee: '',
+    feeAccount: '',
+
+    chainId: 'cf4381bcea94e79b2cbb630ca1edd59108b1d159637b2cee7c51d45cdca9c0a7',
+
+    host: '116.202.36.122',
+    port: 6666,
+    protocol: 'http',
+    monitor: '',
+    monitor_params: '',
+    lightapi: '',
+    hyperion: '',
+    backEnd: 'http://localhost:8000/api/',
+
+    client_nodes: {},
+
+    amm: {
+      contract: 'swap.alcor',
+    },
+
+    // USDT is the price anchor: it is taken as $1 and every other token's price
+    // is derived from its pools against it.
+    USD_TOKEN: 'usdt-testtoken',
+
+    RECOMMENDED_MARKETS: [],
+    PINNED_MARKETS: [],
+    BANNER_MARKETS: [],
+    SCAM_TOKENS: [],
+    SCAM_CONTRACTS: [],
+    CEX_CONTRACTS: [],
+
+    popularTokens: [
+      'usdt-testtoken',
+      'test-testtoken',
+    ],
+
+    GLOBAL_TOKENS: [],
+  },
+
   popularTokens: [],
   GLOBAL_TOKENS: [],
 }
