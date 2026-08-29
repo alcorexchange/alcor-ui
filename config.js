@@ -1012,16 +1012,22 @@ const networks = {
 
     chainId: 'cf4381bcea94e79b2cbb630ca1edd59108b1d159637b2cee7c51d45cdca9c0a7',
 
-    host: '116.202.36.122',
-    port: 6666,
-    protocol: 'http',
+    // The node itself listens on 116.202.36.122:6666, and a browser cannot dial
+    // that at all: 6666 is on the WHATWG blocklist, the page is https, and the
+    // node sends no CORS headers. This is our nginx in front of it, which fixes
+    // all three. Backends skip the detour through WIRETEST_DIRECT_NODE.
+    host: 'wiretest-api.alcor.exchange',
+    port: 443,
+    protocol: 'https',
     monitor: '',
     monitor_params: '',
     lightapi: '',
     hyperion: '',
     backEnd: 'http://localhost:8000/api/',
 
-    client_nodes: {},
+    client_nodes: {
+      'https://wiretest-api.alcor.exchange': 'Alcor',
+    },
 
     amm: {
       contract: 'swap.alcor',

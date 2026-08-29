@@ -7,6 +7,7 @@ import { PublicKey } from '@wireio/sdk-core'
 
 import config from '../../../config'
 import { initRedis } from '../redis'
+import { getNodes } from '../chain/nodes'
 import { createWireSigner, reason } from './chain'
 import { clientIp, exhausted, record, Limit } from './limits'
 
@@ -31,10 +32,10 @@ const faucet = network.faucet
 const windowMs = faucet.windowHours * 3600_000
 const port = Number(process.env.PORT) || 3100
 
-const signer = createWireSigner(
-  `${network.protocol}://${network.host}:${network.port}`,
-  process.env.WIRE_TESTNET_KEY
-)
+// The same endpoint order the rest of the backend uses, so WIRETEST_DIRECT_NODE
+// keeps the faucet on the node itself rather than out through our own nginx.
+const node = getNodes(network)[0]
+const signer = createWireSigner(node, process.env.WIRE_TESTNET_KEY)
 
 // Name alphabet of the `name` type, from the sysio.roa charmap.
 const NAME_CHARS = '12345abcdefghijklmnopqrstuvwxyz'
@@ -200,7 +201,7 @@ app.post('/faucet', (req, res) =>
 
 initRedis().then(() => {
   app.listen(port, '127.0.0.1', () => {
-    console.log(`[faucet] ${network.name} on 127.0.0.1:${port} -> ${network.protocol}://${network.host}:${network.port}`)
+    console.log(`[faucet] ${network.name} on 127.0.0.1:${port} -> ${node}`)
     console.log(`[faucet] issuer ${faucet.issuer}, ${faucet.accountsPerIp} accounts per IP per ${faucet.windowHours}h`)
     console.log(`[faucet] funder ${faucet.funder}, drip ${faucet.drip.map((t) => t.quantity).join(' + ')}`)
   })
