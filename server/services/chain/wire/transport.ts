@@ -54,12 +54,21 @@ function request(url: string, options: any): Promise<any> {
       res.on('data', (chunk) => chunks.push(chunk))
       res.on('error', reject)
       res.on('end', () => {
-        const body = Buffer.concat(chunks).toString('utf8')
+        const bytes = Buffer.concat(chunks)
+        const body = bytes.toString('utf8')
+
         resolve({
           ok: res.statusCode >= 200 && res.statusCode < 300,
           status: res.statusCode,
+          headers: { get: (name: string) => res.headers[name.toLowerCase()] ?? null },
           text: async () => body,
           json: async () => JSON.parse(body),
+
+          // The body is already buffered, but @wireio/sdk-core insists on
+          // draining a stream: its arrayBuffer fallback demands a Content-Length
+          // the node does not always send. An async iterable is the branch it
+          // takes without asking questions.
+          body: { [Symbol.asyncIterator]: async function* () { yield bytes } },
         })
       })
     })

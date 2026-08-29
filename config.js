@@ -1031,6 +1031,30 @@ const networks = {
     // is derived from its pools against it.
     USD_TOKEN: 'usdt-testtoken',
 
+    // Faucet served by wireFaucetService: it creates accounts for wallet keys
+    // that have none, and hands out test tokens. One chain admin key authorizes
+    // both `issuer` and `funder`; it lives in WIRE_TESTNET_KEY, never here.
+    faucet: {
+      // Tier-1 node owner. Pays for new accounts out of its own RAM reserve, so
+      // `accountsPerIp` is what stands between the reserve and a single visitor.
+      issuer: 'wireno',
+      // RAM is charged as amount x 104 bytes, so 0.5 SYS is roughly 520 KB.
+      policy: { net: '1.0000 SYS', cpu: '1.0000 SYS', ram: '0.5000 SYS' },
+      accountsPerIp: 2,
+
+      // Holds the whole supply of both test tokens.
+      funder: 'testtoken',
+      drip: [
+        { contract: 'testtoken', quantity: '1000.0000 USDT' },
+        { contract: 'testtoken', quantity: '1000.0000 TEST' },
+      ],
+      dripsPerAccount: 1,
+      dripsPerIp: 4,
+
+      // Sliding, not calendar: a calendar window opens a double batch at midnight.
+      windowHours: 24,
+    },
+
     RECOMMENDED_MARKETS: [],
     PINNED_MARKETS: [],
     BANNER_MARKETS: [],

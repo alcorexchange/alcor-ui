@@ -10,6 +10,17 @@ declare global {
     fixedSystemPrice?: number
     /** Where a streamer starts when it has no saved progress. */
     firstBlock?: number | 'head'
+    /** Test chains only: what wireFaucetService hands out, and how often. */
+    faucet?: {
+      issuer: string
+      policy: { net: string; cpu: string; ram: string }
+      accountsPerIp: number
+      funder: string
+      drip: { contract: string; quantity: string }[]
+      dripsPerAccount: number
+      dripsPerIp: number
+      windowHours: number
+    }
     contract: string
     baseToken: {
       contract: string

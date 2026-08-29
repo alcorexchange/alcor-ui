@@ -99,5 +99,15 @@ module.exports = {
       restart_delay: 10000,
       kill_timeout: 10000,
     },
+
+    // Wire testnet faucet, behind nginx at /api/v2/wire-test/.
+    // A single instance on purpose: it serializes its own chain writes, and two
+    // of them would race over nonces. Needs WIRE_TESTNET_KEY in .env.
+    {
+      name: 'Alcor-wire-faucet',
+      script: './lib/server/services/wireFaucetService/index.js',
+      restart_delay: 10000,
+      env: { NETWORK: 'wiretest', PORT: 3100 }
+    },
   ]
 }
