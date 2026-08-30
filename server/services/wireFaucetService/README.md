@@ -100,8 +100,15 @@ issuer'а (повтор упадёт с `Sponsor entry for this nonce already ex
 
 ## nginx
 
-`/etc/nginx/snippets/wire-testnet.conf`, подключён одной строкой `include` внутри
-server-блока `.alcor.exchange`. Бэкап исходного конфига — `/root/alcor.exchange.bak.*`.
+Оба файла лежат в [nginx/](nginx/) и совпадают байт в байт с задеплоенными:
+
+| В репо | На сервере |
+|---|---|
+| `nginx/wire-testnet.conf` | `/etc/nginx/snippets/wire-testnet.conf` |
+| `nginx/wire-test-realip.conf` | `/etc/nginx/conf.d/wire-test-realip.conf` |
+
+Снипет подключён одной строкой `include` внутри server-блока `.alcor.exchange`.
+Бэкап исходного конфига — `/root/alcor.exchange.bak.*`.
 
 `^~` в локации обязателен — иначе запрос перехватит regex `~ ^/api/v[23]/` на ex44
 и уведёт на `$api_upstream`.
