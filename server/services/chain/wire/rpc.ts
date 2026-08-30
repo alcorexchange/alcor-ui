@@ -2,22 +2,27 @@ import { JsonRpc } from '../../../../assets/libs/eosjs-jsonrpc'
 import { wireFetch } from './transport'
 
 // Wire keeps contract tables in KV storage, so /v1/chain/get_table_rows differs
-// from Antelope in two ways that every call site would otherwise have to know:
+// from Antelope in three ways that every call site would otherwise have to know:
 //
 //   1. rows arrive wrapped as {key, value} instead of the flat row object;
 //   2. bounds are JSON objects encoded as strings. A scalar `lower_bound: 0` is
 //      rejected with 500 bad_cast_exception ("Invalid cast from 'uint64_type' to
-//      Object"), and `next_key` comes back as '{"primary_key":4294967236}'.
+//      Object"), and `next_key` comes back as '{"primary_key":4294967236}';
+//   3. `upper_bound` is exclusive, where Antelope's is inclusive. The universal
+//      `lower_bound === upper_bound === id` idiom for "give me exactly this row"
+//      therefore returns nothing at all — silently, as an empty table would.
 //
-// Both are undone here so fetchAllRows and its callers stay chain-agnostic.
+// All three are undone here so fetchAllRows and its callers stay chain-agnostic.
 
-function encodeBound(bound: any): string {
+function encodeBound(bound: any, inclusive = false): string {
   if (bound === undefined || bound === null || bound === '') return ''
 
   // Already the JSON form the node emits in next_key — hand it straight back.
   if (typeof bound === 'string' && bound.startsWith('{')) return bound
 
-  return JSON.stringify({ primary_key: Number(bound) })
+  // BigInt rather than Number: keys run the full uint64 range, and one holding
+  // an encoded name loses its low bits as a double.
+  return `{"primary_key":${BigInt(bound) + BigInt(inclusive ? 1 : 0)}}`
 }
 
 function unwrapRow(row: any): any {
@@ -39,7 +44,7 @@ export class WireJsonRpc extends JsonRpc {
     const result = await super.get_table_rows({
       ...options,
       lower_bound: encodeBound(options.lower_bound),
-      upper_bound: encodeBound(options.upper_bound),
+      upper_bound: encodeBound(options.upper_bound, true),
     })
 
     return { ...result, rows: (result.rows || []).map(unwrapRow) }
