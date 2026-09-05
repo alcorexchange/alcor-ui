@@ -46,6 +46,35 @@ Vue.filter('commaFloat', function(num, precision = 4) {
   return int.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + (dec ? '.' + dec : '') + sym
 })
 
+Vue.filter('nFormat', function(num, digits = 1) {
+  let sym = ''
+
+  if (typeof num === 'string' && num.includes(' ')) {
+    sym = ' ' + num.split(' ')[1]
+    num = num.split(' ')[0]
+  }
+
+  if (num <= 0.001) return parseFloat(num).toFixed(8) + sym
+
+  const lookup = [
+    { value: 1, symbol: '' },
+    { value: 1e3, symbol: 'k' },
+    { value: 1e6, symbol: 'M' },
+    { value: 1e9, symbol: 'B' },
+    { value: 1e12, symbol: 'T' },
+    { value: 1e15, symbol: 'P' },
+    { value: 1e18, symbol: 'E' },
+  ]
+  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/
+  const item = lookup
+    .slice()
+    .reverse()
+    .find(function (item) {
+      return num >= item.value
+    })
+  return (item ? (num / item.value).toFixed(digits).replace(rx, '$1') + item.symbol : '0') + sym
+})
+
 Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
   let result = parseFloat(amount)
   result *= this.$store.state.wallet.systemPrice
@@ -53,7 +82,8 @@ Vue.filter('systemToUSD', function(amount, MAX_DIGITS, MIN_DIGITS = 2) {
 })
 
 Vue.prototype.$tokenToUSD = function(amount, symbol, contract) {
-  amount = (!amount || isNaN(amount)) ? 0 : parseFloat(amount)
+  const parsed = parseFloat(amount)
+  amount = (!amount || isNaN(parsed)) ? 0 : parsed
   const id = symbol.toLowerCase() + '-' + contract
 
   const price = this.$store.state.tokens.find(t => t.id == id)
@@ -76,39 +106,33 @@ Vue.prototype.$systemToUSD = function(amount, MAX_DIGITS = 2, MIN_DIGITS = 2, us
   return result.toLocaleString('en', { minimumFractionDigits: MIN_DIGITS, maximumFractionDigits: parseFloat(MAX_DIGITS) })
 }
 
-Vue.prototype.$tokenBalance = function(symbol, contract, full = true) {
+Vue.prototype.$tokenBalance = function(symbol, contract, full = false) {
   const user = this.$store.state.user
 
   if (user && user.balances) {
     const balance = user.balances.filter(b => b.currency == symbol.toUpperCase() && b.contract == contract)[0]
 
     if (balance) {
-      return full ? balance.amount : balance.amount
+      return full ? parseFloat(balance.amount) + ' ' + symbol : balance.amount
     }
   }
 
   return full ? '0.0000 ' + symbol : '0.0000'
 }
 
-Vue.prototype.$tokenLogo = function(symbol, contract) {
-  const network = this.$store.state.network.name
+Vue.prototype.$getToken = function(id) {
+  return this.$store.state.tokens.find(t => t.id == id)
+}
+
+Vue.prototype.$tokenLogo = function(symbol, contract, chain = null) {
+  const network = chain || this.$store.state.network.name
 
   try {
-    if (contract == 'bosibc.io') {
-      return require(`@/assets/tokens/bosibc.io/${symbol.toLowerCase()}.png`)
-    } else {
-      return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
-    }
+    return require(`@/assets/tokens/${network}/${symbol.toLowerCase()}_${contract}.png`)
   } catch {
-    const tokens = this.$store.state.eosAirdropTokens
-
-    const token = tokens.find(t => t.chain == network && t.account == contract && t.symbol == symbol)
-
-    if (token) {
-      return token.logo
-    } else {
-      return null
-    }
+    // O(1) lookup via pre-built map
+    const key = `${network}:${symbol}:${contract}`
+    return this.$store.state.eosAirdropLogosMap[key] || null
   }
 }
 
@@ -117,7 +141,7 @@ Vue.prototype.$percentColor = function(percent, zeroColor = 'var(--text-default)
   percent = parseFloat(percent)
 
   if (isNaN(percent)) return zeroColor
-  if (percent > 0) return `var(--main-green)`
-  if (percent < 0) return `var(--main-red)`
+  if (percent > 0) return 'var(--main-green)'
+  if (percent < 0) return 'var(--main-red)'
   return zeroColor
 }

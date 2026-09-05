@@ -193,7 +193,6 @@ export default {
   },
 
   mounted() {
-    this.fetchPositions()
   },
 
   methods: {
@@ -233,12 +232,6 @@ export default {
         this.$store.state.swap.tab == '- Liquidity'
       )
     },
-
-    fetchPositions() {
-      if (!this.user) return
-
-      this.$store.dispatch('loadUserLiqudityPositions')
-    }
   }
 }
 </script>

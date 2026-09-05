@@ -84,9 +84,8 @@ el-tabs.h-100(type="border-card" size="small" v-model="trade").border-tabs.order
     )
       span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
-    swap-button.swap-link(v-if="relatedPool" :pool="relatedPool.id")
-      | SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
-
+    swap-button.swap-link(v-if="relatedPool" :pool="relatedPool")
+      | {{ $t('SWAP') }} ({{ (relatedPool.tokenB.id == base_token.id ? relatedPool.tokenAPrice : relatedPool.tokenBPrice).toSignificant() }} {{ base_token.symbol.name }})
 
     el-button.w-100.mt-5.capitalize(
       :type='side == "buy" ? "success" : "danger"',
@@ -136,7 +135,7 @@ el-tabs.h-100(type="border-card" size="small" v-model="trade").border-tabs.order
       el-slider(
         v-if='side == "buy"',
         :step='25',
-        v-model='percentBuyMarket',
+        v-model='percentBuy',
         show-stops
         :marks='{ 0: "0%", 25: "25%", 50: "50%", 75: "75%", 100: "100%" }'
         :show-tooltip="false"
@@ -179,23 +178,6 @@ export default {
   computed: {
     ...mapGetters(['user']),
     ...mapGetters('market', ['relatedPool']),
-
-    percentBuy: {
-      get() {
-        return this.percent_buy
-      },
-      set(val) {
-        this.changePercentBuy({ percent: val, trade: 'limit' })
-      }
-    },
-    percentBuyMarket: {
-      get() {
-        return this.percent_buy
-      },
-      set(val) {
-        this.changePercentBuy({ percent: val, trade: 'market' })
-      }
-    }
   },
 
   mounted() {

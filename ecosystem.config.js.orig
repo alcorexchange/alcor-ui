@@ -13,19 +13,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         NUXT_PORT: 7000,
-        NUXT_HOST: '0.0.0.0'
-      }
-    },
-    {
-      name: 'Alcor-apiV2-server',
-      script: './lib/server/services/apiV2Service/index.js',
-      exec_mode: 'cluster',
-      instances: 2,
-      kill_timeout: 3000,
-      restart_delay: 10000,
-      env: {
-        NODE_ENV: 'production',
-        PORT: 7003
+        NUXT_HOST: '0.0.0.0',
       }
     },
     {
@@ -35,7 +23,7 @@ module.exports = {
       instances: 2,
       kill_timeout: 3000,
       restart_delay: 10000,
-      max_memory_restart: '500M',
+      max_memory_restart: '1000M',
       env: {
         NODE_ENV: 'production',
         PORT: 7001
@@ -45,7 +33,7 @@ module.exports = {
       name: 'Alcor-ws-server',
       script: './lib/server/services/socketService/index.js',
       exec_mode: 'cluster',
-      instances: 4,
+      instances: 2,
       kill_timeout: 10000,
       restart_delay: 10000,
       env: {
@@ -54,19 +42,72 @@ module.exports = {
         PM2_PORT: 7002
       }
     },
+
+    // Updaters per chain
     {
-      name: 'Alcor-updater',
+      name: 'Alcor-updater-eos',
       script: './lib/server/services/updaterService/index.js',
-      node_args: '-r esm',
-      cron_restart: '0 * * * *'
+      env: { NETWORK: 'eos' }
+    },
+    {
+      name: 'Alcor-updater-wax',
+      script: './lib/server/services/updaterService/index.js',
+      env: { NETWORK: 'wax' }
+    },
+    {
+      name: 'Alcor-updater-proton',
+      script: './lib/server/services/updaterService/index.js',
+      env: { NETWORK: 'proton' }
+    },
+    {
+      name: 'Alcor-updater-telos',
+      script: './lib/server/services/updaterService/index.js',
+      env: { NETWORK: 'telos' }
+    },
+    {
+      name: 'Alcor-updater-xprtest',
+      script: './lib/server/services/updaterService/index.js',
+      env: { NETWORK: 'xprtest' }
     },
 
     {
       name: 'Alcor-orderbook-service',
       script: './lib/server/services/orderbookService/index.js',
-      node_args: '-r esm',
       restart_delay: 10000,
       kill_timeout: 10000,
-    }
+    },
+    {
+      name: 'Alcor-LSW-WAX-worker',
+      script: './lib/server/services/lswBotService/index.js',
+      env: {
+        LSW_NODEOS_ENDPOINT: "https://wax-api.alcor.exchange",
+        LSW_CHAIN_ID: "1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4",
+        LSW_CONTRACT_ACCOUNT: "liquid.alcor",
+        LSW_PERMISSION: "bot",
+        LSW_PROXY_NAME: "top21.oig"
+      }
+    },
+    {
+      name: 'Alcor-swap-service',
+      script: './lib/server/services/swapV2Service/start.js',
+      restart_delay: 10000,
+      kill_timeout: 10000,
+    },
+    {
+      name: 'Alcor-chainEvent-service',
+      script: './lib/server/services/chainEventService/index.js',
+      restart_delay: 10000,
+      kill_timeout: 10000,
+    },
+
+    // Wire testnet faucet, behind nginx at /api/v2/wire-test/.
+    // A single instance on purpose: it serializes its own chain writes, and two
+    // of them would race over nonces. Needs WIRE_TESTNET_KEY in .env.
+    {
+      name: 'Alcor-wire-faucet',
+      script: './lib/server/services/wireFaucetService/index.js',
+      restart_delay: 10000,
+      env: { NETWORK: 'wiretest', PORT: 3100 }
+    },
   ]
 }

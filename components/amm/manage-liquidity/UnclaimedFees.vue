@@ -2,20 +2,41 @@
 .unclaimed-fees
   .d-flex.justify-content-between.mt-2
     .fs-18.disable {{ $t('Unclaimed Fees') }}
-    AlcorButton.claim-fees-button.f-14(access @click="submit") {{ $t('Claim Fees') }}
+      el-tooltip(class="item" effect="dark" placement="top" content="")
+        .el-icon-info.ml-2.pointer
+
+        template(slot="content" effect="dark")
+          .fs-16.mb-2 Total Claimed Fees
+          .fs-14.d-flex.justify-content-between
+            div {{ position.collectedFees.tokenA | commaFloat }}
+            div.ml-auto {{ position.amountA.currency.symbol }}
+          .fs-14.d-flex.justify-content-between
+            div {{ position.collectedFees.tokenB | commaFloat }}
+            div.ml-auto {{ position.amountB.currency.symbol }}
+
+          .fs-16.my-2 Last Claim
+          .fi-14(v-if="position.collectedFees.lastCollectTime") {{ position.collectedFees.lastCollectTime | moment('DD MMMM YYYY, HH:mm:ss') }}
+          .fi-14(v-else) Never been claimed yet
+
+    AlcorButton.claim-fees-button.f-14(v-if="isMyPosition" access @click="submit") {{ $t('Claim Fees') }}
+
+    // TODO Think about design
+    //.mutted(v-else)
+      el-tooltip(class="item" effect="dark" content="Top Center prompts info" placement="top")
+        AlcorButton.claim-fees-button.f-14(access) {{ $t('Claim Fees') }}
 
   .d-flex.justify-content-between.mt-2
     .d-flex.align-items-center.gap-8
       span {{ position.amountA.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
-      .fs-18.lh-12 {{ position.feesA }}
+      .fs-18.lh-12 {{ position.feesA | commaFloat(position.pool.tokenA.decimals) }}
       .fs-14.color-action (${{ $tokenToUSD(parseFloat(position.feesA), position.pool.tokenA.symbol, position.pool.tokenA.contract) }})
 
   .d-flex.justify-content-between.mt-1
     .d-flex.align-items-center.gap-8
       span {{ position.amountB.currency.symbol }} Fees Earned
     .d-flex.align-items-center.gap-8
-      .fs-18.lh-12 {{ position.feesB }}
+      .fs-18.lh-12 {{ position.feesB | commaFloat(position.pool.tokenB.decimals) }}
       .fs-14.color-action (${{ $tokenToUSD(parseFloat(position.feesB), position.pool.tokenB.symbol, position.pool.tokenB.contract) }})
 
 </template>
@@ -24,20 +45,15 @@
 import { mapState } from 'vuex'
 import RangeIndicator from '~/components/amm/RangeIndicator'
 import AlcorButton from '~/components/AlcorButton.vue'
+import { getCollectActions } from '~/utils/amm'
+
 export default {
   components: {
     RangeIndicator,
     AlcorButton
   },
 
-  props: ['position'],
-
-  // data: () => {
-  //   return {
-  //     feesA: null,
-  //     feesB: null
-  //   }
-  // },
+  props: ['position', 'isMyPosition'],
 
   computed: {
     ...mapState(['network', 'user']),
@@ -57,43 +73,10 @@ export default {
     async collect() {
       if (!this.position) return this.$notify({ type: 'Error', title: 'No position' })
 
-      const { tokenA, tokenB } = this.position.pool
-      const { owner, tickLower, tickUpper } = this.position
-
-      const tokenAZero = Number(0).toFixed(tokenA.decimals) + ' ' + tokenA.symbol
-      const tokenBZero = Number(0).toFixed(tokenB.decimals) + ' ' + tokenB.symbol
-
-      const actions = [{
-        account: this.network.amm.contract,
-        name: 'subliquid',
-        authorization: [this.user.authorization],
-        data: {
-          poolId: this.position.pool.id,
-          owner,
-          liquidity: 0,
-          tickLower,
-          tickUpper,
-          tokenAMin: tokenAZero,
-          tokenBMin: tokenBZero,
-          deadline: 0
-        }
-      }, {
-        account: this.network.amm.contract,
-        name: 'collect',
-        authorization: [this.user.authorization],
-        data: {
-          poolId: this.position.pool.id,
-          owner,
-          recipient: owner,
-          tickLower,
-          tickUpper,
-          tokenAMax: tokenAZero,
-          tokenBMax: tokenBZero,
-        }
-      }]
+      const actions = getCollectActions(this.network, this.user, this.position)
 
       const result = await this.$store.dispatch('chain/sendTransaction', actions)
-      console.log({ result })
+      console.log('result', result)
     }
   }
 }

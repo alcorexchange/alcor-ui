@@ -41,14 +41,17 @@ const MarketSchema = new mongoose.Schema({
   volume24: { type: Number },
   volumeWeek: { type: Number },
   volumeMonth: { type: Number },
+  volume90d: { type: Number },
 
   change24: { type: Number },
   changeWeek: { type: Number },
   high24: { type: Number },
   low24: { type: Number }
 })
-MarketSchema.index({ chain: 1, id: 1 })
-MarketSchema.index({ chain: 1, ticker_id: 1 })
+MarketSchema.index({ chain: 1, id: 1 }, { unique: true })
+MarketSchema.index({ chain: 1, ticker_id: 1 }, { unique: true  })
+MarketSchema.index({ chain: 1, 'base_token.id': 1 }, { background: true })
+MarketSchema.index({ chain: 1, 'quote_token.id': 1 }, { background: true })
 
 const PoolPairSchema = new mongoose.Schema({
   chain: { type: String, index: true },
@@ -83,6 +86,7 @@ const GlobalStatsSchema = new mongoose.Schema({
   totalLiquidityPools: { type: Number },
   totalSpotPairs: { type: Number },
 })
+GlobalStatsSchema.index({ chain: 1, time: 1 }, { background: true })
 
 const LiquiditySchema = new mongoose.Schema({
   chain: { type: String, index: true },
@@ -127,6 +131,7 @@ const MatchSchema = new mongoose.Schema({
   market: { type: Number, index: true },
   type: { type: String, index: true },
   trx_id: { type: String },
+  global_sequence: { type: Number, index: true },
 
   unit_price: { type: Number, index: true },
 
@@ -137,12 +142,19 @@ const MatchSchema = new mongoose.Schema({
   bidder: { type: String, index: true },
 
   time: { type: Date, index: true },
-  block_num: { type: Number }
+  block_num: { type: Number },
 })
-MatchSchema.index({ chain: 1, market: 1 })
-MatchSchema.index({ chain: 1, market: 1, time: -1 })
-MatchSchema.index({ chain: 1, market: 1, asker: 1, bidder: 1 })
-MatchSchema.index({ chain: 1, market: 1, time: 1, unit_price: -1 })
+MatchSchema.index({ chain: 1, global_sequence: 1 }, { background: true, sparse: true })
+MatchSchema.index({ chain: 1, market: 1, time: 1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, time: -1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, time: -1, type: 1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, asker: 1, bidder: 1, time: -1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, time: -1, unit_price: -1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, type: 1, time: -1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, time: -1, bid: 1, ask: 1 }, { background: true })
+MatchSchema.index({ chain: 1, time: -1, asker: 1, bidder: 1 }, { background: true })
+MatchSchema.index({ chain: 1, market: 1, time: 1, type: 1, bid: 1, ask: 1 }, { background: true })
+MatchSchema.index({ chain: 1, bidder: 1, time: -1 }, { background: true })
 
 const BarSchema = new mongoose.Schema({
   timeframe: { type: String, index: true },
@@ -157,6 +169,22 @@ const BarSchema = new mongoose.Schema({
   time: { type: Date, index: true }
 })
 BarSchema.index({ chain: 1, timeframe: 1, market: 1, time: -1 }, { background: true })
+
+const SwapBarSchema = new mongoose.Schema({
+  timeframe: { type: String, index: true },
+  chain: { type: String, index: true },
+  pool: { type: Number, index: true },
+
+  open: String,
+  high: String,
+  low: String,
+  close: String,
+  volumeA: { type: Number, default: 0 },
+  volumeB: { type: Number, default: 0 },
+  volumeUSD: { type: Number, default: 0 },
+  time: { type: Date, index: true }
+})
+SwapBarSchema.index({ chain: 1, pool: 1, timeframe: 1, time: 1 }, { background: true })
 
 const PoolChartPointSchema = new mongoose.Schema({
   chain: { type: String, index: true },
@@ -177,7 +205,8 @@ PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true }
 
 const SettingsSchema = new mongoose.Schema({
   chain: { type: String, index: true },
-  actions_stream_offset: { type: Object, default: {} }
+  actions_stream_offset: { type: Object, default: {} },
+  last_block_num: { type: Object, default: {} }
 })
 
 const SwapPoolSchema = new mongoose.Schema({
@@ -203,6 +232,8 @@ const SwapPoolSchema = new mongoose.Schema({
   },
 
   sqrtPriceX64: { type: String },
+  priceA: { type: Number },
+  priceB: { type: Number },
   tick: { type: Number },
 
   feeProtocol: { type: Number, index: true },
@@ -217,9 +248,11 @@ const SwapPoolSchema = new mongoose.Schema({
   protocolFeeB: { type: Number },
   liquidity: { type: String },
   creator: { type: String },
+  firstSeenAt: { type: Date },
+
+  tvlUSD: { type: Number, index: true },
 
   // TODO Change 24/week/month
-  // TODO TVL
 
   // New Fields
   volumeA24: { type: Number, default: 0 },
@@ -231,16 +264,23 @@ const SwapPoolSchema = new mongoose.Schema({
   volumeAMonth: { type: Number, default: 0 },
   volumeBMonth: { type: Number, default: 0 },
 
+  volumeA90: { type: Number, default: 0 },
+  volumeB90: { type: Number, default: 0 },
+
   volumeUSD24: { type: Number, default: 0 },
   volumeUSDWeek: { type: Number, default: 0 },
   volumeUSDMonth: { type: Number, default: 0 },
+  volumeUSD90: { type: Number, default: 0 },
 
-  // change24: { type: Number },
-  // changeWeek: { type: Number },
-  // high24: { type: Number },
-  // low24: { type: Number }
+  change24: { type: Number, default: 0 },
+  changeWeek: { type: Number, default: 0 },
+  high24: { type: Number, default: 0 },
+  low24: { type: Number, default: 0 }
 })
 SwapPoolSchema.index({ chain: 1, id: 1 }, { unique: true })
+SwapPoolSchema.index({ chain: 1, 'tokenA.id': 1 }, { background: true })
+SwapPoolSchema.index({ chain: 1, 'tokenB.id': 1 }, { background: true })
+SwapPoolSchema.index({ chain: 1, firstSeenAt: -1 }, { background: true })
 
 // Every hour cahrt basic point for info
 const SwapChartPointSchema = new mongoose.Schema({
@@ -263,12 +303,15 @@ const SwapChartPointSchema = new mongoose.Schema({
   // We not user default here actually
   time: { type: Date, default: () => Date.now(), index: true }
 })
-PoolChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
+SwapChartPointSchema.index({ chain: 1, pool: 1, time: 1 }, { background: true })
+SwapChartPointSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
+SwapChartPointSchema.index({ chain: 1, pool: 1, time: -1, price: 1, reserveA: 1, reserveB: 1, volumeUSD: 1, usdReserveA: 1, usdReserveB: 1 }, { background: true })
 
 const SwapSchema = new mongoose.Schema({
   chain: { type: String, index: true },
   pool: { type: Number, index: true },
   trx_id: { type: String },
+  global_sequence: { type: Number, index: true },
 
   recipient: { type: String, index: true },
   sender: { type: String, index: true },
@@ -281,7 +324,16 @@ const SwapSchema = new mongoose.Schema({
   tokenB: { type: Number },
 
   time: { type: Date, index: true },
+  block_num: { type: Number },
 })
+SwapSchema.index({ chain: 1, global_sequence: 1 }, { background: true, sparse: true })
+SwapSchema.index({ chain: 1, pool: 1, sender: 1, recipient: 1, time: -1 }, { background: true })
+SwapSchema.index({ chain: 1, pool: 1, time: -1 }, { background: true })
+SwapSchema.index({ chain: 1, sender: 1, time: -1 }, { background: true })
+SwapSchema.index({ chain: 1, sender: 1, recipient: 1, time: -1 }, { background: true })
+SwapSchema.index({ chain: 1, time: -1, sender: 1, recipient: 1 }, { background: true })
+SwapSchema.index({ chain: 1, pool: 1, time: -1, tokenA: 1 }, { background: true })
+SwapSchema.index({ chain: 1, recipient: 1, time: -1 }, { background: true })
 
 const PositionSchema = new mongoose.Schema({
   id: { type: Number },
@@ -322,7 +374,35 @@ const PositionHistorySchema = new mongoose.Schema({
   trx_id: { type: String },
   time: { type: Date, index: true },
 })
-PoolChartPointSchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: -1, type: 1 }, { background: true })
+PositionHistorySchema.index({ chain: 1, id: 1, owner: 1, time: 1 }, { background: true })
+PositionHistorySchema.index({ chain: 1, type: 1, time: -1 }, { background: true })
+PositionHistorySchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: 1 }, { background: true })
+PositionHistorySchema.index({ chain: 1, pool: 1, id: 1, owner: 1, time: -1, type: 1 }, { background: true })
+PositionHistorySchema.index({ chain: 1, owner: 1, time: -1 }, { background: true })
+
+const TokenHoldersHistorySchema = new mongoose.Schema({
+  chain: { type: String, index: true },
+  tokenId: { type: String, index: true },
+  holders: { type: Number, default: 0 },
+  truncated: { type: Boolean, default: false },
+  time: { type: Date, index: true },
+})
+TokenHoldersHistorySchema.index({ chain: 1, tokenId: 1, time: -1 }, { background: true })
+
+const LaunchpadTokenMetaSchema = new mongoose.Schema({
+  chain: { type: String, index: true },
+  token_id: { type: String, index: true },
+  symbol: { type: String },
+  name: { type: String },
+  contract: { type: String },
+  decimals: { type: Number },
+  status: { type: String, default: 'LAUNCH', index: true },
+  total_supply: { type: Number, default: null },
+  created_at: { type: Date, default: () => Date.now(), index: true },
+  updated_at: { type: Date, default: () => Date.now(), index: true },
+})
+LaunchpadTokenMetaSchema.index({ chain: 1, token_id: 1 }, { unique: true })
+LaunchpadTokenMetaSchema.index({ chain: 1, status: 1, updated_at: -1 }, { background: true })
 
 export const Market = mongoose.model('Market', MarketSchema)
 export const PoolPair = mongoose.model('PoolPair', PoolPairSchema)
@@ -330,6 +410,7 @@ export const Liquidity = mongoose.model('Liquidity', LiquiditySchema)
 export const Exchange = mongoose.model('Exchange', ExchangeSchema)
 export const Match = mongoose.model('Match', MatchSchema)
 export const Bar = mongoose.model('Bar', BarSchema)
+export const SwapBar = mongoose.model('SwapBar', SwapBarSchema)
 export const PoolChartPoint = mongoose.model('PoolChartPoint', PoolChartPointSchema)
 export const Settings = mongoose.model('Settings', SettingsSchema)
 export const Swap = mongoose.model('Swap', SwapSchema)
@@ -338,3 +419,5 @@ export const SwapChartPoint = mongoose.model('SwapChartPoint', SwapChartPointSch
 export const PositionHistory = mongoose.model('PositionHistory', PositionHistorySchema)
 export const Position = mongoose.model('Position', PositionSchema)
 export const GlobalStats = mongoose.model('GlobalStats', GlobalStatsSchema)
+export const TokenHoldersHistory = mongoose.model('TokenHoldersHistory', TokenHoldersHistorySchema)
+export const LaunchpadTokenMeta = mongoose.model('LaunchpadTokenMeta', LaunchpadTokenMetaSchema)

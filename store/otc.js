@@ -10,23 +10,38 @@ export const mutations = {
 
 export const actions = {
   async fetchOrders({ rootState, commit }) {
-    const contract = rootState.network.otc.contract
+    try {
+      const { data } = await this.$axios.get('/v2/otc/orders', {
+        params: {
+          limit: 1000,
+          offset: 0,
+          sort: 'id',
+          order: 'desc',
+          hide_scam: false
+        }
+      })
 
-    const { rows } = await this.$rpc.get_table_rows({
-      code: contract,
-      scope: contract,
-      table: 'orders',
-      reverse: true,
-      limit: 1000
-    })
+      const rows = data?.items || []
+      commit('setOrders', rows)
+    } catch (apiError) {
+      const contract = rootState.network.otc.contract
 
-    rows.map(r => {
-      r.price = calculatePrice(r.sell, r.buy)
-      r.buy = parseOtcAsset(r.buy)
-      r.sell = parseOtcAsset(r.sell)
-    })
+      const { rows } = await this.$rpc.get_table_rows({
+        code: contract,
+        scope: contract,
+        table: 'orders',
+        reverse: true,
+        limit: 1000
+      })
 
-    commit('setOrders', rows)
+      rows.map(r => {
+        r.price = calculatePrice(r.sell, r.buy)
+        r.buy = parseOtcAsset(r.buy)
+        r.sell = parseOtcAsset(r.sell)
+      })
+
+      commit('setOrders', rows)
+    }
   },
 
   async getSellOrders({ dispatch }, { market_id, ...kwargs }) {

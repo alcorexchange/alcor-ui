@@ -1,10 +1,20 @@
-// TODO TS Support
-import JSBI from 'jsbi'
 import { parseUnits } from '@ethersproject/units'
 
-import { Pool, Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '@alcorexchange/alcor-swap-sdk'
+import { Q128, Pool, Position, Token, Price, TickMath, encodeSqrtRatioX64, priceToClosestTick, nearestUsableTick, TICK_SPACINGS, CurrencyAmount, tickToPrice } from '@alcorexchange/alcor-swap-sdk'
 
 const PRICE_FIXED_DIGITS = 8
+
+
+export function sqrtRatioToPrice(sqrtRatio, tokenA, tokenB) {
+  return new Price(tokenA, tokenB, Q128, sqrtRatio * sqrtRatio)
+}
+
+export function getSwapBarPriceAsString(price, tokenA, tokenB, reverse) {
+  price = sqrtRatioToPrice(price, tokenA, tokenB)
+  if (reverse) price = price.invert()
+  return price.toSignificant()
+}
+
 
 export function parseToken(token) {
   const [amount, symbol] = token.quantity.split(' ')
@@ -15,8 +25,7 @@ export function parseToken(token) {
   return new Token(
     token.contract,
     precision,
-    symbol,
-    (symbol + '-' + token.contract).toLowerCase()
+    symbol
   )
 }
 
@@ -40,9 +49,9 @@ export function tryParseCurrencyAmount(value, currency) {
   }
 
   try {
-    const typedValueParsed = parseUnits(value, currency.decimals).toString()
+    const typedValueParsed = parseUnits(value, currency.decimals)
     if (typedValueParsed !== '0') {
-      return CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(typedValueParsed))
+      return CurrencyAmount.fromRawAmount(currency, typedValueParsed)
     }
   } catch (error) {
     // fails if the user specifies too many decimal places of precision (or maybe exceed max uint?)
@@ -63,13 +72,13 @@ export function tryParsePrice(baseToken, quoteToken, value) {
   const [whole, fraction] = value.split('.')
 
   const decimals = fraction?.length ?? 0
-  const withoutDecimals = JSBI.BigInt((whole ?? '') + (fraction ?? ''))
+  const withoutDecimals = BigInt((whole ?? '') + (fraction ?? ''))
 
   return new Price(
     baseToken,
     quoteToken,
-    JSBI.multiply(JSBI.BigInt(10 ** decimals), JSBI.BigInt(10 ** baseToken.decimals)),
-    JSBI.multiply(withoutDecimals, JSBI.BigInt(10 ** quoteToken.decimals))
+    BigInt(10 ** decimals) * BigInt(10 ** baseToken.decimals),
+    withoutDecimals * BigInt(10 ** quoteToken.decimals)
   )
 }
 
@@ -96,9 +105,9 @@ export function tryParseTick(
   // check price is within min/max bounds, if outside return min/max
   const sqrtRatioX64 = encodeSqrtRatioX64(price.numerator, price.denominator)
 
-  if (JSBI.greaterThanOrEqual(sqrtRatioX64, TickMath.MAX_SQRT_RATIO)) {
+  if (sqrtRatioX64 >= TickMath.MAX_SQRT_RATIO) {
     tick = TickMath.MAX_TICK
-  } else if (JSBI.lessThanOrEqual(sqrtRatioX64, TickMath.MIN_SQRT_RATIO)) {
+  } else if (sqrtRatioX64 <= TickMath.MIN_SQRT_RATIO) {
     tick = TickMath.MIN_TICK
   } else {
     // this function is agnostic to the base, will always return the correct tick
@@ -137,15 +146,14 @@ export function isPriceInvalid(price) {
     price &&
     sqrtRatioX96 &&
     !(
-      JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO) &&
-      JSBI.lessThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO)
+      sqrtRatioX96 >= TickMath.MIN_SQRT_RATIO &&
+      sqrtRatioX96 < TickMath.MAX_SQRT_RATIO
     )
   )
 }
 
 const getActiveTick = (tickCurrent, feeAmount) =>
   tickCurrent && feeAmount ? Math.floor(tickCurrent / TICK_SPACINGS[feeAmount]) * TICK_SPACINGS[feeAmount] : undefined
-
 
 export function getLiquidityRangeChart(pool, tokenA, tokenB) {
   // Find nearest valid tick for pool in case tick is not initialized.
@@ -176,9 +184,9 @@ export function getLiquidityRangeChart(pool, tokenA, tokenB) {
   }
 
   const activeTickProcessed = {
-    liquidityActive: JSBI.BigInt(pool.liquidity ?? 0),
+    liquidityActive: BigInt(pool.liquidity ?? 0),
     tick: activeTick,
-    liquidityNet: Number(ticks[pivot].id) === activeTick ? JSBI.BigInt(ticks[pivot].liquidityNet) : JSBI.BigInt(0),
+    liquidityNet: Number(ticks[pivot].id) === activeTick ? BigInt(ticks[pivot].liquidityNet) : BigInt(0),
     price0: tickToPrice(tokenA, tokenB, activeTick).toFixed(PRICE_FIXED_DIGITS),
   }
 
@@ -209,7 +217,7 @@ export default function computeSurroundingTicks(
     const currentTickProcessed = {
       liquidityActive: previousTickProcessed.liquidityActive,
       tick,
-      liquidityNet: JSBI.BigInt(sortedTickData[i].liquidityNet),
+      liquidityNet: BigInt(sortedTickData[i].liquidityNet),
       price0: tickToPrice(tokenA, tokenB, tick).toFixed(PRICE_FIXED_DIGITS),
     }
 
@@ -218,16 +226,10 @@ export default function computeSurroundingTicks(
     // it to the current processed tick we are building.
     // If we are iterating descending, we don't want to apply the net liquidity until the following tick.
     if (ascending) {
-      currentTickProcessed.liquidityActive = JSBI.add(
-        previousTickProcessed.liquidityActive,
-        JSBI.BigInt(sortedTickData[i].liquidityNet)
-      )
-    } else if (!ascending && JSBI.notEqual(previousTickProcessed.liquidityNet, JSBI.BigInt(0))) {
+      currentTickProcessed.liquidityActive = previousTickProcessed.liquidityActive + BigInt(sortedTickData[i].liquidityNet)
+    } else if (!ascending && previousTickProcessed.liquidityNet != BigInt(0)) {
       // We are iterating descending, so look at the previous tick and apply any net liquidity.
-      currentTickProcessed.liquidityActive = JSBI.subtract(
-        previousTickProcessed.liquidityActive,
-        previousTickProcessed.liquidityNet
-      )
+      currentTickProcessed.liquidityActive = previousTickProcessed.liquidityActive - previousTickProcessed.liquidityNet
     }
 
     processedTicks.push(currentTickProcessed)
@@ -253,4 +255,65 @@ export function constructPoolInstance(row) {
     sqrtPriceX64,
     tickCurrent: tick,
   })
+}
+
+export function constructPosition(pool, position) {
+  const tempPosition = new Position({
+    ...position,
+    pool,
+
+    // Because we have feesA as asset here from backend api
+    feesA: 0,
+    feesB: 0
+  })
+
+  // Add Stats
+  Object.assign(tempPosition, {
+    feesA: position.feesA ?? '0.0000',
+    feesB: position.feesB ?? '0.0000',
+    pNl: position.pNl ?? 0,
+    totalValue: position.totalValue ?? 0,
+    collectedFees: position.collectedFees
+  })
+
+  return tempPosition
+}
+
+export function getCollectActions(network, user, position) {
+  const { tokenA, tokenB } = position.pool
+  const { owner, tickLower, tickUpper } = position
+
+  const tokenAZero = Number(0).toFixed(tokenA.decimals) + ' ' + tokenA.symbol
+  const tokenBZero = Number(0).toFixed(tokenB.decimals) + ' ' + tokenB.symbol
+
+  const actions = [{
+    account: network.amm.contract,
+    name: 'subliquid',
+    authorization: [user.authorization],
+    data: {
+      poolId: position.pool.id,
+      owner,
+      liquidity: 0,
+      tickLower,
+      tickUpper,
+      tokenAMin: tokenAZero,
+      tokenBMin: tokenBZero,
+      deadline: 0
+    }
+  }, {
+    account: network.amm.contract,
+    name: 'collect',
+    authorization: [user.authorization],
+    data: {
+      poolId: position.pool.id,
+      owner,
+      recipient: owner,
+      tickLower,
+      tickUpper,
+      tokenAMax: tokenAZero,
+      tokenBMax: tokenBZero,
+    }
+  }]
+
+  return actions
 }

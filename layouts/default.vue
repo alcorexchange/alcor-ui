@@ -1,11 +1,14 @@
 <template lang="pug">
 .unlim-width.default-layout
+  MigrationBanner
   .not-footer
     TopNav.px-3.py-2
 
     AlcorLoading
     ResourcesModal
     ModalsDialog
+    AnnouncementModal
+    HackerWarningModal
 
     .main(:class="{ 'alcor-inner': !fullWidth , 'unlim-width': fullWidth }")
       nuxt
@@ -16,6 +19,7 @@
 import config from '~/config'
 
 import TopNav from '~/components/layout/TopNav'
+import MigrationBanner from '~/components/layout/MigrationBanner'
 import ModalsDialog from '~/components/modals/ModalsDialog'
 import ChainSelect from '~/components/elements/ChainSelect'
 import Footer from '~/components/footer/Footer'
@@ -24,6 +28,8 @@ import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav.vue'
 import AlcorLoading from '~/components/AlcorLoading.vue'
 import ResourcesModal from '~/components/modals/Resources.vue'
+import AnnouncementModal from '~/components/modals/AnnouncementModal.vue'
+import HackerWarningModal from '~/components/modals/HackerWarningModal.vue'
 
 export default {
   components: {
@@ -35,7 +41,10 @@ export default {
     ConnectNav,
     AlcorLoading,
     ResourcesModal,
-    TopNav
+    AnnouncementModal,
+    HackerWarningModal,
+    TopNav,
+    MigrationBanner,
   },
 
   data() {
@@ -57,11 +66,7 @@ export default {
     menuItems() {
       const items = []
 
-      if (
-        ['eos', 'wax', 'jungle', 'telos', 'local'].includes(
-          this.$store.state.network.name
-        )
-      ) {
+      if (['eos', 'wax', 'jungle', 'telos', 'local'].includes(this.$store.state.network.name)) {
         items.push({ index: '/swap', name: 'Swap' })
       }
 
@@ -77,7 +82,7 @@ export default {
       items.push({ index: '/docs', name: 'Docs' })
 
       return items
-    }
+    },
   },
 
   watch: {
@@ -97,10 +102,7 @@ export default {
     if (!document.querySelector('html').getAttribute('trade-theme')) {
       if (!window.localStorage.getItem('trade-theme')) window.localStorage.setItem('trade-theme', 'default')
       document.querySelector('html').setAttribute('trade-theme', window.localStorage.getItem('trade-theme'))
-      this.$store.commit(
-        'settings/setTradeColor',
-        window.localStorage.getItem('trade-theme')
-      )
+      this.$store.commit('settings/setTradeColor', window.localStorage.getItem('trade-theme'))
     }
   },
 
@@ -128,16 +130,12 @@ export default {
     },
 
     changeChain(chain) {
-      // TODO Move to config: APP_DOMAIN
-      const location =
-        chain == 'wax'
-          ? 'https://alcor.exchange/'
-          : `https://${chain}.alcor.exchange/`
+      const location = `https://${chain}.alcor.exchange/`
 
       this.loading = true
       window.location = location + window.location.pathname.split('/')[1] || ''
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -358,7 +356,6 @@ ul {
   }
 
   @media only screen and (max-width: 600px) {
-
     .el-dialog,
     .el-message-box,
     .el-notification {

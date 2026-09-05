@@ -1,20 +1,28 @@
 <template lang="pug">
 .analytics-page-wrapper.mt-4
-  AnalyticsHeader
   .mt-3
     NuxtChild
 </template>
 
 <script>
-import AnalyticsHeader from '@/components/analytics/AnalyticsHeader'
 export default {
   name: 'AnalyticsPage',
-  components: {
-    AnalyticsHeader
+  components: {},
+
+  head() {
+    return {
+      title: 'Alcor | Analytics',
+
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: 'TVl, Volumes, Profitability and many other analytics.'
+        }
+      ]
+    }
   }
 }
 </script>
 
-<style>
-
-</style>
+<style></style>

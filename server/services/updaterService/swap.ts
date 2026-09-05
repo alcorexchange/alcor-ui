@@ -1,22 +1,21 @@
-import { createClient } from 'redis'
-
-import { SwapPool, Swap } from '../../models'
-import { onSwapAction } from '../swapV2Service'
+import { SwapPool, Swap, PositionHistory } from '../../models'
+import config from '../../../config'
+import { getTokens } from '../../utils'
+import { onSwapAction, aggregatePositions } from '../swapV2Service'
+import { computeSafePoolTvlUSD } from './poolValuation'
+import { getRedis } from '../redis'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
+const FIRST_SEEN_RECALC_BATCH = Math.max(1, Number(process.env.SWAP_POOL_FIRSTSEEN_RECALC_BATCH || 5000))
 
-const redisClient = createClient()
+export async function newSwapAction(action: any, network: any) {
+  //console.log('newSwapAction', action.act.name)
 
+  const { trx_id, block_time, block_num, receipt, act: { name, data } } = action
+  const global_sequence = receipt?.global_sequence
 
-export async function newSwapAction(action, network: Network) {
-  if (!redisClient.isOpen) redisClient.connect()
-
-  console.log('newSwapAction', action.act.name)
-
-  const { trx_id, block_time, block_num, act: { name, data } } = action
-
-  const message = JSON.stringify({ chain: network.name, name, trx_id, block_num, block_time, data })
+  const message = JSON.stringify({ chain: network.name, name, trx_id, block_num, block_time, data, global_sequence })
 
   await onSwapAction(message)
 
@@ -24,90 +23,225 @@ export async function newSwapAction(action, network: Network) {
   //redisClient.publish('swap_action', message)
 }
 
-export async function getVolumeFrom(date, pool, chain) {
-  const volume: { total_volume: number }[] = await Swap.aggregate([
-    { $match: { chain, pool, time: { $gte: new Date(date) } } },
-    { $group: { _id: '$pool', total_volume: { $sum: '$totalUSDVolume' } } }
-  ])
+export async function getFieldSumFrom(field, date, pool, chain) {
+  // Извлекаем документы из базы данных
+  const swaps = await Swap.find({
+    chain,
+    pool,
+    time: { $gte: new Date(date) },
+  })
+    .select(field)
+    .lean()
 
-  return volume.length == 1 ? volume[0].total_volume : 0
+  // Агрегируем данные на уровне JavaScript
+  const totalVolume = swaps.reduce((sum, swap) => {
+    const value = Math.abs(swap[field] || 0) // Берём абсолютное значение
+    return sum + value
+  }, 0)
+
+  return totalVolume
 }
 
-export async function updatePoolsStats(chain: string) {
-  try {
-    const pools = await SwapPool.find({ chain })
+// Date.now() - ONEDAY
+export async function getChangeFrom(date, pool, chain) {
+  const date_deal = await Swap.findOne({ chain, pool, time: { $gte: new Date(date) } }, {}, { sort: { time: 1 } })
+  const last_deal = await Swap.findOne({ chain, pool }, {}, { sort: { time: -1 } })
 
-    for (const pool of pools) {
-      pool.volumeUSD24 = await getVolumeFrom(Date.now() - (ONEDAY), pool.id, chain)
-      pool.volumeUSDWeek = await getVolumeFrom(Date.now() - (WEEK), pool.id, chain)
-      pool.volumeUSDMonth = await getVolumeFrom(Date.now() - (ONEDAY * 30), pool.id, chain)
+  if (date_deal && last_deal) {
+    // Use BigInt for uint128_t values to avoid precision loss
+    const price_before = BigInt(date_deal.sqrtPriceX64)
+    const price_after = BigInt(last_deal.sqrtPriceX64)
 
-      await pool.save()
-    }
-
-    console.log(chain, 'pools updated')
-  } catch (e) {
-    console.error(' UPDATE POOL STATS ERR', chain, e)
+    // Calculate percentage change using BigInt arithmetic
+    // Multiply by 10000 to preserve 2 decimal places
+    const change = ((price_after - price_before) * BigInt(10000)) / price_before
+    return (Number(change) / 100).toFixed(2)
+  } else {
+    return 0
   }
 }
 
+// Aggregate positions from per-pool storage into one key for API reads
+export async function updatePositionsAggregation(chain: string) {
+  try {
+    await aggregatePositions(chain)
+  } catch (error) {
+    console.error(`[${chain}] positions aggregation error:`, error)
+  }
+}
 
-// export async function getChangeFrom(date, market, chain) {
-//   const date_deal = await Match.findOne({ chain, market, time: { $gte: new Date(date) } }, {}, { sort: { time: 1 } })
-//   const last_deal = await Match.findOne({ chain, market }, {}, { sort: { time: -1 } })
+export async function updatePoolsStats(chain) {
+  console.time(`${chain} pools updated`)
+  try {
+    const network = config.networks[chain]
+    const now = Date.now()
+    const dayAgo = now - ONEDAY
+    const weekAgo = now - WEEK
+    const monthAgo = now - ONEDAY * 30
+    const ninetyDaysAgo = now - ONEDAY * 90
 
-//   if (date_deal) {
-//     const price_before = date_deal.unit_price
-//     const price_after = last_deal.unit_price
+    const dayAgoDate = new Date(dayAgo)
+    const weekAgoDate = new Date(weekAgo)
+    const monthAgoDate = new Date(monthAgo)
+    const ninetyDaysAgoDate = new Date(ninetyDaysAgo)
+    const absField = (field: string) => ({ $abs: { $ifNull: [field, 0] } })
 
-//     return (((price_after - price_before) / price_before) * 100).toFixed(2)
-//   } else {
-//     return 0
-//   }
-// }
+    // Single-pass aggregation for 24h/7d/30d/90d
+    const volumeStats = await Swap.aggregate([
+      { $match: { chain, time: { $gte: ninetyDaysAgoDate } } },
+      {
+        $group: {
+          _id: '$pool',
+          volumeUSD90: { $sum: absField('$totalUSDVolume') },
+          volumeA90: { $sum: absField('$tokenA') },
+          volumeB90: { $sum: absField('$tokenB') },
+          volumeUSDMonth: { $sum: { $cond: [{ $gte: ['$time', monthAgoDate] }, absField('$totalUSDVolume'), 0] } },
+          volumeAMonth: { $sum: { $cond: [{ $gte: ['$time', monthAgoDate] }, absField('$tokenA'), 0] } },
+          volumeBMonth: { $sum: { $cond: [{ $gte: ['$time', monthAgoDate] }, absField('$tokenB'), 0] } },
+          volumeUSDWeek: { $sum: { $cond: [{ $gte: ['$time', weekAgoDate] }, absField('$totalUSDVolume'), 0] } },
+          volumeAWeek: { $sum: { $cond: [{ $gte: ['$time', weekAgoDate] }, absField('$tokenA'), 0] } },
+          volumeBWeek: { $sum: { $cond: [{ $gte: ['$time', weekAgoDate] }, absField('$tokenB'), 0] } },
+          volumeUSD24: { $sum: { $cond: [{ $gte: ['$time', dayAgoDate] }, absField('$totalUSDVolume'), 0] } },
+          volumeA24: { $sum: { $cond: [{ $gte: ['$time', dayAgoDate] }, absField('$tokenA'), 0] } },
+          volumeB24: { $sum: { $cond: [{ $gte: ['$time', dayAgoDate] }, absField('$tokenB'), 0] } },
+        }
+      }
+    ])
 
-// export async function getMarketStats(network, market_id) {
-//   const stats = {}
+    const statsByPool = new Map(volumeStats.map(item => [item._id, item]))
+    const tokens = await getTokens(chain)
+    const tokenMap = new Map((tokens || []).map((t) => [t.id, t]))
 
-//   if ('last_price' in stats) return stats
+    // Get all pools and update them
+    const pools = await SwapPool.find({ chain })
 
-//   const last_deal = await Match.findOne({ chain: network.name, market: market_id }, {}, { sort: { time: -1 } })
-//   if (last_deal) {
-//     stats.last_price = parseFloat(last_deal.unit_price)
-//   } else {
-//     stats.last_price = 0
-//   }
+    // Process pools in batches to avoid overwhelming the database
+    const batchSize = 10
+    for (let i = 0; i < pools.length; i += batchSize) {
+      const batch = pools.slice(i, i + batchSize)
+      await Promise.all(batch.map(pool => updatePoolData(pool, chain, statsByPool, tokenMap, network)))
+    }
 
-//   const oneMonthAgo = new Date(
-//     new Date().getFullYear(),
-//     new Date().getMonth() - 1,
-//     new Date().getDate()
-//   )
+    await backfillPoolFirstSeen(chain, pools)
+  } catch (error) {
+    console.error('UPDATE POOL STATS ERR', chain, error)
+  }
+  console.timeEnd(`${chain} pools updated`)
+}
 
-//   const [base_volume, target_volume] = await getVolumeFrom(Date.now() - ONEDAY, market_id, network.name)
+async function updatePoolData(pool, chain, statsByPool, tokenMap, network) {
+  try {
+    const stats = statsByPool.get(pool.id) || {}
+    const dayStats = { volumeUSD: stats.volumeUSD24 || 0, volumeA: stats.volumeA24 || 0, volumeB: stats.volumeB24 || 0 }
+    const weekStats = { volumeUSD: stats.volumeUSDWeek || 0, volumeA: stats.volumeAWeek || 0, volumeB: stats.volumeBWeek || 0 }
+    const monthStats = { volumeUSD: stats.volumeUSDMonth || 0, volumeA: stats.volumeAMonth || 0, volumeB: stats.volumeBMonth || 0 }
+    const ninetyDayStats = { volumeUSD: stats.volumeUSD90 || 0, volumeA: stats.volumeA90 || 0, volumeB: stats.volumeB90 || 0 }
 
-//   stats.volume24 = target_volume
-//   stats.target_volume = target_volume
-//   stats.base_volume = base_volume
+    // Get price changes separately (these still need individual queries due to sorting)
+    const [change24, changeWeek] = await Promise.all([
+      getChangeFrom(Date.now() - ONEDAY, pool.id, chain),
+      getChangeFrom(Date.now() - WEEK, pool.id, chain),
+    ])
 
-//   stats.volumeWeek = (await getVolumeFrom(Date.now() - WEEK, market_id, network.name))[1]
-//   stats.volumeMonth = (await getVolumeFrom(oneMonthAgo, market_id, network.name))[1]
+    pool.volumeUSD24 = dayStats.volumeUSD
+    pool.volumeUSDWeek = weekStats.volumeUSD
+    pool.volumeUSDMonth = monthStats.volumeUSD
+    pool.volumeUSD90 = ninetyDayStats.volumeUSD
+    pool.volumeA24 = dayStats.volumeA
+    pool.volumeAWeek = weekStats.volumeA
+    pool.volumeAMonth = monthStats.volumeA
+    pool.volumeA90 = ninetyDayStats.volumeA
+    pool.volumeB24 = dayStats.volumeB
+    pool.volumeBWeek = weekStats.volumeB
+    pool.volumeBMonth = monthStats.volumeB
+    pool.volumeB90 = ninetyDayStats.volumeB
+    pool.change24 = change24
+    pool.changeWeek = changeWeek
+    pool.tvlUSD = computeSafePoolTvlUSD(pool, tokenMap, network)
 
-//   stats.change24 = await getChangeFrom(Date.now() - ONEDAY, market_id, network.name)
-//   stats.changeWeek = await getChangeFrom(Date.now() - WEEK, market_id, network.name)
+    await pool.save()
+  } catch (error) {
+    console.error(`Error updating pool ${pool.id} stats:`, error)
+  }
+}
 
-//   // Calc 24 high/low
-//   stats.high24 = stats.last_price
-//   stats.low24 = stats.last_price
+async function backfillPoolFirstSeen(chain: string, pools: any[]) {
+  const allPoolIds = pools
+    .map((pool) => Number(pool.id))
+    .filter((poolId) => Number.isFinite(poolId))
+    .sort((a, b) => a - b)
 
-//   const chain = network.name
-//   const market = market_id
+  if (!allPoolIds.length) return
 
-//   const high24_deal = await Match.findOne({ chain, market, time: { $gte: new Date(Date.now() - ONEDAY) } }, {}, { sort: { unit_price: -1 } })
-//   const low24_deal = await Match.findOne({ chain, market, time: { $gte: new Date(Date.now() - ONEDAY) } }, {}, { sort: { unit_price: 1 } })
+  const cursorKey = `${chain}_pool_first_seen_recalc_cursor`
+  const redis = getRedis()
 
-//   if (high24_deal) stats.high24 = parseFloat(high24_deal.unit_price)
-//   if (low24_deal) stats.low24 = parseFloat(low24_deal.unit_price)
+  let cursor = Number(await redis.get(cursorKey))
+  if (!Number.isFinite(cursor) || cursor < 0 || cursor >= allPoolIds.length) {
+    cursor = 0
+  }
 
-//   return stats
-// }
+  let poolIds = allPoolIds.slice(cursor, cursor + FIRST_SEEN_RECALC_BATCH)
+  if (poolIds.length === 0) {
+    cursor = 0
+    poolIds = allPoolIds.slice(0, FIRST_SEEN_RECALC_BATCH)
+  }
+  if (!poolIds.length) return
+
+  const poolById = new Map<number, any>()
+  for (const pool of pools) {
+    const poolId = Number(pool?.id)
+    if (!Number.isFinite(poolId)) continue
+    poolById.set(poolId, pool)
+  }
+
+  const [firstMints, firstSwaps] = await Promise.all([
+    PositionHistory.aggregate([
+      { $match: { chain, pool: { $in: poolIds }, type: 'mint' } },
+      { $group: { _id: '$pool', firstSeenAt: { $min: '$time' } } },
+    ]),
+    Swap.aggregate([
+      { $match: { chain, pool: { $in: poolIds } } },
+      { $group: { _id: '$pool', firstSeenAt: { $min: '$time' } } },
+    ]),
+  ])
+
+  const mintByPool = new Map<number, Date>(
+    firstMints
+      .filter((row: any) => Number.isFinite(Number(row?._id)) && row?.firstSeenAt)
+      .map((row: any) => [Number(row._id), row.firstSeenAt])
+  )
+  const swapByPool = new Map<number, Date>(
+    firstSwaps
+      .filter((row: any) => Number.isFinite(Number(row?._id)) && row?.firstSeenAt)
+      .map((row: any) => [Number(row._id), row.firstSeenAt])
+  )
+
+  const updates = poolIds.map((poolId) => {
+    const firstSeenAt = mintByPool.get(poolId) || swapByPool.get(poolId)
+    if (!firstSeenAt) return null
+
+    const current = poolById.get(poolId)?.firstSeenAt
+    if (current instanceof Date && current.getTime() === firstSeenAt.getTime()) {
+      return null
+    }
+
+    return {
+      updateOne: {
+        filter: { chain, id: poolId },
+        update: { $set: { firstSeenAt } }
+      }
+    }
+  })
+
+  const ops = updates.filter(Boolean)
+  if (ops.length > 0) {
+    await SwapPool.bulkWrite(ops, { ordered: false })
+  }
+
+  const nextCursor = (cursor + poolIds.length) % allPoolIds.length
+  await redis.set(cursorKey, String(nextCursor))
+  console.log(
+    `[${chain}] firstSeenAt recalculated: batch=${poolIds.length} updated=${ops.length} cursor=${nextCursor}/${allPoolIds.length}`
+  )
+}

@@ -1,5 +1,5 @@
 <template lang="pug">
-.side
+.side(:class="{ off }")
   .network-and-label
     span.label.fs-12.mr-1 {{ label }}
     img(:src="require(`~/assets/icons/${'wax'}.png`)").network-img
@@ -8,7 +8,7 @@
     img.token-img(:src="require(`~/assets/icons/${'matic'}.png`)")
     span.token-amount 5,000 USDT
   .tx-link.fs-12
-    a.tx-link-inner.pointer
+    a.tx-link-inner.pointer(v-if="!off")
       i.el-icon-link
       | &nbsp;
       span TX Link
@@ -16,7 +16,7 @@
 
 <script>
 export default {
-  props: ['label']
+  props: ['label', 'off'],
 }
 </script>
 
@@ -45,7 +45,15 @@ export default {
 .tx-link-inner {
   text-decoration: underline !important;
 }
-.label, .tx-link-inner {
+.label,
+.tx-link-inner {
   color: var(--text-grey-thirdly);
+}
+.tx-link {
+  min-height: 18px;
+}
+.off {
+  pointer-events: none;
+  opacity: 0.5;
 }
 </style>

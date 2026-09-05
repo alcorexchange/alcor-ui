@@ -10,7 +10,7 @@
   AnalyticsSectionHeader(title="Pools")
     template(#action)
       AlcorButton Explore
-  AnalyticsPoolsTable(:tableData="Array.from({length: 8})")
+  AnalyticsPoolsTable
   AnalyticsSectionHeader(title="Spot Pairs")
     template(#action)
       AlcorButton Explore

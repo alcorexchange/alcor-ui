@@ -4,36 +4,39 @@ import config from '../../../config'
 import { initialUpdate as swapInitialUpdate } from '../swapV2Service'
 
 import { getSettings } from '../../utils'
-import { updatePools } from '../swapV2Service'
+import { getChain } from '../chain'
 import { updateGlobalStats } from './analytics'
-import { newPoolsAction } from './pools'
 import { updateMarkets, newMatch } from './markets'
-import { newSwapAction, updatePoolsStats } from './swap'
-import { updateSystemPrice, updateTokensPrices } from './prices'
+import { newSwapAction, updatePoolsStats, updatePositionsAggregation } from './swap'
+import { updateLpLeaderboard } from './lpLeaderboard'
+import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
+import { updateTokenScores } from './tokenScores'
+import { startTokenHoldersUpdater } from './tokenHolders'
+import { startTokenLogosUpdater } from './tokenLogos'
 
-import { streamHyperion, streamByNode } from './streamers'
+const pLimit = require('p-limit')
+const limit = pLimit(2)
 
-const providers = {
-  hyperion: streamHyperion,
-  node: streamByNode
-}
+const ALL_SERVICES = ['markets', 'prices', 'swap']
 
 export function startUpdaters() {
-  if (process.env.NETWORK) {
-    console.log('NETWORK=', process.env.NETWORK)
-    updater(process.env.NETWORK, 'node', ['swap', 'markets'])
-  } else {
-    updater('eos', 'node', ['markets', 'prices', 'swap'])
-    updater('wax', 'node', ['markets', 'prices', 'swap'])
-    updater('proton', 'node', ['markets', 'prices', 'swap'])
-    updater('telos', 'node', ['markets', 'prices', 'swap'])
-  }
+  const chains = process.env.NETWORK
+    ? [process.env.NETWORK]
+    : ['eos', 'wax', 'proton', 'telos', 'ultra', 'waxtest', 'xprtest']
+
+  chains.forEach(chain => {
+    // A chain runs everything unless it says otherwise — wiretest has no
+    // orderbook, so it opts out of 'markets'.
+    const services = config.networks[chain]?.services ?? ALL_SERVICES
+
+    limit(() => updater(chain, services))
+      .catch(e => console.error(`Updater for ${chain} failed:`, e))
+  })
 }
 
-export async function updater(chain, provider, services) {
-  console.log('run updater for', chain)
+export async function updater(chain: string, services: string[]) {
+  console.log(`[${chain}] Starting updater...`)
   const network = config.networks[chain]
-  const streamer = providers[provider]
 
   const command = process.argv[2]
   if (command == 'initial') {
@@ -41,48 +44,73 @@ export async function updater(chain, provider, services) {
   }
 
   // If no setting, create them..
+  console.log(`[${chain}] Getting settings...`)
   await getSettings(network)
+  console.log(`[${chain}] Settings loaded`)
 
   // TODO Remove after test
-  //await updateGlobalStats(network)
+  try {
+    console.log(`[${chain}] Updating global stats...`)
+    await updateGlobalStats(network)
+    console.log(`[${chain}] Global stats updated`)
+  } catch (e) {
+    console.log(`[${chain}] GlobalStats err`, e)
+  }
 
-  schedule.scheduleJob('0 0 * * *', () => updateGlobalStats(network))
+  schedule.scheduleJob('58 * * * *', () => updateGlobalStats(network))
+  setInterval(() => updateGlobalStats(network), 60 * 60 * 1000)
 
   if (services.includes('prices')) {
-    console.log('Start price updater for', chain)
-
-    await updateSystemPrice(network)
+    console.log(`[${chain}] Starting price updater...`)
+    await Promise.all([updateSystemPrice(network), updateCMSucid()])
+    console.log(`[${chain}] Initial prices fetched, updating token prices...`)
     updateTokensPrices(network)
-
-    setInterval(() => updateSystemPrice(network), 1 * 60 * 1000)
-    setInterval(() => updateTokensPrices(network), 1 * 60 * 1000)
+    setInterval(() => updateSystemPrice(network), 5 * 60 * 1000)
+    setInterval(() => updateTokensPrices(network), 5 * 60 * 1000)
   }
 
   if (services.includes('markets')) {
-    console.log('Start market updater for', chain)
+    console.log(`[${chain}] Starting market updater...`)
+    updateMarkets(network)
+      .then(() => console.log(`[${chain}] Markets updated`))
+      .catch((e) => console.log(`[${chain}] Markets update error`, e))
+    console.log(`[${chain}] Starting streamer for ${network.contract}...`)
+    setInterval(() => updateMarkets(network), 3 * 60 * 1000)
 
-    await updateMarkets(network)
-    setInterval(() => updateMarkets(network), 1 * 60 * 1000)
-
-    streamer(network, network.contract, newMatch, config.CONTRACT_ACTIONS)
-      // Production PM2 should restart updater after it
-      .catch(e => { console.log(`${network.name} (${network.contract}) Updater Error!`, e); process.exit(1) })
-  }
-
-  if (services.includes('pools')) {
-    console.log('start pools updater for', chain)
-    streamer(network, network.pools.contract, newPoolsAction, ['exchangelog', 'liquiditylog', 'transfer'])
-      .catch(e => { console.log(`${network.name} (${network.pools.contract}) Updater Error!`, e); process.exit(1) })
+    getChain(chain).streamActions(network.contract, config.CONTRACT_ACTIONS, newMatch)
+      .catch(e => { console.log(`[${chain}:${network.contract}] Streamer error:`, e.message); process.exit(1) })
   }
 
   if (services.includes('swap')) {
-    console.log('start swap updater for', chain)
+    console.log(`[${chain}] Starting swap updater...`)
+    updatePoolsStats(chain)
+      .then(() => console.log(`[${chain}] Pool stats updated`))
+      .catch((e) => console.log(`[${chain}] Pool stats update error`, e))
+    updatePositionsAggregation(chain)
+      .then(() => console.log(`[${chain}] Positions aggregated`))
+      .then(() => updateLpLeaderboard(chain))
+      .catch((e) => console.log(`[${chain}] Positions aggregation error`, e))
+    console.log(`[${chain}] Starting streamer for ${network.amm.contract}...`)
+    setInterval(() => updatePoolsStats(chain), 10 * 60 * 1000)
+    setInterval(() => updatePositionsAggregation(chain), 2 * 60 * 1000) // Every 2 minutes
+    setInterval(() => updateLpLeaderboard(chain), 10 * 60 * 1000)
 
-    //await updatePools(chain)
-    await updatePoolsStats(chain)
-    setInterval(() => updatePoolsStats(chain), 1 * 60 * 1000)
-
-    streamer(network, network.amm.contract, newSwapAction, ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect'])
-      .catch(e => { console.log(`${network.name} (${network.amm.contract}) Updater Error!`, e); process.exit(1) })
+    getChain(chain).streamActions(
+      network.amm.contract,
+      ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect', 'transferpos', 'logtransfer', 'loglock'],
+      newSwapAction,
+      300
+    )
+      .catch(e => { console.log(`[${chain}:${network.amm.contract}] Streamer error:`, e.message); process.exit(1) })
   }
+
+  console.log(`[${chain}] Starting token holders updater...`)
+  await startTokenHoldersUpdater(network, { awaitInitial: true })
+
+  console.log(`[${chain}] Starting token score updater...`)
+  await updateTokenScores(network)
+  setInterval(() => updateTokenScores(network), 15 * 60 * 1000)
+
+  console.log(`[${chain}] Starting token logos updater...`)
+  startTokenLogosUpdater()
 }

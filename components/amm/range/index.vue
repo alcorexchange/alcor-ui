@@ -101,6 +101,10 @@ export default {
   },
 
   watch: {
+    feeAmount() {
+      this.fetchSeries()
+    },
+
     isSorted() {
       this.fetchSeries()
     }
@@ -112,6 +116,7 @@ export default {
 
   methods: {
     async fetchSeries() {
+      this.series = []
       const { tokenA, tokenB, feeAmount } = this
 
       const pool = this.$store.state.amm.pools.find(p => {
@@ -120,6 +125,7 @@ export default {
       })
 
       const { data: series } = await this.$axios.get('/v2/swap/pools/' + pool.id + '/liquidityChartSeries', { params: { inverted: !this.isSorted } })
+
       this.series = series
     },
 
@@ -136,11 +142,16 @@ export default {
       return price ? `${format(Math.abs(percent) > 1 ? '.2~s' : '.2~f')(percent)}%` : ''
     },
 
-    onBrushDomainChangeEnded({ domain, mode }) {
+    onBrushDomainChangeEnded({ domain, mode, initialInfinty }) {
       const { ticksAtLimit, isSorted } = this
 
       let leftRangeValue = Number(domain[0])
       const rightRangeValue = Number(domain[1])
+
+      if (initialInfinty) {
+        this.$emit('onPreDefinedRangeSelect', { lowerValue: 'infinity' })
+        return
+      }
 
       if (leftRangeValue <= 0) leftRangeValue = 1 / 10 ** 6
 
@@ -149,14 +160,14 @@ export default {
         (!ticksAtLimit[isSorted ? 'LOWER' : 'UPPER'] || mode === 'handle' || mode === 'reset') &&
         leftRangeValue > 0
       ) {
-        this.$emit('onLeftRangeInput', leftRangeValue.toFixed(6))
+        this.$emit('onLeftRangeInput', leftRangeValue.toFixed(20))
       }
 
       if ((!ticksAtLimit[isSorted ? 'UPPER' : 'LOWER'] || mode === 'reset') && rightRangeValue > 0) {
         // todo: remove this check. Upper bound for large numbers
         // sometimes fails to parse to tick.
         if (rightRangeValue < 1e35) {
-          this.$emit('onRightRangeInput', rightRangeValue.toFixed(6))
+          this.$emit('onRightRangeInput', rightRangeValue.toFixed(20))
         }
       }
     }

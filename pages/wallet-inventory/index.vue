@@ -60,20 +60,20 @@
               el-button(type="text" @click="pools(row)").hover-opacity Pools
               el-button.hover-opacity(type="text" @click="trade(row)") Trade
     DepositPopup(ref="depositPopup")
-    WithdrawPopup(ref="withdrawPopup")
+    TransferPopup(ref="withdrawPopup")
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 import TokenImage from '@/components/elements/TokenImage'
 import DepositPopup from '@/components/wallet/DepositPopup'
-import WithdrawPopup from '@/components/wallet/WithdrawPopup'
+import TransferPopup from '@/components/wallet/TransferPopup'
 export default {
   name: 'Wallet',
   components: {
     TokenImage,
     DepositPopup,
-    WithdrawPopup
+    TransferPopup
   },
   data: () => ({
     search: ''

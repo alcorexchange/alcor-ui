@@ -16,7 +16,7 @@
       .value {{ item.ask.quantity | commaFloat }}
 
   .action
-    el-button(type="text" @click="cancelOrder(item)").red.hover-opacity {{ $t('Cancel') }}
+    el-button(type="text" @click="$emit('cancel')").red.hover-opacity {{ $t('Cancel') }}
 </template>
 
 <script>
@@ -25,24 +25,7 @@ import TokenImage from '@/components/elements/TokenImage'
 export default {
   components: { TokenImage },
   props: ['item'],
-  methods: {
-    async cancelOrder(order) {
-      try {
-        await this.$store.dispatch('chain/cancelorder', {
-          account: this.user.name,
-          market_id: order.market_id,
-          type: order.type == 'buy' ? 'bid' : 'ask',
-          order_id: order.id
-        })
-      } catch (e) {
-        this.$notify({ title: 'Order cancel error', message: e.message, type: 'warning' })
-      }
-
-      this.$notify({ title: 'Success', message: `Order canceled ${order.id}`, type: 'success' })
-    }
-  }
 }
-
 </script>
 
 <style lang="scss" scoped>
@@ -101,12 +84,10 @@ export default {
         column-gap: 3px;
         font-size: 11px;
       }
-
     }
   }
 
   .action {
-
     .el-button {
       &.red {
         color: var(--main-red) !important;

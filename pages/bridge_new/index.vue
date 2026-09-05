@@ -1,12 +1,12 @@
 <template lang="pug">
 .bridge-page.d-flex.flex-column.gap-8
   .side.from
-    BridgeConnect(label="from").my-1
-    BridgeInput(label="from" :tokens="availableAssets")
+    BridgeConnect(label="From" :connection.sync="sourceWallet" :network="$store.state.ibcBridge.sourceName" @logout="tryLogout('sender')").mt-2.mb-2
+    BridgeInput(label="from" :tokens="availableAssets" @networkChange="handleSourceChange")
   .side.to
     // hide label when connected.
-    BridgeConnect(label="To custom recipient" beforeConnect="or" :hideLabel="false").my-1
-    BridgeToInput(label="to" :locked="true")
+    BridgeConnect(label="To custom recipient" connectLabel="or" :connection.sync="destinationWallet" :network="$store.state.ibcBridge.destinationName" @logout="tryLogout('receiver')").mt-2.mb-2
+    BridgeToInput(placeholder="Enter Address" @networkChange="handleDestinationChange" v-model="customAddress")
   //- .recepient
   .process
     BridgeProcess
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import AlcorContainer from '@/components/AlcorContainer'
 import BridgeHeader from '@/components/bridge/BridgeHeader'
 import BridgeInput from '@/components/bridge/BridgeInput'
@@ -32,18 +32,84 @@ export default {
     BridgeInput,
     BridgeToInput,
     BridgeConnect,
-    BridgeProcess
+    BridgeProcess,
   },
+
+  data: () => ({
+    sourceWallet: null,
+    destinationWallet: null,
+    customAddress: null,
+  }),
+
   computed: {
     ...mapGetters({
-      availableAssets: 'ibcBridge/availableAssets'
+      availableAssets: 'ibcBridge/availableAssets',
     }),
+
+    sourceName: {
+      set(chain) {
+        return this.setSourceName(chain)
+      },
+      get() {
+        return this.$store.state.ibcBridge.sourceName
+      },
+    },
+
+    destinationName: {
+      set(chain) {
+        this.setDestinationName(chain)
+      },
+
+      get() {
+        return this.$store.state.ibcBridge.destinationName
+      },
+    },
+
     renderSubmitText() {
       return 'Bridge X TO C'
-    }
+    },
   },
+
   methods: {
-  }
+    ...mapMutations({
+      setSourceName: 'ibcBridge/setSourceName',
+      setDestinationName: 'ibcBridge/setDestinationName',
+    }),
+
+    handleSourceChange() {
+      if (this.sourceName == this.destinationName) {
+        this.destinationName = null
+        this.tryLogout('receiver')
+      }
+
+      if (this.sourceWallet) {
+        this.tryLogout('sender')
+      }
+    },
+
+    handleDestinationChange() {
+      if (this.destinationName == this.sourceName) {
+        this.sourceName = null
+        this.tryLogout('sender')
+      }
+
+      if (this.destinationWallet) {
+        this.tryLogout('receiver')
+      }
+    },
+
+    tryLogout(side) {
+      if (side === 'sender') {
+        // FIXME: Is this async function?
+        this.sourceWallet?.wallet?.logout()
+        this.sourceWallet = null
+      }
+      if (side === 'receiver') {
+        this.destinationWallet?.wallet?.logout()
+        this.destinationWallet = null
+      }
+    },
+  },
 }
 </script>
 
@@ -62,7 +128,7 @@ export default {
     filter: none !important;
   }
 }
-.submit:hover{
+.submit:hover {
   background: var(--main-green) !important;
   color: var(--text-theme) !important;
 }

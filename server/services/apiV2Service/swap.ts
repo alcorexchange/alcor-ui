@@ -1,14 +1,166 @@
-import { performance } from 'perf_hooks'
-
-import { Position } from '@alcorexchange/alcor-swap-sdk'
-
 import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
-import { SwapPool, SwapChartPoint } from '../../models'
+import { SwapBar, Swap, SwapPool, SwapChartPoint } from '../../models'
 import { getPools, getPoolInstance, getRedisTicks } from '../swapV2Service/utils'
-import { getLiquidityRangeChart } from '../../../utils/amm.js'
+import { getSwapBarPriceAsString, getLiquidityRangeChart } from '../../../utils/amm.js'
+import { resolutions, normalizeResolution } from '../updaterService/charts'
 import { getPositionStats } from './account'
+import { getScamLists } from './config'
+import { getSwrString } from '../swrCache'
 
+// SWR windows for heavy JSON endpoints: serve a process-local serialized string
+// for FRESH_MS, then serve stale + refresh in background up to STALE_MS.
+const POOLS_SWR_FRESH_MS = 15 * 1000
+const POOLS_SWR_STALE_MS = 5 * 60 * 1000
+const TICKS_SWR_FRESH_MS = 10 * 1000
+const TICKS_SWR_STALE_MS = 5 * 60 * 1000
+
+function formatCandle(candle, volumeField, tokenA, tokenB, reverse) {
+  candle.volume = candle[volumeField]
+  candle.open = getSwapBarPriceAsString(candle.open, tokenA, tokenB, reverse)
+  candle.high = getSwapBarPriceAsString(candle.high, tokenA, tokenB, reverse)
+  candle.low = getSwapBarPriceAsString(candle.low, tokenA, tokenB, reverse)
+  candle.close = getSwapBarPriceAsString(candle.close, tokenA, tokenB, reverse)
+  if (reverse) {
+    [candle.high, candle.low] = [candle.low, candle.high]
+  }
+
+  delete candle._id
+  delete candle[volumeField]
+}
+
+function pickMainPool(pools) {
+  const candidates = pools.some((p) => p.active) ? pools.filter((p) => p.active) : pools
+  return candidates.sort((a, b) => {
+    const tvlDiff = (Number(b.tvlUSD) || 0) - (Number(a.tvlUSD) || 0)
+    if (tvlDiff !== 0) return tvlDiff
+    const volumeDiff = (Number(b.volumeUSD24) || 0) - (Number(a.volumeUSD24) || 0)
+    if (volumeDiff !== 0) return volumeDiff
+    return (Number(b.id) || 0) - (Number(a.id) || 0)
+  })[0]
+}
+
+async function sendPoolCandles(
+  req,
+  res,
+  pool,
+  reverseOverride?: boolean,
+  responseMeta?: { poolId?: number, isReversed?: boolean }
+) {
+  const { from, to, resolution, limit, volumeField = 'volumeUSD' }: any = req.query
+  const reverse = typeof reverseOverride === 'boolean' ? reverseOverride : req.query.reverse === 'true'
+  const sendCandles = (candles) => {
+    if (responseMeta && (typeof responseMeta.poolId === 'number' || typeof responseMeta.isReversed === 'boolean')) {
+      const payload: any = { candles }
+      if (typeof responseMeta.poolId === 'number') payload.poolId = responseMeta.poolId
+      if (typeof responseMeta.isReversed === 'boolean') payload.isReversed = responseMeta.isReversed
+      return res.json(payload)
+    }
+    return res.json(candles)
+  }
+
+  if (!resolution) return res.status(400).send('Resolution is required.')
+  const normalizedResolution = normalizeResolution(resolution)
+  const frame = resolutions[normalizedResolution] * 1000
+  const fromMs = from ? parseInt(from) : null
+  const toMs = to ? parseInt(to) : null
+  const alignedFrom = Number.isFinite(fromMs) ? Math.floor(fromMs / frame) * frame : null
+  const alignedTo = Number.isFinite(toMs) ? Math.floor(toMs / frame) * frame : null
+
+  if (limit && isNaN(parseInt(limit))) return res.status(400).send('Invalid limit.')
+
+  const where: any = { chain: pool.chain, timeframe: normalizedResolution.toString(), pool: parseInt(pool.id) }
+  if (from && to) {
+    where.time = {
+      $gte: new Date(alignedFrom ?? parseInt(from)),
+      $lte: new Date(alignedTo ?? parseInt(to))
+    }
+  }
+
+  const $project: any = {
+    time: { $toLong: '$time' },
+    open: 1,
+    high: 1,
+    low: 1,
+    close: 1,
+  }
+
+  $project[volumeField] = 1
+
+  const q: any = [
+    { $match: where },
+    { $sort: { time: 1 } },
+    { $project }
+  ]
+
+  if (limit) q.push({ $limit: parseInt(limit) })
+
+  let lastKnownPrice = null
+  const candles = await SwapBar.aggregate(q)
+
+  if (candles.length === 0 && from) {
+    const lastPriceQuery = await SwapBar.findOne({
+      chain: pool.chain,
+      pool: parseInt(pool.id),
+      timeframe: normalizedResolution.toString(),
+      time: { $lt: new Date(alignedFrom ?? parseInt(from)) },
+    }).sort({ time: -1 })
+
+    lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
+      if (!lastPriceQuery) return sendCandles([])
+    } else {
+      lastKnownPrice = candles[0].close
+    }
+
+  lastKnownPrice = getSwapBarPriceAsString(lastKnownPrice, pool.tokenA, pool.tokenB, reverse)
+
+  const filledCandles = []
+  let expectedTime = alignedFrom ?? (Number.isFinite(fromMs) ? fromMs : null)
+
+  candles.forEach((candle) => {
+    formatCandle(candle, volumeField, pool.tokenA, pool.tokenB, reverse)
+    candle.open = lastKnownPrice
+    if (expectedTime != null) {
+      while (candle.time > expectedTime) {
+        filledCandles.push({
+          time: expectedTime,
+          open: lastKnownPrice,
+          high: lastKnownPrice,
+          low: lastKnownPrice,
+          close: lastKnownPrice,
+          volume: 0,
+        })
+        expectedTime += frame
+      }
+    }
+
+    filledCandles.push(candle)
+    lastKnownPrice = candle.close
+    if (expectedTime != null) expectedTime += frame
+  })
+
+  // Handle trailing empty candles if necessary (stop at last completed bar)
+  if (expectedTime != null && Number.isFinite(alignedTo)) {
+    const nowMs = Date.now()
+    const nowAligned = Math.floor(nowMs / frame) * frame
+    const lastComplete = nowAligned - frame
+    const fillTo = Math.min(alignedTo as number, lastComplete)
+
+    while (expectedTime <= fillTo) {
+      filledCandles.push({
+        time: expectedTime,
+        open: lastKnownPrice,
+        high: lastKnownPrice,
+        low: lastKnownPrice,
+        close: lastKnownPrice,
+        volume: 0,
+      })
+      expectedTime += frame
+    }
+  }
+
+  sendCandles(filledCandles)
+}
 
 export const swap = Router()
 
@@ -31,11 +183,42 @@ function positionIdHandler(req, res, next) {
 
 swap.get('/pools', async (req, res) => {
   const network: Network = req.app.get('network')
+  const hide_scam = req.query.hide_scam === 'true'
 
-  const pools = await SwapPool.find({ chain: network.name }).lean()
-  res.json(pools)
+  const cacheKey = `swap_pools_swr|${network.name}|${req.originalUrl}`
+
+  const body = await getSwrString(cacheKey, async () => {
+    const query: any = { chain: network.name }
+
+    const { tokenA, tokenB } = req.query
+
+    if (tokenA && tokenB) {
+      query.$or = [
+        { 'tokenA.id': tokenA, 'tokenB.id': tokenB },
+        { 'tokenA.id': tokenB, 'tokenB.id': tokenA },
+      ]
+    } else {
+      if (tokenA) query['tokenA.id'] = tokenA
+      if (tokenB) query['tokenB.id'] = tokenB
+    }
+
+    let pools = await SwapPool.find(query).select('-_id -__v').lean()
+
+    if (hide_scam) {
+      const { scam_contracts, scam_tokens } = await getScamLists(network)
+      pools = pools.filter(p =>
+        !scam_contracts.has(p.tokenA.contract) &&
+        !scam_contracts.has(p.tokenB.contract) &&
+        !scam_tokens.has(p.tokenA.id) &&
+        !scam_tokens.has(p.tokenB.id)
+      )
+    }
+
+    return pools
+  }, POOLS_SWR_FRESH_MS, POOLS_SWR_STALE_MS)
+
+  res.type('application/json').send(body)
 })
-
 
 //swap.get('/:id/charts', defCache, async (req, res) => {
 swap.get('/charts', async (req, res) => {
@@ -119,7 +302,9 @@ swap.get('/charts', async (req, res) => {
 
 swap.get('/pools/:id', async (req, res) => {
   const network: Network = req.app.get('network')
-  const { id } = req.params
+  const { id }: { id: string } = req.params
+
+  if (isNaN(parseInt(id))) return res.status(403).send('Invalid pool id')
 
   const filter: { chain: string, id?: number } = { chain: network.name }
 
@@ -143,20 +328,20 @@ swap.get('/pools/positions/:id', async (req, res) => {
   res.json({ ...p, ...stats })
 })
 
-swap.get('/pools/:id/positions', async (req, res) => {
+swap.get('/pools/:id/positions', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.id
+}), async (req, res) => {
   const network: Network = req.app.get('network')
   const redis = req.app.get('redisClient')
 
-  const pool = await getPoolInstance(network.name, req.params.id)
-  const positions = JSON.parse(await redis.get(`positions_${network.name}`))
+  const positions = JSON.parse(await redis.get(`positions_${network.name}`)) || []
 
-  const result = positions.filter(p => p.pool == req.params.id).map(p => {
-    const position = new Position({ ...p, pool })
-    p.amountA = position.amountA.toAsset()
-    p.amountB = position.amountB.toAsset()
+  const result = []
+  for (const position of positions.filter(p => p.pool == req.params.id)) {
+    const stats = await getPositionStats(network.name, position)
 
-    return p
-  })
+    result.push({ ...position, ...stats })
+  }
 
   res.json(result)
 })
@@ -172,8 +357,13 @@ swap.get('/pools/:id/table-positions', async (req, res) => {
 swap.get('/pools/:id/ticks', async (req, res) => {
   const network: Network = req.app.get('network')
 
-  const ticks = await getRedisTicks(network.name, req.params.id)
-  res.json(Array.from(ticks.values()))
+  const cacheKey = `swap_ticks_swr|${network.name}|${req.params.id}`
+  const body = await getSwrString(cacheKey, async () => {
+    const ticks = await getRedisTicks(network.name, req.params.id)
+    return Array.from(ticks.values())
+  }, TICKS_SWR_FRESH_MS, TICKS_SWR_STALE_MS)
+
+  res.type('application/json').send(body)
 })
 
 swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
@@ -185,22 +375,110 @@ swap.get('/pools/:id/liquidityChartSeries', async (req, res) => {
 
   let { tokenA, tokenB } = pool
 
-  if (inverted.toLowerCase() == 'true') {
+  if (inverted?.toLowerCase() == 'true') {
     [tokenA, tokenB] = [tokenB, tokenA]
   }
 
   const series = getLiquidityRangeChart(pool, tokenA, tokenB) || []
 
-  const result = series.map(s => {
-    const y = Number(s.liquidityActive.toString())
+  // Normalizing y for using as js Number (liquidity value might exceed max Number in JS)
+  const yValues = series.map((s) => BigInt(s.liquidityActive)) // Преобразуем в BigInt массив
+  const yMin = yValues.reduce((min, val) => (val < min ? val : min), yValues[0])
+  const yMax = yValues.reduce((max, val) => (val > max ? val : max), yValues[0])
 
-    return {
-      x: Number(s.price0),
-      y: y > 0 ? y : 0 // TODO This is hotfix, might be bug in calculation
-    }
-  })
+  const scaleFactor = 100000000
+
+  const result = series
+    .map((s) => {
+      const y = BigInt(s.liquidityActive)
+
+      const normalizedY = Number(((y - yMin) * BigInt(scaleFactor)) / (yMax - yMin))
+
+      return {
+        x: parseFloat(s.price0),
+        y: normalizedY,
+      }
+    })
+    .filter((r) => r.y > 0)
 
   res.json(result)
+})
+
+swap.get('/pools/:id/candles', async (req, res) => {
+  try {
+    const network: Network = req.app.get('network')
+    const { id } = req.params
+
+    const pool = await SwapPool.findOne({ id, chain: network.name })
+    if (!pool) return res.status(404).send(`Pool ${id} is not found`)
+
+    await sendPoolCandles(req, res, pool)
+  } catch (error) {
+    res.status(500).send('An unexpected error occurred.')
+  }
+})
+
+swap.get('/candles', async (req, res) => {
+  try {
+    const network: Network = req.app.get('network')
+    const { tokenA, tokenB } = req.query
+
+    if (typeof tokenA !== 'string' || typeof tokenB !== 'string') {
+      return res.status(400).send('Set tokenA and tokenB')
+    }
+
+    const pools = await SwapPool.find({
+      chain: network.name,
+      $or: [
+        { 'tokenA.id': tokenA, 'tokenB.id': tokenB },
+        { 'tokenA.id': tokenB, 'tokenB.id': tokenA },
+      ]
+    }).lean()
+
+    if (!pools.length) return res.status(404).send('Pools not found for this pair')
+
+    const pool = pickMainPool(pools)
+    const orderMismatch = pool.tokenA?.id !== tokenA
+    const requestedReverse = req.query.reverse === 'true'
+    const effectiveReverse = orderMismatch !== requestedReverse
+
+    await sendPoolCandles(req, res, pool, effectiveReverse, { poolId: pool.id, isReversed: orderMismatch })
+  } catch (error) {
+    res.status(500).send('An unexpected error occurred.')
+  }
+})
+
+swap.get('/pools/:id/swaps', async (req, res) => {
+  const network: Network = req.app.get('network')
+
+  const pool = parseInt(req.params.id)
+
+  const { from, to, recipient, sender } = req.query
+
+  const limit = parseInt(req.query.limit as any) || 200
+  const skip = parseInt(req.query.skip as any) || 0
+
+  const q: any = { chain: network.name, pool }
+
+  if (recipient) q.recipient = recipient
+  if (sender) q.sender = sender
+
+  if (from || to) {
+    q.time = {}
+
+    if (from) q.time.$gte = new Date(parseInt(from as any))
+    if (to) q.time.$lte = new Date(parseInt(to as any))
+  }
+
+  console.log(q)
+  const swaps = await Swap.find(q)
+    .select('pool recipient trx_id sender sqrtPriceX64 totalUSDVolume tokenA tokenB time')
+    .sort({ time: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean()
+
+  res.json(swaps)
 })
 
 const ONEDAY = 60 * 60 * 24 * 1000

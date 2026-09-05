@@ -1,5 +1,6 @@
 <template lang="pug">
-nav.nav(v-if='!isMobile')
+LayoutMenu(v-if="!isMobile")
+//nav.nav(v-if='!isMobile')
   .nav-side.nav-left
     nuxt-link(:to='localePath("index", $i18n.locale)')
       img.logo(
@@ -14,8 +15,17 @@ nav.nav(v-if='!isMobile')
         alt=''
       )
     ul.nav-items
-      li(v-for='item in menuItems', :key='item.index')
+      li(v-for='item in menuItems', :key='item.index || item.href')
+        a.item(
+          v-if='item.external'
+          :href='item.href'
+          target='_blank'
+          :class='{ active: isActive(item.index) }'
+        )
+          span {{ $t(item.name) }}
+          new-badge.badge(v-if='item.new', width='44', height='32')
         AlcorLink.item(
+          v-else
           :to='localePath(item.index, $i18n.locale)',
           flat,
           :class='{ active: isActive(item.index) }'
@@ -65,9 +75,13 @@ nav.nav(v-if='!isMobile')
           alt=''
         )
       ul.menu-items
-        li(v-for='item in menuItems', :key='item.index')
-          AlcorLink.item(:to='item.index', flat='')
+        li(v-for='item in menuItems', :key='item.index || item.href')
+          a.item(v-if='item.external' :href='item.href' target='_blank')
             | {{ item.name }}
+            new-badge.badge(v-if='item.new', width='44', height='32')
+          AlcorLink.item(v-else :to='item.index', flat='')
+            | {{ item.name }}
+            new-badge.badge(v-if='item.new', width='44', height='32')
     .menu-underlay(@click='closeMenu', v-if='menuActive')
   .fixed-menu
     ConnectNav
@@ -77,6 +91,7 @@ nav.nav(v-if='!isMobile')
 import AlcorButton from '~/components/AlcorButton'
 import AlcorLink from '~/components/AlcorLink'
 import ConnectNav from '~/components/layout/ConnectNav'
+import LayoutMenu from '~/components/layout/LayoutMenu'
 import ChainSelect from '~/components/elements/ChainSelect'
 import Settings from '~/components/layout/Settings'
 import NewBadge from '~/components/svg-icons/NewBadge.vue'
@@ -89,6 +104,7 @@ export default {
     ChainSelect,
     Settings,
     NewBadge,
+    LayoutMenu,
   },
 
   data() {
@@ -102,23 +118,33 @@ export default {
     menuItems() {
       const items = []
 
-      if (['wax', 'eos', 'telos', 'proton'].includes(this.$store.state.network.name)) {
-        items.push({ index: '/swap', name: 'Swap', new: true })
-        items.push({ index: '/positions', name: 'Pool' })
-      }
+      items.push({ index: '/swap', name: 'Swap' })
+      items.push({ index: '/positions', name: 'Pool' })
 
-      items.push({ index: '/markets', name: 'Markets' })
-      items.push({ index: '/bridge', name: 'Bridge' })
+      items.push({ index: '/markets', name: 'Spot' })
+      const networkSlug = this.$store.state.network.name === 'proton' ? 'xpr' : this.$store.state.network.name
+      items.push({ href: `https://alcor.exchange/v/${networkSlug}/swap`, name: 'Alcor V2', external: true, new: true })
+      // items.push({ index: '/bridge', name: 'Bridge' })
+
+      if (['wax', 'eos', 'proton'].includes(this.$store.state.network.name)) {
+        items.push({ index: '/farm', name: 'Farm' })
+      }
 
       items.push({ index: '/otc', name: 'OTC' })
 
       if (['wax'].includes(this.$store.state.network.name)) {
+        items.push({ index: '/staking', name: 'Staking' })
         // TODO Add atomic on eos
         items.push({ index: '/nft-market', name: 'NFT' })
       }
 
       items.push({ index: '/wallet', name: 'Wallet' })
-      //items.push({ index: '/buy-crypto', name: 'Buy Crypto' })
+
+      if (['wax', 'eos', 'proton', 'telos'].includes(this.$store.state.network.name)) {
+        items.push({ index: '/buy-crypto', name: 'Cross Chain' })
+      }
+
+      items.push({ index: '/analytics', name: 'Analytics' })
       items.push({ index: '/docs', name: 'Docs' })
 
       return items
@@ -144,6 +170,8 @@ export default {
       if (path.includes('trade') || path.includes('/market')) {
         return index == '/markets'
       }
+
+      if (path.includes('/wallet/farms')) return index == '/wallet/farms'
 
       return path.includes(index)
     },
@@ -199,7 +227,7 @@ export default {
 
   .nav-left {
     width: 100%;
-    max-width: 700px;
+    max-width: 60%;
   }
 
   @media only screen and (max-width: 1300px) {
@@ -235,7 +263,7 @@ export default {
     color: var(--text-disable);
     position: relative;
     &:hover {
-      color: var(--text-default)
+      color: var(--text-default);
     }
 
     .badge {
@@ -305,6 +333,19 @@ export default {
     padding: 4px 14px;
     margin: 2px 8px;
     display: flex;
+    position: relative;
+    color: var(--text-disable);
+
+    &:hover {
+      color: var(--text-default);
+    }
+
+    .badge {
+      position: absolute;
+      bottom: 8px;
+      left: 70px;
+      z-index: 1;
+    }
 
     &.active {
       background: var(--btn-active);

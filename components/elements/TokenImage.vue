@@ -1,4 +1,5 @@
 <template lang="pug">
+keep-alive
   img(v-if="!error && src" :src="src" :height="height" :width="width" @error="error = true")
 
   svg(v-else viewBox='64 64 896 896', data-icon='dollar', :width="height", :height="height", fill='currentColor', aria-hidden='true')
@@ -21,6 +22,10 @@ export default {
     width: {
       type: String,
       default: 'auto'
+    },
+
+    disableInfo: {
+      type: Boolean,
     }
 
   },

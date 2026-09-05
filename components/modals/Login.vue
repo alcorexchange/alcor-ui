@@ -17,18 +17,30 @@
       span.line
     .items(v-if='wallets.length > 0')
       .item
-        AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
-          img.mr-2(:src='wallets[0].logo', height='30')
-          span {{ $t('Get') }} {{ $t(wallets[0].name) }}
-      .item
         AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
           img.mr-2(:src='wallets[1].logo', height='30')
           span {{ $t('Get') }} {{ $t(wallets[1].name) }}
+      .item
+        AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
+          img.mr-2(:src='wallets[0].logo', height='30')
+          span {{ $t('Get') }} {{ $t(wallets[0].name) }}
     .divider
       span.line
       .text {{ $t("Create Account") }}
       span.line
     .items(v-if='wallets[0]')
+      .item(v-if="network.name == 'wax'")
+        AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
+          img.mr-2(:src='wallets[1].logo', height='30')
+          .details
+            span {{ $t('Get') }} {{ $t(wallets[1].name) }}
+            span.description From Wax Team
+      .item(v-if="network.name != 'ultra'")
+        AlcorButton.button(alternative, @click='openInNewTab(wallets[wallets.length - 1].create)')
+          img.mr-2(:src='require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)', height='30')
+          .details
+            span Wombat Wallet
+            span.description From Wombat Team
       .item
         AlcorButton.button(alternative, @click='openInNewTab("https://create.anchor.link/create?return_url=https%3A%2F%2Funicove.com%2F&scope=unicove")')
           img.mr-2(:src='wallets[0].logo', height='30')
@@ -62,19 +74,28 @@ export default {
     wallets() {
       const chain = this.context?.chain ? this.context.chain : this.network.name
 
-      const wallets = [
-        {
-          id: 'anchor',
-          name: 'Anchor',
-          logo: require('@/assets/logos/anchor.svg'),
-          create: 'https://greymass.com/en/anchor/'
-        }
-      ]
+      const wallets = []
+
+      if (this.network.name == 'ultra' || this.context?.chain == 'ultra') {
+        wallets.push({
+          id: 'ultra',
+          name: 'Ultra Wallet',
+          logo: require('@/assets/icons/ultra.png'),
+          create: 'https://developers.ultra.io/products/ultra-wallet/'
+        })
+      }
+
+      wallets.push({
+        id: 'anchor',
+        name: 'Anchor',
+        logo: require('@/assets/logos/anchor.svg'),
+        create: 'https://greymass.com/en/anchor'
+      })
 
       if (this.network.name == 'proton' || this.context?.chain == 'proton') {
         wallets.push({
           id: 'proton',
-          name: 'Proton',
+          name: 'WebAuth',
           logo: require('@/assets/icons/proton.png'),
           create: 'https://www.protonchain.com/wallet/'
         })
@@ -86,45 +107,17 @@ export default {
           name: 'Wax Cloud Wallet',
           logo: require('@/assets/logos/wax.svg'),
           index: 'wax',
-          create: 'https://all-access.wax.io/'
-        })
-        wallets.push({
-          id: 'wombat',
-          name: '',
-          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
+          create: 'https://www.mycloudwallet.com/signin#create-account'
         })
       }
 
-      if (chain == 'eos') {
+      if (['wax', 'eos', 'telos', 'proton'].includes(chain)) {
         wallets.push({
           id: 'wombat',
-          name: '',
-          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
-        })
-        wallets.push({
-          name: 'Keycat',
-          logo: require('@/assets/logos/keycat.svg')
-        })
-      }
-
-      wallets.push({
-        id: 'scatter',
-        name: 'Scatter / TP / Starteos',
-        logo: require('@/assets/logos/scatter.svg'),
-        create:
-          'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
-      }, {
-        name: 'SimplEOS',
-        logo: require('@/assets/logos/simpleos.svg')
-      }, {
-        name: 'Ledger', logo: require('@/assets/logos/ledger.svg')
-      })
-
-      if (chain == 'telos') {
-        wallets.push({
-          id: 'wombat',
-          name: '',
-          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
+          name: 'Wombat Wallet',
+          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`),
+          create:
+            'https://help.wombat.app/'
         })
       }
 

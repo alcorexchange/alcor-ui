@@ -2,9 +2,9 @@
 .select-network-modal.flex-1
   .selected(@click="visible = true" :class="{noValue: !value}")
     .image-container
-      // FIXME: when setting initially the image does not update!
-      img(:src="image" v-if="value" :key="1")
-      img(src="@/assets/icons/select_network.png" v-else :key="2")
+      // TODO: when value is available initially the image does not update!
+      ClientOnly
+        img(:src="value ? require(`@/assets/icons/${value}.png`) : require('@/assets/icons/select_network.png')")
     .name.fs-10 {{ value || $t('Select Network') }}
   //append-to-body
   el-dialog(
@@ -35,8 +35,8 @@ export default {
 
   computed: {
     image() {
-      return require(`@/assets/icons/${this.value}.png`)
-    }
+      return this.value ? `@/assets/icons/${this.value}.png` : '@/assets/icons/select_network.png'
+    },
   },
 
   methods: {
@@ -113,7 +113,8 @@ export default {
     padding: 8px;
     display: flex;
     cursor: pointer;
-    &:hover, &.active {
+    &:hover,
+    &.active {
       background: var(--hover);
     }
 
@@ -125,7 +126,7 @@ export default {
     height: 42px;
     width: 42px;
     border-radius: 50%;
-    padding: 8px;
+    padding: 6px;
     background: var(--background-color-base);
     img {
       width: 100%;

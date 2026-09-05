@@ -1,25 +1,19 @@
-import { createClient } from 'redis'
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
+import { fetchAllRows, getChainRpc } from '../../../utils/eosjs'
 import { JsonRpc } from '../../../assets/libs/eosjs-jsonrpc'
 import { parseExtendedAsset, littleEndianToDesimal, parseAsset } from '../../../utils'
 import { Match, Market } from '../../models'
 import config from '../../../config'
-import { markeBars } from './charts'
-
-// TODO Тут от докера прокидываем
-let redisClient
+import { makeSpotBars } from './charts'
+import { getPublisher } from '../redis'
 
 const ONEDAY = 60 * 60 * 24 * 1000
 const WEEK = ONEDAY * 7
 
 export async function newMatch(match, network) {
-  if (!redisClient) {
-    // TODO Refactor it properly
-    redisClient = createClient()
-    redisClient.connect()
-  }
 
-  const { trx_id, block_num, act: { name, data } } = match
+  const { trx_id, block_num, receipt, act: { name, data } } = match
+  const global_sequence = receipt?.global_sequence
 
   try {
     'data' in data
@@ -34,11 +28,17 @@ export async function newMatch(match, network) {
     console.log('new match', network.name, '@timestamp' in match ? match['@timestamp'] : match.block_time, 'market', market.id)
 
     try {
+      if (global_sequence) {
+        const exists = await Match.findOne({ chain: network.name, global_sequence }).select('_id').lean()
+        if (exists) return
+      }
+
       const m = await Match.create({
         chain: network.name,
         market: parseInt(market.id),
         type: name,
         trx_id,
+        global_sequence,
 
         unit_price: littleEndianToDesimal(unit_price) / config.PRICE_SCALE,
 
@@ -50,8 +50,9 @@ export async function newMatch(match, network) {
         time: '@timestamp' in match ? match['@timestamp'] : match.block_time,
         block_num
       })
-      await markeBars(m)
-      redisClient.publish('market_action', `${network.name}_${market.id}_${name}`)
+
+      await makeSpotBars(m)
+      getPublisher().publish('market_action', `${network.name}_${market.id}_${name}`)
     } catch (e) {
       console.log('handle match err..', e, 'retrying...')
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -59,22 +60,46 @@ export async function newMatch(match, network) {
     }
   } else if (['buyreceipt', 'sellreceipt', 'cancelsell', 'cancelbuy'].includes(name)) {
     const { market_id } = 'data' in data ? data.data : data
-    redisClient.publish('market_action', `${network.name}_${market_id}_${name}`)
+    getPublisher().publish('market_action', `${network.name}_${market_id}_${name}`)
   }
 }
 
 export async function getVolumeFrom(date, market, chain) {
   // TODO Объем должен считаться входной + выходной
   const volume = await Match.aggregate([
-    { $match: { chain, market, time: { $gte: new Date(date) } } },
     {
-      $project: {
-        market: 1,
-        target_volume: { $cond: { if: { $eq: ['$type', 'buymatch'] }, then: '$bid', else: '$ask' } },
-        base_volume: { $cond: { if: { $eq: ['$type', 'sellmatch'] }, then: '$bid', else: '$ask' } }
-      }
+      $match: {
+        chain,
+        market,
+        time: { $gte: new Date(date) },
+      },
     },
-    { $group: { _id: '$market', target_volume: { $sum: '$target_volume' }, base_volume: { $sum: '$base_volume' } } }
+    {
+      $group: {
+        _id: '$market',
+        target_volume: {
+          $sum: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$type', 'buymatch'] }, then: '$bid' },
+                { case: { $eq: ['$type', 'sellmatch'] }, then: '$ask' },
+              ],
+            },
+          },
+        },
+        base_volume: {
+          $sum: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$type', 'sellmatch'] }, then: '$bid' },
+                { case: { $eq: ['$type', 'buymatch'] }, then: '$ask' },
+              ],
+              default: 0,
+            },
+          },
+        },
+      },
+    },
   ])
 
   return volume.length == 1 ? [volume[0].base_volume, volume[0].target_volume] : [0, 0]
@@ -106,12 +131,6 @@ export async function getMarketStats(network, market_id) {
     stats.last_price = 0
   }
 
-  const oneMonthAgo = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() - 1,
-    new Date().getDate()
-  )
-
   const [base_volume, target_volume] = await getVolumeFrom(Date.now() - ONEDAY, market_id, network.name)
 
   stats.volume24 = target_volume
@@ -119,7 +138,8 @@ export async function getMarketStats(network, market_id) {
   stats.base_volume = base_volume
 
   stats.volumeWeek = (await getVolumeFrom(Date.now() - WEEK, market_id, network.name))[1]
-  stats.volumeMonth = (await getVolumeFrom(oneMonthAgo, market_id, network.name))[1]
+  stats.volumeMonth = (await getVolumeFrom(Date.now() - ONEDAY * 30, market_id, network.name))[1]
+  stats.volume90d = (await getVolumeFrom(Date.now() - ONEDAY * 90, market_id, network.name))[1]
 
   stats.change24 = await getChangeFrom(Date.now() - ONEDAY, market_id, network.name)
   stats.changeWeek = await getChangeFrom(Date.now() - WEEK, market_id, network.name)
@@ -141,23 +161,20 @@ export async function getMarketStats(network, market_id) {
 }
 
 export async function updateMarkets(network) {
-  console.log('update market for ', network.name)
+  const rpc = getChainRpc(network.name)
 
-  const nodes = [network.protocol + '://' + network.host + ':' + network.port].concat(Object.keys(network.client_nodes))
-
-  const rpc = new JsonRpc(nodes, { fetch })
-
-  let r
+  console.log(`[${network.name}] fetching markets from chain...`)
+  let rows
   try {
-    r = await rpc.get_table_rows({
+    rows = await fetchAllRows(rpc, {
       code: network.contract,
       scope: network.contract,
       table: 'markets',
-      reverse: true,
       limit: 1000
     })
+    console.log(`[${network.name}] fetched ${rows.length} markets`)
   } catch (e) {
-    console.log('failed update markets for ', network.name, ' retry..')
+    console.log('failed update markets for ', network.name, e, ' retry..')
     // Retry
     //await new Promise(resolve => setTimeout(resolve, 3000))
     //return await updateMarkets(network)
@@ -165,7 +182,6 @@ export async function updateMarkets(network) {
     return
   }
 
-  const { rows } = r
   rows.map(r => {
     r.base_token = parseExtendedAsset(r.base_token)
     r.quote_token = parseExtendedAsset(r.quote_token)
@@ -178,11 +194,13 @@ export async function updateMarkets(network) {
     return { market: d, stats: getMarketStats(network, d.id) }
   })
 
+  console.log(`[${network.name}] calculating stats for ${requests.length} markets...`)
   try {
     await Promise.all(requests.map(r => r.stats))
+    console.log(`[${network.name}] stats calculated`)
 
     const markets_for_create = []
-    const current_markets = await Market.distinct('id', { chain: network.name })
+    const current_markets = new Set(await Market.distinct('id', { chain: network.name }))
 
     for (const req of requests) {
       const { market } = req
@@ -190,7 +208,7 @@ export async function updateMarkets(network) {
 
       const complete_market = { chain: network.name, ...market, ...stats }
 
-      if (current_markets.includes(complete_market.id)) {
+      if (current_markets.has(complete_market.id)) {
         // TODO проверить
         await Market.updateOne({ id: complete_market.id, chain: network.name }, complete_market)
       } else {

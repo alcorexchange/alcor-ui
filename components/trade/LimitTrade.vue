@@ -5,13 +5,14 @@
       small.green {{ $t('Buy') }} {{ quote_token.symbol.name }}
       small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(
         @click='setAmount("buy")'
-      ) {{ baseBalance | commaFloat }}
+      ) {{ baseBalance | commaFloat(base_token.symbol.precision) }}
         i.el-icon-wallet.ml-1
 
     el-form
       el-form-item
         el-input(
           type='number',
+          inputmode="decimal"
           min='0.00000001',
           step='0.00000001',
           v-model='priceBid',
@@ -27,6 +28,7 @@
       el-form-item
         el-input(
           type='number',
+          inputmode="decimal"
           v-model='amountBuy',
           @change='setPrecisionAmountBuy()',
           size='medium',
@@ -67,7 +69,7 @@
       small.red {{ $t('Sell') }} {{ quote_token.symbol.name }}
       small.text-mutted.small.align-self-end.ml-auto.cursor-pointer(
         @click='setAmount("sell")'
-      ) {{ tokenBalance | commaFloat }}
+      ) {{ tokenBalance | commaFloat(quote_token.symbol.precision) }}
         i.el-icon-wallet.ml-1
 
     el-form
@@ -130,17 +132,6 @@ import { trade } from '~/mixins/trade'
 
 export default {
   mixins: [trade],
-
-  computed: {
-    percentBuy: {
-      get() {
-        return this.percent_buy
-      },
-      set(val) {
-        this.changePercentBuy({ percent: val, trade: 'limit' })
-      }
-    }
-  }
 }
 </script>
 

@@ -2,7 +2,7 @@
 .auth-only
   template(v-if="$store.state.user")
     slot
-  .d-flex.justify-content-center(v-else)
+  .d-flex.justify-content-center.auth-only-button(v-else)
     AlcorButton.connect(type="default" @click='$store.dispatch("chain/mainLogin")') {{ $t('Connect Wallet') }}
 </template>
 
@@ -10,13 +10,13 @@
 import AlcorButton from '@/components/AlcorButton'
 export default {
   components: {
-    AlcorButton
-  }
+    AlcorButton,
+  },
 }
 </script>
 
 <style scoped lang="scss">
-.connect{
+.connect {
   width: 100%;
   padding: 16px;
   border-radius: 6px;
@@ -24,7 +24,8 @@ export default {
 </style>
 <style lang="scss">
 .theme-light {
-  .swap-widget, .add-liquidity-component {
+  .swap-widget,
+  .add-liquidity-component {
     .auth-only {
       --btn-default: var(--btn-active);
     }

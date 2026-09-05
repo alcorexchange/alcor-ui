@@ -79,7 +79,7 @@ export const actions = {
       for (const map of contractMaps) {
         const chain = chains.find(c => c.chainId === global.chain_id)
         if (!chain) continue
-        tokenPromises.push(chain.rpc.get_table_by_scope({ code: map.native_token_contract, table: 'stat' }))
+        tokenPromises.push(chain.rpc.get_table_by_scope({ code: map.native_token_contract, table: 'stat', limit: 1000 }))
       }
     }
 
@@ -101,8 +101,10 @@ export const actions = {
 
         const symbols = symbolsres.rows.map(r => new SymbolCode(Number(nameToUint64(r.scope))).toString())
 
-        console.log(`${chain.name} -> ${pairedChain.name} tokens: ${symbols}`)
+        //console.log(`${chain.name} -> ${pairedChain.name} tokens: ${symbols}`)
         chain.wrapLockContracts.push({
+          chain: chain.name,
+          pairedChain: pairedChain.name,
           chain_id: global.chain_id,
           wrapLockContract: allWraplockContracts[tokenResultsIndex],
           nativeTokenContract: map.native_token_contract,
@@ -167,7 +169,9 @@ export const getters = {
 
     wrappedList = wrappedList.sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
 
-    return [...nativeList, ...wrappedList]
+    const all = [...nativeList, ...wrappedList].filter(i => i.pairedChain !== 'eos')
+
+    return all
   },
 
   source(state) {

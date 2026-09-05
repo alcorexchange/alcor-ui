@@ -1,7 +1,7 @@
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 import { io } from 'socket.io-client'
 
-import { JsonRpc } from 'eosjs'
+import { JsonRpc } from 'enf-eosjs'
 import { getMultyEndRpc } from '../utils/eosjs'
 
 import config from '~/config'
@@ -16,6 +16,7 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     const subdomain = process.env.NETWORK + '.'
 
     commit('setBaseUrl', `https://${subdomain}alcor.exchange`)
+    // commit('setBaseUrl', `https://dev.alcor.exchange`)
     commit('setNetwork', config.networks[process.env.NETWORK])
   } else if (process.server) {
     const protocol = process.env.isDev ? 'http' : 'https'
@@ -37,7 +38,8 @@ export default ({ app: { store: { state, commit }, $axios }, req }, inject) => {
     } else if (subdomain.length <= 2) {
       commit('setNetwork', config.networks.wax)
     } else {
-      commit('setNetwork', config.networks[subdomain[0]])
+      const network = config.networks[subdomain[0]]
+      commit('setNetwork', network || config.networks.wax)
     }
   }
 

@@ -135,7 +135,7 @@ export default {
       navigator.clipboard.writeText(this.$route.params.id)
       this.$notify({
         title: 'Clipboard',
-        message: 'Account name copyed to Clipboard',
+        message: 'Account name copied to Clipboard',
         type: 'info'
       })
     }

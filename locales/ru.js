@@ -1,7 +1,7 @@
 export default {
   META_DESCRIPTION:
-    'Alcor - настоящий швейцарский нож в мире децентрализованных финансов! Доходное фермерство | Лимитная торговля | Маркетплейс NFT и многое другое!',
-  META_TITLE: 'EOS trustless DEX.',
+    'Alcor - Ордербук ДЕКС! Доходное фермерство | Лимитная торговля | Маркетплейс NFT и многое другое!',
+  META_TITLE: 'Alcor Exchange | Ордербук Декс | Фарминг | Пулы ликвидности',
   META_NFT_MARKET_TITLE:
     'Alcor NFT Маркетплейс | Надежный NFT Маркетплейс на платформе WAX',
   META_NFT_MARKET_DESCRIPTION: 'Atomic, никаких коммиссий, NFT Маркетплейс.',

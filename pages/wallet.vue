@@ -17,18 +17,18 @@ import WalletTabBar from '~/components/wallet/WalletTabBar.vue'
 import AuthOnly from '~/components/AuthOnly'
 
 export default {
-  name: "WalletIndex",
+  name: 'WalletIndex',
   components: {
     WalletName,
     WalletHeader,
     SSpacer,
     WalletTabBar,
     WalletAccount,
-    AuthOnly
+    AuthOnly,
   },
   computed: {
-    ...mapGetters(['user'])
-  }
+    ...mapGetters(['user']),
+  },
 }
 </script>
 
@@ -37,5 +37,4 @@ export default {
   margin: 0 auto;
   padding-top: 25px;
 }
-
 </style>

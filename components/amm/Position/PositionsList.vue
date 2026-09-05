@@ -15,7 +15,7 @@ el-table.position-table.custom-responsive-table(
         .fs-14 {{ row.pool.tokenA.symbol }} / {{ row.pool.tokenB.symbol }}
         .tag {{ row.pool.fee / 10000 }}%
 
-  el-table-column(:label='$t("Range")' width="220" class-name="min-max")
+  el-table-column(:label='$t("Range")' width="250" class-name="min-max")
     template(slot-scope='{row}')
       .d-flex.flex-column
         .d-flex.align-items-center.gap-4
@@ -30,44 +30,56 @@ el-table.position-table.custom-responsive-table(
             .fs-12.disable MAX
             .fs-12.contrast {{ row.priceUpper }}
 
-  el-table-column(:label='$t("Assets in Pool")' width="180")
+  el-table-column(:label='$t("Assets in Pool")' width="200")
     template(slot-scope='{row}')
       .d-flex.flex-column
         .mobile-label {{ $t("Assets in Pool") }}
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
 
-          .fs-12.earn.d-flex.gap-4
-            span {{ row.amountA }}
+          .fs-12.d-flex.gap-4
+            span {{ row.amountA | commaFloat }}
         .d-flex.align-items-center.gap-4
           token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
 
-          .fs-12.earn.d-flex.gap-4(:class="{ red: false }")
-            span {{ row.amountB }}
+          .fs-12.d-flex.gap-4(:class="{ red: false }")
+            span {{ row.amountB | commaFloat }}
 
-  el-table-column(:label='$t("Unclaimed Fees")' width="168" class-name="unclaimed-fees")
+  //- el-table-column(:label='$t("Unclaimed Fees")' width="168" class-name="unclaimed-fees")
+  //-   template(slot-scope='{row}')
+  //-     .mobile-label.unclaimed-fees-label {{ $t("Unclaimed Fees") }}
+
+  //-     .d-flex.flex-column
+  //-       .d-flex.align-items-center.gap-4
+  //-         token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
+
+  //-         .fs-12.earn.d-flex.gap-4
+  //-           span {{ row.feesA | commaFloat }}
+  //-       .d-flex.align-items-center.gap-4
+  //-         token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
+
+  //-         .fs-12.earn.d-flex.gap-4
+  //-           span {{ row.feesB | commaFloat }}
+
+  el-table-column(:label='$t("Total Value")' width="180" v-if="!isMobile" sortable sort-by="totalValue")
+    template(#header)
+      span.total-value-header
+        span {{ $t("Total") }}
+        span.total-posiions-value  ( ${{ totalPositionsValue | commaFloat(2) }} )
     template(slot-scope='{row}')
-      .mobile-label.unclaimed-fees-label {{ $t("Unclaimed Fees") }}
+      span $ {{ row.totalValue | commaFloat(2) }}
 
-      .d-flex.flex-column
-        .d-flex.align-items-center.gap-4
-          token-image(:src='$tokenLogo(row.pool.tokenA.symbol, row.pool.tokenA.contract)' height="12")
-
-          .fs-12.earn.d-flex.gap-4
-            span {{ row.feesA }}
-        .d-flex.align-items-center.gap-4
-          token-image(:src='$tokenLogo(row.pool.tokenB.symbol, row.pool.tokenB.contract)' height="12")
-
-          .fs-12.earn.d-flex.gap-4
-            span {{ row.feesB }}
-
-  el-table-column(:label='$t("Total Value")' width="100" v-if="!isMobile")
+  el-table-column(label='Unclaimed Fees' width="150" v-if="!isMobile" sortable sort-by="totalFeesUSD")
     template(slot-scope='{row}')
-      span $ {{ row.totalValue && row.totalValue.toFixed(2) }}
+      span(:style="{color: $percentColor(1)}") $ {{ row.totalFeesUSD | commaFloat(3) }}
 
-  el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
-    template(slot-scope='{row}')
-      span(:style="{color: $percentColor(row.pNl)}") $ {{ row.pNl && row.pNl.toFixed(2) }}
+  //- el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
+  //-   template(slot-scope='{row}')
+  //-     span(:style="{color: $percentColor(row.pNl)}") $ {{ row.pNl | commaFloat(2) }}
+
+  //- el-table-column(label='Earnings' width="100" v-if="!isMobile")
+  //-   template(slot-scope='{row}')
+  //-     span(:style="{color: $percentColor(1)}") $ {{ row.totalFeesUSD | commaFloat(3) }}
 
   el-table-column(:label='$t("Action")' v-if="!isMobile" align="right")
     template(slot-scope='{row}')
@@ -87,32 +99,45 @@ import AlcorButton from '~/components/AlcorButton'
 export default {
   components: { PairIcons, TokenImage, PositionFees, AlcorButton },
 
+  props: ['search'],
+
   computed: {
     positions() {
-      return this.$store.state.amm.positions.map(p => {
-        const _pool = this.$store.state.amm.pools.find(pool => pool.id == p.pool)
+      return this.$store.state.amm.positions
+        .map((p) => {
+          const _pool = this.$store.state.amm.pools.find((pool) => pool.id == p.pool)
 
-        if (!_pool) return {}
-        const pool = constructPoolInstance(_pool)
+          if (!_pool) return {}
+          const pool = constructPoolInstance(_pool)
 
-        if (!pool) return {}
+          if (!pool) return {}
 
-        const priceUpper = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).UPPER ? '∞' : tickToPrice(pool.tokenA, pool.tokenB, p.tickUpper).toSignificant(5)
-        const priceLower = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).LOWER ? '0' : tickToPrice(pool.tokenA, pool.tokenB, p.tickLower).toSignificant(5)
+          // prettier-ignore
+          const priceUpper = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).UPPER ? '∞' : tickToPrice(pool.tokenA, pool.tokenB, p.tickUpper).toSignificant(5)
+          // prettier-ignore
+          const priceLower = isTicksAtLimit(pool.fee, p.tickLower, p.tickUpper).LOWER ? '0' : tickToPrice(pool.tokenA, pool.tokenB, p.tickLower).toSignificant(5)
 
-        const link = `/positions/${pool.id}-${p.id}-${pool.fee}`
+          const link = `/positions/${p.id}`
 
-        return {
-          ...p,
-          pool,
-          priceUpper,
-          priceLower,
-          link
-        }
-      }).filter(p => p.pool)
-    }
+          return {
+            ...p,
+            pool,
+            priceUpper,
+            priceLower,
+            link,
+          }
+        })
+        .filter((p) => p.pool)
+        .filter((p) => {
+          // prettier-ignore
+          return `${p.feesA.split(' ')[1]}${p.feesB.split(' ')[1]}`.toLowerCase().includes(this.search?.toLowerCase() || '')
+        })
+        .toSorted((a, b) => b.totalValue - a.totalValue)
+    },
+    totalPositionsValue() {
+      return this.positions.reduce((value, position) => value + position.totalValue, 0)
+    },
   },
-
 }
 </script>
 
@@ -127,6 +152,9 @@ export default {
   line-height: 12px;
   padding: 4px;
   border-radius: 4px;
+}
+.total-posiions-value {
+  color: var(--text-default);
 }
 .indicator {
   width: 6px;
@@ -158,8 +186,14 @@ export default {
     cursor: pointer;
   }
 }
+.earn {
+  color: var(--main-green);
+  &.red {
+    color: var(--main-red);
+  }
+}
 @media only screen and (max-width: 1100px) {
-  .custom-responsive-table{
+  .custom-responsive-table {
     .assets {
       grid-column: 1 / 3;
       .assets-inner {
@@ -176,8 +210,8 @@ export default {
         flex-direction: column;
         align-items: flex-end;
       }
-      .position-fees{
-        align-items: flex-end
+      .position-fees {
+        align-items: flex-end;
       }
     }
   }

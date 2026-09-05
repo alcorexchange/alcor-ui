@@ -1,4 +1,7 @@
+import { Api } from 'enf-eosjs'
+import posthog from 'posthog-js'
 import { getMultyEndRpc } from '../utils/eosjs'
+import { op } from '~/plugins/openpanel'
 
 import config from '~/config'
 
@@ -7,6 +10,7 @@ import AnchoWallet from '~/plugins/wallets/Anchor'
 import ProtonWallet from '~/plugins/wallets/Proton'
 import ScatterWallet from '~/plugins/wallets/Scatter'
 import WombatWallet from '~/plugins/wallets/Wombat'
+import Ultra from '~/plugins/wallets/Ultra'
 
 export const state = () => ({
   loginPromise: null,
@@ -32,10 +36,24 @@ export const actions = {
       scatter: ScatterWallet,
       wcw: WCW,
       proton: ProtonWallet,
-      wombat: WombatWallet
+      wombat: WombatWallet,
+      ultra: Ultra,
+    }
+
+    if (rootState.user?.name) {
+      dispatch('afterLoginHook')
     }
 
     commit('setWallets', wallets)
+
+    const { viewAccount } = rootState.route.query
+
+    if (viewAccount) {
+      console.log('set pre selected account', viewAccount)
+      commit('setUser', { name: viewAccount, authorization: [] }, { root: true })
+      dispatch('afterLoginHook')
+      return
+    }
 
     if (state.lastWallet) {
       commit('setWallet', new state.wallets[state.lastWallet](rootState.network, this.$rpc))
@@ -44,22 +62,37 @@ export const actions = {
   },
 
   async autoLogin({ state, rootState, dispatch, commit, getters }) {
-    // TODO Check correct chain
-    console.log('try autoLogin..')
     const loginned = await state.wallet.checkLogin()
-    if (loginned) {
-      console.log('YES. autoLogining...')
-      const { name, authorization, chainId } = loginned
-      if (chainId !== rootState.network.chainId) return console.log('autoLogin chain mismatch')
-      commit('setUser', { name, authorization }, { root: true })
-      dispatch('afterLoginHook')
+    if (!loginned) return false
 
-      return true
-    }
-    return false
+    const { name, authorization, chainId } = loginned
+    if (chainId !== rootState.network.chainId) return false
+
+    commit('setUser', { name, authorization }, { root: true })
+    commit('setLastWallet', state.wallet.name)
+    dispatch('afterLoginHook')
+    return true
   },
 
-  afterLoginHook({ dispatch, rootState }) {
+  afterLoginHook({ state, dispatch, rootState }) {
+    this._vm.$gtag.event('login', { wallet: state.lastWallet })
+    posthog.identify(rootState.user.name, {
+      wallet: state.lastWallet,
+      chain: rootState.network.name
+    })
+    posthog.capture('login', { wallet: state.lastWallet })
+
+    op.identify({
+      profileId: rootState.user.name,
+      properties: {
+        wallet: state.lastWallet,
+        chain: rootState.network.name,
+      },
+    })
+    op.track('login', {
+      wallet: state.lastWallet,
+      chain: rootState.network.name,
+    })
     dispatch('amm/afterLogin', {}, { root: true })
     dispatch('loadAccountData', {}, { root: true })
 
@@ -103,14 +136,26 @@ export const actions = {
   },
 
   logout({ state, dispatch, commit, getters, rootState }) {
+    const { viewAccount } = rootState.route.query
+
+    if (viewAccount) {
+      dispatch('unsubscribeToAccountPushes')
+
+      commit('setUser', null, { root: true })
+      commit('setUserOrders', [], { root: true })
+      window.location = window.location.origin
+      return
+    }
+
     console.log('logout..')
-    state.wallet.logout()
+    state?.wallet?.logout?.()
     commit('setLastWallet', null)
 
     dispatch('unsubscribeToAccountPushes')
 
     commit('setUser', null, { root: true })
     commit('setUserOrders', [], { root: true })
+    commit('setUserBalances', [], { root: true })
   },
 
   async mainLogin({ commit, dispatch }) {
@@ -120,7 +165,7 @@ export const actions = {
       commit('setWallet', wallet)
 
       const wasAutoLoginned = await dispatch('autoLogin')
-      if (wasAutoLoginned) return commit('setLastWallet', wallet.name)
+      if (wasAutoLoginned) return
 
       commit('setUser', { name, authorization }, { root: true })
       dispatch('afterLoginHook')
@@ -621,12 +666,62 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
+  // Check if CPU payer is available and signing
+  async checkCpuPayerStatus({ rootState }) {
+    const { cpuPayer } = rootState.network
+    if (!cpuPayer) return null
+
+    const statusUrl = `${cpuPayer}/status`
+
+    try {
+      const response = await fetch(statusUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (!response.ok) return null
+
+      const status = await response.json()
+      return status.available && status.signing ? status : null
+    } catch (e) {
+      console.warn('CPU payer status check failed:', e.message)
+      return null
+    }
+  },
+
+  // Request cosign from CPU payer service
+  async requestCosign({ rootState }, { serializedTransaction }) {
+    const { cpuPayer } = rootState.network
+    if (!cpuPayer) return null
+
+    const cosignUrl = `${cpuPayer}/cosign`
+
+    try {
+      const response = await fetch(cosignUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serializedTransaction })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        console.warn('CPU payer cosign error:', error.error)
+        return null
+      }
+
+      return await response.json()
+    } catch (e) {
+      console.warn('CPU payer unavailable:', e.message)
+      return null
+    }
+  },
+
   // TODO Relogin after check chain and relogin if possible
   async sendTransaction(
     { state, rootState, dispatch, getters, commit },
     actions
   ) {
-    if (actions && actions[0].name != 'delegatebw' && state.lastWallet != 'wcw') {
+    if (actions && actions[0].name != 'delegatebw' && state.lastWallet != 'wcw' && !['ultra'].includes(rootState.network.name)) {
       await dispatch('resources/showIfNeeded', undefined, { root: true })
     }
 
@@ -637,12 +732,71 @@ export const actions = {
     )
 
     try {
+      // Contracts that CPU payer cannot sign (system contracts, NFT, etc.)
+      const cpuPayerBlacklist = ['eosio', 'atomicassets', 'atomicmarket', 'atomictoolsx', 'simpleassets']
+      // Whitelist of contracts that CPU payer can sign (must match cpu-payer service)
+      const cpuPayerWhitelist = ['alcordexmain', 'swap.alcor', 'otc.alcor', 'alcorotcswap', 'liquid.alcor']
+
+      // CPU payer only available on WAX
+      const canUseCpuPayer = rootState.network.name === 'wax' && state.lastWallet !== 'wcw' && actions.every(a => {
+        if (cpuPayerBlacklist.includes(a.account)) return false
+        if (cpuPayerWhitelist.includes(a.account)) return true
+        if (a.name === 'transfer' && a.data?.to && cpuPayerWhitelist.includes(a.data.to)) return true
+        return false
+      })
+
+      // Try CPU payer first if eligible
+      if (canUseCpuPayer) {
+        try {
+          const noopAction = {
+            account: 'liquid.alcor',
+            name: 'noop',
+            authorization: [{ actor: 'liquid.alcor', permission: 'bw' }],
+            data: {}
+          }
+
+          const signedTx = await state.wallet.transact(
+            { actions: [noopAction, ...actions] },
+            { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
+          )
+
+          const serializedTx = signedTx.resolved
+            ? signedTx.resolved.serializedTransaction
+            : signedTx.serializedTransaction
+
+          const serializedHex = Array.from(
+            serializedTx instanceof Uint8Array ? serializedTx : new Uint8Array(serializedTx)
+          ).map(b => b.toString(16).padStart(2, '0')).join('')
+
+          const cosignResult = await dispatch('requestCosign', { serializedTransaction: serializedHex })
+
+          if (cosignResult && cosignResult.signature) {
+            const packedTx = {
+              signatures: [cosignResult.signature, ...signedTx.signatures],
+              serializedTransaction: serializedTx
+            }
+            return await this.$rpc.send_transaction(packedTx)
+          }
+        } catch (e) {
+          console.warn('CPU payer failed, falling back to user resources:', e.message)
+        }
+
+        // Cosign failed - ask user to sign again without noop (fallback)
+        console.log('Falling back to regular transaction...')
+      }
+
+      // Regular transaction (no CPU payer)
       const signedTx = await state.wallet.transact(
         { actions },
         { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
       )
 
-      // TODO Manage leap soon
+      // TODO Make one standart for success tx response
+      if (state.wallet.name == 'ultra') {
+        console.log('signedTx', signedTx)
+        return signedTx
+      }
+
       const packedTx = {
         signatures: signedTx.signatures,
         serializedTransaction: signedTx.resolved
@@ -650,7 +804,6 @@ export const actions = {
           : signedTx.serializedTransaction
       }
 
-      // TODO Протестить если ошибка от ноды
       return await this.$rpc.send_transaction(packedTx)
     } catch (e) {
       throw e
@@ -658,6 +811,15 @@ export const actions = {
       dispatch('update', {}, { root: true })
       commit('loading/CLOSE', {}, { root: true })
     }
+  },
+
+  async sendReadOnlyTransaction(
+    { state, rootState, dispatch, getters, commit },
+    actions
+  ) {
+    const api = new Api({ rpc: this.$rpc, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() })
+
+    return await api.transact({ actions }, { broadcast: true, readOnly: true, blocksBehind: 3, expireSeconds: 72 })
   }
 }
 

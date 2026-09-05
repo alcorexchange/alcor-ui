@@ -1,0 +1,704 @@
+# API v3 (Analytics + AMM)
+
+Base path: `/api/v3`
+
+Notes:
+- `window` is one of: `24h | 7d | 30d | 90d | all`
+- `resolution` for charts is one of: `1h | 4h | 1d | 1w`
+- `include` is a comma-separated list of optional blocks (e.g. `include=incentives`)
+- All responses include `meta` where applicable
+
+## Analytics
+
+### GET `/analytics/overview`
+Global overview + top lists.
+
+Query:
+- `window` (default: `30d`)
+- `include=incentives` (optional, adds farms info to topPools)
+
+Response:
+```
+{
+  "meta": { "chain", "ts", "window", "baseToken", "usdToken" },
+  "stats": {
+    "tvl", "volume", "fees",
+    "swapVolume", "spotVolume", "swapFees", "spotFees",
+    "swapTx", "spotTx", "dauAvg", "poolsTotal", "spotPairsTotal"
+  },
+  "charts": {
+    "tvl": [{ "t", "v" }],
+    "volume": [{ "t", "v" }],
+    "fees": [{ "t", "v" }],
+    "swapVolume": [{ "t", "v" }],
+    "spotVolume": [{ "t", "v" }],
+    "swapFees": [{ "t", "v" }],
+    "spotFees": [{ "t", "v" }],
+    "items": [{ "t", "tvl", "volume", "fees", "swapVolume", "spotVolume", "swapFees", "spotFees" }]
+  },
+  "topPools": [PoolCard],
+  "topTokens": [TokenCard],
+  "topSpotPairs": [SpotPairCard]
+}
+```
+
+### GET `/analytics/bans/accounts`
+On-chain banned accounts aggregated from platform contracts.
+
+Sources:
+- DEX: table `ban` (singleton, `accounts[]`)
+- SWAP: table `banlist` (`account`)
+- OTC: table `banned` (`account`)
+
+Response:
+```
+{
+  "meta": { "chain", "ts", "window" },
+  "contracts": { "dex", "swap", "otc" },
+  "totals": { "unique", "dex", "swap", "otc" },
+  "bySource": {
+    "dex": ["account1", "account2"],
+    "swap": ["account3"],
+    "otc": []
+  },
+  "items": [
+    { "account": "account1", "sources": ["dex"] },
+    { "account": "account3", "sources": ["swap", "otc"] }
+  ],
+  "errors": [{ "source": "swap", "message": "..." }]
+}
+```
+
+### GET `/analytics/tokens`
+Token list (scored, with volumes/TVL).
+
+Token score details are documented in [TOKEN_SCORE_V1.md](./TOKEN_SCORE_V1.md).
+
+Query:
+- `window` (default: `30d`)
+- `search` (symbol/contract/id)
+- `sort=score|volume|tvl|locked|price` (default: `score`)
+- `order=asc|desc` (default: `desc`)
+- `limit` (default: `50`, max: `500`)
+- `page` (default: `1`)
+
+Response:
+```
+{
+  "meta": { ... },
+  "items": [TokenCard],
+  "page", "limit", "total"
+}
+```
+
+### GET `/analytics/tokens/:id`
+Token details + pools and spot pairs.
+
+Query:
+- `window` (default: `30d`)
+- `include=tx,depth` (optional, applies to `spotPairs`)
+- `hide_scam=true|false` (optional, filters spot pairs and spot stats)
+
+Response:
+```
+{
+  "meta": { ... },
+  "token": TokenCard + { "scores": { "total", "details" } },
+  "pools": [PoolCard],
+  "spotPairs": [SpotPairCard]
+}
+```
+
+`token.scores.details` currently includes:
+- `version`, `window`
+- `components.{traders,volume,liquidity,holders,activity,stability,age}`
+- `capsApplied`
+- `metrics.{uniqueTraders,volumeUsd,tvlUsd,turnover,holdersCount,tradesCount,avgDailyTrades,currentPrice,rollingHigh30d,drawdown30d,stabilityPoolId,ageDays}`
+- compatibility fields used by other server consumers (`holders`, `volumeUsd7d`, `trades7d`, `uniqueTraders7d`, growth and age fields)
+
+### GET `/analytics/tokens/:id/pools`
+Pools for token.
+
+Query:
+- `window` (default: `30d`)
+- `include=incentives` (optional)
+
+Response:
+```
+{ "meta": { ... }, "items": [PoolCard(+incentives)] }
+```
+
+### GET `/analytics/tokens/:id/spot-pairs`
+Spot pairs for token.
+
+Query:
+- `window` (default: `30d`)
+- `include=tx,depth` (optional)
+- `hide_scam=true|false`
+
+Response:
+```
+{ "meta": { ... }, "items": [SpotPairCard] }
+```
+
+### GET `/analytics/pools`
+AMM pool list.
+
+Query:
+- `window` (default: `30d`)
+- `sort=volume|tvl|apr` (default: `volume`)
+- `order=asc|desc` (default: `desc`)
+- `limit` (default: `50`, max: `500`)
+- `page` (default: `1`)
+- `search` (optional, token symbol/name/contract/id, supports `A/B` or space-separated terms)
+- `hide_scam=true|false`
+- `include=incentives` (optional)
+- `sort=apr` uses 7d annualized APR; with `include=incentives` sorts by `apr.total`, otherwise by fee APR
+
+Response:
+```
+{ "meta": { ... }, "items": [PoolCard(+incentives)], "page", "limit", "total" }
+```
+
+### GET `/analytics/pools/:id`
+Pool detail.
+
+Query:
+- `window` (default: `30d`)
+- `include=incentives` (optional, filtered by `incentives` param)
+- `include=farm_cards` (optional, adds `farms` array in FarmCard format)
+- `incentives=active|finished|all` (default: `active`)
+
+Response:
+```
+{ "meta": { ... }, "pool": PoolCard(+incentives) }
+```
+
+When `include=farm_cards`, response adds:
+```
+{ "pool": { "farms": [FarmCard] } }
+```
+
+Response always includes swaps count for selected `window` in `pool.tx.swaps`.
+
+### GET `/analytics/farms`
+Farms (incentives) list with analytics.
+
+Query:
+- `status=active|finished|all` (default: `active`)
+- `window` (default: `30d`)
+- `search` (reward token or pool token symbol/name/contract/id; supports `A/B` or space-separated terms)
+- `min_pool_tvl` (USD threshold for pool TVL; alias: `min_tvl`)
+- `min_staked_tvl` (USD threshold for staked TVL)
+- `sort=apr|rewards|tvl|staked|remaining|utilization|volume` (default: `apr`)
+- `order=asc|desc` (default: `desc`)
+- `limit` (default: `50`, max: `500`)
+- `page` (default: `1`)
+- `hide_scam=true|false`
+
+Response:
+```
+{
+  "meta": { ... },
+  "items": [FarmCard],
+  "page", "limit", "total"
+}
+```
+
+### GET `/analytics/spot-pairs`
+Spot pairs list.
+
+Query:
+- `window` (default: `30d`)
+- `sort=volume|price` (default: `volume`)
+- `order=asc|desc` (default: `desc`)
+- `limit` (default: `50`, max: `500`)
+- `page` (default: `1`)
+- `hide_scam=true|false` (optional)
+- `include=tx,depth` (optional; when omitted, both are included by default)
+
+Response:
+```
+{ "meta": { ... }, "items": [SpotPairCard], "page", "limit", "total" }
+```
+
+### GET `/analytics/spot-pairs/:id`
+Spot pair detail.
+
+Query:
+- `window` (default: `30d`)
+- `include=tx,depth` (optional; when omitted, both are included by default)
+
+Response:
+```
+{ "meta": { ... }, "market": SpotPairCard }
+```
+
+### GET `/analytics/global/charts`
+Global chart points.
+
+Query:
+- `window` (default: `30d`)
+- `resolution=1h|4h|1d|1w` (default: `1d`)
+
+Response:
+```
+{
+  "meta": { ... },
+  "charts": {
+    "tvl": [{ "t", "v" }],
+    "volume": [{ "t", "v" }],
+    "fees": [{ "t", "v" }],
+    "swapVolume": [{ "t", "v" }],
+    "spotVolume": [{ "t", "v" }],
+    "swapFees": [{ "t", "v" }],
+    "spotFees": [{ "t", "v" }]
+  },
+  "items": [ { "t", "tvl", "volume", "fees", "swapVolume", "spotVolume", "swapFees", "spotFees" } ]
+}
+```
+
+### GET `/analytics/pools/:id/charts`
+Pool analytics chart points (`tvl/volume/fees`).
+
+Query:
+- `window` (default: `30d`)
+- `resolution=1h|4h|1d|1w` (default: `1d`)
+- `from` (optional ms timestamp, enables custom range)
+- `to` (optional ms timestamp, enables custom range)
+
+Response:
+```
+{
+  "meta": { ... },
+  "poolId": 123,
+  "feeRate": 0.003,
+  "charts": {
+    "tvl": [{ "t", "v" }],
+    "volume": [{ "t", "v" }],
+    "fees": [{ "t", "v" }]
+  },
+  "items": [ { "t", "tvl", "volume", "fees" } ]
+}
+```
+
+### GET `/analytics/pools/:id/candles`
+Swap (AMM) candles.
+
+Query:
+- `resolution=1h|4h|1d|1w` (default: `1h`)
+- `from` (ms timestamp)
+- `to` (ms timestamp)
+- `volumeField=volumeUSD|volumeA|volumeB`
+- `reverse=true|false`
+
+Response:
+```
+{ "meta": { ... }, "timeframe", "frame", "items": [ { "time", "open", "high", "low", "close", "volume" } ] }
+```
+
+### GET `/analytics/spot-pairs/:id/candles`
+Spot candles.
+
+Query:
+- `resolution=1h|4h|1d|1w` (default: `1h`)
+- `from` (ms timestamp)
+- `to` (ms timestamp)
+
+Response:
+```
+{ "meta": { ... }, "timeframe", "frame", "items": [ { "time", "open", "high", "low", "close", "volume" } ] }
+```
+
+### GET `/analytics/lp-leaderboard`
+Top liquidity providers by fee earnings. Served from a precomputed snapshot
+(refreshed every ~10 minutes by the updater), returns `503` until the first snapshot is built.
+
+Notes:
+- `claimedUSD` is summed from on-chain `collect` events, USD-valued at claim time.
+  For pools where a token currently has no safe price (scam/untrusted), claims are
+  re-valued from raw token amounts with current safe prices — the untrusted side counts as $0.
+- `unclaimedUSD` is computed from current open positions (safe token prices).
+- `estimatedFees24hUSD` is a projection, not history: pool average daily volume
+  (7d volume / 7, smoother than raw 24h volume) × LP fee rate × position's share of
+  active liquidity. Out-of-range positions project $0. Window-independent.
+- `apr[window]` is pragmatic: claimed fees for the window / current TVL, annualized.
+  Not defined for `all` (null); accounts with zero TVL have `null` APR.
+  Claiming is manual and lumpy, so windowed APRs (especially `24h`) reflect the claim
+  rate, not the earning rate.
+- `apr.estimated` annualizes `estimatedFees24hUSD` / TVL — the current earning rate of
+  open positions. Prefer it as the displayed APR.
+- `window` here is one of `24h | 7d | 30d | all` (no `90d`).
+
+Query:
+- `window` (default: `30d`) — affects `claimedUSD`/`apr` sorting
+- `sort=claimed|unclaimed|estimated|total|tvl|apr|apr_estimated` (default: `claimed`)
+- `order=asc|desc` (default: `desc`)
+- `page` (default: `1`), `limit` (default: `100`, max: `500`)
+- `search` — substring filter on account name
+
+Response:
+```
+{
+  "meta": { "chain", "ts", "window", ... },
+  "updatedAt",
+  "totals": {
+    "accounts", "positions",
+    "claimedUSD": { "24h", "7d", "30d", "all" },
+    "unclaimedUSD", "estimatedFees24hUSD", "tvlUSD"
+  },
+  "sort", "order",
+  "pagination": { "page", "limit", "total" },
+  "items": [
+    {
+      "rank",
+      "account",
+      "claimedUSD": { "24h", "7d", "30d", "all" },
+      "unclaimedUSD",
+      "estimatedFees24hUSD",    // projected daily fees (see notes)
+      "totalFeesUSD",           // claimedUSD.all + unclaimedUSD
+      "tvlUSD",
+      "apr": { "24h", "7d", "30d", "estimated" },  // % or null
+      "positionsCount", "poolsCount", "collectsCount",
+      "lastCollectTime",
+      "topPools": [
+        {
+          "id", "fee",
+          "tokenA": { "id", "symbol", "contract" },
+          "tokenB": { "id", "symbol", "contract" },
+          "claimedUSD": { "24h", "7d", "30d", "all" },
+          "unclaimedUSD", "estimatedFees24hUSD", "tvlUSD", "positionsCount"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### GET `/analytics/lp-leaderboard/:account`
+Single leaderboard entry for an account. `404` if the account is not in the snapshot
+(snapshot keeps the union of top-1000 accounts per each metric).
+
+Response:
+```
+{ "meta": { ... }, "updatedAt", "item": { ...same shape as leaderboard item, "rank" is by all-time earnings } }
+```
+
+## AMM
+
+### GET `/amm/account/:account/positions`
+Positions and incentives for account.
+
+### GET `/amm/positions/:id`
+Single position details.
+
+### GET `/amm/pools/:id/positions`
+Positions for pool.
+
+### GET `/amm/account/:account/history`
+Position history for account (mint/burn/collect), optimized for cursor pagination.
+
+Query:
+- `limit` (default `100`, max `500`)
+- `cursorTime` (ms timestamp)
+- `cursorId` (Mongo ObjectId from previous `pageInfo.nextCursor.cursorId`)
+- `type` or `types` (`mint,burn,collect` or `all`)
+- `search` (one text input: pool id or token `id/symbol/contract`)
+- `withPool=true|false` (or `includePool=true`) to include extended pool info in each item
+- `poolId`
+- `positionId`
+
+Response:
+```
+{
+  "items": [
+    {
+      "positionId",
+      "poolId",
+      "owner",
+      "type",
+      "tokenA",
+      "tokenB",
+      "tokenAUSDPrice",
+      "tokenBUSDPrice",
+      "totalUSDValue",
+      "liquidity",
+      "trxId",
+      "time"
+    }
+  ],
+  "pageInfo": {
+    "hasMore",
+    "nextCursor": { "cursorTime", "cursorId" } | null
+  }
+}
+```
+
+### GET `/amm/positions/:id/history`
+History for a single position.
+
+Query:
+- `limit`
+- `cursorTime`
+- `cursorId`
+- `type` or `types`
+- `poolId`
+- `owner`
+- `withPool=true|false` (or `includePool=true`)
+
+### GET `/amm/pools/:id/history`
+History for a pool.
+
+Query:
+- `limit`
+- `cursorTime`
+- `cursorId`
+- `type` or `types`
+- `positionId`
+- `owner`
+- `withPool=true|false` (or `includePool=true`)
+
+### GET `/amm/pools/:id`
+Pool + incentives + staking summary.
+
+(See `server/services/apiV3Service/amm.ts` for exact response shape.)
+
+## Swap
+
+### GET `/swap/pools/:poolId/liquidity-distribution`
+UI-friendly liquidity distribution for range selector.
+
+Query:
+- `priceMode=quotePerBase|basePerQuote` (default: `quotePerBase`)
+- `bins` (default: `120`, max: `300`)
+
+Response:
+```
+{
+  "poolId": 1129,
+  "chain": "wax",
+  "priceMode": "quotePerBase",
+  "currentPrice": 3.72058,
+  "minPrice": 0.5,
+  "maxPrice": 8.0,
+  "bins": [
+    { "priceLower": 3.50, "priceUpper": 3.55, "liquidity": 12345.67 }
+  ],
+  "meta": {
+    "updatedAt": "2026-02-27T21:00:00.000Z",
+    "binCount": 120
+  }
+}
+```
+
+Notes:
+- `currentPrice > 0` always.
+- Bins are sorted by price, contiguous, and without overlaps.
+- `liquidity >= 0`; `NaN`/`Infinity` are not returned.
+- If no liquidity is available, `bins` is empty while `currentPrice/minPrice/maxPrice` stay valid.
+
+## Launchpad
+
+Base path: `/api/v3/launchpad`
+
+Notes:
+- Launchpad indexes only `token/baseToken` pools for current chain.
+- Example for Proton: only `token/XPR` pools are included.
+
+### GET `/launchpad/new`
+New launchpad tokens list for the last 7 days (sorted by newest first).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/tokens`
+Unified launchpad tokens list for tabs (`trending/organic/all/new/graduated`) with server-side sorting and keyset cursor.
+
+Query:
+- `list=trending|organic|all|new|graduated` (default: `trending`)
+- `token_ids=tokenA,tokenB,...` (optional, comma-separated `token_id` list; when present, filters to these tokens, ignores `list` selection and returns all matches in one page)
+- `sort=score|age|vol24h|liq|mcap` (default: `score`, but for `list=all` default is `liq`)
+- `dir=desc|asc` (default: `desc`)
+- `limit` (default: `100`, max: `200`)
+- `cursor` (opaque keyset cursor from previous response; ignored when `token_ids` is present)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+Selection rules:
+- `trending`: limited universe, top `50` by weekly trend score (focus on growth of traders/trades/liquidity/price).
+- `organic`: limited universe, top `50` by organic momentum score (previous trending logic).
+- `new`: tokens from last `7d` window.
+- `all`: full launchpad index.
+- `graduated`: graduated list.
+- `token_ids`: after explicit `token_id` filtering, `search`, `hide_scam`, `sort`, and `dir` still apply; `next_cursor` is always `null`.
+
+### GET `/launchpad/trending`
+Trending launchpad list (weekly growth score; traders/trades/liquidity/price focused).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/organic`
+Organic launchpad list (previous trending momentum logic).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/graduated`
+Graduated tokens list.
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `search` or `q` (optional substring search by `symbol/name/token_id/contract`)
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/search`
+Search tokens by word.
+
+Query:
+- `q` or `search` (required)
+- `list=trending|organic|new|graduated` (default: `trending`)
+- `limit` (default: `50`, max: `200`)
+- `cursor` (offset pagination; optional)
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/token/:tokenId/summary`
+Live token summary:
+- `price` (quote/base/usd)
+- `liquidity` (base/usd)
+- `volume` and `trades_count` (`5m/1h/24h`)
+- `price_change_pct` (`5m/1h/24h`)
+- `last_trade`
+- `status` (`LAUNCH|OPEN|GRADUATED|UNKNOWN`)
+
+Query:
+- `hide_scam=true|false` (default: `true`)
+
+### GET `/launchpad/token/:tokenId/trades`
+Recent token trades (Redis-backed).
+Each item includes trader fields from swap action: `account` (preferred trader), `sender`, `recipient`.
+
+Query:
+- `limit` (default: `100`, max: `1000`)
+- `cursor` (offset, default: `0`)
+- `hide_scam=true|false` (default: `true`)
+
+Response:
+- `items`: current page
+- `next_cursor`: next offset or `null`
+- `total`: available rows in Redis list (max `1000`)
+
+### GET `/launchpad/token/:tokenId/holders`
+Optional holders endpoint (top-holders source may be unavailable; returns stats + empty `items` in that case).
+
+Query:
+- `limit` (default: `50`, max: `200`)
+- `hide_scam=true|false` (default: `true`)
+
+---
+
+## Shared response shapes
+
+### TokenCard
+```
+{
+  "id", "symbol", "contract", "name", "decimals", "logo",
+  "price": { "usd" },
+  "liquidity": {
+    "tvl",
+    "locked": { "amount", "usd", "positions", "share", "nextUnlockAt", "lastUnlockAt" }
+  },
+  "volume": { "swap", "spot", "total" },
+  "pairs": { "pools", "spots" },
+  "scores": { "total" }
+}
+```
+
+`liquidity.locked` covers AMM positions locked in the swap contract (`lockpos` action): a
+locked position can't be burned, so its tokens stay in the pool until it unlocks.
+- `amount` — token units locked across every locked position holding this token
+- `usd` — `amount` valued at the same price used for `liquidity.tvl`
+- `positions` — number of locked positions
+- `share` — percent of `liquidity.tvl` that is locked
+- `nextUnlockAt` / `lastUnlockAt` — unix seconds of the earliest / latest unlock (`null` when nothing is locked)
+
+Expired locks are not counted: contract rows stay until the position is closed, so
+lock status is evaluated against current time on every read (same rule as a position's
+`isLocked`). Values refresh at most once a minute.
+
+### PoolCard
+```
+{
+  "id", "fee",
+  "tokenA", "tokenB",
+  "price": { "aPerB", "bPerA", "change24h" },
+  "liquidity": { "tvl" },
+  "volume": { "usd" },
+  "tx": { "swaps" },
+  "incentives": [IncentiveSummary] // only when include=incentives
+}
+```
+
+### SpotPairCard
+```
+{
+  "id",
+  "base", "quote",
+  "price": { "last", "change24h" },
+  "spread",
+  "volume": { "usd" },
+  "orders": { "bidDepthUsd", "askDepthUsd" },
+  "tx": { "matches" }
+}
+```
+`orders.*DepthUsd` is computed from top-of-book levels within a bounded price band around current pair price (to avoid far-outlier orders distorting depth).
+
+### FarmCard
+```
+{
+  "id",
+  "poolId",
+  "isFinished",
+  "daysRemain",
+  "periodFinish",
+  "reward",
+  "rewardSymbol",
+  "rewardTokenId",
+  "rewardTokenPrice",
+  "rewardPerDay",
+  "rewardPerDayUSD",
+  "apr",
+  "utilizationPct",
+  "stakedTvlUSD",
+  "poolTvlUSD",
+  "poolVolumeUSD",
+  "pool": PoolCard
+}
+```
+
+### IncentiveSummary
+```
+{
+  "incentiveId",
+  "poolId",
+  "reward",
+  "rewardPerDay",
+  "rewardPerDayUSD",
+  "periodFinish",
+  "isFinished",
+  "daysRemain",
+  "utilizationPct",
+  "rewardTokenId",
+  "apr"
+}
+```

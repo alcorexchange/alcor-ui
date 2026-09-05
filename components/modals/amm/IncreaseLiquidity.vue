@@ -13,7 +13,7 @@
     @mouseup.native="dialogMouseup"
 
   )
-    PositionInfo(:noPL="true" v-bind="$props" :composedPercent="composedPercent")
+    PositionInfo(:noPL="true" v-bind="$props")
     .separator.my-2
     .d-flex.justify-content-between.gap-8
       .fs-18.current-price
@@ -36,8 +36,11 @@
 
     .fs-18.disable.mt-2 Increase
 
-    PoolTokenInput(:locked="true" :label="position.pool.tokenA.symbol" :token="position.pool.tokenA" @input="onAmountAInput" v-model="amountA")
-    PoolTokenInput(:locked="true" :label="position.pool.tokenB.symbol" :token="position.pool.tokenB" @input="onAmountBInput" v-model="amountB").mt-2
+    PoolTokenInput(:locked="true" :label="position.pool.tokenA.symbol" :token="position.pool.tokenA"
+      @input="onAmountAInput" v-model="amountA" :disabled="depositADisabled" :disabledMessage="disabledMessage")
+
+    PoolTokenInput(:locked="true" :label="position.pool.tokenB.symbol" :token="position.pool.tokenB"
+      @input="onAmountBInput" v-model="amountB" :disabled="depositBDisabled" :disabledMessage="disabledMessage").mt-2
 
     AlcorButton.claim-fees-button.submit.w-100(big @click="submit").mt-2 Add Liquidity
 
@@ -66,7 +69,7 @@ export default {
     ManageLiquidityMinMaxPrices
   },
 
-  props: ['position', 'tokensInverted', 'priceUpper', 'priceLower', 'composedPercent'],
+  props: ['position', 'tokensInverted', 'priceUpper', 'priceLower'],
 
   data: () => ({
     amountA: null,
@@ -77,18 +80,32 @@ export default {
   computed: {
     ...mapState(['network', 'user']),
     ...mapGetters('amm', ['slippage']),
+
+    depositADisabled() {
+      return this.position.pool.tickCurrent >= this.position.tickUpper
+    },
+
+    depositBDisabled() {
+      return this.position.pool.tickCurrent <= this.position.tickLower
+    },
+
+    disabledMessage() {
+      return this.$t('The market price is outside your specified price range. Single-asset deposit only.')
+    },
   },
 
   methods: {
     async submit() {
       try {
         await this.add()
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+
         this.visible = false
 
         this.amountA = null
         this.amountB = null
 
-        setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 1500)
+        setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 5000)
       } catch (e) {
         this.$notify({ type: 'Error', title: 'Increase Liquidity', message: e.message })
       }

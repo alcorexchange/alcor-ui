@@ -12,7 +12,6 @@
 </template>
 
 <script>
-import JSBI from 'jsbi'
 import { Fraction } from '@alcorexchange/alcor-swap-sdk'
 
 export default {
@@ -26,9 +25,9 @@ export default {
     poolShare() {
       const { positionLiquidity, pool } = this
 
-      if (!positionLiquidity || !pool || positionLiquidity == '' || JSBI.equal(pool.liquidity, JSBI.BigInt('0'))) return '0'
+      if (!positionLiquidity || !pool || positionLiquidity == '' || pool.liquidity == BigInt('0')) return '0'
 
-      return (parseFloat(new Fraction(JSBI.BigInt(positionLiquidity), JSBI.add(JSBI.BigInt(positionLiquidity), JSBI.BigInt(pool.liquidity))).toFixed(6)) * 100).toFixed(2)
+      return (parseFloat(new Fraction(BigInt(positionLiquidity), BigInt(positionLiquidity) + BigInt(pool.liquidity)).toFixed(6)) * 100).toFixed(2)
     },
 
     estimatedFees() {
@@ -42,7 +41,7 @@ export default {
       const volume24 = poolStats.volumeUSD24 || 0
       const poolFee = pool.fee / 10000
 
-      return (volume24 * (poolFee / 100) * (this.poolShare / 100)).toFixed(4)
+      return ((volume24 / 2) * (poolFee / 100) * (this.poolShare / 100)).toFixed(4)
     },
   }
 }

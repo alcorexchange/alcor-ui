@@ -1,5 +1,6 @@
 require('dotenv').config()
 const path = require('path')
+const fs = require('fs')
 
 const config = require('./config')
 const pkg = require('./package')
@@ -19,7 +20,8 @@ module.exports = {
     isDev,
     isSPA,
     NETWORK: process.env.NETWORK,
-    DISABLE_DB: process.env.DISABLE_DB
+    DISABLE_DB: process.env.DISABLE_DB,
+    WAX_SWAP_CONTRACT: process.env.WAX_SWAP_CONTRACT,
   },
 
   version: pkg.version,
@@ -137,6 +139,7 @@ module.exports = {
     '~/plugins/vClickOutside.js',
     '~/plugins/muttedDirective.js',
     '~/plugins/routerSync.js',
+    '~/plugins/analytics.js',
 
     { ssr: false, src: '~/plugins/TVChart.js' },
     { ssr: false, src: '~/plugins/apiInstance.js' },
@@ -147,7 +150,9 @@ module.exports = {
     { ssr: false, src: '~/plugins/vue-apexchart.js' },
     { ssr: false, src: '~/plugins/vue-grid.js' },
     { ssr: false, src: '~/plugins/mo-js.js', mode: 'client' },
-    { ssr: false, src: '~/plugins/intercom.js' }
+    { ssr: false, src: '~/plugins/intercom.js' },
+    { ssr: false, src: '~/plugins/turnstile.client.js' },
+    { ssr: false, src: '~/plugins/posthog.js' },
   ],
 
   /*
@@ -159,10 +164,10 @@ module.exports = {
     '@nuxtjs/sentry',
     'nuxt-highcharts',
     //'vue-github-buttons/nuxt',
-    'nuxt-imagemin',
     'vue-scrollto/nuxt',
     '@nuxtjs/i18n',
-    'cookie-universal-nuxt'
+    'cookie-universal-nuxt',
+    '@nuxt/image'
     //'nuxt-purgecss' // FIXME Fails on docker pro
   ],
   i18n: {
@@ -203,14 +208,17 @@ module.exports = {
    */
   sentry: {
     dsn: 'https://b28cbcd4c0ba438bbb8b6baeebf5fba0@sentry.alcor.exchange/2',
-    disabled: isDev,
+    disabled: true, // TODO DISABLED FOR NOW! (second server host sentry)
     publishRelease: true
   },
 
   buildModules: [
-    ['@nuxtjs/google-analytics', { id: 'UA-155720239-1' }],
     '@nuxtjs/color-mode',
-    '@nuxtjs/device'
+    '@nuxtjs/device',
+  ],
+
+  serverMiddleware: [
+    '~/serverMiddleware/redirect'
   ],
 
   /*
@@ -218,16 +226,29 @@ module.exports = {
    */
   build: {
     standalone: true,
+    transpile: ['@msgpack/msgpack', '@openpanel/web', '@openpanel/sdk'],
 
-    extend(config, ctx) {
-      config.resolve.alias.jsbi = path.resolve(__dirname, 'node_modules', 'jsbi', 'dist', 'jsbi-cjs.js')
+    extend(config, { isDev, isClient }) {
 
       config.node = {
         fs: 'empty'
       }
 
+      if (isClient) {
+        config.devtool = 'source-map'
+      }
+
+      if (!isClient) {
+        config.externals = config.externals || []
+        config.externals.push({
+          '@openpanel/web': 'commonjs @openpanel/web',
+          '@openpanel/sdk': 'commonjs @openpanel/sdk',
+          '@msgpack/msgpack': 'commonjs @msgpack/msgpack',
+        })
+      }
+
       // Run ESLint on save
-      if (ctx.isDev && ctx.isClient) {
+      if (isDev && isClient) {
         config.module.rules.push({
           enforce: 'pre',
           test: /\.(js|vue)$/,
@@ -276,5 +297,15 @@ module.exports = {
       max: 100,
       ttl: 60
     }
-  }
+  },
+
+  // Just https for testing ultra plugin wallet
+  // server: {
+  //   https: {
+  //     key: fs.readFileSync(path.resolve(__dirname, 'localhost+2-key.pem')),
+  //     cert: fs.readFileSync(path.resolve(__dirname, 'localhost+2.pem')),
+  //   },
+  //   host: 'localhost', // Хост
+  //   port: 443, // Порт для HTTPS
+  // },
 }

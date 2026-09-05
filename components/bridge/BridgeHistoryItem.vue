@@ -6,12 +6,12 @@
       BridgeHistoryItemSide(label="From")
       .arrow
         i.el-icon-right
-      BridgeHistoryItemSide(label="To")
+      BridgeHistoryItemSide(label="To" :off="status === 'incomplete'")
   .status-container
-    .status(:style="{color: statusColor}")
-      i(:class="statusIcon")
-      span.status-text.fs-14 Completed
-    .request
+    .status(:style="{ color: renderStatus.color }")
+      i(:class="renderStatus.icon")
+      span.status-text.fs-14 {{ renderStatus.text }}
+    .request(v-if="status === 'incomplete'")
       AlcorButton Submit Request
 </template>
 
@@ -21,16 +21,28 @@ import BridgeHistoryItemSide from './BridgeHistoryItemSide.vue'
 export default {
   components: {
     BridgeHistoryItemSide,
-    AlcorButton
+    AlcorButton,
   },
+  props: ['status'],
   computed: {
-    statusColor() {
-      return 'var(--main-green)'
+    renderStatus() {
+      if (this.status === 'completed') {
+        return {
+          color: 'var(--main-green)',
+          text: 'Completed',
+          icon: 'el-icon-check',
+        }
+      }
+      if (this.status === 'incomplete') {
+        return {
+          color: 'var(--main-red)',
+          text: 'Not Completed',
+          icon: 'el-icon-warning-outline',
+        }
+      }
+      return {}
     },
-    statusIcon() {
-      return 'el-icon-check'
-    },
-  }
+  },
 }
 </script>
 
@@ -78,5 +90,4 @@ export default {
     color: var(--main-green);
   }
 }
-
 </style>

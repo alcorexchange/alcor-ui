@@ -1,4 +1,4 @@
-import { Bar, Match } from '../../models'
+import { SwapBar, Bar, Match } from '../../models'
 
 export const resolutions = {
   1: 1 * 60,
@@ -12,95 +12,151 @@ export const resolutions = {
   '1M': 60 * 60 * 24 * 30
 }
 
-export async function markeBars(match) {
-  const dbOperations = []
-
-  Object.keys(resolutions).map(timeframe => {
-    dbOperations.push(markeBar(timeframe, match))
-  })
-
-  await Promise.all(dbOperations)
+export function normalizeResolution(resolution) {
+  if (!resolution) return resolution
+  const value = String(resolution).toUpperCase()
+  if (value === 'D') return '1D'
+  if (value === 'W') return '1W'
+  if (value === 'M') return '1M'
+  return String(resolution)
 }
 
-export async function markeBar(timeframe, match) {
-  const last_bar = await Bar.findOne({ chain: match.chain, market: match.market, timeframe }, {}, { sort: { time: -1 } })
+export function getBarTimes(matchTime, resolutionInSeconds) {
+  const resolutionMilliseconds = resolutionInSeconds * 1000 // Преобразование секунд в миллисекунды
+  const matchTimeMilliseconds = matchTime.getTime() // Получаем время сделки в миллисекундах
+  const barStartTime = Math.floor(matchTimeMilliseconds / resolutionMilliseconds) * resolutionMilliseconds
+  const nextBarStartTime = barStartTime + resolutionMilliseconds // Добавляем один интервал к началу текущего бара
 
-  if (!last_bar) {
-    //console.log('create first bar for market:', match.market, 'for timeframe:', timeframe)
+  return {
+    currentBarStart: new Date(barStartTime), // Возвращаем объект Date для текущего бара
+    nextBarStart: new Date(nextBarStartTime), // Возвращаем объект Date для следующего бара
+  }
+}
+
+export async function makeSpotBars(match) {
+  const timeframes = Object.keys(resolutions)
+  const promises = timeframes.map((timeframe) => makeSpotBar(timeframe, match))
+
+  await Promise.all(promises)
+}
+
+export async function makeSpotBar(timeframe, match) {
+  const frame = resolutions[timeframe]
+  const { currentBarStart, nextBarStart } = getBarTimes(match.time, frame)
+
+  const bar = await Bar.findOne({
+    chain: match.chain,
+    market: match.market,
+    timeframe,
+    time: {
+      $gte: currentBarStart,
+      $lt: nextBarStart
+    }
+  })
+
+  if (!bar) {
     await Bar.create({
       timeframe,
       chain: match.chain,
       market: match.market,
-      time: match.time,
+      time: currentBarStart,
       open: match.unit_price,
       high: match.unit_price,
       low: match.unit_price,
       close: match.unit_price,
       volume: match.type == 'buymatch' ? match.bid : match.ask
     })
-
-    return
-  }
-
-  const resolution = resolutions[timeframe]
-
-  const last_bar_end_time = last_bar.time.getTime() + resolution * 1000
-
-  if (match.time.getTime() < last_bar_end_time) {
-    // Match in the same timeframe as the last bar
-    if (last_bar.high < match.unit_price) {
-      last_bar.high = match.unit_price
-    } else if (last_bar.low > match.unit_price) {
-      last_bar.low = match.unit_price
-    }
-    last_bar.close = match.unit_price
-    last_bar.volume += match.type == 'buymatch' ? match.bid : match.ask
-    await last_bar.save()
   } else {
-    // Create empty bars for the timeframe(s) without trades
-    const emptyBars = []
-    let emptyTime = last_bar_end_time
-    while (emptyTime < match.time.getTime()) {
-      emptyBars.push({
-        timeframe,
-        chain: match.chain,
-        market: match.market,
-        time: new Date(emptyTime),
-        open: last_bar.close,
-        high: last_bar.close,
-        low: last_bar.close,
-        close: last_bar.close,
-        volume: 0
-      })
-      emptyTime += resolution * 1000
+    if (bar.high < match.unit_price) {
+      bar.high = match.unit_price
+    } else if (bar.low > match.unit_price) {
+      bar.low = match.unit_price
     }
-    if (emptyBars) {
-      await Bar.insertMany(emptyBars)
+
+    bar.close = match.unit_price
+    bar.volume += match.type == 'buymatch' ? match.bid : match.ask
+
+    await bar.save()
+  }
+}
+
+export async function makeSwapBars(swap) {
+  const timeframes = Object.keys(resolutions)
+  const promises = timeframes.map((timeframe) => makeSwapBar(timeframe, swap))
+
+  await Promise.all(promises)
+}
+
+export async function makeSwapBar(timeframe, swap) {
+  const frame = resolutions[timeframe]
+  const { currentBarStart, nextBarStart } = getBarTimes(swap.time, frame)
+
+  const bar = await SwapBar.findOne({
+    chain: swap.chain,
+    pool: swap.pool,
+    timeframe,
+    time: {
+      $gte: currentBarStart,
+      $lt: nextBarStart
     }
-      
-    // Create a new bar for the new timeframe
-    await Bar.create({
+  })
+
+  if (!bar) {
+    await SwapBar.create({
       timeframe,
-      chain: match.chain,
-      market: match.market,
-      time: new Date(last_bar_end_time),
-      open: last_bar.close,
-      high: match.unit_price,
-      low: match.unit_price,
-      close: match.unit_price,
-      volume: match.type == 'buymatch' ? match.bid : match.ask
+      chain: swap.chain,
+      pool: swap.pool,
+      time: currentBarStart,
+      open: swap.sqrtPriceX64,
+      high: swap.sqrtPriceX64,
+      low: swap.sqrtPriceX64,
+      close: swap.sqrtPriceX64,
+
+      volumeA: Math.abs(swap.tokenA),
+      volumeB: Math.abs(swap.tokenB),
+      volumeUSD: swap.totalUSDVolume,
     })
-    
-    last_bar.close = match.unit_price
-    await last_bar.save()    
+  } else {
+    if (BigInt(bar.high) < BigInt(swap.sqrtPriceX64)) {
+      bar.high = swap.sqrtPriceX64
+    } else if (BigInt(bar.low) > BigInt(swap.sqrtPriceX64)) {
+      bar.low = swap.sqrtPriceX64
+    }
+
+    bar.close = swap.sqrtPriceX64
+
+    bar.volumeA += Math.abs(swap.tokenA)
+    bar.volumeB += Math.abs(swap.tokenB)
+    bar.volumeUSD += swap.totalUSDVolume
+    await bar.save()
   }
 }
 
 export async function getVolumeFrom(date, market, chain) {
   const day_volume = await Match.aggregate([
-    { $match: { chain, market, time: { $gte: new Date(date) } } },
-    { $project: { market: 1, value: { $cond: { if: { $eq: ['$type', 'buymatch'] }, then: '$bid', else: '$ask' } } } },
-    { $group: { _id: '$market', volume: { $sum: '$value' } } }
+    {
+      $match: {
+        chain,
+        market,
+        time: { $gte: new Date(date) },
+      },
+    },
+    {
+      $group: {
+        _id: '$market',
+        volume: {
+          $sum: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$type', 'buymatch'] }, then: '$bid' },
+                { case: { $eq: ['$type', 'sellmatch'] }, then: '$ask' },
+              ],
+              default: 0,
+            },
+          },
+        },
+      },
+    },
   ])
 
   return day_volume.length == 1 ? day_volume[0].volume : 0

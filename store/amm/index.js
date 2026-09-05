@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import axios from 'axios'
 
-import { Percent, Position } from '@alcorexchange/alcor-swap-sdk'
+import { Percent, Token } from '@alcorexchange/alcor-swap-sdk'
 
+import { parseExtendedAssetPlain } from '~/utils'
 import { fetchAllRows } from '~/utils/eosjs'
-import { constructPoolInstance } from '~/utils/amm'
+import { constructPosition, constructPoolInstance } from '~/utils/amm'
 
-const DEFAULT_SLIPPAGE = 0.3
+const DEFAULT_SLIPPAGE = 10
 
 export const state = () => ({
   pools: [],
@@ -19,27 +20,34 @@ export const state = () => ({
   // Api
   poolsStats: [],
   history: [],
+  allTokens: [],
 
   // TODO move to module
   selectedTokenA: null,
   selectedTokenB: null,
   slippage: DEFAULT_SLIPPAGE,
   maxHops: 2,
+  recalculateOnPriceChange: true,
 
+  positions_loading_status: 'loading',
   last_pool_subscribed: null
 })
 
 export const mutations = {
-  setPools: (state, pools) => state.pools = pools,
+  setPools: (state, pools) => (state.pools = pools),
 
-  setPositions: (state, positions) => state.positions = positions,
-  setPlainPositions: (state, positions) => state.plainPositions = positions,
-  setSlippage: (state, slippage) => state.slippage = slippage,
-  setMaxHops: (state, maxHops) => state.maxHops = maxHops,
-  setLastPoolSubscribed: (state, poolId) => state.last_pool_subscribed = poolId,
+  setAllTokens: (state, tokens) => (state.allTokens = tokens),
+  setPositions: (state, positions) => (state.positions = positions),
+  setPlainPositions: (state, positions) => (state.plainPositions = positions),
+  setSlippage: (state, slippage) => (state.slippage = slippage),
+  setMaxHops: (state, maxHops) => (state.maxHops = maxHops),
+  setRecalculateOnPriceChange: (state, recalculateOnPriceChange) =>
+    (state.recalculateOnPriceChange = recalculateOnPriceChange),
+  setLastPoolSubscribed: (state, poolId) => (state.last_pool_subscribed = poolId),
+  setLastPositionsLoadingStatus: (state, status) => (state.positions_loading_status = status),
 
-  setPoolsStats: (state, stats) => state.poolsStats = stats,
-  setHistory: (state, data) => state.history = data,
+  setPoolsStats: (state, stats) => (state.poolsStats = stats),
+  setHistory: (state, data) => (state.history = data),
 
   updatePool: (state, pool) => {
     const index = state.pools.findIndex((c) => c.id === pool.id)
@@ -51,10 +59,21 @@ export const mutations = {
     }
   },
 
+  updatePools: (state, pools) => {
+    const poolMap = new Map(state.pools.map((pool) => [pool.id, pool]))
+
+    pools.forEach((pool) => {
+      poolMap.set(pool.id, pool)
+    })
+
+    // Перезаписываем весь массив пулов
+    state.pools = Array.from(poolMap.values())
+  },
+
   setTicks: (state, { poolId, ticks }) => {
     ticks.sort((a, b) => a.id - b.id)
     Vue.set(state.ticks, poolId, ticks)
-  }
+  },
 }
 
 export const actions = {
@@ -68,25 +87,38 @@ export const actions = {
     dispatch('fetchPools')
     dispatch('fetchPoolsStats')
 
-    this.$socket.on('account:update-positions', positions => {
+    this.$socket.on('account:update-positions', (positions) => {
       console.log('account:update-positions!!!')
       // TODO Handle positions id's
       dispatch('fetchPositions')
       dispatch('fetchPositionsHistory')
     })
 
-    // We do not need ticks on UI anymore
-    // this.$socket.on('swap:ticks:update', ({ poolId, ticks }) => {
-    //   ticks.forEach(tick => {
-    //     dispatch('updateTickOfPool', { poolId, tick })
+    let poolUpdateQueue = []
+    let updateTimeout = null
+    this.$socket.on('swap:pool:update', (data) => {
+      // Накопление данных
+      poolUpdateQueue.push(...data)
+
+      // Устанавливаем таймер для выполнения батчевого обновления
+      if (!updateTimeout) {
+        updateTimeout = setTimeout(() => {
+          // Выполняем обновление всех накопленных пулов разом
+          commit('updatePools', poolUpdateQueue)
+
+          // Сбрасываем очередь и таймер
+          poolUpdateQueue = []
+          updateTimeout = null
+        }, 2500) // Обновляем раз в 2 секунды
+      }
+    })
+
+    // this.$socket.on('swap:pool:update', (data) => {
+    //   data.forEach((pool) => {
+    //     console.log('update pool notification')
+    //     commit('updatePool', pool)
     //   })
     // })
-
-    this.$socket.on('swap:pool:update', data => {
-      data.forEach(pool => {
-        commit('updatePool', pool)
-      })
-    })
 
     dispatch('subscribeForAllSwapEvents')
     this.$socket.io.on('reconnect', () => {
@@ -110,16 +142,28 @@ export const actions = {
     dispatch('fetchPositionsHistory')
   },
 
-  async fetchPoolsStats({ state, commit }) {
+  async fetchPoolsStats({ dispatch, state, commit }) {
     const { data: pools } = await this.$axios.get('/v2/swap/pools')
     commit('setPoolsStats', pools)
+
+    setTimeout(() => dispatch('farms/setFarmPoolsWithAPR', {}, { root: true }), 1)
   },
 
   async fetchPositions({ state, commit, rootState, dispatch }) {
     const owner = rootState.user?.name
 
-    const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
-    commit('setPositions', positions)
+    commit('setLastPositionsLoadingStatus', 'loading')
+    try {
+      const { data: positions } = await this.$axios.get('/v2/account/' + owner + '/positions')
+
+      commit('setLastPositionsLoadingStatus', 'loaded')
+      commit('setPositions', positions)
+      dispatch('farms/loadUserStakes', {}, { root: true })
+      setTimeout(() => dispatch('farms/setFarmPoolsWithAPR', {}, { root: true }), 1)
+    } catch (e) {
+      this._vm.$notify({ type: 'error', title: 'Positions loading ERROR', message: e })
+      commit('setLastPositionsLoadingStatus', 'failed')
+    }
   },
 
   async fetchPositionsHistory({ state, commit, rootState, dispatch }, { page = 1 } = {}) {
@@ -131,43 +175,22 @@ export const actions = {
       this.$axios.get('/v2/account/' + owner + '/positions-history', {
         params: {
           skip,
-          limit: ITEMS_PER_PAGE
-        }
+          limit: ITEMS_PER_PAGE,
+        },
       }),
       this.$axios.get('/v2/account/' + owner + '/swap-history', {
         params: {
           skip,
-          limit: ITEMS_PER_PAGE
-        }
+          limit: ITEMS_PER_PAGE,
+        },
       }),
     ])
-    const merged = [...position.data, ...swap.data.map(item => ({ ...item, type: 'swap' }))]
+    const merged = [...position.data, ...swap.data.map((item) => ({ ...item, type: 'swap' }))]
     commit('setHistory', page == 1 ? merged : [...merged, ...state.history])
 
     // To check on LoadMore
     return merged
   },
-
-  // FIXME We do not user ticks on UI side
-  // updateTickOfPool({ state, commit }, { poolId, tick }) {
-  //   const ticks = cloneDeep(state.ticks[poolId] ?? [])
-
-  //   const old = ticks.findIndex(old_tick => {
-  //     return old_tick.id == tick.id
-  //   })
-
-  //   if (old != -1) {
-  //     if (tick.liquidityGross == 0) {
-  //       ticks.splice(old, 1)
-  //     } else {
-  //       ticks[old] = tick
-  //     }
-  //   } else if (tick.liquidityGross !== 0) {
-  //     ticks.push(tick)
-  //   }
-
-  //   commit('setTicks', { poolId, ticks })
-  // },
 
   async fetchTicksOfPool({ commit, rootState }, poolId) {
     if (isNaN(poolId)) return
@@ -178,35 +201,6 @@ export const actions = {
     commit('setTicks', { poolId, ticks })
   },
 
-  // async poolUpdate({ state, commit, rootState, dispatch }, poolId) {
-  //   if (isNaN(poolId)) return
-  //   console.log('pool update triggered')
-
-  //   const { network } = rootState
-
-  //   // TODO Send pool with push
-  //   const [pool] = await fetchAllRows(this.$rpc, {
-  //     code: network.amm.contract,
-  //     scope: network.amm.contract,
-  //     table: 'pools',
-  //     limit: 1,
-  //     lower_bound: poolId,
-  //     upper_bound: poolId
-  //   })
-
-  //   if (!pool) return console.error('Pool not found!', poolId)
-
-  //   // FIXME Here pools are broken JSBI i guess
-  //   const old_pools = cloneDeep(state.pools)
-  //   const old_pool = old_pools.findIndex(o => o.id == pool.id)
-
-  //   if (old_pool != -1) {
-  //     old_pools[old_pool] = pool
-  //   } else { old_pools.push(pool) }
-
-  //   commit('setPools', old_pools)
-  // },
-
   async fetchPools({ state, commit, rootState, dispatch }) {
     //console.log('fetchPools')
     // TODO Redo with api (if it will work safely)
@@ -214,47 +208,152 @@ export const actions = {
 
     const { network } = rootState
 
-    const rows = await fetchAllRows(this.$rpc, { code: network.amm.contract, scope: network.amm.contract, table: 'pools' })
+    const rows = await fetchAllRows(this.$rpc, {
+      code: network.amm.contract,
+      scope: network.amm.contract,
+      table: 'pools',
+    })
 
-    commit('setPools', rows.filter(p => !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
-      !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)))
+    commit(
+      'setPools',
+      rows
+      // rows.filter(
+      //   (p) =>
+      //     !rootState.network.SCAM_CONTRACTS.includes(p.tokenA.contract) &&
+      //     !rootState.network.SCAM_CONTRACTS.includes(p.tokenB.contract)
+      // )
+    )
+
+    dispatch('setMarketsRelatedPool', {}, { root: true })
+    dispatch('setAllTokens')
+    dispatch('farms/setFarmPoolsWithAPR', {}, { root: true })
+  },
+
+  setAllTokens({ state, commit, rootState }) {
+    const tokens = []
+    const tokenIds = new Set()
+
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    const scamTokens = rootState.network.SCAM_TOKENS
+
+    rootState.amm.pools.forEach((p) => {
+      const tokenA = parseExtendedAssetPlain(p.tokenA)
+      const tokenB = parseExtendedAssetPlain(p.tokenB)
+
+      if (
+        !scamContractsSet.has(tokenA.contract) &&
+        !scamTokens.includes(tokenA.id) &&
+        !tokenIds.has(tokenA.id)
+      ) {
+        tokenIds.add(tokenA.id)
+        tokens.push(tokenA)
+      }
+
+      if (
+        !scamContractsSet.has(tokenB.contract) &&
+        !scamTokens.includes(tokenB.id) &&
+        !tokenIds.has(tokenB.id)
+      ) {
+        tokenIds.add(tokenB.id)
+        tokens.push(tokenB)
+      }
+    })
+
+    commit('setAllTokens', tokens)
   },
 }
 
 export const getters = {
   slippage: ({ slippage }) => new Percent((!isNaN(slippage) ? slippage : DEFAULT_SLIPPAGE) * 100, 10000),
 
+  tokensMap(state) {
+    return new Map(state.allTokens.map((t) => [t.id, new Token(t.contract, t.decimals, t.symbol)]))
+  },
+
+  poolStatsMap(state) {
+    return new Map(state.poolsStats.map((p) => [p.id, p]))
+  },
+
+  poolStatsWithoutScam(state, getters, rootState) {
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    const scam_tokens = rootState.network.SCAM_TOKENS
+
+    return state.poolsStats.filter((pool) => {
+      return (
+        !scamContractsSet.has(pool.tokenA.contract) &&
+        !scamContractsSet.has(pool.tokenB.contract) &&
+        !scam_tokens.includes(pool.tokenA.id) &&
+        !scam_tokens.includes(pool.tokenB.id)
+      )
+    })
+  },
+
   positions(state) {
-    const positions = []
+    const poolMap = new Map(state.pools.map((pool) => [pool.id, pool]))
 
-    for (const position of state.positions) {
-      const pool = state.pools.find(p => p.id == position.pool)
-      if (!pool) continue
+    return state.positions
+      .map((position) => {
+        const pool = poolMap.get(position.pool)
+        return pool ? constructPosition(constructPoolInstance(pool), position) : null
+      })
+      .filter((position) => position !== null)
+  },
 
-      const poolInstance = constructPoolInstance(pool)
+  positionsByPool(state) {
+    const positionsMap = new Map()
+    state.positions.forEach((position) => {
+      const poolId = position.pool
+      if (!positionsMap.has(poolId)) {
+        positionsMap.set(poolId, [])
+      }
+      positionsMap.get(poolId).push(position)
+    })
+    return positionsMap
+  },
 
-      if (!poolInstance) continue
+  poolsPlainWithStatsAndUserData(state, getters, rootState) {
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    const scamTokens = rootState.network.SCAM_TOKENS
+    const poolStatsMap = getters.poolStatsMap
+    const positionsByPool = getters.positionsByPool
 
-      const tempPosition = new Position({
-        ...position,
-        pool: poolInstance,
+    return state.pools
+      .filter((pool) =>
+        !scamContractsSet.has(pool.tokenA.contract) &&
+        !scamContractsSet.has(pool.tokenB.contract) &&
+        !scamTokens.includes(pool.tokenA.id) &&
+        !scamTokens.includes(pool.tokenB.id)
+      )
+      .map((pool) => ({
+        ...pool,
+        poolStats: poolStatsMap.get(pool.id),
+        positions: positionsByPool.get(pool.id) || [], // Берем готовый массив или пустой, если позиций нет
+      }))
+  },
 
-        // Because we have feesA as asset here from backend api
-        feesA: 0,
-        feesB: 0
+  poolsMapWithStatsAndUserData(state, getters, rootState) {
+    const scamContractsSet = new Set(rootState.network.SCAM_CONTRACTS)
+    const poolStatsMap = getters.poolStatsMap
+
+    const poolsMap = new Map()
+
+    state.pools
+      .filter((pool) => {
+        return (
+          !scamContractsSet.has(pool.tokenA.contract) &&
+          !scamContractsSet.has(pool.tokenB.contract) &&
+          !rootState.network.SCAM_TOKENS.includes(pool.tokenA.id) &&
+          !rootState.network.SCAM_TOKENS.includes(pool.tokenB.id)
+        )
+      })
+      .forEach((pool) => {
+        poolsMap.set(pool.id, {
+          ...pool,
+          poolStats: poolStatsMap.get(pool.id),
+          positions: state.positions.filter((p) => p.pool === pool.id),
+        })
       })
 
-      // Add Stats
-      Object.assign(tempPosition, {
-        feesA: position.feesA || '0.0000',
-        feesB: position.feesB || '0.0000',
-        pNl: position.pNl | 0,
-        totalValue: position.totalValue || 0
-      })
-
-      positions.push(tempPosition)
-    }
-
-    return positions
+    return poolsMap
   },
 }

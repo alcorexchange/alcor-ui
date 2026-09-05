@@ -1,22 +1,23 @@
 <template lang="pug">
-.d-flex.gap-8.align-items-center
+.d-flex.gap-4.align-items-center
   .indicator(:class="{ 'in-range': inRange }")
   span {{ inRange ? 'In range': 'Out of range' }}
 </template>
 
 <script>
 export default {
-  props: ['inRange']
+  props: ['inRange'],
 }
 </script>
 
 <style lang="scss" scoped>
-span{
-  font-size: 0.86rem;
+span {
+  font-size: 0.68rem;
+  white-space: nowrap;
 }
 .indicator {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   background: var(--disabled-indicator);
   border-radius: 50%;
 

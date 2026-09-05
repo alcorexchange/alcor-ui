@@ -5,19 +5,30 @@ import express from 'express'
 import consola from 'consola'
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
-import { createClient } from 'redis'
 
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
+import { initRedis, mongoConnect } from '../../utils'
+import { getRedis, getPublisher } from '../redis'
 import { networkResolver } from '../apiService/middleware'
+import { amm as ammV3 } from '../apiV3Service/amm'
+import { analytics as analyticsV3 } from '../apiV3Service/analytics'
+import { swap as swapV3 } from '../apiV3Service/swap'
+import { launchpad as launchpadV3 } from '../apiV3Service/launchpad'
 import { spot } from './spot'
 import { swap } from './swap'
+import { ibc } from './ibc'
 import { tokens } from './tokens'
+import { icons } from './icons'
 import { account } from './account'
-import { swapRouter } from './swapRouter'
+import { swapRouter, initSwapRouterSubscriptions } from './swapRouter'
 import { analytics } from './analytics'
+import { farms } from './farms'
+import { admin } from './admin'
+import { configRouter } from './config'
+import { otc } from './otc'
 
 const app = express()
 
@@ -26,18 +37,20 @@ async function start () {
   //db sync
   if (!process.env.DISABLE_DB) {
     try {
-      const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
-      await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true })
+      await mongoConnect()
       console.log('MongoDB connected!')
     } catch (e) {
       console.log(e)
       throw new Error('MongoDB connect err')
     }
 
-    // REDIS client shared globally
-    const redis = createClient()
-    await redis.connect()
-    app.set('redisClient', redis)
+    await initRedis()
+    // Set for backward compatibility with routes using req.app.get('redisClient')
+    app.set('redisClient', getRedis())
+    app.set('publisher', getPublisher())
+
+    // Initialize swapRouter subscriptions after Redis is ready
+    initSwapRouterSubscriptions()
   }
 
   app.use(networkResolver)
@@ -49,11 +62,20 @@ async function start () {
   // Server routes
   app.use('/api/v2/', spot)
   app.use('/api/v2/', tokens)
+  app.use('/api/v2/icons', icons)
+  app.use('/api/v2/ibc', ibc)
   app.use('/api/v2/analytics', analytics)
   app.use('/api/v2/swap', swap)
   app.use('/api/v2/swapRouter', swapRouter)
   app.use('/api/v2/account/', account)
-
+  app.use('/api/v2/farms/', farms)
+  app.use('/api/v2/admin', admin)
+  app.use('/api/v2/otc', otc)
+  app.use('/api/v2/config', configRouter)
+  app.use('/api/v3/amm', ammV3)
+  app.use('/api/v3/analytics', analyticsV3)
+  app.use('/api/v3/swap', swapV3)
+  app.use('/api/v3/launchpad', launchpadV3)
 
   // Listen the server
   const PORT = process.env.PORT || 8000

@@ -4,12 +4,13 @@ import express from 'express'
 import consola from 'consola'
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
-import { createClient } from 'redis'
 
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 axiosRetry(axios, { retries: 3 })
 
+import { initRedis, mongoConnect } from '../../utils'
+import { getRedis } from '../redis'
 import upload from './upload.js'
 
 import { networkResolver } from './middleware.js'
@@ -25,18 +26,16 @@ async function start () {
   //db sync
   if (!process.env.DISABLE_DB) {
     try {
-      const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
-      await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+      await mongoConnect()
       console.log('MongoDB connected!')
     } catch (e) {
       console.log('MongoDB connect err: ', e)
       process.exit(1)
     }
 
-    // REDIS client shared globally
-    const redis = createClient()
-    await redis.connect()
-    app.set('redisClient', redis)
+    await initRedis()
+    // Set getter for backward compatibility with routes using req.app.get('redisClient')
+    app.set('redisClient', getRedis())
   }
 
   app.use(networkResolver)

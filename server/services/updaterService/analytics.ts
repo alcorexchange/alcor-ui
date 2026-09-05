@@ -1,85 +1,131 @@
-import axios from 'axios'
-
 import { SwapPool, Market, Match, GlobalStats, PositionHistory, Swap } from '../../models'
-import { getOrderbook } from '../orderbookService/start'
-import { getAllTokensWithPrices } from './prices'
+import { getTokens } from '../../utils'
+import { fetchPlatformBalances } from '../chain/balances'
 
-const MIN_SYSTEM_TVL = 100
+const HOUR_MS = 60 * 60 * 1000
+const SPOT_FEE_SCALE = 1000
+const SWAP_FEE_SCALE = 1000000
 
-export async function updateGlobalStats(network, day?) {
-  const now = day || new Date()
-  const dayAgo = new Date(new Date().setDate(now.getDate() - 1))
-  const already_exists = await GlobalStats.findOne({ chain: network.name, time: { $gt: dayAgo } })
+function safeNumber(value: any, fallback = 0) {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : fallback
+}
 
-  const { baseToken } = network
-  const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
+function floorToHour(date: Date) {
+  const d = new Date(date)
+  d.setUTCMinutes(0, 0, 0)
+  return d
+}
+
+function getMarketDisplayQuoteTokenId(market: any) {
+  return market?.base_token?.id
+}
+
+export async function updateGlobalStats(network, day = null) {
+  console.log('fetching global stats for', network.name)
+
+  const now = day ? new Date(day) : new Date()
+  const bucketEnd = floorToHour(now)
+  const bucketStart = new Date(bucketEnd.getTime() - HOUR_MS)
+  const bucketNext = new Date(bucketEnd.getTime() + HOUR_MS)
+
+  // Deduplicate by hourly bucket.
+  const already_exists = await GlobalStats.findOne({
+    chain: network.name,
+    time: { $gte: bucketEnd, $lt: bucketNext }
+  })
 
   if (already_exists) {
-    return console.log('GlobalStats for ', now, 'already exists')
+    return console.log('GlobalStats for bucket', bucketEnd.toISOString(), 'already exists')
   }
 
-  const tokens = await getAllTokensWithPrices(network)
+  const tokens = await getTokens(network.name)
   const markets = await Market.find({ chain: network.name })
   const pools = await SwapPool.find({ chain: network.name })
+  const marketById = new Map<number, any>(markets.map((m) => [Number(m.id), m]))
+  const poolById = new Map<number, any>(pools.map((p) => [Number(p.id), p]))
+
+  // Match volumes are stored in the market base_token units, which is the displayed quote side in spot pairs.
+  const tokenPriceMap = new Map<string, number>(tokens.map(t => [t.id, safeNumber(t?.safe_usd_price)]))
 
   let spotTradingVolume = 0
   let spotFees = 0
-  for (const market of markets) {
-    const price = tokens.find(t => t.id == market.base_token.id)?.usd_price || 0
-    spotTradingVolume += market.volume24 * price
-    spotFees += (market.volume24 * price) * (market.fee / 1000)
+  const spotVolumes = await Match.aggregate([
+    {
+      $match: {
+        chain: network.name,
+        time: { $gte: bucketStart, $lt: bucketEnd },
+        type: { $in: ['buymatch', 'sellmatch'] }
+      }
+    },
+    {
+      $group: {
+        _id: '$market',
+        volumeInDisplayQuote: {
+          $sum: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$type', 'buymatch'] }, then: { $ifNull: ['$bid', 0] } },
+                { case: { $eq: ['$type', 'sellmatch'] }, then: { $ifNull: ['$ask', 0] } }
+              ],
+              default: 0
+            }
+          }
+        }
+      }
+    }
+  ])
+
+  for (const row of spotVolumes) {
+    const market = marketById.get(Number(row._id))
+    if (!market) continue
+
+    const displayQuoteTokenId = getMarketDisplayQuoteTokenId(market)
+    const displayQuotePrice = safeNumber(tokenPriceMap.get(displayQuoteTokenId) ?? 0)
+    const volumeInDisplayQuote = safeNumber(row?.volumeInDisplayQuote)
+    const volumeUsd = volumeInDisplayQuote * displayQuotePrice
+    if (!Number.isFinite(volumeUsd) || volumeUsd <= 0) continue
+
+    const feeRate = safeNumber(market?.fee) / SPOT_FEE_SCALE
+    spotTradingVolume += volumeUsd
+    spotFees += volumeUsd * feeRate
   }
 
-  let swapValueLocked = 0
   let swapTradingVolume = 0
-  for (const pool of pools) {
-    const priceA = tokens.find(t => t.id == pool.tokenA.id)?.usd_price || 0
-    const priceB = tokens.find(t => t.id == pool.tokenB.id)?.usd_price || 0
-
-    swapTradingVolume += pool.volumeUSD24
-
-    const isTokenASystem = pool.tokenA.id == system_token
-    const isTokenBSystem = pool.tokenB.id == system_token
-
-    // Filter out small TVL tokens
-    if (isTokenASystem) {
-      swapValueLocked += pool.tokenA.quantity * priceA
-
-      if (pool.tokenA.quantity > MIN_SYSTEM_TVL) {
-        swapValueLocked += pool.tokenB.quantity * priceB
+  let swapFees = 0
+  const swapVolumes = await Swap.aggregate([
+    {
+      $match: {
+        chain: network.name,
+        time: { $gte: bucketStart, $lt: bucketEnd },
+      },
+    },
+    {
+      $group: {
+        _id: '$pool',
+        volumeUsd: { $sum: { $abs: { $ifNull: ['$totalUSDVolume', 0] } } }
       }
     }
+  ])
 
-    if (isTokenBSystem) {
-      swapValueLocked += pool.tokenB.quantity * priceB
-
-      if (pool.tokenB.quantity > MIN_SYSTEM_TVL) {
-        swapValueLocked += pool.tokenA.quantity * priceA
-      }
-    }
+  for (const row of swapVolumes) {
+    const pool = poolById.get(Number(row._id))
+    if (!pool) continue
+    if (safeNumber(pool?.tvlUSD) < 100) continue
+    const volumeUsd = safeNumber(row?.volumeUsd)
+    if (!Number.isFinite(volumeUsd) || volumeUsd <= 0) continue
+    const feeRate = safeNumber(pool?.fee) / SWAP_FEE_SCALE
+    swapTradingVolume += volumeUsd
+    swapFees += volumeUsd * feeRate
   }
 
-  let spotValueLocked = 0
-  const { data: { balances } } = await axios.get(`${network.lightapi}/api/balances/${network.name}/${network.contract}`)
-
-  for (const balance of balances) {
-    const price = tokens.find(t => t.id == (balance.currency + '-' + balance.contract).toLowerCase())?.usd_price || 0
-
-    const balance_token_id = (balance.currency + '-' + balance.contract).toLowerCase()
-
-    const marketVsSystemToken = markets.find(m => m.base_token.id == system_token && m.quote_token.id == balance_token_id)
-
-    // Filter out low liquidity markets
-    if (marketVsSystemToken) {
-      const orderbook = Array.from((await getOrderbook(network.name, 'buy', marketVsSystemToken.id)).values())
-
-      const marketSystemTvl = orderbook.reduce((a, b) => a + (b[1] / (10 ** baseToken.precision)), 0)
-
-      if (marketSystemTvl > MIN_SYSTEM_TVL) {
-        spotValueLocked += parseFloat(balance.amount) * price
-      }
-    }
+  const { contractTvlMap } = await fetchPlatformBalances(network, tokens)
+  let totalValueLocked = 0
+  for (const tvl of contractTvlMap.values()) {
+    totalValueLocked += tvl
   }
+  const swapValueLocked = contractTvlMap.get(network.amm?.contract) ?? 0
+  const spotValueLocked = contractTvlMap.get(network.contract) ?? 0
 
   const totalLiquidityPools = await SwapPool.countDocuments({ chain: network.name })
   const totalSpotPairs = await Market.countDocuments({ chain: network.name })
@@ -87,46 +133,64 @@ export async function updateGlobalStats(network, day?) {
   let dailyActiveUsers = 0
   let totalTransactions = 0
 
-  if (['eos', 'wax', 'telos'].includes(network.name)) {
-    const { data: { results: { metrics } } } = await axios.get(
-      'https://api.dappradar.com/trader/dapps/3572',
-      { params: { range: '24h', chain: network.name }, headers: { 'X-BLOBR-KEY': process.env.DAPPRADAR_KEY } }
-    )
+  // if (['eos', 'wax', 'telos'].includes(network.name)) {
+  //   console.log('request: ', { 'X-BLOBR-KEY': process.env.DAPPRADAR_KEY })
 
-    dailyActiveUsers = metrics.dailyActiveUsers
-    totalTransactions = metrics.totalTransactions
-  } else {
-    // Manually for proton
-    // TODO HERE IS NO PLACE/CANCEL ORDERS
-    const matchUsersAsker = await Match.distinct('asker', { chain: network.name, time: { $gte: dayAgo } }).lean()
-    const matchUsersBidder = await Match.distinct('bidder', { chain: network.name, time: { $gte: dayAgo } }).lean()
-    const swapUsersSender = await Swap.distinct('recipient', { chain: network.name, time: { $gte: dayAgo } }).lean()
-    const swapUsersReceiver = await Swap.distinct('sender', { chain: network.name, time: { $gte: dayAgo } }).lean()
-    const positionOwners = await PositionHistory.distinct('owner', { chain: network.name, time: { $gte: dayAgo } }).lean()
+  //   const { data: { results: { metrics } } } = await axios.get(
+  //     'https://api.dappradar.com/4tsxo4vuhotaojtl/dapps/3572',
+  //     { params: { range: '24h', chain: network.name }, headers: { 'X-BLOBR-KEY': process.env.DAPPRADAR_KEY } }
+  //   )
 
-    const matchTransactions = await Match.countDocuments({ chain: network.name, time: { $gte: dayAgo } })
-    const swapTransactions = await Swap.countDocuments({ chain: network.name, time: { $gte: dayAgo } })
-    const positionTransactions = await PositionHistory.countDocuments({ chain: network.name, time: { $gte: dayAgo } })
+  //   dailyActiveUsers = metrics.dailyActiveUsers
+  //   totalTransactions = metrics.totalTransactions
+  // } else {
 
-    dailyActiveUsers = (new Set([...matchUsersAsker, ...matchUsersBidder, ...positionOwners, ...swapUsersSender, ...swapUsersReceiver])).size
-    totalTransactions = matchTransactions + swapTransactions + positionTransactions
-  }
+  // TODO HERE IS NO PLACE/CANCEL ORDERS
+  const timeFilter = { chain: network.name, time: { $gte: bucketStart, $lt: bucketEnd } }
+  const [
+    matchUsersAsker,
+    matchUsersBidder,
+    swapUsersSender,
+    swapUsersReceiver,
+    positionOwners,
+    matchTransactions,
+    swapActionTransactions,
+    positionTransactions
+  ] = await Promise.all([
+    Match.distinct('asker', timeFilter).lean(),
+    Match.distinct('bidder', timeFilter).lean(),
+    Swap.distinct('recipient', timeFilter).lean(),
+    Swap.distinct('sender', timeFilter).lean(),
+    PositionHistory.distinct('owner', timeFilter).lean(),
+    Match.countDocuments(timeFilter),
+    Swap.countDocuments(timeFilter),
+    PositionHistory.countDocuments(timeFilter)
+  ])
+
+  dailyActiveUsers = (new Set([...matchUsersAsker, ...matchUsersBidder, ...positionOwners, ...swapUsersSender, ...swapUsersReceiver])).size
+  totalTransactions = matchTransactions + swapActionTransactions + positionTransactions
+
+  const swapTransactions = swapActionTransactions + positionTransactions
+  const spotTransactions = matchTransactions
+  //}
 
   await GlobalStats.create({
     chain: network.name,
-    totalValueLocked: swapValueLocked + spotValueLocked,
+    totalValueLocked,
     swapValueLocked,
     spotValueLocked,
     swapTradingVolume,
     spotTradingVolume,
-    swapFees: 0,
+    swapFees,
     spotFees,
     dailyActiveUsers,
     totalTransactions,
     totalLiquidityPools,
     totalSpotPairs,
-    time: new Date()
+    time: bucketEnd,
+    swapTransactions,
+    spotTransactions
   })
 
-  console.log('Updated Gobal Stats for', network.name)
+  console.log('Updated Gobal Stats for', network.name, 'bucket', bucketEnd.toISOString())
 }

@@ -1,43 +1,53 @@
 <template lang="pug">
+div
+  el-alert(
+    v-if="isPotentialScam"
+    type="error"
+    :closable="false"
+    show-icon
+  ).mt-3.mb-2
+    template(slot="title")
+      span {{ $t('Warning: This order may contain a scam token!') }}
+    | {{ $t('One or more tokens in this order are flagged as potentially fraudulent. Proceed with extreme caution.') }}
 
-el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
-  .clearfix(slot='header')
-    el-page-header(@back="goBack")
-      template(slot="content")
-        span {{ $t('Order') }} {{ order.id }} {{ $t('created by') }}
-        a(:href="monitorAccount(order.maker)" target="_blank")  {{ order.maker }}
-  .text.item(v-if="order.maker")
-    .row.mb-3
-      .col-6.text-center.bordered
-        h2 {{ $t('Sell') }}
+  el-card(v-if="!no_found" v-loading="loading").box-card.mt-3
+    .clearfix(slot='header')
+      el-page-header(@back="goBack")
+        template(slot="content")
+          span {{ $t('Order') }} {{ order.id }} {{ $t('created by') }}
+          a(:href="monitorAccount(order.maker)" target="_blank")  {{ order.maker }}
+    .text.item(v-if="order.maker")
+      .row.mb-3
+        .col-6.text-center.bordered
+          h2 {{ $t('Sell') }}
 
-        hr
+          hr
 
-        TokenImage(:src="$tokenLogo(order.sell.quantity.split(' ')[1], order.sell.contract)" height="50").mr-2.mb-2
+          TokenImage(:src="$tokenLogo(order.sell.quantity.split(' ')[1], order.sell.contract)" height="50").mr-2.mb-2
 
-        .lead {{ order.sell.quantity }}@
-          a(:href="monitorAccount(order.sell.contract)" target="_blank") {{ order.sell.contract }}
-      .col-6.text-center
-        h2 {{ $t('Buy') }}
+          .lead {{ order.sell.quantity }}@
+            a(:href="monitorAccount(order.sell.contract)" target="_blank") {{ order.sell.contract }}
+        .col-6.text-center
+          h2 {{ $t('Buy') }}
 
-        hr
+          hr
 
-        TokenImage(:src="$tokenLogo(order.buy.quantity.split(' ')[1], order.buy.contract)" height="50").mr-2.mb-2
+          TokenImage(:src="$tokenLogo(order.buy.quantity.split(' ')[1], order.buy.contract)" height="50").mr-2.mb-2
 
-        .lead {{ order.buy.quantity }}@
-          a(:href="monitorAccount(order.buy.contract)" target="_blank") {{ order.buy.contract }}
+          .lead {{ order.buy.quantity }}@
+            a(:href="monitorAccount(order.buy.contract)" target="_blank") {{ order.buy.contract }}
 
-    PleaseLoginButton
-      el-button(v-if="user && order.maker == user.name" type="warning" @click="cancelOrder").w-100 Cancel order
-      el-button(v-else type="primary" @click="buy").w-100 Buy
-        |  {{ order.sell.quantity }}@{{ order.sell.contract }}
+      PleaseLoginButton
+        el-button(v-if="user && order.maker == user.name" type="warning" @click="cancelOrder").w-100 Cancel order
+        el-button(v-else type="primary" @click="buy").w-100 Buy
+          |  {{ order.sell.quantity }}@{{ order.sell.contract }}
 
-el-card(v-else).box-card.mt-3
-  .clearfix(slot='header')
-    span Order: {{ id }}
-    el-button(@click="$router.push({ name: 'index' })" style='float: right; padding: 3px 0', type='text') Go to main page
-  .text.item.text-center
-    h1.display-4 {{ $t('Order') }} {{ id }} {{ $t('not found or finished') }}
+  el-card(v-else).box-card.mt-3
+    .clearfix(slot='header')
+      span Order: {{ id }}
+      el-button(@click="$router.push({ name: 'index' })" style='float: right; padding: 3px 0', type='text') Go to main page
+    .text.item.text-center
+      h1.display-4 {{ $t('Order') }} {{ id }} {{ $t('not found or finished') }}
 </template>
 
 <script>
@@ -55,20 +65,11 @@ export default {
     PleaseLoginButton
   },
 
-  async asyncData({ store, error, params, $rpc }) {
+  async asyncData({ store, error, params, $rpc, $axios }) {
     const contract = store.state.network.otc.contract
 
-    // FIXME Server call
     try {
-      const {
-        rows: [order]
-      } = await $rpc.get_table_rows({
-        code: contract,
-        scope: contract,
-        table: 'orders',
-        lower_bound: params.id,
-        limit: 1
-      })
+      const order = await $axios.$get(`/v2/otc/orders/${params.id}`)
 
       if (order && order.id == params.id) {
         return { order, loading: false }
@@ -80,8 +81,29 @@ export default {
         })
       }
     } catch (e) {
-      captureException(e)
-      return error({ message: 'Error fetching order: ' + e, statusCode: 500 })
+      try {
+        const {
+          rows: [order]
+        } = await $rpc.get_table_rows({
+          code: contract,
+          scope: contract,
+          table: 'orders',
+          lower_bound: params.id,
+          limit: 1
+        })
+
+        if (order && order.id == params.id) {
+          return { order, loading: false }
+        } else {
+          return error({
+            message: `Order ${params.id} wa sold, canceled or not created yet`,
+            statusCode: 404
+          })
+        }
+      } catch (rpcError) {
+        captureException(rpcError)
+        return error({ message: 'Error fetching order: ' + rpcError, statusCode: 500 })
+      }
     }
   },
 
@@ -94,7 +116,32 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['user'])
+    ...mapGetters(['user']),
+
+    scamContracts() {
+      return this.$store.state.network.SCAM_CONTRACTS || []
+    },
+
+    scamTokens() {
+      return this.$store.state.network.SCAM_TOKENS || []
+    },
+
+    isPotentialScam() {
+      if (!this.order || !this.order.sell) return false
+
+      const buySymbol = this.order.buy.quantity.split(' ')[1].toLowerCase()
+      const sellSymbol = this.order.sell.quantity.split(' ')[1].toLowerCase()
+
+      const buyId = `${buySymbol}-${this.order.buy.contract}`
+      const sellId = `${sellSymbol}-${this.order.sell.contract}`
+
+      if (this.scamContracts.includes(this.order.buy.contract)) return true
+      if (this.scamContracts.includes(this.order.sell.contract)) return true
+      if (this.scamTokens.includes(buyId)) return true
+      if (this.scamTokens.includes(sellId)) return true
+
+      return false
+    }
   },
 
   methods: {

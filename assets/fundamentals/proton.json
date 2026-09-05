@@ -1,1 +1,230 @@
-{}
+{
+"PUGO@tokencreate": {
+    "name": "Battle of PUG",
+    "website": {
+      "link": "",
+      "name": ""
+    },
+    "tags": [
+      "meme",
+      "nft",
+      "Gamefi",
+      "XPR"
+    ],
+    "socials": [
+      "https://t.me/pugoxrp",
+      "https://x.com/pugoxpr"
+    ],
+    "description": "Enter the crazy battle of PUG ans save them from the terrific IA, only on proton network for XPR community with love"
+  },
+"CTRAVL@tokencreate": {
+    "name": "Travel Deals",
+    "website": {
+      "link": "https://cryptotraveldeals.com/",
+      "name": "Crypto Travel Deals"
+    },
+    "tags": [
+      "Affiliate",
+      "travel",
+      "staking",
+      "XPR"
+    ],
+    "socials": [
+      "https://t.me/Homebloks/377",
+      "https://twitter.com/XPRtravel"
+    ],
+    "description": "Crypto Travel Deals is a global, crypto-only, travel portal built on the XPR Network blockchain. No gas fees, discounts for stakers, and affiliate income!"
+  },
+  "AMARI@amarifdn": {
+    "name": "Amari Network",
+    "website": {
+      "link": "https://amari.fm/",
+      "name": "Amari FM"
+    },
+    "tags": [
+      "media",
+      "community",
+      "staking",
+      "learning"
+    ],
+    "socials": [
+      "https://x.com/amarifmx",
+      "https://t.me/amarifm"
+    ],
+    "description": "Amari Network is a decentralized initiative by Amari Labs focused on empowering businesses, communities, and individuals."
+  },
+  "ARK@arcana": {
+    "name": "Noah's Ark",
+    "website": {
+      "link": "https://proton.alcor.exchange/trade/ark-arcana_xusdc-xtokens",
+      "name": "ARK / USDC"
+    },
+    "tags": [
+      "private",
+      "bot",
+      "liquidity",
+      "biblical"
+    ],
+    "socials": [
+      "https://godsark.org/ark-project/#this-is-a-church-not-a-ARK-project-link"
+    ],
+    "description": "Arcana is a private market maker service designed not for individual use but to serve bots that capitalize on arbitrage opportunities by utilizing liquidity from our extensive pools across all major coins on the XPR network. Our services help traders navigate the vast inflows and outflows of liquidity, creating minor disturbances within our private pools to stabilize the broader market and potentially the entire financial system, thanks to the significant collection of tokens and ARK pools on XPR. The ARK token enables market makers to build liquidity and is not intended to increase in price. NOAH provides rewards to ARK pools, enhancing our ability to monitor liquidity. Like ARK, NOAH is not designed to appreciate in value. DOVE, awarded to reward NOAH pools, also carries no expectation of price increase. In addition to supplying essential liquidity to underserved markets, a spot market offers targeted liquidity for bots to engage in trading. IMPORTANT: As a private service not intended for human users or investors, we advise against holding any of our tokens. The strategic nature of our service to bots requires us to open and maintain precise liquidity levels in open markets, but we do not offer these tokens to the general public. We have no website and are not a publicly disclosed project, the link is one charity we hope to support qith any profits. All profits are hereby perpetually given as a religious offering to the Lyran civilization and/or donated to reconstruct the Ark."
+    },
+  "HALF@halfhalf": {
+    "name": "HALF",
+    "website": {
+      "link": "https://proton.alcor.exchange/trade/half-halfhalf_xusdc-xtokens",
+      "name": "HALF / USDC"
+    },
+    "tags": [
+      "usdc",
+      "farm",
+      "liquidity",
+      "pool",
+      "usdt"
+    ],
+    "socials": [
+      "https://proton.alcor.exchange/trade/half-halfhalf_xusdc-xtokens",
+      "https://proton.alcor.exchange/swap?input=XUSDC-xtokens&output=HALF-halfhalf"
+    ],
+    "description": "🥛 HALF is a refreshingly simple project. HALF brings strong bones to stables, and creme to stakers, splitting the bag 50-50. 🥛 Half (50%) of spot market sales goes to Alcor LP farming rewards as cold refreshing XUSDC. The rest goes towards stabilizing stable coins, the forgotten key to making XPR Network attractive to the wider crypto community. Here's how it works. 🛠 The token contract receives all the sales from the HALF / XUSDC spot market on Alcor. Anyone can call the 'halftime' action on the 'halfhalf' token contract to automatically add 30 days of rewards to the HALF / XUSDC farm on Alcor, sending half (50%) of the spot market proceeds in USDC. The remaining 50% goes towards stabilizing XMD, XUSDT and XUSDC. An account called 2apes puts a +/- 3% spread on the XUSDT / XUSDC spot market and uses liquidity pools to stabilize the XMD / XUSDC, XMD / XUSDT, and XUSDT / XUSDC pairs at +/- 2%. But will team dump?? There are no Team tokens, you can verify that, and we don't need them to get paid because we drink our milkshake via fees for stabilizing the stable coins. Over 99.9% of supply of HALF has been burned. That's a tactic we use to remain visible as one of the highest value projects by market cap. Remaining HALF tokens are listed on the Alcor spot market from $100 to $10,000, 100X the initial price. By staking HALF, you are signaling that you care that your community gets richly rewarded, and you believe in a bright future for XPR Network. ℹ️ Important Information: Half is a novel and noble experiment in tokenomics. All XUSDC moved to the stabilization account is considered a donation, and any proceeds from the stabilization, including the initial donation, may be used for any purpose the creators see fit, including supporting other projects. Shit happens, so HALF presents risk of loss up to purchase amount. We are not soliciting you to buy this token, in this or any communication. We aren't telling you HALF will make you money, or promising any outcome. HALF is a private project, and does not represent alcor.exchange or XPR Network. Make your own decisions, and always DYOR. Enjoy ☕️"
+  },
+  "ANCHOR@arcana": {
+    "name": "ANCHOR",
+    "website": {
+      "link": "https://proton.alcor.exchange/swap?input=XUSDC-xtokens&output=ANCHOR-arcana",
+      "name": "ANCHOR Swap"
+    },
+    "tags": [
+      "private",
+      "bot",
+      "liquidity"
+    ],
+    "socials": [
+      "https://proton.alcor.exchange/trade/anchor-arcana_xmd-xmd.token",
+      "https://proton.alcor.exchange/trade/anchor-arcana_xusdt-xtokens",
+      "https://proton.alcor.exchange/trade/anchor-arcana_xusdc-xtokens"
+
+    ],
+    "description": "ANCHOR provides targeted liquidity focused on the +- 1% and +-6% range for select stable coins on XPR. Low liquidity in these pools is a pain point of XPR Network, eased through our pools. ANCHOR provides information and opportunities presented by value differences of the three main stable coins to arbitrage bots. ANCHOR liquidity results in a cheap source of liquidity for arbitrage bots to swap pools. ANCHOR uses .05% fee pools for ANCHOR with XUSDC, XUSDT, and XMD. ANCHOR is not advertised or offered in public or private. Do not buy ANCHOR, there is no expectation of profit, and any value placed in exchange for ANCHOR is considered a donation. The project is private, with 100% of token ownership to the contract. This stabilization method is untested, and we do not know if it will be stable. Even if it appears to be stable, ANCHOR may be changed or canceled at any time, resulting in up to 100% loss of value for ANCHOR token. ANCHOR was named such in relation to a part of an Ark (boat). ANCHOR is not related to Anchor Wallet, nor to Alcor exchange, XPR Network, or any providers of pooled stable coins. All proceeds are hereby perpetually donated to the Lyran civilization, and / or to rebuild Noah's Ark"
+    },
+    "MEME@m3m3": {
+      "name": "MEME",
+      "website": {
+        "link": "https://t.me/flextokens",
+        "name": "MEME - The First Customizable Reflective Token"
+      },
+      "tags": [
+        "meme",
+        "passive",
+        "rewards",
+        "reflection",
+        "reflective",
+        "alt"
+      ],
+      "socials": [
+        "https://t.me/flextokens",
+        "https://proton.alcor.exchange/swap?input=xpr-eosio.token&output=MEME-m3m3",
+        "https://www.notion.so/aquariusacademy/m3m3-Liftoff-1ccac693574b80539503cf232a9e73b5"
+      ],
+      "description": "More than a meme, m3m3 ($MEME) is the first reflective token on XPR 🥇 and first on any chain to let you choose what token you get reflected to your account. 💱🤑 Pick your poison from the best alts and memes XPR has to offer 🍺🍸 For best results, ape in and hodl. Diamond hands will be reflected 💎🙌 1% of every TX to holders by % held. 1% is burnt. Deflationary AF. 🔥 Simple AF. 😎 But wait, it's more complex. To customize the reward token reflected to your account smash setflextoken on the m3m3 contract, or prefer to enjoy the default auto-compounding $MEME flowing into your account. Choose from most memes and alts on XPR. If ur chosen token is missing as a reward option, verify 100k XPR exists in the 1% MEME/URFAVTOK pool and badger us in t.me/flextokens 💪 Don't be Jerry 👔 Start as a Morty with your m3m3 and advance to Rick status with m3m3 playbooks 🧪 | Legal: No plebs. MEME is a meme coin with no intrinsic value or expectation of financial return. There is no formal team or roadmap, only our community including volunteers who donate effort. MEME is for entertainment purposes only, and is an experiment in tokenomics that may be changed or canceled at any time. 🎉 Any token reward(s) is provided as a gift, not a return on investment, or compensation, and is in no way related to the purchase price, nor is any amount guaranteed at any time or for any time period. Comply with regional laws regarding digital assets. | Part of FLEX on XPR’s fast, free blockchain. 🚀 Keep HODLin or you'll miss your reflections! 🥇 m3m3 Liftoff Playbook: notion.so/aquariusacademy/m3m3-Liftoff-1ccac693574b80539503cf232a9e73b5"
+      },
+      "PEOPLES@xpr.m3m3": {
+        "name": "People's Pupils",
+        "website": {
+          "link": "https://proton.alcor.exchange/swap?input=XPR-eosio.token&output=PEOPLES-xpr.m3m3",
+          "name": "PEOPLES / XPR"
+        },
+        "tags": [
+          "meme",
+          "m3m3",
+          "liquidity",
+          "pool",
+          "entertainment"
+        ],
+        "socials": [
+          "https://proton.alcor.exchange/swap?input=XPR-eosio.token&output=PEOPLES-xpr.m3m3"
+        ],
+        "description": "'Peoples Pupils is a crypto token that I hope will make a lot of people happy.' Created by 8 year old nephew of prominent Crypto dev. For entertainment purposes only."
+      },
+      "WON@w3won": {
+        "name": "WON",
+        "website": {
+          "link": "https://flex.report",
+          "name": "Temple Earth Telegram"
+        },
+        "tags": [
+          "charity",
+          "ecovillage",
+          "love",
+          "peace",
+          "happiness"
+        ],
+        "socials": [
+          "https://t.me/templeearth",
+          "https://templeearth.cc",
+          "https://t.me/flextokens"
+        ],
+        "description": "We WON ⓦ We're already living on a paradise planet, teeming with life, beauty, and happy free beings. WON has a 3% transfer tax, with 0.8% democratically distributed in bi-weeky contributors' club meetings, and 2.2% reflected to holders in the token of an ecovillage or another planet-positive project. WON can change which token you get by default, or you can choose yourself anytime. You can also choose to direct a portion or all reflections to any project or account in perpetuity, or change anytime. WON is based on EASY's revolutionary reflection mechanism, expanding to new horizons. WON is 100% backed in EASY via pools on Alcor, and EASY is 100% backed by USD(c). For spiritual purposes only, not an investment vehicle. No promises of return, no expectations with supported projects, no guarantees operations will remain the same. Collaboration between Flex Tokens and Temple Earth. WON is a token to circulate a winning future for everywon."
+      },
+    "EASY@mon3y": {
+      "name": "EASY",
+      "website": {
+        "link": "https://flex.report",
+        "name": "EASY"
+      },
+      "tags": [
+        "reflection",
+        "reflexive",
+        "defi",
+        "passive",
+        "rewards",
+        "stables"
+      ],
+      "socials": [
+        "https://t.me/flextokens",
+        "https://flex.report",
+        "https://x.com/flextokens"
+      ],
+      "description": "❇️ EASY pays you daily in your favorite crypto, without staking. Backed by stables in locked pools, EASY became the #1 token across all Antelope chains in swap volume its first year. Fathered by Gudasol, EASY is part of a larger plan to uplift humanity by bringing people together. Community meets every 2 weeks. Ask ?s to the revolutionaries of finance in 💬 t.me/flextokens, select your reward token at flex.town, and read the stats + docs on buybacks, fees, and LPs at flex.report. You can keep gambling, or start investing, the EASY way 🍹"
+    },
+    "GRAMS@gold.mon3y": {
+      "name": "GRAMS",
+      "website": {
+        "link": "https://flex.report",
+        "name": "Flex Report: Tokenomics for GRAMS"
+      },
+      "tags": [
+        "GRAMS",
+        "GOLD",
+        "goldfi",
+        "defi"
+      ],
+      "socials": [
+        "https://t.me/flextokens",
+        "https://flex.report",
+        "https://x.com/flextokens"
+      ],
+      "description": "GRAMS is EASY for rich folk, each GRAMS is liquid-backed by 1 gram of real gold via XPAXG pools on Alcor. GRAMS is reflexive (flexibly reflective) you can change which token you get anytime via the gold.mon3y contract. You can also choose inheritance by giving a portion or all reflections to any account in perpetuity, and change anytime. GRAMS is based on EASY's revolutionary reflection mechanism, expanding to new horizons. 1.21 % transfer tax, 1.1% reflected, 0.11% for project. GRAMS is 100% backed in XPAXG via pools on Alcor, and PAXG is 100% backed by gold: paxos.com/pax-gold. For spiritual and entertainment purposes only, experimentally transforming the energy of money, not an investment vehicle. No promises of return, no guarantees operations will remain the same. We are public, non-anon volunteers doing honest work to advance token technology. Meet us + join us at flex.town (t.me/flextokens) to get involved."
+    },
+      "XBOT@nodebot": {
+        "name": "XBOT",
+        "website": {
+          "link": "",
+          "name": ""
+        },
+        "tags": [
+          "DeFi",
+          "Deflationary",
+          "Community",
+          "XPR Network",
+          "Burn"
+        ],
+        "socials": [
+          "",
+          "",
+          ""
+        ],
+        "description": "XBOT is a deflationary community token built on XPR Network 🌐. Every buy and sell on Alcor Exchange automatically burns 1% of the transaction 🔥, permanently reducing the supply over time. With a maximum supply of 1,000,000,000 XBOT and a built-in burn mechanic ⚙️, XBOT becomes scarcer with every trade 📉. Join the community and be part of a token that gets more valuable the more it's traded 🚀."
+      }
+}

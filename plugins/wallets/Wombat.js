@@ -1,4 +1,4 @@
-import { JsonRpc, Api } from 'eosjs'
+import { JsonRpc, Api } from 'enf-eosjs'
 
 import ScatterEOS from '@scatterjs/eosjs2'
 import ScatterJS from '@scatterjs/core'
@@ -58,6 +58,9 @@ export default class Wombat extends WalletBase {
   }
 
   transact(...args) {
+    // Redu login in case we connected multiple wallets
+    this.login()
+
     const network = ScatterJS.Network.fromJson({ ...this.network, blockchain: 'eos' })
     const rpc = new JsonRpc(network.fullhost())
     const eos = ScatterJS.eos(network, Api, { rpc })

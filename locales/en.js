@@ -1,6 +1,6 @@
 export default {
-  META_DESCRIPTION: 'Alcor Exchange is the Swiss knife for decentralized finance! Yield-based Liquidity Pools | Limit Trading | NFT Market and much more!',
-  META_TITLE: 'EOS trustless DEX.',
+  META_DESCRIPTION: 'Alcor Exchange is the Order Book DEX | Yield-based Liquidity Pools | Limit Trading | NFT Market and much more!',
+  META_TITLE: 'The first self-listing Order Book DEX',
   META_NFT_MARKET_TITLE: 'Alcor NFT Market | Trustless NFT market on WAX chain',
   META_NFT_MARKET_DESCRIPTION: 'Atomic, no fee, NFT marketplace.',
   HERO_DESCRIPTION: 'Alcor is a lego of decentralized finance built on multi-chain, and a provider of solutions in one tap.',
@@ -669,7 +669,7 @@ export default {
   'Estimated Fees (24H) / Fees Share:': 'Estimated Fees (24H) / Fees Share:',
   'Token 1': 'Token 1',
   'Token 2': 'Token 2',
-  'Inifinity Range': 'Inifinity Range',
+  'Infinity Range': 'Infinity Range',
   'Your position will appear here.': 'Your position will appear here.',
   Loading: 'Loading',
   'Liquidity data not available.': 'Liquidity data not available.',
@@ -678,5 +678,6 @@ export default {
   'Antelope Account Creator': 'Antelope Account Creator',
   'From Greymass Team': 'From Greymass Team',
   'General Chatting': 'General Chatting',
-  'Select Network': 'Select Network'
+  'Select Network': 'Select Network',
+  Analytics: 'Analytics',
 }

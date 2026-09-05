@@ -20,7 +20,13 @@
         "target": "es6",
         "moduleResolution": "node",
         "esModuleInterop": true,
-        "module": "commonjs"
+        // @wireio/sdk-core ships declarations written against a newer TypeScript
+        // than this project pins, and they fail to parse here. Nothing of ours
+        // is checked by this setting — it only covers .d.ts files.
+        "skipLibCheck": true,
+        "module": "commonjs",
+        "lib": ["DOM"],
+        "sourceMap": true
     },
 
     "include": [

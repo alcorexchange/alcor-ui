@@ -2,7 +2,16 @@ import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 import { write_decimal } from 'eos-common'
 
-import { Bar, Match, Market } from '../../models'
+import { resolutions, normalizeResolution } from '../updaterService/charts'
+import { SwapPool, Bar, Match, Market } from '../../models'
+import { getTokens } from '../../utils'
+import { getScamLists } from './config'
+import { getSwrString } from '../swrCache'
+
+// SWR windows for /tickers: serve a process-local serialized string for
+// FRESH_MS, then serve stale + refresh in background up to STALE_MS.
+const TICKERS_SWR_FRESH_MS = 15 * 1000
+const TICKERS_SWR_STALE_MS = 5 * 60 * 1000
 
 const depthHandler = (req, res, next) => {
   if (req.query.depth && isNaN(parseInt(req.query.depth))) return res.status(403).send('Invalid depth')
@@ -33,14 +42,32 @@ function formatToken(token) {
   }
 }
 
-function formatTicker(m) {
+function getPairKey(a, b) {
+  return a < b ? `${a}|${b}` : `${b}|${a}`
+}
+
+function formatTicker(m, tokenById = new Map(), global_tokens = []) {
   const [base, target] = m.ticker_id.split('_')
 
   m.market_id = m.id
   m.target_currency = target.toLowerCase()
   m.base_currency = base.toLowerCase()
 
+  const target_token = tokenById.get(m.target_currency)
+  const base_token = tokenById.get(m.base_currency)
+
+  m.target_cmc_ucid = target_token?.cmc_id || null
+  m.base_cmc_ucid = base_token?.cmc_id || null
+
   delete m.id
+
+  if (global_tokens.includes(m.target_currency) && global_tokens.includes(m.base_currency)) {
+    m.global_ticker_id = m.base_currency.split('-')[0].toUpperCase() + '-' + m.target_currency.split('-')[0].toUpperCase()
+  } else {
+    m.global_ticker_id = null
+  }
+
+  return getPairKey(m.base_currency, m.target_currency)
 }
 
 spot.get('/pairs', cacheSeconds(60, (req, res) => {
@@ -68,17 +95,92 @@ spot.get('/pairs', cacheSeconds(60, (req, res) => {
   res.json(pairs)
 })
 
-spot.get('/tickers', cacheSeconds(60, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name
-}), async (req, res) => {
+function formatMarket(m, market_pools = [], tokenById = new Map()) {
+  m.target_amm_liquidity = 0
+  m.base_amm_liquidity = 0
+
+  let amm_volume_usd = 0
+
+  market_pools.forEach(p => {
+    if (p.tokenA.id == m.target_currency && p.tokenB.id == m.base_currency) {
+      m.target_amm_liquidity += p.tokenA.quantity
+      m.base_amm_liquidity += p.tokenB.quantity
+
+      m.target_volume += p.volumeA24
+      m.base_volume += p.volumeB24
+    }
+
+    if (p.tokenA.id == m.base_currency && p.tokenB.id == m.target_currency) {
+      m.base_amm_liquidity += p.tokenA.quantity
+      m.target_amm_liquidity += p.tokenB.quantity
+
+      m.base_volume += p.volumeA24
+      m.target_volume += p.volumeB24
+    }
+
+    amm_volume_usd += p.volumeUSD24 || 0
+  })
+
+  // Calculate 24h volume in USD (use target token as it's usually the system token with reliable USD price)
+  const target_token = tokenById.get(m.target_currency)
+  const spot_volume_usd = m.target_volume * (target_token?.usd_price || 0)
+
+  m.volumeUSD24 = spot_volume_usd + amm_volume_usd
+}
+
+// Tickers with merged volumes from pools
+spot.get('/tickers', async (req, res) => {
   const network = req.app.get('network')
+  const hide_scam = req.query.hide_scam === 'true'
 
-  const markets = await Market.find({ chain: network.name })
-    .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
+  const cacheKey = `spot_tickers_swr|${network.name}|${req.originalUrl}`
+  const body = await getSwrString(cacheKey, async () => {
+    const [tokens, pools, rawMarkets] = await Promise.all([
+      getTokens(network.name),
+      SwapPool.find({ chain: network.name })
+        .select('tokenA.id tokenA.quantity tokenB.id tokenB.quantity volumeA24 volumeB24 volumeUSD24')
+        .lean(),
+      Market.find({ chain: network.name })
+        .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek')
+        .lean(),
+    ])
 
-  markets.map(m => formatTicker(m))
+    let markets = rawMarkets
 
-  res.json(markets)
+    // Depth 2/-2%
+    // > baseTokenLiquidity * (Math.sqrt(1 / 1.02) - 1)
+    // > baseTokenLiquidity * (1 - Math.sqrt(1 / 0.98))
+
+    if (hide_scam) {
+      const { scam_contracts, scam_tokens } = await getScamLists(network)
+      markets = markets.filter(m => {
+        const [baseCurrency, targetCurrency] = String(m.ticker_id || '').toLowerCase().split('_')
+        const baseContract = String(baseCurrency || '').split('-')[1]
+        const targetContract = String(targetCurrency || '').split('-')[1]
+        return !scam_contracts.has(baseContract) &&
+               !scam_contracts.has(targetContract) &&
+               !scam_tokens.has(baseCurrency) &&
+               !scam_tokens.has(targetCurrency)
+      })
+    }
+
+    const tokenById = new Map((tokens || []).map(t => [t.id, t]))
+    const poolsByPair = new Map()
+    for (const p of pools) {
+      const key = getPairKey(p.tokenA.id, p.tokenB.id)
+      if (!poolsByPair.has(key)) poolsByPair.set(key, [])
+      poolsByPair.get(key).push(p)
+    }
+
+    markets.forEach(m => {
+      const pairKey = formatTicker(m, tokenById, network.GLOBAL_TOKENS)
+      formatMarket(m, poolsByPair.get(pairKey) || [], tokenById)
+    })
+
+    return markets
+  }, TICKERS_SWR_FRESH_MS, TICKERS_SWR_STALE_MS)
+
+  res.type('application/json').send(body)
 })
 
 spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
@@ -87,10 +189,27 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   const network = req.app.get('network')
 
   const { ticker_id } = req.params
+  const [baseCurrency, targetCurrency] = String(ticker_id).toLowerCase().split('_')
+  const [pools, tokens] = await Promise.all([
+    SwapPool.find({
+      chain: network.name,
+      $or: [
+        { 'tokenA.id': targetCurrency, 'tokenB.id': baseCurrency },
+        { 'tokenA.id': baseCurrency, 'tokenB.id': targetCurrency },
+      ],
+    })
+      .select('tokenA.id tokenA.quantity tokenB.id tokenB.quantity volumeA24 volumeB24 volumeUSD24')
+      .lean(),
+    getTokens(network.name),
+  ])
   const m = await Market.findOne({ ticker_id, chain: network.name })
     .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
 
-  formatTicker(m)
+  if (!m) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
+
+  const tokenById = new Map((tokens || []).map(t => [t.id, t]))
+  formatTicker(m, tokenById, network.GLOBAL_TOKENS)
+  formatMarket(m, pools, tokenById)
 
   res.json(m)
 })
@@ -104,13 +223,21 @@ spot.get('/tickers/:ticker_id/orderbook', tickerHandler, depthHandler, async (re
   const market = await Market.findOne({ ticker_id, chain: network.name })
   if (!market) return res.status(404).send(`Ticker ${ticker_id} not found or closed :(`)
 
-  const bids = (JSON.parse(await redisClient.get(`orderbook_${network.name}_buy_${market.id}`)) || []).slice(0, depth)
-  const asks = (JSON.parse(await redisClient.get(`orderbook_${network.name}_sell_${market.id}`)) || []).slice(0, depth)
+  const _bids = (JSON.parse(await redisClient.get(`orderbook_${network.name}_buy_${market.id}`)) || []).slice(0, depth)
+  const _asks = (JSON.parse(await redisClient.get(`orderbook_${network.name}_sell_${market.id}`)) || []).slice(0, depth)
+
+  const bids = _bids
+    .sort((a, b) => b[0] - a[0])
+    .map(b => [write_decimal(b[0], 8, false), write_decimal(b[1][1], market.base_token.symbol.precision, false)])
+
+  const asks = _asks
+    .sort((a, b) => a[0] - b[0])
+    .map(a => [write_decimal(a[0], 8, false), write_decimal(a[1][1], market.quote_token.symbol.precision, false)])
 
   return res.json({
     ticker_id,
-    bids: bids.map(b => [write_decimal(b[0], 8, false), write_decimal(b[1][1], market.base_token.symbol.precision, false)]),
-    asks: asks.map(a => [write_decimal(a[0], 8, false), write_decimal(a[1][1], market.quote_token.symbol.precision, false)])
+    bids,
+    asks
   })
 })
 
@@ -165,11 +292,10 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
 
   const q = { chain: network.name, market: market.id }
   if (type) q.type = type == 'buy' ? 'buymatch' : 'sellmatch'
-  if (from || to) {
+  if (!isNaN(from) || !isNaN(to)) {
     q.time = {}
 
     if (from) q.time.$gte = new Date(parseInt(from))
-    if (to) q.time.$lte = new Date(parseInt(to))
     if (to) q.time.$lte = new Date(parseInt(to))
   }
 
@@ -197,6 +323,7 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
   res.json(matches)
 })
 
+// время в UTC стартовое надо
 spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
   const { ticker_id } = req.params
   const network = req.app.get('network')
@@ -206,15 +333,22 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
 
   const { from, to, resolution, limit } = req.query
   if (!resolution) return res.status(404).send('Incorrect resolution..')
+  const normalizedResolution = normalizeResolution(resolution)
+  const frame = resolutions[normalizedResolution] * 1000
+  const fromMs = from && !isNaN(from) ? parseInt(from) : null
+  const toMs = to && !isNaN(to) ? parseInt(to) : null
+  const alignedFrom = Number.isFinite(fromMs) ? Math.floor(fromMs / frame) * frame : null
+  const alignedTo = Number.isFinite(toMs) ? Math.floor(toMs / frame) * frame : null
 
-  const where = { chain: network.name, timeframe: resolution.toString(), market: parseInt(market.id) }
-
-  if (from && to) {
-    where.time = {
-      $gte: new Date(parseInt(from)),
-      $lte: new Date(parseInt(to))
-    }
+  const where = {
+    chain: network.name,
+    timeframe: normalizedResolution.toString(),
+    market: parseInt(market.id),
+    time: {},
   }
+
+  if (from && !isNaN(from)) where.time.$gte = new Date(alignedFrom ?? parseInt(from))
+  if (to && !isNaN(to)) where.time.$lte = new Date(alignedTo ?? parseInt(to))
 
   const q = [
     { $match: where },
@@ -226,15 +360,75 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
         high: 1,
         low: 1,
         close: 1,
-        volume: 1
-      }
-    }
+        volume: 1,
+      },
+    },
   ]
 
   if (limit) q.push({ $limit: parseInt(limit) })
 
+  let lastKnownPrice = null
   const charts = await Bar.aggregate(q)
-  charts.map(c => { delete c._id })
 
-  res.json(charts)
+  if (charts.length === 0 && !isNaN(from)) {
+    const lastPriceQuery = await Bar.findOne({
+      chain: network.name,
+      market: parseInt(market.id),
+      timeframe: normalizedResolution.toString(),
+      time: { $lt: new Date(alignedFrom ?? parseInt(from)) },
+    }).sort({ time: -1 })
+
+    lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
+
+    // Если не найдена последняя цена, отправляем пустой ответ
+    if (!lastPriceQuery) return res.json([])
+  } else {
+    lastKnownPrice = charts[0].close
+  }
+
+  // Заполнение пустых свечей между данными
+  const filledCharts = []
+  let expectedTime = alignedFrom ?? (Number.isFinite(fromMs) ? fromMs : null)
+
+  charts.forEach((chart, index) => {
+    chart.open = lastKnownPrice
+    if (expectedTime != null) {
+      while (chart.time > expectedTime) {
+        filledCharts.push({
+          time: expectedTime,
+          open: lastKnownPrice,
+          high: lastKnownPrice,
+          low: lastKnownPrice,
+          close: lastKnownPrice,
+          volume: 0,
+        })
+        expectedTime += parseInt(frame)
+      }
+    }
+    filledCharts.push(chart)
+    lastKnownPrice = chart.close
+    if (expectedTime != null) expectedTime += parseInt(frame)
+  })
+
+  // Добавление пустых свечей после последней полученной свечи до конца периода (до последней закрытой)
+  if (expectedTime != null && Number.isFinite(alignedTo)) {
+    const nowMs = Date.now()
+    const nowAligned = Math.floor(nowMs / frame) * frame
+    const lastComplete = nowAligned - frame
+    const fillTo = Math.min(alignedTo, lastComplete)
+
+    while (expectedTime <= fillTo) {
+      filledCharts.push({
+        time: expectedTime,
+        open: lastKnownPrice,
+        high: lastKnownPrice,
+        low: lastKnownPrice,
+        close: lastKnownPrice,
+        volume: 0,
+      })
+      expectedTime += parseInt(frame)
+    }
+  }
+
+  res.json(filledCharts)
 })

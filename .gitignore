@@ -90,3 +90,6 @@ ecosystem.config.js
 
 .vscode
 .sentryclirc
+
+localhost*.pem
+.playwright-mcp/

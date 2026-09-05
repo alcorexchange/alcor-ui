@@ -10,6 +10,7 @@ module.exports = {
   },
 
   env: {
+    es2020: true,
     browser: true,
   },
 
@@ -48,6 +49,7 @@ module.exports = {
   rules: {
     // allow async-await
     quotes: 1,
+    'unicorn/number-literal-case': 'off',
     'comma-dangle': ['error', 'only-multiline'],
     'no-unused-expressions': 0,
     'generator-star-spacing': 'off',

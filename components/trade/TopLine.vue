@@ -15,7 +15,7 @@ client-only
           .contract-info(:href='monitorAccount(quote_token.contract)', target='_blank')
             a.underline(:href='monitorAccount(quote_token.contract)', target='_blank') {{ quote_token.contract }}
             el-dropdown(placement="bottom")
-              nuxt-link.token-info(:to="{ name: `fundamentals-slug___${$i18n.locale}`, params: { slug: `${quote_token.symbol.name}@${quote_token.contract}` } }") ?
+              nuxt-link.token-info(:to="{ name: `analytics-tokens-id___${$i18n.locale}`, params: { id:`${quote_token.symbol.name.toLowerCase()}-${quote_token.contract}` } }") ?
               el-dropdown-menu(slot='dropdown')
                 .token-info-box
                   .info-box-row
@@ -46,7 +46,6 @@ client-only
 
           //i.el-icon-question.ml-2
           //img(src="~/assets/icons/question.svg").ml-2
-
 
       .d-flex.flex-column
         div(:class="stats.change24 > 0 ? 'green' : 'red'") {{ price }} &nbsp;
@@ -92,7 +91,6 @@ import { mapState, mapGetters } from 'vuex'
 
 import TokenImage from '~/components/elements/TokenImage'
 import ChangePercent from '~/components/trade/ChangePercent'
-import Withdraw from '~/components/withdraw/Withdraw'
 import Markets from '~/components/trade/Markets'
 
 
@@ -100,7 +98,6 @@ export default {
   components: {
     TokenImage,
     ChangePercent,
-    Withdraw,
     Markets
   },
 
@@ -170,10 +167,6 @@ export default {
     fundamental() {
       if (!this.$fundamentals[this.$store.state.network.name]) return null
       return this.$fundamentals[this.$store.state.network.name][this.quote_token.str]
-    },
-
-    hasWithdraw() {
-      return Object.keys(this.network.withdraw).includes(this.quote_token.str)
     },
 
     isFavorite() {

@@ -1,24 +1,335 @@
 require('dotenv').config()
 
-import lodash from 'lodash'
-import mongoose from 'mongoose'
-import { createClient } from 'redis'
+import { isEqual, throttle } from 'lodash'
 
+import { Price, Q128, Pool } from '@alcorexchange/alcor-swap-sdk'
 import { parseAssetPlain, littleEndianToDesimalString } from '../../../utils'
-import { SwapPool, Position, PositionHistory, Swap, SwapChartPoint } from '../../models'
+import { SwapPool, Position, PositionHistory, Swap, SwapChartPoint, SwapBar } from '../../models'
 import { networks } from '../../../config'
 import { fetchAllRows } from '../../../utils/eosjs'
 import { parseToken } from '../../../utils/amm'
 import { updateTokensPrices } from '../updaterService/prices'
-import { getRedisTicks } from './utils'
-import { getSingleEndpointRpc, getFailOverRpc, getTokenPrices } from './../../utils'
-
-const redis = createClient()
-const publisher = redis.duplicate()
-const subscriber = redis.duplicate()
+import { computeSafePoolTvlUSD } from '../updaterService/poolValuation'
+import { makeSwapBars, resolutions, getBarTimes } from '../updaterService/charts'
+import { poolInstanceFromMongoPool, getRedisTicks } from './utils'
+import { getFailOverAlcorOnlyRpc, getToken, getTokens, initRedis, mongoConnect } from './../../utils'
+import { getRedis, getPublisher } from '../redis'
 
 // Used to wait for pool creation and fetching prices
 let poolCreationLock = null
+
+// Batching state per chain
+type SwapBatchItem = {
+  chain: string
+  trx_id: string
+  data: any
+  block_time: string
+  block_num: number
+  global_sequence?: number
+}
+
+type SwapBatch = {
+  block_num: number
+  block_time: string
+  swaps: SwapBatchItem[]
+}
+
+const chainBatches: Map<string, SwapBatch> = new Map()
+
+function getSafeUsdPrice(token: any) {
+  const safe = Number(token?.safe_usd_price)
+  return Number.isFinite(safe) && safe > 0 ? safe : 0
+}
+
+function parseActionTime(value: any): Date | null {
+  const ts = new Date(value)
+  return Number.isFinite(ts.getTime()) ? ts : null
+}
+
+async function markPoolFirstSeen(chain: string, poolId: any, blockTime: any) {
+  const id = Number(poolId)
+  const firstSeenAt = parseActionTime(blockTime)
+  if (!Number.isFinite(id) || !firstSeenAt) return
+
+  try {
+    await SwapPool.updateOne(
+      { chain, id },
+      { $min: { firstSeenAt } }
+    )
+  } catch (e: any) {
+    console.error(`[${chain}] firstSeenAt update failed for pool ${id}:`, e?.message || e)
+  }
+}
+
+// Flush all pending batches (for graceful shutdown)
+export async function flushAllSwapBatches() {
+  for (const [chain, batch] of chainBatches) {
+    if (batch.swaps.length > 0) {
+      console.log(`[FLUSH] Flushing pending batch for ${chain} block ${batch.block_num}`)
+      await flushSwapBatch(chain, batch)
+    }
+  }
+  chainBatches.clear()
+}
+
+// Flush swap batch - process all swaps for a block at once
+async function flushSwapBatch(chain: string, batch: SwapBatch) {
+  if (batch.swaps.length === 0) return
+
+  const t0 = Date.now()
+
+  // 0. Deduplicate by global_sequence (skip existing swaps)
+  const seqs = batch.swaps
+    .map(s => s.global_sequence)
+    .filter(s => typeof s === 'number')
+
+  let newSwaps = batch.swaps
+  if (seqs.length > 0) {
+    const existing = await Swap.find({ chain, global_sequence: { $in: seqs } })
+      .select('global_sequence')
+      .lean()
+    const existingSet = new Set(existing.map(s => s.global_sequence))
+    const seen = new Set<number>()
+
+    newSwaps = batch.swaps.filter((s) => {
+      if (typeof s.global_sequence !== 'number') return true
+      if (existingSet.has(s.global_sequence)) return false
+      if (seen.has(s.global_sequence)) return false
+      seen.add(s.global_sequence)
+      return true
+    })
+  }
+
+  if (newSwaps.length === 0) return
+
+  // 1. Collect unique pool IDs (ensure numbers)
+  const uniquePoolIds = [...new Set(newSwaps.map(s => Number(s.data.poolId)))]
+
+  // 2. Fetch all pools at once
+  const pools = await SwapPool.find({ chain, id: { $in: uniquePoolIds } }).lean()
+  const poolsMap = new Map(pools.map((p: any) => [Number(p.id), p]))
+
+  if (pools.length === 0) {
+    console.log(`[BATCH WARNING] No pools found for IDs: ${uniquePoolIds.slice(0, 5).join(', ')}...`)
+  }
+
+  // 3. Get all tokens (already cached in redis by getTokens)
+  const tokenCache: any[] = await getTokens(chain)
+  const tokensMap = new Map<string, any>(tokenCache.map(t => [t.id, t]))
+
+  // Group swaps by pool for OHLC aggregation
+  const poolSwaps = new Map<number, SwapBatchItem[]>()
+  const poolFirstSeen = new Map<number, Date>()
+  const swapDocs: any[] = []
+
+  for (const s of newSwaps) {
+    const { data, trx_id, block_time, block_num, global_sequence } = s
+    const { poolId, recipient, sender, sqrtPriceX64 } = data
+
+    const tokenAamount = parseFloat(data.tokenA)
+    const tokenBamount = parseFloat(data.tokenB)
+
+    if (tokenAamount === 0 && tokenBamount === 0) continue
+
+    const pool = poolsMap.get(Number(poolId))
+    if (!pool) continue
+
+    const tokenA = tokensMap.get(pool.tokenA.id)
+    const tokenB = tokensMap.get(pool.tokenB.id)
+
+    const tokenAUSDPrice = getSafeUsdPrice(tokenA)
+    const tokenBUSDPrice = getSafeUsdPrice(tokenB)
+
+    const totalUSDVolume = (Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)) / 2
+    const swapTime = new Date(block_time as any)
+
+    if (Number.isNaN(swapTime.getTime())) continue
+
+    const swapDoc = {
+      chain,
+      pool: Number(poolId),
+      recipient,
+      trx_id,
+      global_sequence,
+      sender,
+      sqrtPriceX64: littleEndianToDesimalString(sqrtPriceX64),
+      totalUSDVolume,
+      tokenA: tokenAamount,
+      tokenB: tokenBamount,
+      time: swapTime,
+      block_num,
+    }
+
+    swapDocs.push(swapDoc)
+
+    // Group for OHLC
+    const numPoolId = Number(poolId)
+    if (!poolSwaps.has(numPoolId)) {
+      poolSwaps.set(numPoolId, [])
+    }
+    poolSwaps.get(numPoolId)!.push(s)
+
+    const currentFirstSeen = poolFirstSeen.get(numPoolId)
+    if (!currentFirstSeen || swapTime < currentFirstSeen) {
+      poolFirstSeen.set(numPoolId, swapTime)
+    }
+  }
+
+  const t1 = Date.now()
+
+  // 1. Bulk insert all swap documents
+  if (swapDocs.length > 0) {
+    await Swap.insertMany(swapDocs, { ordered: true })
+    if (poolFirstSeen.size > 0) {
+      const ops = [...poolFirstSeen.entries()].map(([poolId, firstSeenAt]) => ({
+        updateOne: {
+          filter: { chain, id: poolId },
+          update: { $min: { firstSeenAt } }
+        }
+      }))
+      await SwapPool.bulkWrite(ops, { ordered: false })
+    }
+  }
+
+  const t2 = Date.now()
+
+  // 2. Update OHLC bars per pool (aggregated) - parallel
+  await Promise.all([...poolSwaps.entries()].map(([poolId, swaps]) =>
+    updateSwapBarsForPool(chain, poolId, swaps, swapDocs.filter(d => d.pool === poolId))
+  ))
+
+  const t3 = Date.now()
+
+  // 3. Update pool chart with last swap data per pool - parallel
+  await Promise.all([...poolSwaps.entries()].map(([poolId, swaps]) => {
+    const lastSwap = swaps[swaps.length - 1]
+    const { data, block_time } = lastSwap
+
+    return handlePoolChart(
+      chain,
+      poolId,
+      block_time,
+      littleEndianToDesimalString(data.sqrtPriceX64),
+      parseAssetPlain(data.reserveA).amount,
+      parseAssetPlain(data.reserveB).amount,
+      swaps.reduce((sum, s) => sum + Math.abs(parseAssetPlain(s.data.tokenA).amount), 0),
+      swaps.reduce((sum, s) => sum + Math.abs(parseAssetPlain(s.data.tokenB).amount), 0)
+    )
+  }))
+
+  const t4 = Date.now()
+
+  const total = t4 - t0
+  const account = networks[chain].amm.contract
+
+  // Publish events
+  for (const s of newSwaps) {
+    const message = JSON.stringify({
+      chain,
+      name: 'logswap',
+      trx_id: s.trx_id,
+      block_time: s.block_time,
+      block_num: s.block_num,
+      data: s.data
+    })
+    getPublisher().publish(`chainAction:${chain}:${account}:logswap`, message)
+  }
+
+  // Only log if slow (>500ms) or every 10th block for progress
+  if (total > 500 || batch.block_num % 10 === 0) {
+    console.log(`[${chain}:${account}] #${batch.block_num} ${newSwaps.length} swaps ${total}ms`)
+  }
+}
+
+// Update OHLC bars for a pool with aggregated data from batch
+async function updateSwapBarsForPool(chain: string, poolId: number, swaps: SwapBatchItem[], swapDocs: any[]) {
+  if (swapDocs.length === 0) return
+
+  // Calculate aggregated OHLC values
+  const prices = swapDocs.map(d => d.sqrtPriceX64)
+  const openPrice = prices[0]
+  const closePrice = prices[prices.length - 1]
+  const highPrice = prices.reduce((max, p) => BigInt(p) > BigInt(max) ? p : max, prices[0])
+  const lowPrice = prices.reduce((min, p) => BigInt(p) < BigInt(min) ? p : min, prices[0])
+
+  const totalVolumeA = swapDocs.reduce((sum, d) => sum + Math.abs(d.tokenA), 0)
+  const totalVolumeB = swapDocs.reduce((sum, d) => sum + Math.abs(d.tokenB), 0)
+  const totalVolumeUSD = swapDocs.reduce((sum, d) => sum + d.totalUSDVolume, 0)
+
+  const swapTime = new Date(swaps[0].block_time)
+  const timeframes = Object.keys(resolutions)
+
+  // Build bar times for all timeframes
+  const barQueries = timeframes.map(timeframe => {
+    const frame = resolutions[timeframe]
+    const { currentBarStart, nextBarStart } = getBarTimes(swapTime, frame)
+    return { timeframe, currentBarStart, nextBarStart }
+  })
+
+  // Single query to get all existing bars
+  const existingBars = await SwapBar.find({
+    chain,
+    pool: poolId,
+    $or: barQueries.map(q => ({
+      timeframe: q.timeframe,
+      time: { $gte: q.currentBarStart, $lt: q.nextBarStart }
+    }))
+  }).lean()
+
+  const existingBarsMap = new Map(existingBars.map((b: any) => [b.timeframe, b]))
+
+  // Build bulk operations
+  const bulkOps = barQueries.map(({ timeframe, currentBarStart }) => {
+    const existingBar = existingBarsMap.get(timeframe)
+
+    if (!existingBar) {
+      // Insert new bar
+      return {
+        insertOne: {
+          document: {
+            timeframe,
+            chain,
+            pool: poolId,
+            time: currentBarStart,
+            open: openPrice,
+            high: highPrice,
+            low: lowPrice,
+            close: closePrice,
+            volumeA: totalVolumeA,
+            volumeB: totalVolumeB,
+            volumeUSD: totalVolumeUSD,
+          }
+        }
+      }
+    } else {
+      // Update existing bar with BigInt comparison for high/low
+      const newHigh = BigInt(existingBar.high) < BigInt(highPrice) ? highPrice : existingBar.high
+      const newLow = BigInt(existingBar.low) > BigInt(lowPrice) ? lowPrice : existingBar.low
+
+      return {
+        updateOne: {
+          filter: { _id: existingBar._id },
+          update: {
+            $set: {
+              high: newHigh,
+              low: newLow,
+              close: closePrice,
+            },
+            $inc: {
+              volumeA: totalVolumeA,
+              volumeB: totalVolumeB,
+              volumeUSD: totalVolumeUSD,
+            }
+          }
+        }
+      }
+    }
+  })
+
+  if (bulkOps.length > 0) {
+    await SwapBar.bulkWrite(bulkOps, { ordered: false })
+  }
+}
 
 type Tick = {
   id: number,
@@ -29,7 +340,7 @@ type TicksList = Map<number, Tick>
 
 // Getting sqrt price fot given time
 export async function getClosestSqrtPrice(chain, pool, time) {
-  const closestSwap = await Swap.findOne({ chain, pool, time: { $lte: new Date(time) } }).sort({ time: 1 }).limit(1).lean()
+  const closestSwap = await Swap.findOne({ chain, pool, time: { $lte: new Date(time) } }).sort({ time: -1 }).limit(1).lean()
 
   if (closestSwap === null) {
     return (await getPool({ chain, id: pool })).sqrtPriceX64
@@ -39,10 +350,10 @@ export async function getClosestSqrtPrice(chain, pool, time) {
 }
 
 async function setRedisTicks(chain: string, poolId: number, ticks: Array<[number, Tick]>) {
-  // Orderbook style sort
-  //ticks.sort((a, b) => a.id - b.id) они должны в сете сортернуться
-  const mappedTicks = ticks.map(t => [t[0], t[1]])
-  await redis.set(`ticks_${chain}_${poolId}`, JSON.stringify(mappedTicks))
+  // Сортируем при записи, чтобы не сортировать при каждом чтении
+  const sortedTicks = [...ticks].sort((a, b) => a[0] - b[0])
+  const mappedTicks = sortedTicks.map(t => [t[0], t[1]])
+  await getRedis().set(`ticks_${chain}_${poolId}`, JSON.stringify(mappedTicks))
 }
 
 // FIXME redo without request pool
@@ -63,24 +374,25 @@ async function handlePoolChart(
   const poolInstance = await getPool({ chain, id: poolId })
   const { tokenA: { id: tokenA_id }, tokenB: { id: tokenB_id } } = poolInstance
 
-  const tokenAprice = await getTokenPrices(chain, tokenA_id)
-  const tokenBprice = await getTokenPrices(chain, tokenB_id)
+  const tokenCache = await getTokens(chain)
+  const tokenAprice = tokenCache.find(t => t.id === tokenA_id)
+  const tokenBprice = tokenCache.find(t => t.id === tokenB_id)
 
-  const usdReserveA = reserveA * tokenAprice.usd_price
-  const usdReserveB = reserveB * tokenBprice.usd_price
+  const usdReserveA = reserveA * getSafeUsdPrice(tokenAprice)
+  const usdReserveB = reserveB * getSafeUsdPrice(tokenBprice)
 
   const last_point = await SwapChartPoint.findOne({ chain: network.name, pool: poolId }, {}, { sort: { time: -1 } })
 
-  const volumeTokenA = tokenAprice ? volumeA * tokenAprice.usd_price : 0
-  const volumeTokenB = tokenBprice ? volumeB * tokenBprice.usd_price : 0
+  const volumeTokenA = volumeA * getSafeUsdPrice(tokenAprice)
+  const volumeTokenB = volumeB * getSafeUsdPrice(tokenBprice)
 
   const volumeUSD = volumeTokenA + volumeTokenB
 
   // Sptit by one minute
   //const minResolution = 60 * 60 // One hour
   const minResolution = 60 // FIXME
-  if (last_point && Math.floor(last_point.time / 1000 / minResolution) == Math.floor(new Date(block_time).getTime() / 1000 / minResolution)) {
-    last_point.sqrtPriceX64 = littleEndianToDesimalString(sqrtPriceX64)
+  if (last_point && Math.floor(Number(last_point.time) / 1000 / minResolution) == Math.floor(new Date(block_time).getTime() / 1000 / minResolution)) {
+    last_point.price = littleEndianToDesimalString(sqrtPriceX64)
 
     last_point.reserveA = reserveA
     last_point.reserveB = reserveB
@@ -112,95 +424,252 @@ async function getPool(filter) {
 
   if (pool === null) {
     console.warn(`WARNING: Updating(and creating) non existing pool ${filter.id} action`)
-    pool = await updatePool(filter.chain, filter.id)
+    await throttledPoolUpdate(filter.chain, filter.id)
 
     // It might be first position of just created pool
     // Update token prices in that case
     await updateTokensPrices(networks[filter.chain])
+
+    pool = await SwapPool.findOne(filter).lean()
   }
 
-  if (pool === null) {
-    console.error('pool still null')
-    process.exit(1)
-  }
-
+  if (pool === null) throw new Error(`NOT FOUND POOL ${filter.chain}:${filter.id}`)
   return pool
 }
 
 const throttles = {}
-function throttledPoolUpdate(chain: string, poolId: number) {
+export async function throttledPoolUpdate(chain: string, poolId: number) {
   if (`${chain}_${poolId}` in throttles) {
     // Second call in throttle time
     throttles[`${chain}_${poolId}`] = true
     return
   }
 
-  updatePool(chain, poolId)
+  await updatePool(chain, poolId)
 
   throttles[`${chain}_${poolId}`] = false
-  setTimeout(function() {
+  setTimeout(async function() {
     if (throttles[`${chain}_${poolId}`] === true) {
-      updatePool(chain, poolId)
+      await updatePool(chain, poolId)
     }
 
     delete throttles[`${chain}_${poolId}`]
   }, 500)
 }
 
-async function updatePositions(chain: string, poolId: number) {
-  console.log('updatePositions', poolId)
-  const network = networks[chain]
-  const rpc = getFailOverRpc(network)
+// Liquidity locks: single scope table keyed by global position id.
+// Absent row = not locked. Expired rows stay until the position is closed.
+// The locks table is not deployed on every chain yet — treat a failed read
+// as "no locks" so position updates keep working there.
+async function fetchLocks(rpc, contract): Promise<Map<number, number>> {
+  try {
+    const rows = await fetchAllRows(rpc, {
+      code: contract,
+      scope: contract,
+      table: 'locks'
+    })
 
-  const positions = await fetchAllRows(rpc, {
-    code: network.amm.contract,
-    scope: poolId,
-    table: 'positions'
-  })
+    return new Map(rows.map(r => [Number(r.pos_id), Number(r.unlockTime)]))
+  } catch (e) {
+    console.warn(`fetchLocks failed for ${contract}:`, e.message)
+    return new Map()
+  }
+}
+
+function assignLocks(positions: any[], locks: Map<number, number>) {
+  positions.forEach(p => p.lockedUntil = locks.get(Number(p.id)) ?? null)
+}
+
+async function updatePositions(chain: string, poolId: number) {
+  const network = networks[chain]
+  const rpc = getFailOverAlcorOnlyRpc(network)
+  const redis = getRedis()
+
+  // Get old positions for this pool (to update owner indexes)
+  const oldData = await redis.get(`positions_${chain}_${poolId}`)
+  const oldPositions = oldData ? JSON.parse(oldData) : []
+
+  const [positions, locks] = await Promise.all([
+    fetchAllRows(rpc, {
+      code: network.amm.contract,
+      scope: poolId,
+      table: 'positions'
+    }),
+    fetchLocks(rpc, network.amm.contract)
+  ])
 
   // Mapping pool id to position
   positions.forEach(p => p.pool = poolId)
+  assignLocks(positions, locks)
 
-  const current = JSON.parse(await redis.get(`positions_${chain}`) || '[]')
-  const keep = current.filter(p => p.pool != poolId)
+  // Store positions per pool
+  await redis.set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
 
-  const to_set = [...keep, ...positions]
-  await redis.set(`positions_${chain}`, JSON.stringify(to_set))
+  // Update owner indexes
+  const oldOwners = new Set(oldPositions.map(p => p.owner))
+  const newOwners = new Set(positions.map(p => p.owner))
+  const allOwners = new Set([...oldOwners, ...newOwners])
 
+  // Update owner indexes
+  await Promise.all([...allOwners].map(async (owner) => {
+    const ownerKey = `positions_${chain}_owner_${owner}`
+    const ownerData = await redis.get(ownerKey)
+    const ownerPositions = ownerData ? JSON.parse(ownerData) : []
 
-  // Find removed/added positions for push
-  // const changed = []
+    // Remove old positions from this pool, add new ones
+    const filtered = ownerPositions.filter(p => p.pool !== poolId)
+    const newForOwner = positions.filter(p => p.owner === owner)
+    const updated = [...filtered, ...newForOwner]
 
-  // const oldPositions = current.filter(p => p.pool == poolId)
-  // for (const old of oldPositions) {
-  //   if (positions.find(p => p.id == old.id))
-  // }
+    if (updated.length > 0) {
+      await redis.set(ownerKey, JSON.stringify(updated))
+    } else {
+      await redis.del(ownerKey)
+    }
+  }))
 
-
-  //const push = JSON.stringify({ chain, account, positions })
-
-  // Merging
-
-  // JUST BULK EXAMPLE
-  // FIXME Remove it's old, storing positions in mongo
-  // const bulkOps = positions.map(p => {
-  //   const { owner, id } = p
-
-  //   return {
-  //     updateOne: {
-  //         filter: { chain, pool: poolId, owner, id },
-  //         update: p,
-  //         upsert: true,
-  //     }
-  //   }
-  // })
-  //return await Position.bulkWrite(bulkOps)
+  // Update aggregated key (for getRedisPosition and other lookups)
+  const aggregatedData = await redis.get(`positions_${chain}`)
+  const allPositions = aggregatedData ? JSON.parse(aggregatedData) : []
+  const filtered = allPositions.filter(p => p.pool !== poolId)
+  const updated = [...filtered, ...positions]
+  await redis.set(`positions_${chain}`, JSON.stringify(updated))
 }
 
-async function updatePool(chain: string, poolId: number) {
-  console.log('update pool', poolId)
+// Initialize all ticks and positions for a chain
+export async function initializeAllPoolsData(chain: string) {
   const network = networks[chain]
-  const rpc = getFailOverRpc(network)
+  const rpc = getFailOverAlcorOnlyRpc(network)
+  const redis = getRedis()
+
+  const pools = await SwapPool.find({ chain }).select('id').lean()
+  const poolIds = pools.map((p: any) => p.id)
+
+  console.log(`[${chain}] initializing ticks and positions for ${poolIds.length} pools...`)
+
+  const locks = await fetchLocks(rpc, network.amm.contract)
+
+  let totalPositions = 0
+  let totalTicks = 0
+  const batchSize = 5
+
+  for (let i = 0; i < poolIds.length; i += batchSize) {
+    const batch = poolIds.slice(i, i + batchSize)
+
+    await Promise.all(batch.map(async (poolId) => {
+      try {
+        // Update ticks
+        await updateTicks(chain, poolId)
+        const ticksData = await redis.get(`ticks_${chain}_${poolId}`)
+        totalTicks += ticksData ? JSON.parse(ticksData).length : 0
+
+        // Update positions
+        const positions = await fetchAllRows(rpc, {
+          code: network.amm.contract,
+          scope: poolId,
+          table: 'positions'
+        })
+        positions.forEach(p => p.pool = poolId)
+        assignLocks(positions, locks)
+        await redis.set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
+        totalPositions += positions.length
+      } catch (e) {
+        console.error(`[${chain}] failed to init pool ${poolId}:`, e.message)
+      }
+    }))
+
+    console.log(`[${chain}] processed ${Math.min(i + batchSize, poolIds.length)}/${poolIds.length} pools`)
+  }
+
+  console.log(`[${chain}] initialized ${totalTicks} ticks, ${totalPositions} positions`)
+  return { ticks: totalTicks, positions: totalPositions }
+}
+
+// Initialize all positions for a chain (run once on startup or after deploy)
+export async function initializeAllPositions(chain: string) {
+  const network = networks[chain]
+  const rpc = getFailOverAlcorOnlyRpc(network)
+  const redis = getRedis()
+
+  const pools = await SwapPool.find({ chain }).select('id').lean()
+  const poolIds = pools.map((p: any) => p.id)
+
+  console.log(`[${chain}] initializing positions for ${poolIds.length} pools...`)
+
+  const locks = await fetchLocks(rpc, network.amm.contract)
+
+  let totalPositions = 0
+  const batchSize = 10
+
+  for (let i = 0; i < poolIds.length; i += batchSize) {
+    const batch = poolIds.slice(i, i + batchSize)
+
+    await Promise.all(batch.map(async (poolId) => {
+      try {
+        const positions = await fetchAllRows(rpc, {
+          code: network.amm.contract,
+          scope: poolId,
+          table: 'positions'
+        })
+
+        positions.forEach(p => p.pool = poolId)
+        assignLocks(positions, locks)
+        await redis.set(`positions_${chain}_${poolId}`, JSON.stringify(positions))
+        totalPositions += positions.length
+      } catch (e) {
+        console.error(`[${chain}] failed to init positions for pool ${poolId}:`, e.message)
+      }
+    }))
+  }
+
+  console.log(`[${chain}] initialized ${totalPositions} positions`)
+  return totalPositions
+}
+
+// Aggregate all per-pool positions and build owner indexes
+// Called on startup or for periodic sync
+export async function aggregatePositions(chain: string) {
+  const redis = getRedis()
+
+  // Get all pool IDs from MongoDB
+  const pools = await SwapPool.find({ chain }).select('id').lean()
+  const poolIds = pools.map((p: any) => p.id)
+
+  // Fetch positions from all pools in parallel
+  const positionPromises = poolIds.map(async (poolId) => {
+    const data = await redis.get(`positions_${chain}_${poolId}`)
+    return data ? JSON.parse(data) : []
+  })
+
+  const allPositionsArrays = await Promise.all(positionPromises)
+  const allPositions = allPositionsArrays.flat()
+
+  // Build owner indexes
+  const ownerMap = new Map<string, any[]>()
+  for (const pos of allPositions) {
+    if (!ownerMap.has(pos.owner)) {
+      ownerMap.set(pos.owner, [])
+    }
+    ownerMap.get(pos.owner).push(pos)
+  }
+
+  // Save owner indexes and aggregated key (for backward compatibility)
+  await Promise.all([
+    // Owner indexes for fast user lookup
+    ...[...ownerMap.entries()].map(([owner, positions]) =>
+      redis.set(`positions_${chain}_owner_${owner}`, JSON.stringify(positions))
+    ),
+    // Aggregated key for getRedisPosition and other lookups
+    redis.set(`positions_${chain}`, JSON.stringify(allPositions))
+  ])
+
+  console.log(`[${chain}] aggregated ${allPositions.length} positions, ${ownerMap.size} owners`)
+  return allPositions.length
+}
+
+export async function updatePool(chain: string, poolId: number) {
+  const network = networks[chain]
+  const rpc = getFailOverAlcorOnlyRpc(network)
 
   const [pool] = await fetchAllRows(rpc, {
     code: network.amm.contract,
@@ -215,18 +684,58 @@ async function updatePool(chain: string, poolId: number) {
   if (!pool) throw new Error('NOT FOUND POOL FOR UPDATE: ' + poolId)
 
   const push = JSON.stringify({ chain, poolId, update: [pool] })
-  publisher.publish('swap:pool:update', push)
+  getPublisher().publish('swap:pool:update', push)
 
-  updateTicks(chain, poolId)
+  // Note: updatePositions is only called for position-related events (mint/burn/collect)
+  // Not on every pool update to avoid OOM during catch-up
+  await updateTicks(chain, poolId)
+
+  // updateTicks(chain, poolId)
+  // updatePositions(chain, poolId)
 
   const parsedPool = parsePool(pool)
 
+  // Update tvlUSD
+  const tokenA = await getToken(chain, parsedPool.tokenA.id)
+  const tokenB = await getToken(chain, parsedPool.tokenB.id)
+  const tokenMap = new Map<string, any>([
+    [parsedPool.tokenA.id, tokenA],
+    [parsedPool.tokenB.id, tokenB],
+  ])
+  const tvlUSD = computeSafePoolTvlUSD(parsedPool, tokenMap, network)
+
+  const price = new Price(
+    parseToken(pool.tokenA),
+    parseToken(pool.tokenB),
+    Q128,
+    parsedPool.sqrtPriceX64 * parsedPool.sqrtPriceX64
+  )
+
+  const priceA = price.toSignificant()
+  const priceB = price.invert().toSignificant()
+
   // TODO FIX DEPRECATED
-  return await SwapPool.findOneAndUpdate({ chain, id: poolId }, parsedPool, { upsert: true, new: true })
+  const r = await SwapPool.findOneAndUpdate(
+    { chain, id: poolId },
+    { $set: { ...parsedPool, priceA, priceB, tvlUSD, chain } },
+    { upsert: true, new: true }
+  )
+
+  const updatedPool: any = await poolInstanceFromMongoPool(r)
+
+  getPublisher().publish(
+    'swap:pool:instanceUpdated',
+    JSON.stringify({
+      chain,
+      pool: Pool.toJSON(updatedPool)
+    })
+  )
+
+
+  return r
 }
 
 async function updateTicks(chain: string, poolId: number) {
-  console.log('update ticks:', poolId)
   const chainTicks = await getChianTicks(chain, poolId)
   const redisTicks = await getRedisTicks(chain, poolId)
 
@@ -235,7 +744,7 @@ async function updateTicks(chain: string, poolId: number) {
   chainTicks.forEach((tick, id) => {
     const tick_old = redisTicks.get(id)
 
-    if (!lodash.isEqual(tick_old, tick)) {
+    if (!isEqual(tick_old, tick)) {
       update.push(tick)
     }
   })
@@ -252,30 +761,27 @@ async function updateTicks(chain: string, poolId: number) {
   if (update.length == 0) return
 
   const push = JSON.stringify({ chain, poolId, update })
-  publisher.publish('swap:ticks:update', push)
+  getPublisher().publish('swap:ticks:update', push)
 }
 
-async function connectAll() {
-  const uri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/alcor_prod_new`
-  await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
-
-  // Redis
-  if (!redis.isOpen) {
-    await redis.connect()
-    await publisher.connect()
-    await subscriber.connect()
-  }
+export async function connectAll() {
+  await mongoConnect()
+  await initRedis()
 }
 
 async function getChianTicks(chain: string, poolId: number): Promise<TicksList> {
   const network = networks[chain]
-  const rpc = getSingleEndpointRpc(network)
+
+  // ONLY ALCOR NODES
+  const rpc = getFailOverAlcorOnlyRpc(network)
 
   const rows = await fetchAllRows(rpc, {
     code: network.amm.contract,
     scope: poolId,
-    table: 'ticks'
+    table: 'ticks',
   })
+
+  rows.forEach(i => { i.id = parseFloat(i.id) })
 
   return new Map(rows.map(r => [r.id, r]))
 }
@@ -284,18 +790,25 @@ function parsePool(pool: { [key: string]: any }) {
   const tokenA = { ...parseToken(pool.tokenA), quantity: pool.tokenA.quantity.split(' ')[0] }
   const tokenB = { ...parseToken(pool.tokenB), quantity: pool.tokenB.quantity.split(' ')[0] }
 
-  pool.protocolFeeA = parseFloat(pool.protocolFeeA)
-  pool.protocolFeeB = parseFloat(pool.protocolFeeB)
+  const parsed: any = { ...pool }
+  parsed.protocolFeeA = parseFloat(parsed.protocolFeeA)
+  parsed.protocolFeeB = parseFloat(parsed.protocolFeeB)
 
-  const { sqrtPriceX64, tick } = pool.currSlot
-  delete pool.currSlot
+  const { sqrtPriceX64, tick } = parsed.currSlot || {}
+  delete parsed.currSlot
 
-  return { ...pool, tokenA, tokenB, sqrtPriceX64, tick }
+  // Keep firstSeenAt controlled by Mongo events-derived logic (mint/swap/logpool),
+  // do not overwrite it from raw on-chain pool snapshot payload.
+  delete parsed.firstSeenAt
+
+  return { ...parsed, tokenA, tokenB, sqrtPriceX64, tick }
 }
 
-export async function updatePools(chain) {
+export async function updatePools(chain: string, forceAll = false) {
   const network = networks[chain]
-  const rpc = getFailOverRpc(network)
+  const rpc = getFailOverAlcorOnlyRpc(network)
+  const tokenList = await getTokens(chain)
+  const tokenMap = new Map<string, any>((tokenList || []).map((t) => [t.id, t]))
 
   const pools = await fetchAllRows(rpc, {
     code: network.amm.contract,
@@ -303,38 +816,84 @@ export async function updatePools(chain) {
     table: 'pools'
   })
 
-  const to_create = []
   const current_pools = await SwapPool.distinct('id', { chain })
 
-  for (const pool of pools) {
-    if (!current_pools.includes(pool.id)) {
-      to_create.push({ ...parsePool(pool), chain })
-    } else {
-      await updatePool(chain, pool.id)
+  if (forceAll) {
+    // Force update ALL pools in MongoDB
+    console.log(`[${chain}] force updating ${pools.length} pools...`)
+
+    const bulkOps = pools.map(pool => {
+      const parsed_pool = parsePool(pool)
+
+      const price = new Price(
+        parseToken(pool.tokenA),
+        parseToken(pool.tokenB),
+        Q128,
+        parsed_pool.sqrtPriceX64 * parsed_pool.sqrtPriceX64
+      )
+
+      const priceA = price.toSignificant()
+      const priceB = price.invert().toSignificant()
+      const tvlUSD = computeSafePoolTvlUSD(parsed_pool, tokenMap, network)
+
+      return {
+        updateOne: {
+          filter: { chain, id: pool.id },
+          update: { $set: { ...parsed_pool, priceA, priceB, tvlUSD, chain } },
+          upsert: true
+        }
+      }
+    })
+
+    const result = await SwapPool.bulkWrite(bulkOps)
+    console.log(`[${chain}] pools updated: ${result.modifiedCount} modified, ${result.upsertedCount} created`)
+  } else {
+    // Only create new pools
+    const to_create = []
+
+    for (const pool of pools) {
+      if (!current_pools.includes(pool.id)) {
+        const parsed_pool = parsePool(pool)
+
+        const price = new Price(
+          parseToken(pool.tokenA),
+          parseToken(pool.tokenB),
+          Q128,
+          parsed_pool.sqrtPriceX64 * parsed_pool.sqrtPriceX64
+        )
+
+        const priceA = price.toSignificant()
+        const priceB = price.invert().toSignificant()
+        const tvlUSD = computeSafePoolTvlUSD(parsed_pool, tokenMap, network)
+        to_create.push({ ...parsed_pool, priceA, priceB, tvlUSD, chain })
+      }
+    }
+
+    if (to_create.length > 0) {
+      await SwapPool.insertMany(to_create)
+      console.log(`[${chain}] inserted ${to_create.length} new pools`)
+
+      // Update ticks only for new pools
+      for (const p of to_create) {
+        await updatePool(chain, p.id)
+      }
     }
   }
 
-  console.log('updated pools for updatePools')
-  await SwapPool.insertMany(to_create)
+  console.log(`[${chain}] updatePools done`)
 }
 
-export async function initialUpdate(chain: string, poolId?: number) {
+export async function initialUpdate(chain: string, poolId?: number, forceAll = false) {
   console.log('swap initialUpdate started: ', chain)
   await connectAll()
-  await updatePools(chain)
+  await updatePools(chain, forceAll)
 
-  if (poolId) {
-    await updateTicks(chain, poolId)
-    return
-  }
-
-  const markets = await SwapPool.find({ chain })
-
-  for (const { chain, id } of markets) {
-    await updateTicks(chain, id)
-
-    // Chain that we have our own nodes
-    //if (!['wax', 'proton'].includes(chain)) await new Promise(resolve => setTimeout(resolve, 1000)) // Sleep for rate limit
+  if (forceAll) {
+    // Force update all ticks and positions
+    await initializeAllPoolsData(chain)
+    await aggregatePositions(chain)
+  } else if (poolId) {
+    await updatePool(chain, poolId)
   }
 }
 
@@ -349,13 +908,12 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
   if (tokenAamount == 0 && tokenBamount == 0) return undefined
 
   const pool = await getPool({ id: poolId, chain })
-  const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
 
-  const tokenA = tokens.find(t => t.id == pool.tokenA.id)
-  const tokenB = tokens.find(t => t.id == pool.tokenB.id)
+  const tokenA = await getToken(chain, pool.tokenA.id)
+  const tokenB = await getToken(chain, pool.tokenB.id)
 
-  const tokenAUSDPrice = tokenA?.usd_price || 0
-  const tokenBUSDPrice = tokenB?.usd_price || 0
+  const tokenAUSDPrice = getSafeUsdPrice(tokenA)
+  const tokenBUSDPrice = getSafeUsdPrice(tokenB)
 
   const totalUSDValue = ((tokenAamount * tokenAUSDPrice) + (tokenBamount * tokenBUSDPrice)).toFixed(4)
 
@@ -376,7 +934,7 @@ async function saveMintOrBurn({ chain, data, type, trx_id, block_time }) {
   })
 }
 
-export async function handleSwap({ chain, data, trx_id, block_time }) {
+export async function handleSwap({ chain, data, trx_id, block_time, block_num }) {
   const { poolId, recipient, sender, sqrtPriceX64 } = data
 
   const tokenAamount = parseFloat(data.tokenA)
@@ -385,15 +943,14 @@ export async function handleSwap({ chain, data, trx_id, block_time }) {
   if (tokenAamount == 0 && tokenBamount == 0) return undefined
 
   const pool = await getPool({ id: poolId, chain })
-  const tokens = JSON.parse(await redis.get(`${chain}_token_prices`))
 
-  const tokenA = tokens.find(t => t.id == pool.tokenA.id)
-  const tokenB = tokens.find(t => t.id == pool.tokenB.id)
+  const tokenA = await getToken(chain, pool.tokenA.id)
+  const tokenB = await getToken(chain, pool.tokenB.id)
 
-  const tokenAUSDPrice = tokenA?.usd_price || 0
-  const tokenBUSDPrice = tokenB?.usd_price || 0
+  const tokenAUSDPrice = getSafeUsdPrice(tokenA)
+  const tokenBUSDPrice = getSafeUsdPrice(tokenB)
 
-  const totalUSDVolume = Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)
+  const totalUSDVolume = (Math.abs(tokenAamount * tokenAUSDPrice) + Math.abs(tokenBamount * tokenBUSDPrice)) / 2
 
   return await Swap.create({
     chain,
@@ -406,71 +963,114 @@ export async function handleSwap({ chain, data, trx_id, block_time }) {
     tokenA: tokenAamount,
     tokenB: tokenBamount,
     time: block_time,
+    block_num,
   })
 }
 
 export async function onSwapAction(message: string) {
-  const { chain, name, trx_id, block_time, data } = JSON.parse(message)
+  await connectAll()
 
-  console.log('swap action', name)
+  const { chain, name, trx_id, block_time, block_num, data, global_sequence } = JSON.parse(message)
+
+  // Flush pending swap batch if block changed (for any action type)
+  const existingBatch = chainBatches.get(chain)
+  if (existingBatch && existingBatch.block_num !== block_num) {
+    await flushSwapBatch(chain, existingBatch)
+    chainBatches.delete(chain)
+  }
 
   if (name == 'logpool') {
-    await updatePool(chain, data.poolId)
+    await throttledPoolUpdate(chain, data.poolId)
+    await markPoolFirstSeen(chain, data.poolId, block_time)
     await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
-
-    // poolCreationLock = new Promise(async (resolve, reject) => {
-    //   await updatePool(chain, data.poolId)
-    //   await updateTokensPrices(networks[chain]) // Update right away so other handlers will have tokenPrices
-
-    //   resolve(true)
-    //   poolCreationLock = null
-    // })
   }
 
   if (name == 'logswap') {
-    await handleSwap({ chain, trx_id, data, block_time })
+    // Get or create batch for current block (flush already happened above if needed)
+    let batch = chainBatches.get(chain)
+    if (!batch) {
+      batch = { block_num, block_time, swaps: [] }
+      chainBatches.set(chain, batch)
+    }
 
-    handlePoolChart(
-      chain,
-      data.poolId,
-      block_time,
-      littleEndianToDesimalString(data.sqrtPriceX64),
-      parseAssetPlain(data.reserveA).amount,
-      parseAssetPlain(data.reserveB).amount,
+    // Add swap to batch
+    batch.swaps.push({ chain, trx_id, data, block_time, block_num, global_sequence })
 
-      // Providing volume, that only available in swap action
-      // (should be positive for both values)
-      Math.abs(parseAssetPlain(data.tokenA).amount),
-      Math.abs(parseAssetPlain(data.tokenB).amount)
-    )
+    // Don't process immediately - will be flushed on next block
+    return
   }
 
   if (name == 'logmint') {
+    console.log(`[${chain}] mint pos #${data.posId} owner:${data.owner} pool:${data.poolId}`)
+    await markPoolFirstSeen(chain, data.poolId, block_time)
     await saveMintOrBurn({ chain, trx_id, data, type: 'mint', block_time })
-    await updatePositions(chain, data.poolId)
   }
 
   if (name == 'logburn') {
+    console.log(`[${chain}] burn pos #${data.posId} owner:${data.owner} pool:${data.poolId}`)
     await saveMintOrBurn({ chain, trx_id, data, type: 'burn', block_time })
-    await updatePositions(chain, data.poolId)
   }
 
   if (name == 'logcollect') {
+    console.log(`[${chain}] collect pos #${data.posId} owner:${data.owner} pool:${data.poolId}`)
     await saveMintOrBurn({ chain, trx_id, data, type: 'collect', block_time })
-    await updatePositions(chain, data.poolId)
   }
 
-  if (['logmint', 'logburn', 'logswap', 'logcollect'].includes(name)) {
-    throttledPoolUpdate(chain, Number(data.poolId))
+  if (name == 'logtransfer') {
+    console.log(`[${chain}] transfer pos #${data.fromPosId || data.posId} from:${data.from} to:${data.to} pool:${data.poolId}`)
   }
 
-  // Send push to update user position
-  if (['logmint', 'logburn', 'logcollect'].includes(name)) {
-    const { posId, owner } = data
-    const push = { chain, account: owner, positions: [posId] }
+  if (name == 'loglock') {
+    console.log(`[${chain}] lock pos #${data.posId} owner:${data.owner} until:${data.unlockTime}`)
+  }
 
-    console.log('account:update-positions', owner)
-    publisher.publish('account:update-positions', JSON.stringify(push))
+  // Only publish realtime events (skip during catch-up to avoid flooding swap-service)
+  const eventAge = Date.now() - new Date(block_time).getTime()
+  const isRealtime = eventAge < 5 * 60 * 1000 // 5 minutes
+
+  // Update pool and positions for position changes
+  // Fire and forget - don't block updater
+  if (['logmint', 'logburn', 'logcollect', 'logtransfer', 'loglock'].includes(name)) {
+    const poolId = Number(data.poolId)
+
+    // loglock does not change pool state or ticks, only the position's lock
+    if (name !== 'loglock') {
+      throttledPoolUpdate(chain, poolId).catch(e =>
+        console.error(`[${chain}] pool update error:`, e.message)
+      )
+    }
+
+    // Update positions, then send push to user (so API has fresh data when user fetches)
+    updatePositions(chain, poolId)
+      .then(() => {
+        if (isRealtime) {
+          if (name === 'logtransfer') {
+            const from = data?.from
+            const to = data?.to
+            const fromPosId = Number(data?.fromPosId ?? data?.from_pos_id ?? data?.posId)
+            const toPosId = Number(data?.toPosId ?? data?.to_pos_id ?? data?.posId)
+
+            if (from) {
+              const push = { chain, account: from, positions: [fromPosId] }
+              getPublisher().publish('account:update-positions', JSON.stringify(push))
+            }
+            if (to) {
+              const push = { chain, account: to, positions: [toPosId] }
+              getPublisher().publish('account:update-positions', JSON.stringify(push))
+            }
+          } else {
+            const { posId, owner } = data
+            const push = { chain, account: owner, positions: [posId] }
+            getPublisher().publish('account:update-positions', JSON.stringify(push))
+          }
+        }
+      })
+      .catch(e => console.error(`[${chain}] position update error:`, e.message))
+  }
+
+  if (isRealtime && ['logpool', 'logmint', 'logburn', 'logswap', 'logcollect', 'logtransfer', 'loglock'].includes(name)) {
+    const account = networks[chain].amm.contract
+    getPublisher().publish(`chainAction:${chain}:${account}:${name}`, message)
   }
 
   if (['logmint', 'logburn', 'logcollect'].includes(name)) {
@@ -485,22 +1085,3 @@ export async function onSwapAction(message: string) {
     )
   }
 }
-
-export async function main() {
-  await connectAll()
-
-  // const command = process.argv[2]
-
-  // if (command == 'initial') {
-  //   await initialUpdate(process.argv[3])
-  // }
-
-  subscriber.subscribe('swap_action', message => {
-    onSwapAction(message)
-  })
-
-  console.log('SwapService started!')
-}
-
-// TODO Run as separate service
-main()

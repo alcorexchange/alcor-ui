@@ -1,44 +1,53 @@
 <template lang="pug">
-.pair-icons(:style="`width: ${size}px; height: ${size}px;`" :class="direction")
-  TokenImage(:src="$tokenLogo(token1.symbol || token1.currency, token1.contract)" :height="size" :with="size").icon.icon-1
-  TokenImage(:src="$tokenLogo(token2.symbol || token2.currency, token2.contract)" :height="size" :with="size").icon.icon-2
+.pair-icons(:style="`min-width: ${size}px; height: ${size}px; --offset: ${offset}`" :class="direction")
+  TokenInfoImage(:symbol="token1.symbol || token1.currency" :contract="token1.contract" :height="size" :width="size" :disabled="infoDisabled").pair-icon.icon-1
+  TokenInfoImage(:symbol="token2.symbol || token2.currency" :contract="token2.contract" :height="size" :width="size" :disabled="infoDisabled").pair-icon.icon-2
 </template>
 
 <script>
 import TokenImage from '~/components/elements/TokenImage'
+import TokenInfoImage from '~/components/elements/TokenInfoImage'
 export default {
   name: 'PairIcons',
-  components: { TokenImage },
+  components: { TokenImage, TokenInfoImage },
   props: {
     token1: {},
     token2: {},
     direction: {
       default: '',
-      type: String
+      type: String,
     },
     size: {
       type: String,
-      default: '25'
-    }
-  }
+      default: '25',
+    },
+    offset: {
+      type: String,
+      default: '25%',
+    },
+    infoDisabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
 }
 </script>
 
 <style scoped lang="scss">
 .pair-icons {
   position: relative;
-  .icon {
+  .pair-icon {
     position: absolute;
     object-fit: cover;
     border-radius: 50%;
   }
   .icon-1 {
-    bottom: 25%;
-    right: 25%;
+    bottom: var(--offset);
+    right: var(--offset);
   }
   .icon-2 {
-    top: 25%;
-    left: 25%;
+    top: var(--offset);
+    left: var(--offset);
   }
   &.row {
     .icon-1 {
