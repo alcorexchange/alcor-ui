@@ -1,17 +1,25 @@
 <template lang="pug">
 .farms-page
-  FarmHeader(:search.sync="search" :finished.sync="finished" :hideCreateNew="true").mb-2.mt-4
+  NewUiCallout.mt-4(
+    path="/swap/farms"
+    title="Farms are on the new Alcor"
+    text="Stake and claim per position, watch rewards tick live, and see which positions are out of range."
+    cta="Open new Farms"
+  )
+  FarmHeader(:search.sync="search" :finished.sync="finished" :hideCreateNew="true").mb-2.mt-2
   FarmsTableNew(:farmPools="farmPools" :finished="finished")
 </template>
 
 <script>
 import FarmHeader from '@/components/farm/FarmHeader'
 import FarmsTableNew from '@/components/farm/FarmsTableNew'
+import NewUiCallout from '@/components/layout/NewUiCallout'
 export default {
   name: 'FarmsPage',
   components: {
     FarmHeader,
     FarmsTableNew,
+    NewUiCallout,
   },
 
   data: () => {

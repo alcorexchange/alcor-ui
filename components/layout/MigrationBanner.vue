@@ -11,6 +11,8 @@
 </template>
 
 <script>
+import { newAlcorUrl } from '~/utils/newAlcor'
+
 const STORAGE_KEY = 'alcor_migration_banner_dismissed_at'
 const DAYS_TO_SHOW_AGAIN = 3
 
@@ -23,9 +25,7 @@ export default {
 
   computed: {
     newAlcorUrl() {
-      const network = this.$store.state.network.name
-      const slug = network === 'proton' ? 'xpr' : network
-      return `https://alcor.exchange/v/${slug}/swap`
+      return newAlcorUrl(this.$store.state.network.name, '/swap')
     },
   },
 
