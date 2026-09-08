@@ -129,6 +129,7 @@ import axios from 'axios'
 import GithubButton from 'vue-github-button'
 import MobileFooter from './MobileFooter.vue'
 import FooterSocialIcons from './FooterSocialIcons.vue'
+import { newAlcorUrl } from '~/utils/newAlcor'
 
 export default {
   components: {
@@ -145,8 +146,22 @@ export default {
   computed: {
     // Each item is a column, each item of that is the array of sections
     sections() {
+      // A permanent, crawlable trail to where each of these sections now
+      // lives. The migration banner only appears after mount, so until this
+      // the new site was reachable from here by people but not by crawlers.
+      const network = this.$store.state.network.name
+
       return [
         [
+          {
+            title: 'New Alcor',
+            items: [
+              { title: 'Swap', href: newAlcorUrl(network, '/swap') },
+              { title: 'Spot Trading', href: newAlcorUrl(network, '/spot') },
+              { title: 'Liquidity Farms', href: newAlcorUrl(network, '/swap/farms') },
+              { title: 'Analytics', href: newAlcorUrl(network, '/analytics') },
+            ],
+          },
           {
             title: 'About Us',
             items: [

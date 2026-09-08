@@ -30,6 +30,7 @@ import AlcorLoading from '~/components/AlcorLoading.vue'
 import ResourcesModal from '~/components/modals/Resources.vue'
 import AnnouncementModal from '~/components/modals/AnnouncementModal.vue'
 import HackerWarningModal from '~/components/modals/HackerWarningModal.vue'
+import { newAlcorCanonical } from '~/utils/newAlcor'
 
 export default {
   components: {
@@ -135,6 +136,26 @@ export default {
       this.loading = true
       window.location = location + window.location.pathname.split('/')[1] || ''
     },
+  },
+
+  /**
+   * Sections that have moved hand their ranking to the new Alcor.
+   *
+   * The page stays here and keeps working — this only tells search engines
+   * which of the two URLs is worth indexing, so the years this domain spent
+   * earning its position follow the users over. Pages the new frontend has no
+   * answer for keep the self-canonical `@nuxtjs/i18n` writes (same `hid`, so
+   * this replaces it rather than adding a second one).
+   */
+  head() {
+    const canonical = newAlcorCanonical(
+      this.$store.state.network.name,
+      this.$route.path
+    )
+
+    if (!canonical) return {}
+
+    return { link: [{ hid: 'i18n-can', rel: 'canonical', href: canonical }] }
   },
 }
 </script>
