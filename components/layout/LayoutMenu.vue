@@ -50,6 +50,7 @@
 <script>
 import LayoutMenuContentItem from '~/components/layout/LayoutMenuContentItem.vue'
 import ConnectNav from '~/components/layout/ConnectNav'
+import { newAlcorUrl } from '~/utils/newAlcor'
 export default {
   name: 'LayoutMenu',
 
@@ -271,8 +272,14 @@ export default {
         ],
       }
 
-      const chain = this.$store.state.network.name === 'proton' ? 'xpr' : this.$store.state.network.name
-      const terminal = { name: 'Terminal', contentKey: null, href: `https://alcor.exchange/v/${chain}/terminal`, isNew: true }
+      // EOS trades as `vaulta` over there, not `eos` — this link was built
+      // from the raw network name and sent EOS users to a 500.
+      const terminal = {
+        name: 'Terminal',
+        contentKey: null,
+        href: newAlcorUrl(this.$store.state.network.name, '/terminal'),
+        isNew: true,
+      }
 
       this.cachedItems = [
         swap,
