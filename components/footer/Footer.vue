@@ -44,7 +44,10 @@ footer(:class="{ isMobile }").alcor-inner
             img(src="@/assets/icons/Twitter.svg")
           a(href="https://discord.gg/Sxum2ETSzq" target="_blank")
             img(src="@/assets/icons/Discord.svg")
-  span.bottom.muted(v-else) © {{ new Date().getFullYear()  }} Alcor
+  span.bottom.muted(v-else)
+    | © {{ new Date().getFullYear() }} Alcor
+    |  ·
+    a.footer-link(:href="newAlcorLink" target="_blank" rel="noopener") New Alcor Exchange
   //.items
     .item
       a(href="https://github.com/eosrio/Hyperion-History-API" target="_blank").img
@@ -129,7 +132,7 @@ import axios from 'axios'
 import GithubButton from 'vue-github-button'
 import MobileFooter from './MobileFooter.vue'
 import FooterSocialIcons from './FooterSocialIcons.vue'
-import { newAlcorUrl } from '~/utils/newAlcor'
+import { newAlcorUrl, newAlcorCanonical } from '~/utils/newAlcor'
 
 export default {
   components: {
@@ -213,6 +216,20 @@ export default {
     },
     showDetailedFooter() {
       return this.$route.path == this.localePath('/')
+    },
+
+    /**
+     * The detailed footer only renders on the landing page, so every other
+     * page carries this one link instead — pointing at the same section over
+     * there when it has moved, and at swap when it has not.
+     */
+    newAlcorLink() {
+      const network = this.$store.state.network.name
+
+      return (
+        newAlcorCanonical(network, this.$route.path) ||
+        newAlcorUrl(network, '/swap')
+      )
     },
   },
 
