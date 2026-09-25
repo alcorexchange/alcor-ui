@@ -81,14 +81,20 @@ export const actions = {
   afterLoginHook({ state, dispatch, rootState }, { source = 'manual' } = {}) {
     const viewing = source === 'view' || rootState.user.viewOnly
 
+    // An account name is unique only within its chain — `alice` on WAX and on
+    // Telos can be different people, so the chain is part of the profile.
+    const profileId = `${rootState.network.name}:${rootState.user.name}`
+
     if (!viewing) {
-      posthog.identify(rootState.user.name, {
+      posthog.identify(profileId, {
+        account: rootState.user.name,
         wallet: state.lastWallet,
         chain: rootState.network.name
       })
       op.identify({
-        profileId: rootState.user.name,
+        profileId,
         properties: {
+          account: rootState.user.name,
           wallet: state.lastWallet,
           chain: rootState.network.name,
         },
