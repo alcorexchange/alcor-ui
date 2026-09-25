@@ -46,6 +46,9 @@ export const actions = {
 
     commit('setWallets', wallets)
 
+    // Every event says which chain it came from; `wallet` joins on login.
+    op.setGlobalProperties({ chain: rootState.network.name })
+
     const { viewAccount } = rootState.route.query
 
     if (viewAccount) {
@@ -91,6 +94,7 @@ export const actions = {
         wallet: state.lastWallet,
         chain: rootState.network.name
       })
+      op.setGlobalProperties({ wallet: state.lastWallet })
       op.identify({
         profileId,
         properties: {
@@ -104,10 +108,7 @@ export const actions = {
     if (!viewing && source === 'manual') {
       this._vm.$gtag.event('login', { wallet: state.lastWallet })
       posthog.capture('login', { wallet: state.lastWallet })
-      op.track('login', {
-        wallet: state.lastWallet,
-        chain: rootState.network.name,
-      })
+      op.track('login')
     }
 
     dispatch('amm/afterLogin', {}, { root: true })
@@ -168,6 +169,8 @@ export const actions = {
     state?.wallet?.logout?.()
     posthog.reset()
     op.clear()
+    // clear() forgets the profile but not global properties.
+    op.setGlobalProperties({ wallet: undefined })
     commit('setLastWallet', null)
 
     dispatch('unsubscribeToAccountPushes')
@@ -187,9 +190,9 @@ export const actions = {
       if (wasAutoLoginned) return
 
       commit('setUser', { name, authorization }, { root: true })
-      dispatch('afterLoginHook')
-
+      // Before the hook: it reports which wallet was used.
       commit('setLastWallet', wallet.name)
+      dispatch('afterLoginHook')
 
       return wallet
     } catch (e) {
@@ -202,10 +205,13 @@ export const actions = {
 
     const wallet = new state.wallets[wallet_name](network, getMultyEndRpc(Object.keys(network.client_nodes)))
 
+    op.track('wallet_provider_selected', { provider: wallet_name })
+
     try {
       const { name, authorization } = await wallet.login()
       state.loginPromise.resolve({ wallet, name, authorization })
     } catch (e) {
+      op.track('login_failed', { provider: wallet_name, error: e?.message ?? String(e) })
       state.loginPromise.reject(e)
     }
   },
@@ -737,12 +743,10 @@ export const actions = {
 
   // Every signature goes through here — so this is where they are counted.
   // `contract`/`action` is the first action, `target` is who a transfer is for:
-  // together they say which feature was used.
-  async sendTransaction({ state, rootState, dispatch }, actions) {
+  // together they say which feature was used. `chain`/`wallet` are global properties.
+  async sendTransaction({ dispatch }, actions) {
     const [first] = actions
     const props = {
-      wallet: state.lastWallet,
-      chain: rootState.network.name,
       contract: first?.account,
       action: first?.name,
       target: first?.name === 'transfer' ? first.data?.to : undefined,
