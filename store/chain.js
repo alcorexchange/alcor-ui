@@ -41,7 +41,7 @@ export const actions = {
     }
 
     if (rootState.user?.name) {
-      dispatch('afterLoginHook')
+      dispatch('afterLoginHook', { source: 'restore' })
     }
 
     commit('setWallets', wallets)
@@ -51,7 +51,7 @@ export const actions = {
     if (viewAccount) {
       console.log('set pre selected account', viewAccount)
       commit('setUser', { name: viewAccount, authorization: [] }, { root: true })
-      dispatch('afterLoginHook')
+      dispatch('afterLoginHook', { source: 'view' })
       return
     }
 
@@ -61,7 +61,8 @@ export const actions = {
     }
   },
 
-  async autoLogin({ state, rootState, dispatch, commit, getters }) {
+  // `source` — see afterLoginHook. From init this is a session coming back.
+  async autoLogin({ state, rootState, dispatch, commit, getters }, { source = 'restore' } = {}) {
     const loginned = await state.wallet.checkLogin()
     if (!loginned) return false
 
@@ -70,29 +71,39 @@ export const actions = {
 
     commit('setUser', { name, authorization }, { root: true })
     commit('setLastWallet', state.wallet.name)
-    dispatch('afterLoginHook')
+    dispatch('afterLoginHook', { source })
     return true
   },
 
-  afterLoginHook({ state, dispatch, rootState }) {
-    this._vm.$gtag.event('login', { wallet: state.lastWallet })
-    posthog.identify(rootState.user.name, {
-      wallet: state.lastWallet,
-      chain: rootState.network.name
-    })
-    posthog.capture('login', { wallet: state.lastWallet })
+  // `source`: manual — the user just logged in; restore — the session came back
+  // on page load; view — someone else's account opened read-only. Only a manual
+  // login counts as one, and a viewed account is not who the user is.
+  afterLoginHook({ state, dispatch, rootState }, { source = 'manual' } = {}) {
+    const viewing = source === 'view' || rootState.user.viewOnly
 
-    op.identify({
-      profileId: rootState.user.name,
-      properties: {
+    if (!viewing) {
+      posthog.identify(rootState.user.name, {
+        wallet: state.lastWallet,
+        chain: rootState.network.name
+      })
+      op.identify({
+        profileId: rootState.user.name,
+        properties: {
+          wallet: state.lastWallet,
+          chain: rootState.network.name,
+        },
+      })
+    }
+
+    if (!viewing && source === 'manual') {
+      this._vm.$gtag.event('login', { wallet: state.lastWallet })
+      posthog.capture('login', { wallet: state.lastWallet })
+      op.track('login', {
         wallet: state.lastWallet,
         chain: rootState.network.name,
-      },
-    })
-    op.track('login', {
-      wallet: state.lastWallet,
-      chain: rootState.network.name,
-    })
+      })
+    }
+
     dispatch('amm/afterLogin', {}, { root: true })
     dispatch('loadAccountData', {}, { root: true })
 
@@ -149,6 +160,8 @@ export const actions = {
 
     console.log('logout..')
     state?.wallet?.logout?.()
+    posthog.reset()
+    op.clear()
     commit('setLastWallet', null)
 
     dispatch('unsubscribeToAccountPushes')
@@ -164,7 +177,7 @@ export const actions = {
 
       commit('setWallet', wallet)
 
-      const wasAutoLoginned = await dispatch('autoLogin')
+      const wasAutoLoginned = await dispatch('autoLogin', { source: 'manual' })
       if (wasAutoLoginned) return
 
       commit('setUser', { name, authorization }, { root: true })
