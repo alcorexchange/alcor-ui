@@ -11,6 +11,7 @@ import ProtonWallet from '~/plugins/wallets/Proton'
 import ScatterWallet from '~/plugins/wallets/Scatter'
 import WombatWallet from '~/plugins/wallets/Wombat'
 import Ultra from '~/plugins/wallets/Ultra'
+import VaultWallet from '~/plugins/wallets/Vault'
 
 export const state = () => ({
   loginPromise: null,
@@ -38,6 +39,7 @@ export const actions = {
       proton: ProtonWallet,
       wombat: WombatWallet,
       ultra: Ultra,
+      vault: VaultWallet,
     }
 
     if (rootState.user?.name) {

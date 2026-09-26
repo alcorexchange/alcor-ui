@@ -7,6 +7,11 @@
     .text-center.p-3(v-else) {{ $t('Select wallet') }}
   .body.row(v-loading='loading')
     .items
+      //- Kept out of `wallets`: the sections below pick wallets from it by position.
+      .item(v-if='signer')
+        AlcorButton.button(@click='login(signer.id)', alternative)
+          img.mr-2(:src='signer.logo', height='30')
+          span {{ signer.name }}
       .item(v-for='wallet in wallets')
         AlcorButton.button(@click='login(wallet.id)', alternative)
           img.mr-2(:src='wallet.logo', height='30')
@@ -70,6 +75,14 @@ export default {
   computed: {
     ...mapState(['user', 'network']),
     ...mapState('modal', ['context']),
+
+    // Alcor Signer signs only where its vault knows the network.
+    signer() {
+      const chain = this.context?.chain || this.network.name
+      if (!['wax', 'proton', 'telos'].includes(chain)) return null
+
+      return { id: 'vault', name: 'Alcor Signer', logo: require('@/assets/logos/alcor-signer.svg') }
+    },
 
     wallets() {
       const chain = this.context?.chain ? this.context.chain : this.network.name
