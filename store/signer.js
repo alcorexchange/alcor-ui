@@ -189,6 +189,8 @@ export const actions = {
 
       localStorage.setItem(SHOWN_KEY, '1')
       dispatch('open', { trigger: source === 'manual' ? 'after_login' : 'restore' })
+      // Came by itself right after connecting: the short screen first, as after a signature.
+      dispatch('set', { offeredAfter: { wallet: getters.oldWallet, failed: false }, teasing: true })
     })
   },
 
