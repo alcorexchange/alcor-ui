@@ -8,10 +8,14 @@
   .body.row(v-loading='loading')
     .items
       //- Kept out of `wallets`: the sections below pick wallets from it by position.
-      .item(v-if='signer')
-        AlcorButton.button(@click='login(signer.id)', alternative)
-          img.mr-2(:src='signer.logo', height='30')
-          span {{ signer.name }}
+      .item.signer(v-if='signer')
+        AlcorButton.button.signer-button(@click='login(signer.id)', alternative)
+          img.mr-2(:src='signer.logo', height='34')
+          .signer-details
+            .signer-name
+              | {{ signer.name }}
+              span.signer-badge Recommended
+            .signer-description Passkey · one-tap trades · no app to install
       .item(v-for='wallet in wallets')
         AlcorButton.button(@click='login(wallet.id)', alternative)
           img.mr-2(:src='wallet.logo', height='30')
@@ -221,6 +225,46 @@ export default {
     height: 2px;
     background: rgba(100, 100, 100, 0.5);
   }
+}
+
+// Alcor Signer: full width above the rest, outlined in the accent colour — the
+// one we point people to. No glow, no fill.
+.items .item.signer {
+  width: 100%;
+}
+
+.signer-button {
+  border: 1px solid var(--main-green) !important;
+  padding: 12px 8px;
+}
+
+.signer-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+}
+
+.signer-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.signer-badge {
+  flex: none !important;
+  padding: 1px 8px;
+  border: 1px solid var(--main-green);
+  border-radius: 10px;
+  color: var(--main-green);
+  font-size: 11px;
+}
+
+.signer-description {
+  color: var(--text-disable);
+  font-size: 12px;
 }
 
 @media only screen and (max-width: 840px) {

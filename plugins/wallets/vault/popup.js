@@ -25,6 +25,30 @@ export function requestLogin(chain) {
   return request({ kind: 'login', chain })
 }
 
+/**
+ * Open the vault and ask for a key for an account that exists already. The key
+ * is not on the account yet: the wallet the user is signed in with adds it.
+ * Answers `{ publicKey, credentialId, tradeKey? }`.
+ */
+export function requestEnroll(chain, account, permission) {
+  return request({ kind: 'enroll', chain, account, permission })
+}
+
+/**
+ * Open the import screen of the vault — for wallets that will not sign
+ * `updateauth` from a website (Anchor, Wombat). The private key is pasted in
+ * the vault window, never here; the vault signs and pushes itself and answers
+ * `{ publicKey, credentialId, accounts }`.
+ */
+export function requestImport(chain, account) {
+  return request({ kind: 'import', chain, account })
+}
+
+/** Open the signing mode of the account in the vault. Answers `{ level }` once the window is closed. */
+export function requestSettings(chain, account) {
+  return request({ kind: 'settings', chain, account })
+}
+
 /** Open the vault, show the actions to the user and get a signature. */
 export function requestSignature(chain, publicKey, actions) {
   return request({ kind: 'sign', chain, publicKey, actions })

@@ -133,6 +133,8 @@ export const actions = {
     this.$socket.io.on('reconnect', () => {
       dispatch('subscribeToAccountPushes')
     })
+
+    dispatch('signer/accountChanged', { source }, { root: true })
   },
 
   subscribeToAccountPushes({ rootState }) {
@@ -180,6 +182,7 @@ export const actions = {
     commit('setUser', null, { root: true })
     commit('setUserOrders', [], { root: true })
     commit('setUserBalances', [], { root: true })
+    dispatch('signer/accountChanged', {}, { root: true })
   },
 
   async mainLogin({ commit, dispatch }) {
@@ -758,9 +761,12 @@ export const actions = {
     try {
       const result = await dispatch('signAndSend', actions)
       op.track('tx_success', props)
+      // Right after a signature with an old wallet is the moment to offer Alcor Signer.
+      dispatch('signer/afterSigning', { error: null }, { root: true })
       return result
     } catch (e) {
       op.track('tx_failed', { ...props, error: e?.message ?? String(e) })
+      dispatch('signer/afterSigning', { error: e }, { root: true })
       throw e
     }
   },

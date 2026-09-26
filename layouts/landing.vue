@@ -3,6 +3,7 @@
   MigrationBanner
   ModalsDialog
   AlcorLoading
+  SignerOfferModal
 
   top-nav.alcor-inner
   nuxt
@@ -16,6 +17,7 @@ import MigrationBanner from '~/components/layout/MigrationBanner'
 
 import ModalsDialog from '~/components/modals/ModalsDialog'
 import AlcorLoading from '~/components/AlcorLoading.vue'
+import SignerOfferModal from '~/components/modals/SignerOfferModal.vue'
 
 export default {
   components: {
@@ -24,6 +26,7 @@ export default {
     ModalsDialog,
     AlcorLoading,
     MigrationBanner,
+    SignerOfferModal,
   }
 }
 </script>

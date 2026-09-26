@@ -9,6 +9,7 @@
     ModalsDialog
     AnnouncementModal
     HackerWarningModal
+    SignerOfferModal
 
     .main(:class="{ 'alcor-inner': !fullWidth , 'unlim-width': fullWidth }")
       nuxt
@@ -30,6 +31,7 @@ import AlcorLoading from '~/components/AlcorLoading.vue'
 import ResourcesModal from '~/components/modals/Resources.vue'
 import AnnouncementModal from '~/components/modals/AnnouncementModal.vue'
 import HackerWarningModal from '~/components/modals/HackerWarningModal.vue'
+import SignerOfferModal from '~/components/modals/SignerOfferModal.vue'
 import { newAlcorCanonical } from '~/utils/newAlcor'
 
 export default {
@@ -44,6 +46,7 @@ export default {
     ResourcesModal,
     AnnouncementModal,
     HackerWarningModal,
+    SignerOfferModal,
     TopNav,
     MigrationBanner,
   },

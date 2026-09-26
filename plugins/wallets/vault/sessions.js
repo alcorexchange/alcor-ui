@@ -36,6 +36,11 @@ export function rememberVaultSession(session) {
   write([session, ...read().filter((entry) => entry.chain !== session.chain || entry.account !== session.account)])
 }
 
+/** Update the signing mode only — after the vault's settings window. */
+export function setVaultLevel(chain, account, level) {
+  write(read().map((entry) => (entry.chain === chain && entry.account === account ? { ...entry, level } : entry)))
+}
+
 export function forgetVaultSession(chain, account) {
   write(read().filter((entry) => entry.chain !== chain || entry.account !== account))
 }
