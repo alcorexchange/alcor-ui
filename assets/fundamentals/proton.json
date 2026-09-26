@@ -188,6 +188,26 @@
       ],
       "description": "❇️ EASY pays you daily in your favorite crypto, without staking. Backed by stables in locked pools, EASY became the #1 token across all Antelope chains in swap volume its first year. Fathered by Gudasol, EASY is part of a larger plan to uplift humanity by bringing people together. Community meets every 2 weeks. Ask ?s to the revolutionaries of finance in 💬 t.me/flextokens, select your reward token at flex.town, and read the stats + docs on buybacks, fees, and LPs at flex.report. You can keep gambling, or start investing, the EASY way 🍹"
     },
+    "GEASY@fl3x": {
+      "name": "Guda's EASY Index",
+      "website": {
+        "link": "https://flex.report/",
+        "name": "The Flex Report"
+      },
+      "tags": [
+        "reflection",
+        "complex",
+        "EASY",
+        "index",
+        "defi"
+      ],
+      "socials": [
+        "https://t.me/flextokens",
+        "https://flex.report",
+        "https://x.com/flextokens"
+      ],
+      "description": "A complex token reflecting EASY, with a 2% transfer tax (1% reflect · 1% project). This is the first launch ramp created by Gudasol as the first token through the launcher flex.forex. Launch a token backed in GEASY for 0 fees with 3-year lock."
+    },
     "GRAMS@gold.mon3y": {
       "name": "GRAMS",
       "website": {
