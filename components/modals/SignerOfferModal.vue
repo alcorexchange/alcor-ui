@@ -17,9 +17,7 @@ ElDialog.signer-offer(
     template(v-if='teasing && offeredAfter')
       p.lead
         template(v-if='offeredAfter.failed') That one didn't go through.&nbsp;
-        template(v-if='offeredAfter.wallet.replace')
-          | {{ offeredAfter.wallet.name }} is no longer recommended on Alcor — Alcor Signer is its replacement.
-        template(v-else) Try Alcor Signer — trades confirm with a passkey right on this page.
+        | Sign trades in one tap with Alcor Signer, right here. Your {{ offeredAfter.wallet.name }} still works.
 
       //- The whole pitch in one picture: the trip every signature takes, or one tap.
       .compare
@@ -38,7 +36,7 @@ ElDialog.signer-offer(
             | One tap, passkey
 
       .actions
-        AlcorButton(access, @click='proceed') {{ offeredAfter.wallet.replace ? 'Upgrade' : 'Try it' }} · takes a minute
+        AlcorButton(access, @click='proceed') Try it · takes a minute
         AlcorButton(transparent, @click='dismiss') Not now
 
     //- Just linked, or linked earlier and signed in with the old wallet today:
@@ -191,7 +189,7 @@ export default {
 
     title() {
       if (this.teasing && this.offeredAfter) {
-        return this.offeredAfter.wallet.replace ? `Upgrade from ${this.offeredAfter.wallet.name}` : 'Sign trades faster'
+        return 'Sign trades faster'
       }
       if (this.done) return 'Alcor Signer is on'
       return this.ready ? 'Alcor Signer is ready' : 'Trade in one click'

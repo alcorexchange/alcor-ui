@@ -23,20 +23,16 @@ const SIGNER_CHAINS = ['wax', 'proton', 'telos']
 
 /**
  * Old wallets the offer is for:
- * - `replace` — we replace them, not just offer: the window says the wallet is
- *   no longer recommended (Anchor: on phones every trade is a trip to the app
- *   and back, the transaction expires on the way, adding liquidity does not
- *   work at all; Wombat likewise);
  * - `link` — the wallet signs the `updateauth` that adds the passkey;
  * - `import` — the private key can be pasted in the vault instead (the wallet
  *   holds one the user can copy). No `link`: import is the only way;
  * - `steps` — what every signature costs in it, against one tap in Signer.
  */
 const OLD_WALLETS = {
-  anchor: { name: 'Anchor', replace: true, link: false, import: true, steps: ['Open app', 'Approve', 'Come back'] },
-  wombat: { name: 'Wombat', replace: true, link: true, import: true, steps: ['Open app', 'Approve', 'Come back'] },
-  proton: { name: 'WebAuth', replace: false, link: true, import: false, steps: ['Open app', 'Approve', 'Come back'] },
-  wcw: { name: 'WAX Cloud Wallet', replace: false, link: true, import: false, steps: ['Pop-up', 'Approve', 'Close'] },
+  anchor: { name: 'Anchor', link: false, import: true, steps: ['Open app', 'Approve', 'Come back'] },
+  wombat: { name: 'Wombat', link: true, import: true, steps: ['Open app', 'Approve', 'Come back'] },
+  proton: { name: 'WebAuth', link: true, import: false, steps: ['Open app', 'Approve', 'Come back'] },
+  wcw: { name: 'WAX Cloud Wallet', link: true, import: false, steps: ['Pop-up', 'Approve', 'Close'] },
 }
 
 /** The window opened by itself once in this browser. After that — only from the account menu. */
