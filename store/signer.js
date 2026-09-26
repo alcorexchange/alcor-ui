@@ -23,9 +23,10 @@ const SIGNER_CHAINS = ['wax', 'proton', 'telos']
 
 /**
  * Old wallets the offer is for:
- * - `replace` — we replace them, not just offer (Anchor: on phones every trade
- *   is a trip to the app and back, the transaction expires on the way, adding
- *   liquidity does not work at all; Wombat likewise);
+ * - `replace` — we replace them, not just offer: the window says the wallet is
+ *   no longer recommended (Anchor: on phones every trade is a trip to the app
+ *   and back, the transaction expires on the way, adding liquidity does not
+ *   work at all; Wombat likewise);
  * - `link` — the wallet signs the `updateauth` that adds the passkey;
  * - `import` — the private key can be pasted in the vault instead (the wallet
  *   holds one the user can copy). No `link`: import is the only way;
@@ -42,13 +43,19 @@ const OLD_WALLETS = {
 const SHOWN_KEY = 'alcor.vault.enroll.shown'
 /** When the window last came by itself after a successful signature. */
 const OFFERED_AT_KEY = 'alcor.vault.enroll.offered-at'
+/** When "Not now" was last pressed. */
+const DISMISSED_AT_KEY = 'alcor.vault.enroll.dismissed-at'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 /**
- * After a successful trade — not more often: nothing to insist on. On a phone
- * every signature is a trip to the app, so the reminder comes more often.
+ * After a successful trade — not more often: the trade went through, nothing
+ * to insist on. Every time on phones read as spam after every swap. Once a day
+ * here, where the new Alcor waits three: the legacy UI is the one we want
+ * people off first.
  */
-const OFFER_COOLDOWN_MS = { mobile: DAY_MS, desktop: 3 * DAY_MS }
+const OFFER_COOLDOWN_MS = DAY_MS
+/** "Not now" — as long a silence after successful trades. A failed signature still calls. */
+const SNOOZE_MS = DAY_MS
 /** Successful trade: let the result show before the window covers it. */
 const AFTER_SUCCESS_DELAY_MS = 1500
 
@@ -62,8 +69,6 @@ const VAULT_RPID = new URL(VAULT_ORIGIN).hostname
 /** Linked: our passkey is on the permission and signs alone. */
 const linked = (authority) =>
   authority.keys.some((entry) => keyRpid(entry.key) === VAULT_RPID && keySignsAlone(authority, entry.key))
-
-const isMobile = () => window.matchMedia('(max-width: 767px)').matches
 
 /** Run once the tab is visible: a signature often ends in another app, and a window there is shown to no one. */
 function whenVisible(show) {
@@ -189,8 +194,8 @@ export const actions = {
 
   /**
    * Just signed with an old wallet — the best moment to show there is another
-   * way. A failure: every time. A success: Anchor on a phone every time,
-   * otherwise once per `OFFER_COOLDOWN_MS`.
+   * way. A failure: every time. A success: once per `OFFER_COOLDOWN_MS`, and
+   * not within `SNOOZE_MS` of "Not now".
    */
   afterSigning({ state, getters, dispatch }, { error }) {
     const wallet = getters.oldWallet
@@ -198,16 +203,17 @@ export const actions = {
     if (!wallet || !getters.shouldOffer || (error && isContractRejection(error))) return
 
     const failed = Boolean(error)
-    const everyTime = failed || (wallet.replace && isMobile())
     const due = () =>
-      everyTime || Date.now() - readNumber(OFFERED_AT_KEY) >= OFFER_COOLDOWN_MS[isMobile() ? 'mobile' : 'desktop']
+      failed ||
+      (Date.now() - readNumber(OFFERED_AT_KEY) >= OFFER_COOLDOWN_MS &&
+        Date.now() - readNumber(DISMISSED_AT_KEY) >= SNOOZE_MS)
     if (!due()) return
 
     const show = () =>
       whenVisible(() => {
         if (!getters.shouldOffer || getters.target?.account !== account || state.isOpen || !due()) return
 
-        if (!everyTime) localStorage.setItem(OFFERED_AT_KEY, String(Date.now()))
+        if (!failed) localStorage.setItem(OFFERED_AT_KEY, String(Date.now()))
         dispatch('open', { trigger: failed ? 'sign_failed' : 'signed', props: failed ? { error: errorMessage(error) } : {} })
         dispatch('set', { offeredAfter: { wallet, failed }, teasing: true })
       })
@@ -238,6 +244,7 @@ export const actions = {
           ? 'switch'
           : 'intro'
     dispatch('track', ['signer_offer_dismissed', { step }])
+    localStorage.setItem(DISMISSED_AT_KEY, String(Date.now()))
     dispatch('close')
   },
 
