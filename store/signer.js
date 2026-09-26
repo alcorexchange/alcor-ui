@@ -23,13 +23,15 @@ const SIGNER_CHAINS = ['wax', 'proton', 'telos']
 
 /**
  * Old wallets the offer is for:
- * - `link` — the wallet signs the `updateauth` that adds the passkey;
+ * - `link` — the wallet signs the `updateauth` that adds the passkey; `'phone'`
+ *   — only from a phone (desktop Anchor answers `ESRURI_UPDATEAUTH_FORBIDDEN`,
+ *   the mobile app signs it under a red "Dangerous action");
  * - `import` — the private key can be pasted in the vault instead (the wallet
  *   holds one the user can copy). No `link`: import is the only way;
  * - `steps` — what every signature costs in it, against one tap in Signer.
  */
 const OLD_WALLETS = {
-  anchor: { name: 'Anchor', link: false, import: true, steps: ['Open app', 'Approve', 'Come back'] },
+  anchor: { name: 'Anchor', link: 'phone', import: true, steps: ['Open app', 'Approve', 'Come back'] },
   wombat: { name: 'Wombat', link: true, import: true, steps: ['Open app', 'Approve', 'Come back'] },
   proton: { name: 'WebAuth', link: true, import: false, steps: ['Open app', 'Approve', 'Come back'] },
   wcw: { name: 'WAX Cloud Wallet', link: true, import: false, steps: ['Pop-up', 'Approve', 'Close'] },
@@ -73,6 +75,11 @@ function whenVisible(show) {
 }
 
 const readNumber = (key) => Number(localStorage.getItem(key)) || 0
+
+const isPhone = () => window.matchMedia('(max-width: 767px)').matches
+
+/** Whether the wallet will sign the link here — on this device. */
+const canLink = (wallet) => wallet.link === true || (wallet.link === 'phone' && isPhone())
 
 const errorMessage = (e) => e?.message ?? String(e)
 
@@ -127,10 +134,10 @@ export const getters = {
   /** Something to offer: link/import, or switch. */
   shouldOffer: (state, getters) => Boolean(getters.oldWallet && state.authority),
 
-  importOnly: (state, getters) => Boolean(getters.oldWallet && !getters.oldWallet.link),
+  importOnly: (state, getters) => Boolean(getters.oldWallet && !canLink(getters.oldWallet)),
 
   /** Linking is the main way, but pasting the private key is offered too. */
-  canImport: (state, getters) => Boolean(getters.oldWallet?.link && getters.oldWallet.import),
+  canImport: (state, getters) => Boolean(getters.oldWallet && canLink(getters.oldWallet) && getters.oldWallet.import),
 
   mode: (state, getters) => (getters.ready ? 'switch' : getters.importOnly ? 'import' : 'link'),
 

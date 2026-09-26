@@ -121,10 +121,13 @@ ElDialog.signer-offer(
             .point-title Phone and computer
             .point-sub The passkey syncs through iCloud Keychain or Google, so the same account works on all your devices.
 
+      //- Every wallet shows adding a key as a red "dangerous action". Said before
+      //- the click, it reads as expected rather than as an attack.
       .enroll-step(v-if='pendingKeys.length')
         | {{ pendingKeys.length > 1 ? 'The passkey and the browser key are ready.' : 'Key created.' }}
-        | One more step: your wallet has to authorise {{ pendingKeys.length > 1 ? 'them' : 'it' }} —
-        | that opens your wallet, not Alcor Signer.
+        | One more step: approve {{ pendingKeys.length > 1 ? 'them' : 'it' }} in {{ walletName }}.
+        | It will warn about a #[b dangerous action] — that is how wallets show a new key being
+        | added. Your current key stays.
 
       .enroll-error(v-if='error') {{ error }}
 
