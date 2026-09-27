@@ -171,8 +171,12 @@ function request(payload) {
 
       if (event.data?.type !== 'vault:result' || event.data.reqId !== reqId) return
 
-      const { ok, error, ...result } = event.data
-      ok ? finish(null, result) : finish(new VaultError('USER_REJECTED', error ?? 'Rejected in the signing window'))
+      // `rejected`: the user said no. Without it something broke (a contract with no
+      // ABI, an unknown key) — an error, not a refusal, and shown as one.
+      const { ok, rejected, error, ...result } = event.data
+      if (ok) finish(null, result)
+      else if (rejected) finish(new VaultError('USER_REJECTED', error ?? 'Rejected in the signing window'))
+      else finish(new VaultError('SIGN_FAILED', error ?? 'Alcor Signer could not sign this'))
     }
 
     // The vault says hello first. No hello: it is down, or it does not know this origin.
