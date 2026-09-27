@@ -43,6 +43,12 @@ const SHOWN_KEY = 'alcor.vault.enroll.shown'
 const OFFERED_AT_KEY = 'alcor.vault.enroll.offered-at'
 /** When "Not now" was last pressed. */
 const DISMISSED_AT_KEY = 'alcor.vault.enroll.dismissed-at'
+/**
+ * "Not now" in this visit (tab): failed signatures stop calling too. Otherwise a
+ * bug that fails the signature again and again showed the window on every try —
+ * ten times in fifteen minutes.
+ */
+const DISMISSED_IN_VISIT_KEY = 'alcor.vault.enroll.dismissed-in-visit'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 /**
@@ -76,6 +82,13 @@ function whenVisible(show) {
 
 const readNumber = (key) => Number(localStorage.getItem(key)) || 0
 
+/** A full storage throws on write — then the offer just comes back sooner, and "Not now" still closes the window. */
+function remember(storage, key, value) {
+  try {
+    storage.setItem(key, value)
+  } catch {}
+}
+
 const isPhone = () => window.matchMedia('(max-width: 767px)').matches
 
 /** Whether the wallet will sign the link here — on this device. */
@@ -84,10 +97,12 @@ const canLink = (wallet) => wallet.link === true || (wallet.link === 'phone' && 
 const errorMessage = (e) => e?.message ?? String(e)
 
 /**
- * The contract said no (slippage, limits) — the wallet has nothing to do with
- * it, and Signer changes nothing. Every other failure is the wallet's.
+ * The signature failed because of the wallet: cancelled, window closed, request
+ * expired. Only then does Signer change anything — a contract that said no
+ * (balance, slippage) or a bug of this app (encoding, ABI, storage) fails with
+ * it just the same. Wallets tell these apart only in words.
  */
-const isContractRejection = (e) => /assertion failure/i.test(errorMessage(e))
+const isWalletFailure = (e) => /cancel|closed|declined|rejected|expired|popup/i.test(errorMessage(e))
 
 export const state = () => ({
   isOpen: false,
@@ -190,7 +205,7 @@ export const actions = {
     whenVisible(() => {
       if (!getters.shouldOffer || state.isOpen || localStorage.getItem(SHOWN_KEY)) return
 
-      localStorage.setItem(SHOWN_KEY, '1')
+      remember(localStorage, SHOWN_KEY, '1')
       dispatch('open', { trigger: source === 'manual' ? 'after_login' : 'restore' })
       // Came by itself right after connecting: the short screen first, as after a signature.
       dispatch('set', { offeredAfter: { wallet: getters.oldWallet, failed: false }, teasing: true })
@@ -199,26 +214,28 @@ export const actions = {
 
   /**
    * Just signed with an old wallet — the best moment to show there is another
-   * way. A failure: every time. A success: once per `OFFER_COOLDOWN_MS`, and
-   * not within `SNOOZE_MS` of "Not now".
+   * way. A failure the wallet caused (`isWalletFailure`): every time, until
+   * "Not now" in this visit. A success: once per `OFFER_COOLDOWN_MS`, and not
+   * within `SNOOZE_MS` of "Not now".
    */
   afterSigning({ state, getters, dispatch }, { error }) {
     const wallet = getters.oldWallet
     const account = getters.target?.account
-    if (!wallet || !getters.shouldOffer || (error && isContractRejection(error))) return
+    if (!wallet || !getters.shouldOffer || (error && !isWalletFailure(error))) return
 
     const failed = Boolean(error)
     const due = () =>
-      failed ||
-      (Date.now() - readNumber(OFFERED_AT_KEY) >= OFFER_COOLDOWN_MS &&
-        Date.now() - readNumber(DISMISSED_AT_KEY) >= SNOOZE_MS)
+      failed
+        ? !sessionStorage.getItem(DISMISSED_IN_VISIT_KEY)
+        : Date.now() - readNumber(OFFERED_AT_KEY) >= OFFER_COOLDOWN_MS &&
+          Date.now() - readNumber(DISMISSED_AT_KEY) >= SNOOZE_MS
     if (!due()) return
 
     const show = () =>
       whenVisible(() => {
         if (!getters.shouldOffer || getters.target?.account !== account || state.isOpen || !due()) return
 
-        if (!failed) localStorage.setItem(OFFERED_AT_KEY, String(Date.now()))
+        if (!failed) remember(localStorage, OFFERED_AT_KEY, String(Date.now()))
         dispatch('open', { trigger: failed ? 'sign_failed' : 'signed', props: failed ? { error: errorMessage(error) } : {} })
         dispatch('set', { offeredAfter: { wallet, failed }, teasing: true })
       })
@@ -249,7 +266,8 @@ export const actions = {
           ? 'switch'
           : 'intro'
     dispatch('track', ['signer_offer_dismissed', { step }])
-    localStorage.setItem(DISMISSED_AT_KEY, String(Date.now()))
+    remember(localStorage, DISMISSED_AT_KEY, String(Date.now()))
+    remember(sessionStorage, DISMISSED_IN_VISIT_KEY, '1')
     dispatch('close')
   },
 
