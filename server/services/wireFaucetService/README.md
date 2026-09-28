@@ -12,21 +12,21 @@
 Наружу торчит через nginx: `/api/v2/wire-test/*` → `127.0.0.1:3100/*`.
 
 ```bash
-curl -X POST https://wax.alcor.exchange/api/v2/wire-test/register \
+curl -X POST https://wiretest.alcor.exchange/api/v2/wire-test/register \
   -H 'content-type: application/json' -d '{"pubkey":"PUB_EM_..."}'
 
-curl -X POST https://wax.alcor.exchange/api/v2/wire-test/faucet \
+curl -X POST https://wiretest.alcor.exchange/api/v2/wire-test/faucet \
   -H 'content-type: application/json' -d '{"account":"wireno.prs4c"}'
 ```
 
-⚠️ Бить надо **сразу в `wax.alcor.exchange`**. На `alcor.exchange/api/v2/*` висит
-редирект Cloudflare (301) на этот сабдомен, а curl и `fetch` на 301 превращают
-POST в GET и теряют тело.
+⚠️ Бить надо в **сабдомен** — `wiretest.` (или любой другой, `wax.` тоже отвечает).
+На голом `alcor.exchange/api/v2/*` висит редирект Cloudflare (301), а curl и
+`fetch` на 301 превращают POST в GET и теряют тело.
 
 ### `POST /register`
 
 ```json
-{ "account": "wireno.prs4c", "pubkey": "PUB_EM_...", "policy": true, "created": true }
+{ "account": "wireno.prs4c", "pubkey": "PUB_EM_...", "source": "evm", "policy": true, "created": true }
 ```
 
 | Ответ | Что значит |
@@ -34,13 +34,50 @@ POST в GET и теряют тело.
 | `200`, `created: true` | аккаунт создан, ресурсы выданы |
 | `200`, `created: false` | ключ уже привязан, отдан существующий аккаунт (слот не потрачен) |
 | `207`, `policy: false` | аккаунт создан, но `addpolicy` упал — чинить `expandpolicy` вручную |
-| `400` | пабкей не парсится |
+| `400` | ключ не собрался из того, что прислали (текст ошибки говорит, чего не хватило) |
 | `429` | лимит по IP |
 | `502` | `newuser` не прошёл (обычно кончился резерв issuer'а) |
 
-Ключ принимается любого типа: `PUB_ED_`, `PUB_EM_` (MetaMask), `PUB_K1_`, `PUB_WA_` —
-поле `pubkey` в `newuser` имеет ABI-тип `public_key`, а это вариант из шести типов.
-Что из этого реально умеет подписывать — таблица в FRONTEND.md.
+`pubkey` в ответе — всегда ключ в форме Wire, каким он лёг в цепь; им же потом
+логиниться через `get_accounts_by_authorizers`. `source` — из какого кошелька он
+приехал (`wire` / `evm` / `solana` / `passkey`).
+
+#### Чем платить за регистрацию
+
+Кошелёк отдаёт ключ в форме своей экосистемы, и ни одна из них не является ключом
+Wire. Перевод — в `pubkey.ts`, на стороне бека: он одинаков для любого фронта, и
+дублировать его по фронтам смысла нет.
+
+| Кошелёк | Что слать | Во что превращается |
+|---|---|---|
+| нативный Wire | `{"pubkey": "PUB_ED_… \| PUB_EM_… \| PUB_K1_… \| PUB_WA_…"}` | как есть |
+| MetaMask, Rabby | `{"message": "...", "signature": "0x…"}` (personal_sign) | `PUB_EM_` |
+| он же, если пабкей уже есть | `{"pubkey": "0x02… \| 0x04…"}` | `PUB_EM_` (сжимается) |
+| Phantom, Solflare | `{"pubkey": "<base58 32 байта>"}` | `PUB_ED_` |
+| passkey | `{"pubkey": "<SPKI от getPublicKey(), base64url>", "rpId": "wiretest.alcor.exchange"}` | `PUB_WA_` |
+
+Адрес Ethereum прислать нельзя: это `keccak(pubkey)[12:]`, обратно ключ не
+достаётся — отсюда `message` + `signature` как единственный путь для EVM.
+
+`message` — обычный текст (тот же, что ушёл в кошелёк), `signature` для EVM —
+hex 65 байт, для Solana — base58 или hex 64 байт. Подпись **необязательна**, но
+если она пришла — проверяется, и чужой ключ с ней не зарегистрировать. Ключи
+`PUB_K1_`/`PUB_WA_` с подписью не принимаются: проверять их тут нечем.
+
+Реплей-защиты у `message` нет: любая подпись пользователя, добытая где угодно,
+годится, чтобы завести **ему** аккаунт. Это ровно то, что он и так может сделать
+сам, поэтому челленджа с нонсом нет.
+
+У passkey есть ещё `presence` (`none` / `present` / `verified`, по умолчанию
+`present`) — какую проверку юзера сделал аутентификатор. Это **часть самого
+ключа**: тот же пабкей с другим `presence` или другим `rpId` — другой ключ.
+
+⚠️ **`PUB_WA_` наружу отдаётся в base58+checksum**, а не в hex, которым его печатает
+`toString()` SDK: hex нода не парсит (`Unable to decode base58 string`). В цепь
+уходит одинаково — ABI пишет байты, а не строку.
+
+Что из этого реально умеет подписывать транзакции — таблица в FRONTEND.md;
+регистрация работает для всех типов независимо от этого.
 
 ### `POST /faucet`
 
@@ -115,10 +152,14 @@ issuer'а (повтор упадёт с `Sponsor entry for this nonce already ex
 
 Путь трафика: клиент → Cloudflare → LB `65.109.128.4` → ex44 → сервис. **Основной
 домен `alcor.exchange` до ex44 не доходит вообще** — у него в Cloudflare другой
-origin (фронт на Nuxt), все пути под `/api/*` там ловят 301 на `wax.`. Вынести
-сервис на `wire.alcor.exchange` можно только проксируемой A-записью на
-`65.109.128.4` в панели Cloudflare: `server_name` с ведущей точкой (`.alcor.exchange`)
-и на LB, и на ex44 матчит любой сабдомен — так и работает `wax.`.
+origin (фронт на Nuxt), все пути под `/api/*` там ловят 301 на `wax.`.
+
+`server_name` с ведущей точкой (`.alcor.exchange`) и на LB, и на ex44 матчит любой
+сабдомен, поэтому фаусет отвечает на всех сразу — и на `wax.`, и на `wiretest.`.
+Фронту дан `wiretest.alcor.exchange`: тот же домен, что отдаёт фронт и API этой
+цепи, лишнего origin в CORS не появляется. Проверено 30.08.2026 — preflight 204
+с `allow-origin: *`, POST доходит. Завести ещё сабдомен — только проксируемой
+A-записью на `65.109.128.4` в панели Cloudflare.
 
 Определение IP клиента — `/etc/nginx/conf.d/wire-test-realip.conf`. В `nginx.conf`
 есть `set_real_ip_from 65.109.128.4` без `real_ip_recursive`, поэтому `$remote_addr`
