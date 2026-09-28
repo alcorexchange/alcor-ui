@@ -1,5 +1,5 @@
-import { requestAutoSignature, requestLogin, requestSignature, warmAutoSigner } from './vault/popup'
-import { forgetVaultSession, lastVaultSession, rememberVaultSession } from './vault/sessions'
+import { requestAutoSignature, requestLevel, requestLogin, requestSignature, warmAutoSigner } from './vault/popup'
+import { forgetVaultSession, lastVaultSession, rememberVaultSession, setVaultLevel } from './vault/sessions'
 
 /**
  * Alcor Signer: a passkey wallet on its own origin (sign.alcor.exchange). This
@@ -17,6 +17,7 @@ export default class VaultWallet {
   network = null
   rpc = null
   session = null
+  watchingLevel = false
 
   constructor(network, rpc) {
     this.network = network
@@ -62,13 +63,18 @@ export default class VaultWallet {
    * Without a window only when the account has Auto sign — and the vault still
    * decides. Otherwise the window opens right away, in the same click: Safari
    * lets a popup through only synchronously from the gesture.
+   *
+   * The window tells the account's mode back, so a stale one (Auto turned on in
+   * the vault itself) opens the window once at most.
    */
   async transact({ actions }) {
     if (!this.session) throw new Error('Alcor Signer is not connected')
 
     const chain = this.network.name
+    const { account } = this.session
     const auto = this.session.level === 'auto' ? await requestAutoSignature(chain, actions) : null
-    const signed = auto ?? (await requestSignature(chain, this.session.publicKey, actions))
+    const signed =
+      auto ?? (await requestSignature(chain, this.session.publicKey, actions, (level) => this.rememberLevel(account, level)))
 
     return {
       signatures: signed.signatures,
@@ -80,6 +86,33 @@ export default class VaultWallet {
     this.session = session
     // Auto sign goes through an iframe — let it load now, not on the first trade.
     warmAutoSigner()
+    this.watchLevel()
+    this.refreshLevel()
+  }
+
+  /** Only for the account asked about: the user may have switched while the answer was on its way. */
+  rememberLevel(account, level) {
+    if (this.session?.account !== account) return
+    this.session = { ...this.session, level }
+    setVaultLevel(this.session.chain, account, level)
+  }
+
+  /** Check the remembered mode with the vault's iframe. No answer — keep what we had. */
+  async refreshLevel() {
+    if (!this.session) return
+    const { chain, account } = this.session
+    const level = await requestLevel(chain, account)
+    if (level) this.rememberLevel(account, level)
+  }
+
+  // Auto may be turned on in the vault's own tab: check again when the user comes back,
+  // so even the first trade after that goes without a window.
+  watchLevel() {
+    if (this.watchingLevel || typeof document === 'undefined') return
+    this.watchingLevel = true
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') this.refreshLevel()
+    })
   }
 
   loggedIn() {

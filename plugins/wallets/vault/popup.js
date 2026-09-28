@@ -49,13 +49,24 @@ export function requestSettings(chain, account) {
   return request({ kind: 'settings', chain, account })
 }
 
-/** Open the vault, show the actions to the user and get a signature. */
-export function requestSignature(chain, publicKey, actions) {
-  return request({ kind: 'sign', chain, publicKey, actions })
+/**
+ * Open the vault, show the actions to the user and get a signature.
+ *
+ * `onLevel` gets the signing account's mode as the window sees it, with the
+ * signature or the refusal alike: a stale mode here would send the next Auto
+ * trade through a window instead of the iframe.
+ */
+export function requestSignature(chain, publicKey, actions, onLevel) {
+  return request({ kind: 'sign', chain, publicKey, actions }, onLevel)
 }
+
+const LEVELS = ['passkey', 'fast', 'auto']
 
 let autoFrame = null
 let autoReady = false
+let markReady = () => {}
+/** Settles once the iframe has said hello. */
+const frameReady = new Promise((resolve) => (markReady = resolve))
 
 /** Load the Auto sign iframe ahead of time: it has to be ready by the first signature. */
 export function warmAutoSigner() {
@@ -70,6 +81,7 @@ export function warmAutoSigner() {
   window.addEventListener('message', (event) => {
     if (event.origin === VAULT_ORIGIN && event.source === frame.contentWindow && event.data?.type === 'vault:ready') {
       autoReady = true
+      markReady()
     }
   })
 
@@ -121,7 +133,42 @@ export function requestAutoSignature(chain, actions) {
   })
 }
 
-function request(payload) {
+/** How long to wait for the iframe, loading and answer together. No answer — the mode just stays. */
+const LEVEL_MS = 5000
+
+/**
+ * The account's mode from the invisible iframe, no window. Read-only: only the
+ * user changes it, in the vault window (`requestSettings`).
+ *
+ * Resolves null when unknown: the iframe did not load, the node did not answer,
+ * or app and vault are different sites (dev), where the iframe sees no keys.
+ */
+export function requestLevel(chain, account) {
+  warmAutoSigner()
+  const timeout = new Promise((resolve) => setTimeout(() => resolve(null), LEVEL_MS))
+
+  const ask = frameReady.then(
+    () =>
+      new Promise((resolve) => {
+        const target = autoFrame?.contentWindow
+        if (!target) return resolve(null)
+
+        const reqId = crypto.randomUUID()
+        const onMessage = (event) => {
+          if (event.origin !== VAULT_ORIGIN || event.source !== target || event.data?.reqId !== reqId) return
+          if (event.data.type !== 'vault:level') return
+          window.removeEventListener('message', onMessage)
+          resolve(LEVELS.includes(event.data.level) ? event.data.level : null)
+        }
+        window.addEventListener('message', onMessage)
+        target.postMessage({ type: 'vault:level', reqId, chain, account }, VAULT_ORIGIN)
+      })
+  )
+
+  return Promise.race([ask, timeout])
+}
+
+function request(payload, onLevel) {
   const reqId = crypto.randomUUID()
 
   // A window name unique per request: with a fixed one the browser hands back
@@ -170,6 +217,8 @@ function request(payload) {
       }
 
       if (event.data?.type !== 'vault:result' || event.data.reqId !== reqId) return
+
+      if (LEVELS.includes(event.data.level)) onLevel?.(event.data.level)
 
       // `rejected`: the user said no. Without it something broke (a contract with no
       // ABI, an unknown key) — an error, not a refusal, and shown as one.
