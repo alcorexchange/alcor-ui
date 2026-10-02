@@ -81,14 +81,14 @@
       "link": "https://tether.to",
       "name": "Tether USDT"
     },
-    "tags": ["Stablecoin", "Tether", "USD"],
+    "tags": ["Stablecoin", "Tether", "USD", "Legacy"],
     "github": "https://github.com/CryptoMechanics/eosio-ibc-bridge-contract",
     "socials": [
       "https://ibc-docs.uxnetwork.io",
       "https://waxblock.io/account/usdt.alcor",
       "https://waxblock.io/account/ibc.alcor"
     ],
-    "description": "Native USDT on EOS, Bridged to WAX Chain by Alcor team, using secure IBC technology. IBC are based on merkle root proof cryptography, it does not use any centralized point of management, or any back-end and third-party services. It's audited, secure solution for bridging tokens on Antelope chains. Bridge fee are 0% both ways, and process takes only ~2 minute."
+    "description": "Native USDT on EOS, Bridged to WAX Chain by Alcor team, using secure IBC technology. IBC are based on merkle root proof cryptography, it does not use any centralized point of management, or any back-end and third-party services. It's audited, secure solution for bridging tokens on Antelope chains. Bridge fee are 0% both ways, and process takes only ~2 minute. Recommended: switch to USDT@wrap.alcor, now the standard USDT on WAX. It swaps 1:1 on Alcor in one transaction."
   },
   "BRWL@brawlertoken": {
     "name": "Brawlers",
@@ -1110,5 +1110,60 @@
     "github": "https://github.com/Dexprria/PMTcoin",
     "tags": ["Gaming", "P2E", "NFT", "Ecological"],
     "description": "PMT is the in-game currency of Pigmentia, a WAX blockchain ecological restoration game: players grow, harvest, and research plants using NFT seeds and tools, earning and spending PMT throughout the game loop."
+  },
+  "USDT@wrap.alcor": {
+    "name": "USDT",
+    "website": {
+      "link": "https://alcor.exchange/v/wax/bridge/info",
+      "name": "Alcor Bridge"
+    },
+    "tags": [
+      "Stablecoin",
+      "Tether",
+      "USD",
+      "Bridged"
+    ],
+    "socials": [
+      "https://waxblock.io/account/wrap.alcor",
+      "https://waxblock.io/account/bridge.alcor",
+      "https://etherscan.io/address/0x3e447d533321ad6a8412f97034ac295a9ff8d858"
+    ],
+    "description": "USDT from Ethereum, brought over by the Alcor bridge and backed 1:1 by USDT locked on Telos and, in turn, by USDT locked in the bridge vault on Ethereum. Every transfer is verified on-chain: a light client on each chain checks the other chain's validator signatures, so tokens are minted or released only for a transfer proven on-chain, and no relayer or backend is trusted for it. The bridge is in its launch phase: an admin key can still rescue vault funds, and is set to move to a timelock and then a multisig. Bridge in or out at alcor.exchange. This is the standard USDT on WAX; the older USDT@usdt.alcor swaps into it 1:1 on Alcor."
+  },
+  "USDC@wrap.alcor": {
+    "name": "USDC",
+    "website": {
+      "link": "https://alcor.exchange/v/wax/bridge/info",
+      "name": "Alcor Bridge"
+    },
+    "tags": [
+      "Stablecoin",
+      "Circle",
+      "USD",
+      "Bridged"
+    ],
+    "socials": [
+      "https://waxblock.io/account/wrap.alcor",
+      "https://waxblock.io/account/bridge.alcor",
+      "https://etherscan.io/address/0x3e447d533321ad6a8412f97034ac295a9ff8d858"
+    ],
+    "description": "USDC from Ethereum, brought over by the Alcor bridge and backed 1:1 by USDC locked on Telos and, in turn, by USDC locked in the bridge vault on Ethereum. Every transfer is verified on-chain: a light client on each chain checks the other chain's validator signatures, so tokens are minted or released only for a transfer proven on-chain, and no relayer or backend is trusted for it. The bridge is in its launch phase: an admin key can still rescue vault funds, and is set to move to a timelock and then a multisig. Bridge in or out at alcor.exchange."
+  },
+  "ETH@wrap.alcor": {
+    "name": "Ether",
+    "website": {
+      "link": "https://alcor.exchange/v/wax/bridge/info",
+      "name": "Alcor Bridge"
+    },
+    "tags": [
+      "ETH",
+      "Bridged"
+    ],
+    "socials": [
+      "https://waxblock.io/account/wrap.alcor",
+      "https://waxblock.io/account/bridge.alcor",
+      "https://etherscan.io/address/0x3e447d533321ad6a8412f97034ac295a9ff8d858"
+    ],
+    "description": "ETH from Ethereum, brought over by the Alcor bridge and backed 1:1 by ETH locked on Telos and, in turn, by ETH locked in the bridge vault on Ethereum. Every transfer is verified on-chain: a light client on each chain checks the other chain's validator signatures, so tokens are minted or released only for a transfer proven on-chain, and no relayer or backend is trusted for it. The bridge is in its launch phase: an admin key can still rescue vault funds, and is set to move to a timelock and then a multisig. Bridge in or out at alcor.exchange."
   }
 }
