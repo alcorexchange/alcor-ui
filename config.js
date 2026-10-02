@@ -406,7 +406,7 @@ const networks = {
     protocol: 'https',
     monitor: 'https://explorer.uxnetwork.io',
     monitor_params: '',
-    lightapi: 'https://wax.light-api.net',
+    lightapi: null, // LightAPI does not serve UX
     hyperion: 'https://ux.eosusa.io',
 
     //hyperion: 'https://wax.pink.gg/',

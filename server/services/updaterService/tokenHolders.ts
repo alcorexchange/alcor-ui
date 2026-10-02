@@ -1,50 +1,32 @@
+import axios from 'axios'
 import pLimit from 'p-limit'
 
-import { getChain } from '../chain'
 import { getTokens } from '../../utils'
 import { getRedis } from '../redis'
 import { TokenHoldersHistory } from '../../models'
 
 const HOLDERS_CONCURRENCY = 3
 const HOLDERS_INTERVAL_MS = 60 * 60 * 1000
-const SCOPES_LIMIT_PER_CALL = 9999
-const HOLDERS_CAP = 1_000_000
-// Some RPC nodes cap scope rows ~1000, so allow enough pages to reach HOLDERS_CAP.
-const MAX_PAGES = Math.ceil(HOLDERS_CAP / 1000) + 10
+const LIGHTAPI_TIMEOUT_MS = 30_000
 
-async function fetchHoldersCountLimited(rpc, contract: string) {
-  let holders = 0
-  let lowerBound: string | undefined = undefined
+/**
+ * Accounts holding a non-zero balance of one token, as LightAPI counts them.
+ *
+ * Not the scopes of the contract's `accounts` table: those are per contract,
+ * not per symbol — every wrap.alcor token got the same count — and a scope
+ * stays after its owner sent everything away, so they also counted accounts
+ * holding nothing.
+ */
+async function fetchHoldersCount(lightapi: string, chain: string, contract: string, symbol: string) {
+  const { data } = await axios.get(`${lightapi}/api/holdercount/${chain}/${contract}/${symbol}`, {
+    timeout: LIGHTAPI_TIMEOUT_MS,
+  })
 
-  for (let i = 0; i < MAX_PAGES; i += 1) {
-    const result = await rpc.get_table_by_scope({
-      json: true,
-      code: contract,
-      table: 'accounts',
-      lower_bound: lowerBound,
-      limit: SCOPES_LIMIT_PER_CALL,
-    })
-
-    if (Array.isArray(result.rows) && result.rows.length > 0) {
-      holders += result.rows.length
-    }
-
-    if (holders >= HOLDERS_CAP) {
-      return { holders: HOLDERS_CAP, truncated: true }
-    }
-
-    const nextKey = (typeof result.more === 'string' && result.more.length > 0)
-      ? result.more
-      : (typeof result.next_key === 'string' && result.next_key.length > 0 ? result.next_key : null)
-
-    if (!nextKey || result.rows.length === 0) break
-    if (i === MAX_PAGES - 1) {
-      return { holders, truncated: true }
-    }
-    lowerBound = nextKey
+  const holders = Number(data)
+  if (!Number.isInteger(holders) || holders < 0) {
+    throw new Error(`unexpected holdercount answer: ${JSON.stringify(data)}`)
   }
-
-  return { holders, truncated: false }
+  return holders
 }
 
 function computeChanges(series: number[]) {
@@ -64,7 +46,12 @@ function computeChanges(series: number[]) {
 export async function updateTokenHoldersHistory(network: Network) {
   const chain = network.name
   const redis = getRedis()
-  const rpc = getChain(chain).rpc()
+
+  // Without LightAPI there is no per-token count to take; a wrong one is worse than none.
+  if (!network.lightapi) {
+    console.warn(`[${chain}] no lightapi configured, token holders are not counted`)
+    return
+  }
 
   try {
     const tokens = await getTokens(chain)
@@ -77,13 +64,20 @@ export async function updateTokenHoldersHistory(network: Network) {
     const historyDocs: any[] = []
 
     await Promise.all(tokens.map((t) => limit(async () => {
-      const { holders, truncated } = await fetchHoldersCountLimited(rpc, t.contract)
+      let holders: number
+      try {
+        holders = await fetchHoldersCount(network.lightapi, chain, t.contract, t.symbol)
+      } catch (e) {
+        // One token LightAPI could not answer for keeps its last count rather than taking the rest down.
+        console.error(`[${chain}] holders of ${t.id} not counted:`, e.message)
+        return
+      }
 
       historyDocs.push({
         chain,
         tokenId: t.id,
         holders,
-        truncated,
+        truncated: false,
         time: now,
       })
 
@@ -102,7 +96,7 @@ export async function updateTokenHoldersHistory(network: Network) {
         change1h: changes.change1h,
         change6h: changes.change6h,
         change24h: changes.change24h,
-        truncated,
+        truncated: false,
         updatedAt: now.toISOString(),
       }
     })))
