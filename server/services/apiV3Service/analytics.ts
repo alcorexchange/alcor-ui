@@ -178,6 +178,9 @@ function getOverviewCacheKey(req: any) {
 const ANALYTICS_RESPONSE_SWR_STALE_MS = 60 * 60 * 1000
 const OVERVIEW_RESPONSE_SWR_FRESH_MS = OVERVIEW_CACHE_SECONDS * 1000
 const TOKENS_RESPONSE_SWR_FRESH_MS = 60 * 1000
+// Search results are cheap to rebuild and must not hide newly listed tokens
+// behind an hour-old empty answer.
+const TOKENS_SEARCH_RESPONSE_SWR_STALE_MS = 2 * 60 * 1000
 
 function buildAnalyticsResponseSwrKey(route: string, req: any) {
   const network = req.app.get('network')
@@ -1746,7 +1749,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
       }
     },
     TOKENS_RESPONSE_SWR_FRESH_MS,
-    ANALYTICS_RESPONSE_SWR_STALE_MS
+    search ? TOKENS_SEARCH_RESPONSE_SWR_STALE_MS : ANALYTICS_RESPONSE_SWR_STALE_MS
   )
 
   // Light layer (per request): slice the shared sorted list and enrich only the
