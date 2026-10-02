@@ -206,12 +206,13 @@ export default {
     banners: {
       wax: [
         {
-          link: 'https://discord.gg/cSPMT6ndSQ',
-          image: require('@/assets/images/swap-banner-mbgr.gif'),
+          link: 'https://bitracegames.web.app/',
+          image: require('@/assets/images/bitrace-wax-banner.mp4'),
+          isVideo: true,
           colors: [
-            'rgba(255,165,0,0.2)',
-            'rgba(255,140,0, 1)',
-            'rgba(139,69,19,1)',
+            'rgba(100, 55, 255, 0.25)',
+            'rgba(170, 85, 255, 0.9)',
+            'rgba(15, 12, 45, 1)',
           ],
         },
       ],
