@@ -81,7 +81,9 @@ export async function updateTokenHoldersHistory(network: Network) {
         time: now,
       })
 
-      const listKey = `${chain}_token_holders_ts_${t.id}`
+      // `nz`: the series counts non-zero holders per token. The old `ts` series
+      // counted every balance row per contract, so it is not compared against.
+      const listKey = `${chain}_token_holders_nz_ts_${t.id}`
 
       await redis.lPush(listKey, String(holders))
       await redis.lTrim(listKey, 0, 24)
