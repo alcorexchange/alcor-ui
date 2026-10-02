@@ -207,8 +207,7 @@ export default {
       wax: [
         {
           link: 'https://bitracegames.web.app/',
-          image: require('@/assets/images/bitrace-wax-banner.mp4'),
-          isVideo: true,
+          image: require('@/assets/images/bitrace-wax-banner.gif'),
           colors: [
             'rgba(100, 55, 255, 0.25)',
             'rgba(170, 85, 255, 0.9)',
