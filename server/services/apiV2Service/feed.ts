@@ -15,6 +15,18 @@ export function marketUrl(network: Network, kind: Kind, ticker_id: string): stri
   return `https://alcor.exchange/v/${network.alcorSlug}/${kind}/${ticker_id}`
 }
 
+// CoinMarketCap UCID of a token, from the explicit map in config.js.
+export function cmcUcid(network: { CMC_IDS: { [tokenId: string]: number } }, tokenId: string): number | null {
+  return network.CMC_IDS[tokenId] || null
+}
+
+// Unified pair name for CMC, e.g. "USDT-WAX". Only for pairs of two tokens CMC knows.
+export function globalTickerId(network: { CMC_IDS: { [tokenId: string]: number } }, base: string, target: string): string | null {
+  if (!cmcUcid(network, base) || !cmcUcid(network, target)) return null
+
+  return base.split('-')[0].toUpperCase() + '-' + target.split('-')[0].toUpperCase()
+}
+
 // `start_time` / `end_time` are unix seconds per the spec. Returns a mongo range
 // for the `time` field, or `null` when the caller asked for no bounds.
 export function parseTimeRange(query: { start_time?: any, end_time?: any }): { range?: any, error?: string } {

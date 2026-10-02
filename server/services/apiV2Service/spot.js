@@ -7,7 +7,7 @@ import { SwapPool, Bar, Match, Market } from '../../models'
 import { getTokens } from '../../utils'
 import { getSwrString } from '../swrCache'
 import { getScamLists } from './config'
-import { marketUrl, parseTimeRange, parseTradesLimit } from './feed'
+import { cmcUcid, globalTickerId, marketUrl, parseTimeRange, parseTradesLimit } from './feed'
 
 // SWR windows for /tickers: serve a process-local serialized string for
 // FRESH_MS, then serve stale + refresh in background up to STALE_MS.
@@ -50,18 +50,15 @@ function getPairKey(a, b) {
   return a < b ? `${a}|${b}` : `${b}|${a}`
 }
 
-function formatTicker(m, network, tokenById = new Map()) {
+function formatTicker(m, network) {
   const [base, target] = m.ticker_id.split('_')
 
   m.market_id = m.id
   m.target_currency = target.toLowerCase()
   m.base_currency = base.toLowerCase()
 
-  const target_token = tokenById.get(m.target_currency)
-  const base_token = tokenById.get(m.base_currency)
-
-  m.target_cmc_ucid = target_token?.cmc_id || null
-  m.base_cmc_ucid = base_token?.cmc_id || null
+  m.target_cmc_ucid = cmcUcid(network, m.target_currency)
+  m.base_cmc_ucid = cmcUcid(network, m.base_currency)
 
   // Spec names: an orderbook market is this DEX's "pool", high/low are the 24h range.
   // A market that never traded has no range - null, not a zero price.
@@ -72,12 +69,7 @@ function formatTicker(m, network, tokenById = new Map()) {
 
   delete m.id
 
-  const global_tokens = network.GLOBAL_TOKENS
-  if (global_tokens.includes(m.target_currency) && global_tokens.includes(m.base_currency)) {
-    m.global_ticker_id = m.base_currency.split('-')[0].toUpperCase() + '-' + m.target_currency.split('-')[0].toUpperCase()
-  } else {
-    m.global_ticker_id = null
-  }
+  m.global_ticker_id = globalTickerId(network, m.base_currency, m.target_currency)
 
   return getPairKey(m.base_currency, m.target_currency)
 }
@@ -185,7 +177,7 @@ spot.get('/tickers', async (req, res) => {
     }
 
     markets.forEach(m => {
-      const pairKey = formatTicker(m, network, tokenById)
+      const pairKey = formatTicker(m, network)
       formatMarket(m, poolsByPair.get(pairKey) || [], tokenById)
     })
 
@@ -220,7 +212,7 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   if (!m) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
 
   const tokenById = new Map((tokens || []).map(t => [t.id, t]))
-  formatTicker(m, network, tokenById)
+  formatTicker(m, network)
   formatMarket(m, pools, tokenById)
 
   res.json(m)

@@ -29,7 +29,8 @@ All chain-specific settings are in `config.js`. Each network (eos, wax, telos, p
 - Contract addresses (main dex, AMM, OTC, staking, NFT market)
 - RPC endpoints and Hyperion/Light API URLs
 - SCAM_CONTRACTS / SCAM_TOKENS arrays for blocking
-- RECOMMENDED_MARKETS, PINNED_MARKETS, GLOBAL_TOKENS
+- RECOMMENDED_MARKETS, PINNED_MARKETS
+- STABLE_TOKENS (priced at $1), TRUSTED_TOKENS (trusted regardless of score), CMC_IDS (explicit CoinMarketCap UCIDs for the CMC/CoinGecko feeds)
 
 ### Key Directories
 - **pages/** - Nuxt file-based routing (swap, markets, pools, farm, staking, nft-market, bridge, otc)

@@ -9,7 +9,7 @@ import { updateGlobalStats } from './analytics'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats, updatePositionsAggregation } from './swap'
 import { updateLpLeaderboard } from './lpLeaderboard'
-import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
+import { updateSystemPrice, updateTokensPrices } from './prices'
 import { updateTokenScores } from './tokenScores'
 import { startTokenHoldersUpdater } from './tokenHolders'
 import { startTokenLogosUpdater } from './tokenLogos'
@@ -62,7 +62,7 @@ export async function updater(chain: string, services: string[]) {
 
   if (services.includes('prices')) {
     console.log(`[${chain}] Starting price updater...`)
-    await Promise.all([updateSystemPrice(network), updateCMSucid()])
+    await updateSystemPrice(network)
     console.log(`[${chain}] Initial prices fetched, updating token prices...`)
     updateTokensPrices(network)
     setInterval(() => updateSystemPrice(network), 5 * 60 * 1000)

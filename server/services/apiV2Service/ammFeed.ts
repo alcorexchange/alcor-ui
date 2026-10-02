@@ -11,7 +11,7 @@ import { cacheSeconds } from 'route-cache'
 import { SwapPool, Swap } from '../../models'
 import { getSwrString } from '../swrCache'
 import { getScamLists } from './config'
-import { marketUrl, parseTimeRange, parseTradesLimit } from './feed'
+import { cmcUcid, globalTickerId, marketUrl, parseTimeRange, parseTradesLimit } from './feed'
 
 // Same SWR windows as the spot /tickers: both are polled once a minute.
 const TICKERS_SWR_FRESH_MS = 15 * 1000
@@ -98,6 +98,9 @@ ammFeed.get('/tickers', async (req, res) => {
         ticker_id: tickerId(p),
         base_currency: p.tokenA.id,
         target_currency: p.tokenB.id,
+        base_cmc_ucid: cmcUcid(network, p.tokenA.id),
+        target_cmc_ucid: cmcUcid(network, p.tokenB.id),
+        global_ticker_id: globalTickerId(network, p.tokenA.id, p.tokenB.id),
         pool_id: String(p.id),
         last_price: p.priceA,
         base_volume: p.volumeA24 || 0,

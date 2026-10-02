@@ -251,8 +251,7 @@ class LaunchpadMarketDataRuntime {
     const baseTokenId = String(network.baseToken?.id || '').toLowerCase()
     const trustedQuoteTokenIds = new Set<string>([
       baseTokenId,
-      String((network as any)?.USD_TOKEN || '').toLowerCase(),
-      String((network as any)?.USDT_TOKEN || '').toLowerCase(),
+      ...network.STABLE_TOKENS,
       ...String(process.env.LAUNCHPAD_TRUSTED_QUOTE_TOKEN_IDS || '')
         .split(',')
         .map((v) => v.trim().toLowerCase()),
