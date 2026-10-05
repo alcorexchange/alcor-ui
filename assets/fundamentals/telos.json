@@ -33,5 +33,77 @@
     ],
     "github": "https://github.com/antelopebuilder/teloscache",
     "description": "A branch of the antelope{cache} protocol, telos{cache} is a sovereign RAM mining protocol that fosters an open market where participants compete for market share of TCACHE, by virtue of RAM held in reserve. The contract is governed exclusively by the mining weight of its participants, who can vote to modify the contract’s ABI/WASM and transaction fees. telos{cache} operates with one-hour block intervals, featuring an initial block reward of 26.2144 TCACHE, which halves every 20,000 blocks, and incorporates token burns dynamically pegged to RAM prices. Deployed on three leading Antelope Networks, including WAX, TELOS, and EOS, each with its own token (WCACHE, TCACHE, and ECACHE respectively), it not only creates cross-chain RAM arbitrage opportunities but also redefines the concept of commodity-backed cash, specifically RAM-backed cash."
-  }  
+  },
+  "USDT@wrap.alcor": {
+    "name": "USDT",
+    "website": {
+      "link": "https://tether.to",
+      "name": "Tether USDT"
+    },
+    "tags": [
+      "Stablecoin",
+      "Tether",
+      "USD",
+      "Bridged"
+    ],
+    "socials": [
+      "https://alcor.exchange/v/telos/bridge/info",
+      "https://explorer.telos.net/account/wrap.alcor",
+      "https://etherscan.io/address/0x3e447d533321ad6a8412f97034ac295a9ff8d858"
+    ],
+    "description": "USDT from Ethereum, brought to Telos by the Alcor bridge and backed 1:1 by USDT locked in the bridge vault on Ethereum. Every transfer is verified on-chain: light clients on both chains check the other chain's validator signatures, so no relayer or backend is trusted to confirm a transfer. Bridge in or out at alcor.exchange."
+  },
+  "USDC@wrap.alcor": {
+    "name": "USDC",
+    "website": {
+      "link": "https://www.circle.com/usdc",
+      "name": "Circle USDC"
+    },
+    "tags": [
+      "Stablecoin",
+      "Circle",
+      "USD",
+      "Bridged"
+    ],
+    "socials": [
+      "https://alcor.exchange/v/telos/bridge/info",
+      "https://explorer.telos.net/account/wrap.alcor",
+      "https://etherscan.io/address/0x3e447d533321ad6a8412f97034ac295a9ff8d858"
+    ],
+    "description": "USDC from Ethereum, brought to Telos by the Alcor bridge and backed 1:1 by USDC locked in the bridge vault on Ethereum. Every transfer is verified on-chain: light clients on both chains check the other chain's validator signatures, so no relayer or backend is trusted to confirm a transfer. Bridge in or out at alcor.exchange."
+  },
+  "ETH@wrap.alcor": {
+    "name": "Ether",
+    "website": {
+      "link": "https://ethereum.org",
+      "name": "Ethereum"
+    },
+    "tags": [
+      "ETH",
+      "Bridged"
+    ],
+    "socials": [
+      "https://alcor.exchange/v/telos/bridge/info",
+      "https://explorer.telos.net/account/wrap.alcor",
+      "https://etherscan.io/address/0x3e447d533321ad6a8412f97034ac295a9ff8d858"
+    ],
+    "description": "ETH from Ethereum, brought to Telos by the Alcor bridge and backed 1:1 by ETH locked in the bridge vault on Ethereum. Every transfer is verified on-chain: light clients on both chains check the other chain's validator signatures, so no relayer or backend is trusted to confirm a transfer. Bridge in or out at alcor.exchange."
+  },
+  "WAX@wrap.alcor": {
+    "name": "WAX",
+    "website": {
+      "link": "https://wax.io",
+      "name": "WAX"
+    },
+    "tags": [
+      "WAX",
+      "Bridged"
+    ],
+    "socials": [
+      "https://alcor.exchange/v/telos/bridge/info",
+      "https://explorer.telos.net/account/wrap.alcor",
+      "https://waxblock.io/account/bridge.alcor"
+    ],
+    "description": "WAX from the WAX chain, brought to Telos by the Alcor bridge and backed 1:1 by WAX locked in bridge.alcor on WAX. Every transfer is verified on-chain: light clients on both chains check the other chain's validator signatures, so no relayer or backend is trusted to confirm a transfer. Bridge in or out at alcor.exchange."
+  }
 }

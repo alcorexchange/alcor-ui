@@ -69,7 +69,9 @@ declare global {
     }
     USD_TOKEN: string
     popularTokens: string[]
-    GLOBAL_TOKENS: string[]
+    STABLE_TOKENS: string[]
+    TRUSTED_TOKENS: string[]
+    CMC_IDS: { [tokenId: string]: number }
   }
 }
 export {}

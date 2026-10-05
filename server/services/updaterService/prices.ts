@@ -1,4 +1,3 @@
-import axios from 'axios'
 
 import { Market, Match, SwapPool } from '../../models'
 import { getTokens } from '../../utils'
@@ -48,17 +47,15 @@ function weightedMedianUsdPrice(candidates: Array<{ usdPrice: number, liquidityU
   return valid[valid.length - 1].usdPrice
 }
 
-export async function updateCMSucid() {
-  try {
-    const { data: { data } } = await axios.get(
-      'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?CMC_PRO_API_KEY=UNIFIED-CRYPTOASSET-INDEX'
-    )
+// A scam token is never trusted. The system token, the stablecoins and the
+// configured blue chips always are; any other token has to earn its score.
+function isTrustedToken(network: Network, tokenId: string, systemTokenId: string, score: number, scam: boolean) {
+  if (scam) return false
+  if (tokenId === systemTokenId) return true
+  if (network.STABLE_TOKENS.includes(tokenId)) return true
+  if (network.TRUSTED_TOKENS.includes(tokenId)) return true
 
-    await getRedis().set('CMC_UCIDS', JSON.stringify(data))
-    console.log('Updated CMC_UCIDS')
-  } catch (e: any) {
-    console.error('CMS ucid PRICE UPDATE FAILED!', e.message || e)
-  }
+  return score > positiveNumber(process.env.TOKEN_TRUSTED_SCORE_MIN, 40)
 }
 
 export async function updateSystemPrice(network: Network) {
@@ -77,20 +74,9 @@ export async function updateSystemPrice(network: Network) {
 export async function updateTokensPrices(network: Network) {
   const tokens = await makeAllTokensWithPrices(network)
 
-  const cmc_ucids = JSON.parse((await getRedis().get('CMC_UCIDS')) || '[]')
-
-  // Построить Map для O(1) поиска вместо O(n) find()
-  const cmcBySlug = new Map()
-  const cmcBySymbol = new Map()
-  for (const c of cmc_ucids) {
-    cmcBySlug.set(c.slug, c)
-    cmcBySymbol.set(c.symbol, c)
-  }
-
   tokens.forEach(t => {
-    const cmc_id = cmcBySlug.get(t.symbol.toLowerCase()) || cmcBySymbol.get(t.symbol)
-
-    if (cmc_id && network.GLOBAL_TOKENS.includes(t.id)) t.cmc_id = cmc_id.id
+    const cmc_id = network.CMC_IDS[t.id]
+    if (cmc_id) t.cmc_id = cmc_id
   })
 
   await getRedis().set(`${network.name}_token_prices`, JSON.stringify(tokens))
@@ -100,18 +86,15 @@ export async function updateTokensPrices(network: Network) {
 export async function makeAllTokensWithPrices(network: Network) {
   // Based on swap only, right now
   const tokens = []
-  const { baseToken, USD_TOKEN } = network
-  const USDT_TOKEN = (network as any).USDT_TOKEN || null
+  const { baseToken } = network
 
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
   const systemPrice = parseFloat(await getRedis().get(`${network.name}_price`)) || 0
-  const trustedScoreMin = positiveNumber(process.env.TOKEN_TRUSTED_SCORE_MIN, 40)
   const scores = JSON.parse(await getRedis().get(`${network.name}_token_scores`) || '{}')
   const { scam_contracts, scam_tokens } = await getScamLists(network)
   const isScam = (id: string, contract: string) => scam_tokens.has(id) || scam_contracts.has(contract)
-  const stableTokenIds = Array.from(new Set([USD_TOKEN, USDT_TOKEN].filter(Boolean)))
-  const stableTokenSet = new Set(stableTokenIds)
-  const referenceTokenIds = [system_token, ...stableTokenIds]
+  const stableTokenSet = new Set(network.STABLE_TOKENS)
+  const referenceTokenIds = [system_token, ...network.STABLE_TOKENS]
   const referenceTokenSet = new Set(referenceTokenIds)
 
   // Price from pool is accepted only when reference side (system/stable) has enough liquidity.
@@ -298,8 +281,7 @@ export async function makeAllTokensWithPrices(network: Network) {
   for (const t of tokens) {
     const score = Number(scores?.[t.id]?.score || 0)
     const scam = isScam(t.id, t.contract)
-    const isBaseOrUsd = t.id === system_token || stableTokenSet.has(t.id)
-    const trusted = !scam && (isBaseOrUsd || score > trustedScoreMin)
+    const trusted = isTrustedToken(network, t.id, system_token, score, scam)
 
     if (scam) {
       t.usd_price = 0
@@ -345,16 +327,14 @@ export async function buildOnDemandToken(network: Network, tokenId: string, pool
 
   if (!meta) return null
 
-  const { baseToken, USD_TOKEN } = network
-  const USDT_TOKEN = (network as any).USDT_TOKEN || null
+  const { baseToken } = network
 
   const system_token = (baseToken.symbol + '-' + baseToken.contract).toLowerCase()
   const systemPrice = parseFloat(await getRedis().get(`${network.name}_price`)) || 0
-  const trustedScoreMin = positiveNumber(process.env.TOKEN_TRUSTED_SCORE_MIN, 40)
   const scores = JSON.parse(await getRedis().get(`${network.name}_token_scores`) || '{}')
   const { scam_contracts, scam_tokens } = await getScamLists(network)
   const isScam = (id: string, contract: string) => scam_tokens.has(id) || scam_contracts.has(contract)
-  const stableTokenSet = new Set([USD_TOKEN, USDT_TOKEN].filter(Boolean))
+  const stableTokenSet = new Set(network.STABLE_TOKENS)
   const referenceTokenSet = new Set([system_token, ...stableTokenSet])
   const minimumUSDAmount = positiveNumber(process.env.MIN_POOL_BASE_LIQUIDITY_USD, DEFAULT_MIN_POOL_BASE_LIQUIDITY_USD)
   const marketPriceMaxAgeMs = positiveNumber(process.env.MARKET_PRICE_MAX_AGE_MS, DEFAULT_MARKET_PRICE_MAX_AGE_MS)
@@ -440,8 +420,7 @@ export async function buildOnDemandToken(network: Network, tokenId: string, pool
 
   const score = Number(scores?.[meta.id]?.score || 0)
   const scam = isScam(meta.id, meta.contract)
-  const isBaseOrUsd = meta.id === system_token || stableTokenSet.has(meta.id)
-  const trusted = !scam && (isBaseOrUsd || score > trustedScoreMin)
+  const trusted = isTrustedToken(network, meta.id, system_token, score, scam)
 
   if (scam) {
     token.usd_price = 0

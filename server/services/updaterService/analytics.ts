@@ -3,6 +3,7 @@ import { getTokens } from '../../utils'
 import { fetchPlatformBalances } from '../chain/balances'
 
 const HOUR_MS = 60 * 60 * 1000
+const DAY_MS = 24 * HOUR_MS
 const SPOT_FEE_SCALE = 1000
 const SWAP_FEE_SCALE = 1000000
 
@@ -15,6 +16,33 @@ function floorToHour(date: Date) {
   const d = new Date(date)
   d.setUTCMinutes(0, 0, 0)
   return d
+}
+
+// Distinct values of `fields` among the documents matching `filter`.
+// Not Model.distinct: on matches its planner picks a DISTINCT_SCAN over
+// (chain, market, asker, ...) and walks the whole chain (~20s per call), while
+// a $match + $group uses the (chain, time, ...) index and takes milliseconds.
+async function distinctValues(model: any, filter: any, fields: string[]) {
+  const $group: any = { _id: null }
+  for (const field of fields) $group[field] = { $addToSet: `$${field}` }
+
+  const [row] = await model.aggregate([{ $match: filter }, { $group }])
+  return row ? fields.flatMap(field => row[field]) : []
+}
+
+// Unique accounts that matched a spot order, swapped or touched an LP position
+// in [from, to). Unique counts don't add up across buckets, so DAU has to be
+// counted over a whole day window, not summed or averaged from hourly buckets.
+export async function countActiveUsers(chain: string, from: Date, to: Date) {
+  const filter = { chain, time: { $gte: from, $lt: to } }
+
+  const accounts = await Promise.all([
+    distinctValues(Match, filter, ['asker', 'bidder']),
+    distinctValues(Swap, filter, ['sender', 'recipient']),
+    distinctValues(PositionHistory, filter, ['owner'])
+  ])
+
+  return new Set(accounts.flat()).size
 }
 
 function getMarketDisplayQuoteTokenId(market: any) {
@@ -130,49 +158,19 @@ export async function updateGlobalStats(network, day = null) {
   const totalLiquidityPools = await SwapPool.countDocuments({ chain: network.name })
   const totalSpotPairs = await Market.countDocuments({ chain: network.name })
 
-  let dailyActiveUsers = 0
-  let totalTransactions = 0
-
-  // if (['eos', 'wax', 'telos'].includes(network.name)) {
-  //   console.log('request: ', { 'X-BLOBR-KEY': process.env.DAPPRADAR_KEY })
-
-  //   const { data: { results: { metrics } } } = await axios.get(
-  //     'https://api.dappradar.com/4tsxo4vuhotaojtl/dapps/3572',
-  //     { params: { range: '24h', chain: network.name }, headers: { 'X-BLOBR-KEY': process.env.DAPPRADAR_KEY } }
-  //   )
-
-  //   dailyActiveUsers = metrics.dailyActiveUsers
-  //   totalTransactions = metrics.totalTransactions
-  // } else {
-
   // TODO HERE IS NO PLACE/CANCEL ORDERS
+  // Transactions are counted per hourly bucket, users over the rolling day ending at it.
   const timeFilter = { chain: network.name, time: { $gte: bucketStart, $lt: bucketEnd } }
-  const [
-    matchUsersAsker,
-    matchUsersBidder,
-    swapUsersSender,
-    swapUsersReceiver,
-    positionOwners,
-    matchTransactions,
-    swapActionTransactions,
-    positionTransactions
-  ] = await Promise.all([
-    Match.distinct('asker', timeFilter).lean(),
-    Match.distinct('bidder', timeFilter).lean(),
-    Swap.distinct('recipient', timeFilter).lean(),
-    Swap.distinct('sender', timeFilter).lean(),
-    PositionHistory.distinct('owner', timeFilter).lean(),
+  const [dailyActiveUsers, matchTransactions, swapActionTransactions, positionTransactions] = await Promise.all([
+    countActiveUsers(network.name, new Date(bucketEnd.getTime() - DAY_MS), bucketEnd),
     Match.countDocuments(timeFilter),
     Swap.countDocuments(timeFilter),
     PositionHistory.countDocuments(timeFilter)
   ])
 
-  dailyActiveUsers = (new Set([...matchUsersAsker, ...matchUsersBidder, ...positionOwners, ...swapUsersSender, ...swapUsersReceiver])).size
-  totalTransactions = matchTransactions + swapActionTransactions + positionTransactions
-
+  const totalTransactions = matchTransactions + swapActionTransactions + positionTransactions
   const swapTransactions = swapActionTransactions + positionTransactions
   const spotTransactions = matchTransactions
-  //}
 
   await GlobalStats.create({
     chain: network.name,

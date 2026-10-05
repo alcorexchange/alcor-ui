@@ -132,24 +132,32 @@ const networks = {
       'wram-eosio.wram',
     ],
 
-    GLOBAL_TOKENS: [
-      'eos-eosio.token',
-      'usdt-tethertether',
-      'wram-eosio.wram',
-      'pgl-prospectorsg',
-      'wax-ibc.wt.wax',
-      'chex-chexchexchex',
-      'iq-everipediaiq',
-      'box-token.defi',
-      'efx-effecttokens',
-      'wombat-wombatbridge',
-      'mlnk-swap.pcash',
-    ]
+    // Tokens taken as $1: price anchors for every other token's USD price.
+    STABLE_TOKENS: ['usdt-tethertether'],
+
+    // Trusted regardless of their score: bridged blue chips backed 1:1.
+    TRUSTED_TOKENS: [],
+
+    // CoinMarketCap UCIDs reported in the CMC / CoinGecko feeds (base_cmc_ucid,
+    // target_cmc_ucid). Bridged tokens backed 1:1 carry their origin asset's UCID.
+    // A pair where both tokens are listed here also gets a global_ticker_id.
+    CMC_IDS: {
+      'eos-eosio.token': 1765,
+      'a-core.vaulta': 36462,
+      'usdt-tethertether': 825,
+      'wax-ibc.wt.wax': 2300,
+      'chex-chexchexchex': 8534,
+      'iq-everipediaiq': 2930,
+      'efx-effecttokens': 2666,
+      'wombat-wombatbridge': 20997,
+      'mlnk-swap.pcash': 20603,
+    },
   },
 
   proton: {
     name: 'proton',
     desc: 'XPR',
+    alcorSlug: 'xpr',
     contract: 'alcor',
 
     baseToken: {
@@ -269,7 +277,30 @@ const networks = {
     USD_TOKEN: 'xusdc-xtokens',
 
     popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens', 'clan-clanx', 'atom-tokencreate'],
-    GLOBAL_TOKENS: [],
+
+    // Tokens taken as $1: price anchors for every other token's USD price.
+    STABLE_TOKENS: ['xusdc-xtokens', 'xusdt-xtokens'],
+
+    // Trusted regardless of their score: bridged blue chips backed 1:1.
+    TRUSTED_TOKENS: [],
+
+    // CoinMarketCap UCIDs reported in the CMC / CoinGecko feeds (base_cmc_ucid,
+    // target_cmc_ucid). Bridged tokens backed 1:1 carry their origin asset's UCID.
+    // A pair where both tokens are listed here also gets a global_ticker_id.
+    CMC_IDS: {
+      'xpr-eosio.token': 5350,
+      'xusdc-xtokens': 3408,
+      'xusdt-xtokens': 825,
+      'xbtc-xtokens': 1,
+      'xeth-xtokens': 1027,
+      'xmt-xtokens': 1788,
+      'xxrp-xtokens': 52,
+      'xxlm-xtokens': 512,
+      'xpax-xtokens': 3330,
+      'metal-xtokens': 21769,
+      'xmd-xmd.token': 38457,
+      'loan-loan.token': 22071,
+    },
   },
 
   xprtest: {
@@ -348,7 +379,9 @@ const networks = {
     USD_TOKEN: '',
 
     popularTokens: ['xpr-eosio.token'],
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   ux: {
@@ -373,7 +406,7 @@ const networks = {
     protocol: 'https',
     monitor: 'https://explorer.uxnetwork.io',
     monitor_params: '',
-    lightapi: 'https://wax.light-api.net',
+    lightapi: null, // LightAPI does not serve UX
     hyperion: 'https://ux.eosusa.io',
 
     //hyperion: 'https://wax.pink.gg/',
@@ -442,12 +475,15 @@ const networks = {
     USD_TOKEN: '',
 
     popularTokens: [],
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   wax: {
     name: 'wax',
     desc: 'WAX',
+    alcorSlug: 'wax',
     contract: 'alcordexmain',
     cpuPayer: 'https://wax.alcor.exchange/api/v2/cpu',
 
@@ -598,23 +634,35 @@ const networks = {
       'blux-bluxbluxblux'
     ],
 
-    GLOBAL_TOKENS: [
-      'usdt-usdt.alcor',
-      'eos-ibc.wt.eos',
-      'wax-eosio.token',
-      'tlos-ibc.wt.tlos',
-      'pgl-prospectorsg',
-      'tlm-alien.worlds',
-      'brwl-brawlertoken',
-      'wombat-wombattokens',
-      'martia-martia',
-      'wuf-wuffi'
-    ],
+    // Tokens taken as $1: price anchors for every other token's USD price.
+    STABLE_TOKENS: ['usdt-usdt.alcor', 'usdt-wrap.alcor', 'usdc-wrap.alcor'],
+
+    // Trusted regardless of their score: bridged blue chips backed 1:1.
+    TRUSTED_TOKENS: ['eth-wrap.alcor'],
+
+    // CoinMarketCap UCIDs reported in the CMC / CoinGecko feeds (base_cmc_ucid,
+    // target_cmc_ucid). Bridged tokens backed 1:1 carry their origin asset's UCID.
+    // A pair where both tokens are listed here also gets a global_ticker_id.
+    CMC_IDS: {
+      'wax-eosio.token': 2300,
+      'usdt-wrap.alcor': 825,
+      'usdc-wrap.alcor': 3408,
+      'eth-wrap.alcor': 1027,
+      'usdt-usdt.alcor': 825,
+      'eos-ibc.wt.eos': 1765,
+      'tlos-ibc.wt.tlos': 4660,
+      'tlm-alien.worlds': 9119,
+      'brwl-brawlertoken': 19216,
+      'wombat-wombattokens': 20997,
+      'martia-martia': 17895,
+      'wuf-wuffi': 30683,
+    },
   },
 
   telos: {
     name: 'telos',
     desc: 'Telos',
+    alcorSlug: 'telos',
     contract: 'eostokensdex',
 
     baseToken: {
@@ -704,10 +752,27 @@ const networks = {
       },
     },
 
-    USD_TOKEN: 'xusdc-xtokens',
+    USD_TOKEN: 'usdt-wrap.alcor',
 
     popularTokens: [],
-    GLOBAL_TOKENS: [],
+
+    // Tokens taken as $1: price anchors for every other token's USD price.
+    STABLE_TOKENS: ['usdt-wrap.alcor', 'usdc-wrap.alcor'],
+
+    // Trusted regardless of their score: bridged blue chips backed 1:1.
+    TRUSTED_TOKENS: ['eth-wrap.alcor', 'wax-wrap.alcor'],
+
+    // CoinMarketCap UCIDs reported in the CMC / CoinGecko feeds (base_cmc_ucid,
+    // target_cmc_ucid). Bridged tokens backed 1:1 carry their origin asset's UCID.
+    // A pair where both tokens are listed here also gets a global_ticker_id.
+    CMC_IDS: {
+      'tlos-eosio.token': 4660,
+      'usdt-wrap.alcor': 825,
+      'usdc-wrap.alcor': 3408,
+      'eth-wrap.alcor': 1027,
+      'wax-wrap.alcor': 2300,
+      'eos-ibc.wt.eos': 1765,
+    },
   },
 
   ultra: {
@@ -799,7 +864,9 @@ const networks = {
     USD_TOKEN: '',
 
     popularTokens: [],
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   waxtest: {
@@ -866,7 +933,9 @@ const networks = {
     },
 
     popularTokens: [],
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   jungle: {
@@ -917,7 +986,9 @@ const networks = {
     },
 
     popularTokens: [],
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   local: {
@@ -980,6 +1051,10 @@ const networks = {
     nftMarket: {
       contract: 'nft',
     },
+
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   // Our own single-producer Wire chain. Not the public Wire testnet — that one
@@ -1073,11 +1148,12 @@ const networks = {
       'test-testtoken',
     ],
 
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: ['usdt-testtoken'],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   popularTokens: [],
-  GLOBAL_TOKENS: [],
 }
 
 // Default markes layouts

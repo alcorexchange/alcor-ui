@@ -18,6 +18,7 @@ import { analytics as analyticsV3 } from '../apiV3Service/analytics'
 import { swap as swapV3 } from '../apiV3Service/swap'
 import { launchpad as launchpadV3 } from '../apiV3Service/launchpad'
 import { spot } from './spot'
+import { ammFeed } from './ammFeed'
 import { swap } from './swap'
 import { ibc } from './ibc'
 import { tokens } from './tokens'
@@ -61,6 +62,7 @@ async function start () {
 
   // Server routes
   app.use('/api/v2/', spot)
+  app.use('/api/v2/amm', ammFeed)
   app.use('/api/v2/', tokens)
   app.use('/api/v2/icons', icons)
   app.use('/api/v2/ibc', ibc)

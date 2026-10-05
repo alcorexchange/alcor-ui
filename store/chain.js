@@ -11,6 +11,7 @@ import ProtonWallet from '~/plugins/wallets/Proton'
 import ScatterWallet from '~/plugins/wallets/Scatter'
 import WombatWallet from '~/plugins/wallets/Wombat'
 import Ultra from '~/plugins/wallets/Ultra'
+import VaultWallet from '~/plugins/wallets/Vault'
 
 export const state = () => ({
   loginPromise: null,
@@ -38,20 +39,24 @@ export const actions = {
       proton: ProtonWallet,
       wombat: WombatWallet,
       ultra: Ultra,
+      vault: VaultWallet,
     }
 
     if (rootState.user?.name) {
-      dispatch('afterLoginHook')
+      dispatch('afterLoginHook', { source: 'restore' })
     }
 
     commit('setWallets', wallets)
+
+    // Every event says which chain it came from; `wallet` joins on login.
+    op.setGlobalProperties({ chain: rootState.network.name })
 
     const { viewAccount } = rootState.route.query
 
     if (viewAccount) {
       console.log('set pre selected account', viewAccount)
       commit('setUser', { name: viewAccount, authorization: [] }, { root: true })
-      dispatch('afterLoginHook')
+      dispatch('afterLoginHook', { source: 'view' })
       return
     }
 
@@ -61,7 +66,8 @@ export const actions = {
     }
   },
 
-  async autoLogin({ state, rootState, dispatch, commit, getters }) {
+  // `source` — see afterLoginHook. From init this is a session coming back.
+  async autoLogin({ state, rootState, dispatch, commit, getters }, { source = 'restore' } = {}) {
     const loginned = await state.wallet.checkLogin()
     if (!loginned) return false
 
@@ -70,29 +76,43 @@ export const actions = {
 
     commit('setUser', { name, authorization }, { root: true })
     commit('setLastWallet', state.wallet.name)
-    dispatch('afterLoginHook')
+    dispatch('afterLoginHook', { source })
     return true
   },
 
-  afterLoginHook({ state, dispatch, rootState }) {
-    this._vm.$gtag.event('login', { wallet: state.lastWallet })
-    posthog.identify(rootState.user.name, {
-      wallet: state.lastWallet,
-      chain: rootState.network.name
-    })
-    posthog.capture('login', { wallet: state.lastWallet })
+  // `source`: manual — the user just logged in; restore — the session came back
+  // on page load; view — someone else's account opened read-only. Only a manual
+  // login counts as one, and a viewed account is not who the user is.
+  afterLoginHook({ state, dispatch, rootState }, { source = 'manual' } = {}) {
+    const viewing = source === 'view' || rootState.user.viewOnly
 
-    op.identify({
-      profileId: rootState.user.name,
-      properties: {
+    // An account name is unique only within its chain — `alice` on WAX and on
+    // Telos can be different people, so the chain is part of the profile.
+    const profileId = `${rootState.network.name}:${rootState.user.name}`
+
+    if (!viewing) {
+      posthog.identify(profileId, {
+        account: rootState.user.name,
         wallet: state.lastWallet,
-        chain: rootState.network.name,
-      },
-    })
-    op.track('login', {
-      wallet: state.lastWallet,
-      chain: rootState.network.name,
-    })
+        chain: rootState.network.name
+      })
+      op.setGlobalProperties({ wallet: state.lastWallet })
+      op.identify({
+        profileId,
+        properties: {
+          account: rootState.user.name,
+          wallet: state.lastWallet,
+          chain: rootState.network.name,
+        },
+      })
+    }
+
+    if (!viewing && source === 'manual') {
+      this._vm.$gtag.event('login', { wallet: state.lastWallet })
+      posthog.capture('login', { wallet: state.lastWallet })
+      op.track('login')
+    }
+
     dispatch('amm/afterLogin', {}, { root: true })
     dispatch('loadAccountData', {}, { root: true })
 
@@ -113,6 +133,8 @@ export const actions = {
     this.$socket.io.on('reconnect', () => {
       dispatch('subscribeToAccountPushes')
     })
+
+    dispatch('signer/accountChanged', { source }, { root: true })
   },
 
   subscribeToAccountPushes({ rootState }) {
@@ -149,6 +171,10 @@ export const actions = {
 
     console.log('logout..')
     state?.wallet?.logout?.()
+    posthog.reset()
+    op.clear()
+    // clear() forgets the profile but not global properties.
+    op.setGlobalProperties({ wallet: undefined })
     commit('setLastWallet', null)
 
     dispatch('unsubscribeToAccountPushes')
@@ -156,6 +182,7 @@ export const actions = {
     commit('setUser', null, { root: true })
     commit('setUserOrders', [], { root: true })
     commit('setUserBalances', [], { root: true })
+    dispatch('signer/accountChanged', {}, { root: true })
   },
 
   async mainLogin({ commit, dispatch }) {
@@ -164,13 +191,13 @@ export const actions = {
 
       commit('setWallet', wallet)
 
-      const wasAutoLoginned = await dispatch('autoLogin')
+      const wasAutoLoginned = await dispatch('autoLogin', { source: 'manual' })
       if (wasAutoLoginned) return
 
       commit('setUser', { name, authorization }, { root: true })
-      dispatch('afterLoginHook')
-
+      // Before the hook: it reports which wallet was used.
       commit('setLastWallet', wallet.name)
+      dispatch('afterLoginHook')
 
       return wallet
     } catch (e) {
@@ -183,10 +210,13 @@ export const actions = {
 
     const wallet = new state.wallets[wallet_name](network, getMultyEndRpc(Object.keys(network.client_nodes)))
 
+    op.track('wallet_provider_selected', { provider: wallet_name })
+
     try {
       const { name, authorization } = await wallet.login()
       state.loginPromise.resolve({ wallet, name, authorization })
     } catch (e) {
+      op.track('login_failed', { provider: wallet_name, error: e?.message ?? String(e) })
       state.loginPromise.reject(e)
     }
   },
@@ -716,8 +746,33 @@ export const actions = {
     }
   },
 
+  // Every signature goes through here — so this is where they are counted.
+  // `contract`/`action` is the first action, `target` is who a transfer is for:
+  // together they say which feature was used. `chain`/`wallet` are global properties.
+  async sendTransaction({ dispatch }, actions) {
+    const [first] = actions
+    const props = {
+      contract: first?.account,
+      action: first?.name,
+      target: first?.name === 'transfer' ? first.data?.to : undefined,
+      actions: actions.map(a => `${a.account}::${a.name}`).join(','),
+    }
+
+    try {
+      const result = await dispatch('signAndSend', actions)
+      op.track('tx_success', props)
+      // Right after a signature with an old wallet is the moment to offer Alcor Signer.
+      dispatch('signer/afterSigning', { error: null }, { root: true })
+      return result
+    } catch (e) {
+      op.track('tx_failed', { ...props, error: e?.message ?? String(e) })
+      dispatch('signer/afterSigning', { error: e }, { root: true })
+      throw e
+    }
+  },
+
   // TODO Relogin after check chain and relogin if possible
-  async sendTransaction(
+  async signAndSend(
     { state, rootState, dispatch, getters, commit },
     actions
   ) {
