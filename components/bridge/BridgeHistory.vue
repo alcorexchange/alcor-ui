@@ -53,7 +53,7 @@
 
     el-table-column(label="Status" width="140" className="status-col" align="right")
       template(slot-scope='{row}')
-        .status.pointer(@click="complete(row)" :class="{completed: getStatus(row.proven).isCompleted}" v-loading="row.tx.trx_id == retrying")
+        .status.pointer.hover-opacity(@click="complete(row)" :class="{completed: getStatus(row.proven).isCompleted}" v-loading="row.tx.trx_id == retrying")
           i(:class="getStatus(row.proven).icon")
           span {{ getStatus(row.proven).text }}
 </template>
@@ -222,11 +222,6 @@ export default {
       }
     },
 
-    test() {
-      console.log('test')
-      this.fetchHistoryFrom(this.source)
-    },
-
     async fetchProvenList(chain, contract) {
       if (`${chain}_${contract}` in this.provenList) return
 
@@ -244,11 +239,15 @@ export default {
     },
 
     async fetchHistoryFrom(chain) {
+      const { account } = this.$route.query
+
       this.loading = true
 
       const history = []
 
-      //this.sourceWallet.name = 'eosplaywithx'
+      if (account) {
+        this.sourceWallet.name = account
+      }
 
       try {
         const wrapLockContracts = []

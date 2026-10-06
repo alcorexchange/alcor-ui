@@ -1,4 +1,7 @@
+import { Api } from 'enf-eosjs'
+import posthog from 'posthog-js'
 import { getMultyEndRpc } from '../utils/eosjs'
+import { op } from '~/plugins/openpanel'
 
 import config from '~/config'
 
@@ -7,6 +10,8 @@ import AnchoWallet from '~/plugins/wallets/Anchor'
 import ProtonWallet from '~/plugins/wallets/Proton'
 import ScatterWallet from '~/plugins/wallets/Scatter'
 import WombatWallet from '~/plugins/wallets/Wombat'
+import Ultra from '~/plugins/wallets/Ultra'
+import VaultWallet from '~/plugins/wallets/Vault'
 
 export const state = () => ({
   loginPromise: null,
@@ -32,36 +37,82 @@ export const actions = {
       scatter: ScatterWallet,
       wcw: WCW,
       proton: ProtonWallet,
-      wombat: WombatWallet
+      wombat: WombatWallet,
+      ultra: Ultra,
+      vault: VaultWallet,
+    }
+
+    if (rootState.user?.name) {
+      dispatch('afterLoginHook', { source: 'restore' })
     }
 
     commit('setWallets', wallets)
+
+    // Every event says which chain it came from; `wallet` joins on login.
+    op.setGlobalProperties({ chain: rootState.network.name })
+
+    const { viewAccount } = rootState.route.query
+
+    if (viewAccount) {
+      console.log('set pre selected account', viewAccount)
+      commit('setUser', { name: viewAccount, authorization: [] }, { root: true })
+      dispatch('afterLoginHook', { source: 'view' })
+      return
+    }
 
     if (state.lastWallet) {
       commit('setWallet', new state.wallets[state.lastWallet](rootState.network, this.$rpc))
       dispatch('autoLogin')
     }
-
-    // FIXME For tests
-    if (rootState?.user?.name) dispatch('afterLoginHook')
   },
 
-  async autoLogin({ state, rootState, dispatch, commit, getters }) {
-    console.log('try autoLogin..')
+  // `source` — see afterLoginHook. From init this is a session coming back.
+  async autoLogin({ state, rootState, dispatch, commit, getters }, { source = 'restore' } = {}) {
     const loginned = await state.wallet.checkLogin()
     if (!loginned) return false
 
-    console.log('YES. autoLogining...')
     const { name, authorization, chainId } = loginned
-    if (chainId !== rootState.network.chainId) return console.log('autoLogin chain mismatch')
+    if (chainId !== rootState.network.chainId) return false
+
     commit('setUser', { name, authorization }, { root: true })
     commit('setLastWallet', state.wallet.name)
-    dispatch('afterLoginHook')
+    dispatch('afterLoginHook', { source })
     return true
   },
 
-  afterLoginHook({ state, dispatch, rootState }) {
-    this._vm.$gtag.event('login', { wallet: state.lastWallet })
+  // `source`: manual — the user just logged in; restore — the session came back
+  // on page load; view — someone else's account opened read-only. Only a manual
+  // login counts as one, and a viewed account is not who the user is.
+  afterLoginHook({ state, dispatch, rootState }, { source = 'manual' } = {}) {
+    const viewing = source === 'view' || rootState.user.viewOnly
+
+    // An account name is unique only within its chain — `alice` on WAX and on
+    // Telos can be different people, so the chain is part of the profile.
+    const profileId = `${rootState.network.name}:${rootState.user.name}`
+
+    if (!viewing) {
+      posthog.identify(profileId, {
+        account: rootState.user.name,
+        wallet: state.lastWallet,
+        chain: rootState.network.name
+      })
+      op.setGlobalProperties({ wallet: state.lastWallet })
+      op.identify({
+        profileId,
+        properties: {
+          account: rootState.user.name,
+          wallet: state.lastWallet,
+          chain: rootState.network.name,
+        },
+      })
+    }
+
+    if (!viewing && source === 'manual') {
+      this._vm.$gtag.event('login', { wallet: state.lastWallet })
+      posthog.capture('login', { wallet: state.lastWallet })
+      op.track('login')
+    }
+
     dispatch('amm/afterLogin', {}, { root: true })
     dispatch('loadAccountData', {}, { root: true })
 
@@ -82,6 +133,8 @@ export const actions = {
     this.$socket.io.on('reconnect', () => {
       dispatch('subscribeToAccountPushes')
     })
+
+    dispatch('signer/accountChanged', { source }, { root: true })
   },
 
   subscribeToAccountPushes({ rootState }) {
@@ -105,14 +158,31 @@ export const actions = {
   },
 
   logout({ state, dispatch, commit, getters, rootState }) {
+    const { viewAccount } = rootState.route.query
+
+    if (viewAccount) {
+      dispatch('unsubscribeToAccountPushes')
+
+      commit('setUser', null, { root: true })
+      commit('setUserOrders', [], { root: true })
+      window.location = window.location.origin
+      return
+    }
+
     console.log('logout..')
-    state?.wallet?.logout()
+    state?.wallet?.logout?.()
+    posthog.reset()
+    op.clear()
+    // clear() forgets the profile but not global properties.
+    op.setGlobalProperties({ wallet: undefined })
     commit('setLastWallet', null)
 
     dispatch('unsubscribeToAccountPushes')
 
     commit('setUser', null, { root: true })
     commit('setUserOrders', [], { root: true })
+    commit('setUserBalances', [], { root: true })
+    dispatch('signer/accountChanged', {}, { root: true })
   },
 
   async mainLogin({ commit, dispatch }) {
@@ -121,13 +191,13 @@ export const actions = {
 
       commit('setWallet', wallet)
 
-      const wasAutoLoginned = await dispatch('autoLogin')
+      const wasAutoLoginned = await dispatch('autoLogin', { source: 'manual' })
       if (wasAutoLoginned) return
 
       commit('setUser', { name, authorization }, { root: true })
-      dispatch('afterLoginHook')
-
+      // Before the hook: it reports which wallet was used.
       commit('setLastWallet', wallet.name)
+      dispatch('afterLoginHook')
 
       return wallet
     } catch (e) {
@@ -140,10 +210,13 @@ export const actions = {
 
     const wallet = new state.wallets[wallet_name](network, getMultyEndRpc(Object.keys(network.client_nodes)))
 
+    op.track('wallet_provider_selected', { provider: wallet_name })
+
     try {
       const { name, authorization } = await wallet.login()
       state.loginPromise.resolve({ wallet, name, authorization })
     } catch (e) {
+      op.track('login_failed', { provider: wallet_name, error: e?.message ?? String(e) })
       state.loginPromise.reject(e)
     }
   },
@@ -623,12 +696,87 @@ export const actions = {
     await dispatch('sendTransaction', actions)
   },
 
+  // Check if CPU payer is available and signing
+  async checkCpuPayerStatus({ rootState }) {
+    const { cpuPayer } = rootState.network
+    if (!cpuPayer) return null
+
+    const statusUrl = `${cpuPayer}/status`
+
+    try {
+      const response = await fetch(statusUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (!response.ok) return null
+
+      const status = await response.json()
+      return status.available && status.signing ? status : null
+    } catch (e) {
+      console.warn('CPU payer status check failed:', e.message)
+      return null
+    }
+  },
+
+  // Request cosign from CPU payer service
+  async requestCosign({ rootState }, { serializedTransaction }) {
+    const { cpuPayer } = rootState.network
+    if (!cpuPayer) return null
+
+    const cosignUrl = `${cpuPayer}/cosign`
+
+    try {
+      const response = await fetch(cosignUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serializedTransaction })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        console.warn('CPU payer cosign error:', error.error)
+        return null
+      }
+
+      return await response.json()
+    } catch (e) {
+      console.warn('CPU payer unavailable:', e.message)
+      return null
+    }
+  },
+
+  // Every signature goes through here — so this is where they are counted.
+  // `contract`/`action` is the first action, `target` is who a transfer is for:
+  // together they say which feature was used. `chain`/`wallet` are global properties.
+  async sendTransaction({ dispatch }, actions) {
+    const [first] = actions
+    const props = {
+      contract: first?.account,
+      action: first?.name,
+      target: first?.name === 'transfer' ? first.data?.to : undefined,
+      actions: actions.map(a => `${a.account}::${a.name}`).join(','),
+    }
+
+    try {
+      const result = await dispatch('signAndSend', actions)
+      op.track('tx_success', props)
+      // Right after a signature with an old wallet is the moment to offer Alcor Signer.
+      dispatch('signer/afterSigning', { error: null }, { root: true })
+      return result
+    } catch (e) {
+      op.track('tx_failed', { ...props, error: e?.message ?? String(e) })
+      dispatch('signer/afterSigning', { error: e }, { root: true })
+      throw e
+    }
+  },
+
   // TODO Relogin after check chain and relogin if possible
-  async sendTransaction(
+  async signAndSend(
     { state, rootState, dispatch, getters, commit },
     actions
   ) {
-    if (actions && actions[0].name != 'delegatebw' && state.lastWallet != 'wcw') {
+    if (actions && actions[0].name != 'delegatebw' && state.lastWallet != 'wcw' && !['ultra'].includes(rootState.network.name)) {
       await dispatch('resources/showIfNeeded', undefined, { root: true })
     }
 
@@ -639,12 +787,71 @@ export const actions = {
     )
 
     try {
+      // Contracts that CPU payer cannot sign (system contracts, NFT, etc.)
+      const cpuPayerBlacklist = ['eosio', 'atomicassets', 'atomicmarket', 'atomictoolsx', 'simpleassets']
+      // Whitelist of contracts that CPU payer can sign (must match cpu-payer service)
+      const cpuPayerWhitelist = ['alcordexmain', 'swap.alcor', 'otc.alcor', 'alcorotcswap', 'liquid.alcor']
+
+      // CPU payer only available on WAX
+      const canUseCpuPayer = rootState.network.name === 'wax' && state.lastWallet !== 'wcw' && actions.every(a => {
+        if (cpuPayerBlacklist.includes(a.account)) return false
+        if (cpuPayerWhitelist.includes(a.account)) return true
+        if (a.name === 'transfer' && a.data?.to && cpuPayerWhitelist.includes(a.data.to)) return true
+        return false
+      })
+
+      // Try CPU payer first if eligible
+      if (canUseCpuPayer) {
+        try {
+          const noopAction = {
+            account: 'liquid.alcor',
+            name: 'noop',
+            authorization: [{ actor: 'liquid.alcor', permission: 'bw' }],
+            data: {}
+          }
+
+          const signedTx = await state.wallet.transact(
+            { actions: [noopAction, ...actions] },
+            { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
+          )
+
+          const serializedTx = signedTx.resolved
+            ? signedTx.resolved.serializedTransaction
+            : signedTx.serializedTransaction
+
+          const serializedHex = Array.from(
+            serializedTx instanceof Uint8Array ? serializedTx : new Uint8Array(serializedTx)
+          ).map(b => b.toString(16).padStart(2, '0')).join('')
+
+          const cosignResult = await dispatch('requestCosign', { serializedTransaction: serializedHex })
+
+          if (cosignResult && cosignResult.signature) {
+            const packedTx = {
+              signatures: [cosignResult.signature, ...signedTx.signatures],
+              serializedTransaction: serializedTx
+            }
+            return await this.$rpc.send_transaction(packedTx)
+          }
+        } catch (e) {
+          console.warn('CPU payer failed, falling back to user resources:', e.message)
+        }
+
+        // Cosign failed - ask user to sign again without noop (fallback)
+        console.log('Falling back to regular transaction...')
+      }
+
+      // Regular transaction (no CPU payer)
       const signedTx = await state.wallet.transact(
         { actions },
         { broadcast: false, expireSeconds: 360, blocksBehind: 3 }
       )
 
-      // TODO Manage leap soon
+      // TODO Make one standart for success tx response
+      if (state.wallet.name == 'ultra') {
+        console.log('signedTx', signedTx)
+        return signedTx
+      }
+
       const packedTx = {
         signatures: signedTx.signatures,
         serializedTransaction: signedTx.resolved
@@ -652,7 +859,6 @@ export const actions = {
           : signedTx.serializedTransaction
       }
 
-      // TODO Протестить если ошибка от ноды
       return await this.$rpc.send_transaction(packedTx)
     } catch (e) {
       throw e
@@ -660,6 +866,15 @@ export const actions = {
       dispatch('update', {}, { root: true })
       commit('loading/CLOSE', {}, { root: true })
     }
+  },
+
+  async sendReadOnlyTransaction(
+    { state, rootState, dispatch, getters, commit },
+    actions
+  ) {
+    const api = new Api({ rpc: this.$rpc, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() })
+
+    return await api.transact({ actions }, { broadcast: true, readOnly: true, blocksBehind: 3, expireSeconds: 72 })
   }
 }
 

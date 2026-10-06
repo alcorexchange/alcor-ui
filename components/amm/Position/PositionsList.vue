@@ -61,14 +61,17 @@ el-table.position-table.custom-responsive-table(
   //-         .fs-12.earn.d-flex.gap-4
   //-           span {{ row.feesB | commaFloat }}
 
-  el-table-column(:label='$t("Total Value")' width="130" v-if="!isMobile" sortable sort-by="totalValue")
+  el-table-column(:label='$t("Total Value")' width="180" v-if="!isMobile" sortable sort-by="totalValue")
+    template(#header)
+      span.total-value-header
+        span {{ $t("Total") }}
+        span.total-posiions-value  ( ${{ totalPositionsValue | commaFloat(2) }} )
     template(slot-scope='{row}')
       span $ {{ row.totalValue | commaFloat(2) }}
 
   el-table-column(label='Unclaimed Fees' width="150" v-if="!isMobile" sortable sort-by="totalFeesUSD")
     template(slot-scope='{row}')
       span(:style="{color: $percentColor(1)}") $ {{ row.totalFeesUSD | commaFloat(3) }}
-
 
   //- el-table-column(:label='$t("P&L")' width="100" v-if="!isMobile")
   //-   template(slot-scope='{row}')
@@ -102,9 +105,7 @@ export default {
     positions() {
       return this.$store.state.amm.positions
         .map((p) => {
-          const _pool = this.$store.state.amm.pools.find(
-            (pool) => pool.id == p.pool
-          )
+          const _pool = this.$store.state.amm.pools.find((pool) => pool.id == p.pool)
 
           if (!_pool) return {}
           const pool = constructPoolInstance(_pool)
@@ -131,6 +132,10 @@ export default {
           // prettier-ignore
           return `${p.feesA.split(' ')[1]}${p.feesB.split(' ')[1]}`.toLowerCase().includes(this.search?.toLowerCase() || '')
         })
+        .toSorted((a, b) => b.totalValue - a.totalValue)
+    },
+    totalPositionsValue() {
+      return this.positions.reduce((value, position) => value + position.totalValue, 0)
     },
   },
 }
@@ -147,6 +152,9 @@ export default {
   line-height: 12px;
   padding: 4px;
   border-radius: 4px;
+}
+.total-posiions-value {
+  color: var(--text-default);
 }
 .indicator {
   width: 6px;

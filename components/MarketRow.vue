@@ -3,10 +3,11 @@ NuxtLink.wrapper(:to="localeRoute(`/trade/${item.slug}`)" :class="{ 'mobile': is
   .label
     PairIcons(
       v-if="isUSDTbase"
+      :size="isMobile ? '16' : undefined"
       :token1="{ symbol: item.quote_name, contract: item.contract }"
       :token2="{ symbol: item.base_name, contract: item.base_contract }")
 
-    token-image.token(v-else :src='$tokenLogo(item.quote_name, item.contract)')
+    TokenInfoImage(v-else :symbol="item.quote_name" :contract="item.contract" :height="isMobile ? '16' : undefined")
 
     .name
       span {{ item.quote_name }}
@@ -39,28 +40,29 @@ NuxtLink.wrapper(:to="localeRoute(`/trade/${item.slug}`)" :class="{ 'mobile': is
 
 <script>
 import { mapState } from 'vuex'
-import TokenImage from '~/components/elements/TokenImage'
+import TokenInfoImage from '~/components/elements/TokenInfoImage'
 import ChangePercent from '~/components/trade/ChangePercent'
 import PairIcons from '~/components/PairIcons'
 
 export default {
-  components: { TokenImage, ChangePercent, PairIcons },
+  components: { TokenInfoImage, ChangePercent, PairIcons },
   props: ['item', 'showVolumeInUSD', 'marketsActiveTab'],
   computed: {
     ...mapState(['network']),
 
     isUSDTbase() {
-      return this.network.USD_TOKEN.includes(this.item.base_contract)
-    }
+      return true
+      //return this.network.USD_TOKEN.includes(this.item.base_contract)
+    },
   },
   methods: {
     redirect() {
       this.$router.push({
         name: `trade-index-id___${this.$i18n.locale}`,
-        params: { id: this.item.slug }
+        params: { id: this.item.slug },
       })
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -83,11 +85,6 @@ export default {
 .wrapper .label {
   display: flex;
   align-items: center;
-}
-
-.wrapper.mobile .token {
-  width: 16px;
-  height: 16px;
 }
 
 .wrapper.mobile {

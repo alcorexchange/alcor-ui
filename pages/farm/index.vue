@@ -1,23 +1,33 @@
 <template lang="pug">
-  .farms-page
-    FarmHeader(:search.sync="search" :finished.sync="finished" :hideCreateNew="true").mb-2.mt-4
-    FarmsTableNew(:farmPools="farmPools" :finished="finished")
+.farms-page
+  NewUiCallout.mt-4(
+    path="/swap/farms"
+    title="Farms are on the new Alcor"
+    text="Stake and claim per position, watch rewards tick live, and see which positions are out of range."
+    cta="Open new Farms"
+  )
+  FarmHeader(:search.sync="search" :finished.sync="finished" :hideCreateNew="true").mb-2.mt-2
+  FarmsTableNew(:farmPools="farmPools" :finished="finished")
 </template>
 
 <script>
 import FarmHeader from '@/components/farm/FarmHeader'
 import FarmsTableNew from '@/components/farm/FarmsTableNew'
+import NewUiCallout from '@/components/layout/NewUiCallout'
 export default {
   name: 'FarmsPage',
   components: {
     FarmHeader,
     FarmsTableNew,
+    NewUiCallout,
   },
 
   data: () => {
     return {
       search: '',
+      debouncedSearch: '',
       finished: false,
+      searchTimeout: null,
     }
   },
 
@@ -26,56 +36,63 @@ export default {
       return this.$store.state.farms.stakedOnly
     },
 
-    pools() {
-      return this.$store.getters['farms/farmPools']
-        .map((p) => {
-          const incentives = p.incentives.filter((i) => {
-            if (this.finished) {
-              return i.isFinished && i.stakeStatus != 'notStaked'
-            } else {
-              return i.isFinished == false
-            }
-          })
-          return { ...p, incentives }
-        })
-        .filter((p) => p.incentives.length > 0)
-    },
-
     farmPools() {
-      let pools = this.pools
+      const { hideZeroAPR } = this.$store.state.farms
       const onlyContracts = this.$route.query?.contracts?.split(',') || []
+      const search = this.debouncedSearch.toLowerCase()
+      const searchContracts = new Set(onlyContracts)
 
-      if (onlyContracts.length > 0) {
-        pools = pools.filter(p => {
-          return onlyContracts.includes(p.tokenA.contract) || onlyContracts.includes(p.tokenB.contract)
-        })
-      }
+      return this.$store.getters['farms/farmPools']
+        .reduce((filteredPools, pool) => {
+          // Фильтруем стимулы
+          const incentives = pool.incentives.filter(i => {
+            if (hideZeroAPR && i.apr === 0) return false
+            if (this.finished) {
+              return i.isFinished && i.stakeStatus !== 'notStaked'
+            }
+            return !i.isFinished
+          })
 
-      if (this.stakedOnly) {
-        pools = pools.filter((p) => {
-          return p.incentives
-            .map((i) => i.incentiveStats)
-            .flat(1)
-            .map((i) => i.staked)
-            .some((s) => s == true)
-        })
-      }
+          // Если нет подходящих стимулов, пропускаем этот пул
+          if (incentives.length === 0) return filteredPools
 
-      pools = pools.filter((p) => {
-        const slug =
-          p.tokenA.contract +
-          p.tokenA.quantity.split(' ')[1] +
-          p.tokenB.contract +
-          p.tokenB.quantity.split(' ')[1]
-        return slug.toLowerCase().includes(this.search.toLowerCase())
-      })
+          // Фильтрация по контрактам
+          if (searchContracts.size > 0 &&
+            !searchContracts.has(pool.tokenA.contract) &&
+            !searchContracts.has(pool.tokenB.contract)) {
+            return filteredPools
+          }
 
-      pools.sort((a, b) => {
-        return (b?.poolStats?.tvlUSD || 0) - (a?.poolStats?.tvlUSD || 0)
-      })
+          // Фильтрация только по застейканным
+          if (this.stakedOnly && !incentives.some(i => i.incentiveStats.some(stat => stat.staked))) {
+            return filteredPools
+          }
 
-      return pools
+          // Фильтрация по поисковому запросу
+          const slug = (pool.tokenA.contract + pool.tokenA.quantity.split(' ')[1] + pool.tokenB.contract + pool.tokenB.quantity.split(' ')[1]).toLowerCase()
+          if (!slug.includes(search)) {
+            return filteredPools
+          }
+
+          // Добавляем пул к результирующему массиву, если он прошёл все фильтры
+          filteredPools.push({ ...pool, incentives })
+          return filteredPools
+        }, [])
+        .sort((a, b) => (b?.poolStats?.tvlUSD || 0) - (a?.poolStats?.tvlUSD || 0))
+    }
+  },
+
+  watch: {
+    search(val) {
+      clearTimeout(this.searchTimeout)
+      this.searchTimeout = setTimeout(() => {
+        this.debouncedSearch = val
+      }, 300)
     },
+  },
+
+  beforeDestroy() {
+    clearTimeout(this.searchTimeout)
   },
 
   methods: {},

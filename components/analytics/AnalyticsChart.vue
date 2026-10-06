@@ -169,9 +169,8 @@ export default {
   },
   methods: {
     tooltipFormatter(value) {
-      if (this.selectedMode === 'TVL' || this.selectedMode === 'Fees') {
-        return `$${value}`
-      }
+      if (this.selectedMode === 'TVL' || this.selectedMode === 'Fees')
+        return `$${this.$options.filters.commaFloat(value, 2)}`
       return value
     },
     async getChart() {

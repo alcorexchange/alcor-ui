@@ -5,13 +5,13 @@ div
     //.col(v-if="id == 26 && network.name == 'wax'").mb-2
       el-alert(title='TLM Market are closed from 6.04.2021 till 13.04.2021!' type='info' effect='dark')
         .lead Due to the opening of TLM teleport functionality trading is suspended until technical implementation is complete.
-    .col(
-      v-if='network.SCAM_CONTRACTS.includes($store.state.market.base_token.contract) || network.SCAM_CONTRACTS.includes($store.state.market.quote_token.contract)'
-    )
+    .col(v-if='scam')
       .row.mb-2
         .col
-          el-alert(type='error', show-icon)
-            .lead {{ $t('Potential SCAM token') }}!
+          el-alert(type='error', show-icon, :closable="false")
+            template(slot="title")
+              span {{ $t('Warning: This market may contain a scam token!') }}
+            | {{ $t('This token is flagged as potentially fraudulent. Proceed with extreme caution.') }}
 
     .col(v-if='$store.state.market.quote_token.str == "DMT@shmothership"')
       .row.mb-2
@@ -47,21 +47,15 @@ export default {
 
   computed: {
     ...mapState(['network', 'markets']),
-    ...mapState('market', ['symbol', 'id', 'stats', 'streaming']),
-    ...mapGetters('market', ['relatedPool']),
-    ...mapGetters(['user'])
+    ...mapState('market', ['symbol', 'id', 'stats', 'streaming', 'base_token', 'quote_token', 'scam']),
+    ...mapGetters(['user']),
   },
 
   watch: {
-    relatedPool(to, from) {
-      if ((to && from) && to.id == from.id) return
-      if (this.relatedPool) this.$store.dispatch('swap/startStream', this.relatedPool.id)
-    }
   },
 
   mounted() {
     this.$store.dispatch('loadOrders', this.id)
-    if (this.relatedPool) this.$store.dispatch('swap/startStream', this.relatedPool.id)
     if (!this.streaming) {
       this.$store.dispatch('market/startStream', this.id)
     }
@@ -71,7 +65,7 @@ export default {
     const { symbol, quote_token, stats: { last_price } } = this.$store.state.market
 
     return {
-      title: `${last_price.toFixed(5)} | ${symbol} | Alcor Exchange (Spot)`,
+      title: `${last_price.toFixed(7)} | ${symbol} | Alcor Exchange (Spot)`,
 
       meta: [
         {

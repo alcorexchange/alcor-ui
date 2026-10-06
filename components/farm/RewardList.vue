@@ -6,9 +6,10 @@
   .inputs
     slot
 
-  AlcorButton(class="add-button" @click="$emit('newReward')" bordered)
+  AlcorButton(v-if="canAdd" class="add-button" @click="$emit('newReward')" bordered)
     i.el-icon-plus
     span Add Another Reward
+  span.max-text.disable(v-else) Max 10 total rewards
 </template>
 
 <script>
@@ -20,6 +21,7 @@ export default {
     AlcorButton,
     Note,
   },
+  props: ['canAdd'],
 }
 </script>
 
@@ -42,7 +44,7 @@ export default {
   margin: 8px 0;
 }
 .add-button::v-deep {
-  padding: 10px 14px;
+  padding: 8px 12x;
   border-color: var(--main-green) !important;
   color: var(--main-green);
   align-self: flex-end;
@@ -50,5 +52,8 @@ export default {
   &:hover {
     background: var(--hover) !important;
   }
+}
+.max-text {
+  text-align: end;
 }
 </style>

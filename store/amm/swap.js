@@ -72,16 +72,18 @@ export const actions = {
 }
 
 export const getters = {
-  tokenA: (state, getters) => {
-    return getters.tokens.find(t => t.id == state.tokenA?.id)
+  tokenA: (state, getters, rootState, rootGetters) => {
+    return rootGetters['amm/tokensMap'].get(state.tokenA?.id)
   },
 
-  tokenB: (state, getters) => {
-    return getters.tokens.find(t => t.id == state.tokenB?.id)
+  tokenB: (state, getters, rootState, rootGetters) => {
+    return rootGetters['amm/tokensMap'].get(state.tokenB?.id)
   },
 
   isSorted: (state, getters) => {
-    return getters.tokenA && getters.tokenB && getters.tokenA.sortsBefore(getters.tokenB)
+    const tokenA = getters.tokenA
+    const tokenB = getters.tokenB
+    return tokenA && tokenB && tokenA.sortsBefore(tokenB)
   },
 
   sortedA: (state, getters) => {
@@ -92,33 +94,18 @@ export const getters = {
     return getters.isSorted ? getters.tokenB : getters.tokenA
   },
 
-  tokens(state, getters, rootState, rootGetters) {
-    const tokens = []
-
-    rootState.amm.pools.forEach(p => {
-      const tokenA = parseToken(p.tokenA)
-      const tokenB = parseToken(p.tokenB)
-
-      if (
-        rootState.network.SCAM_CONTRACTS.includes(tokenA.contract) ||
-        rootState.network.SCAM_CONTRACTS.includes(tokenB.contract)
-      ) return
-
-      if (tokens.filter(t => t.id == tokenA.id).length == 0) tokens.push(tokenA)
-      if (tokens.filter(t => t.id == tokenB.id).length == 0) tokens.push(tokenB)
-    })
+  tokens: (state, getters, rootState, rootGetters) => {
+    const tokens = Array.from(rootGetters['amm/tokensMap'].values())
 
     if (state.only.length > 0) {
-      return tokens.filter(t => state.only.includes(t.id))
+      return tokens.filter((t) => state.only.includes(t.id))
     }
 
     return tokens
   },
 
-  routes(state, getters, rootState) {
-    const [tokenA, tokenB, feeAmountFromUrl] = rootState
-      .route.fullPath.replace('/add-liquidity/', '').split('/')
-
+  routes: (state, getters, rootState) => {
+    const [tokenA, tokenB, feeAmountFromUrl] = rootState.route.fullPath.replace('/add-liquidity/', '').split('/')
     return { tokenA, tokenB, feeAmountFromUrl }
-  }
+  },
 }

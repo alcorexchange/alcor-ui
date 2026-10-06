@@ -10,9 +10,6 @@
   )
     template(#actions="{ stat }")
       FarmsTableActions(:row="stat" :staked="stat.staked" :finished="finished" @stake="$emit('stake', stat)" @claim="$emit('claim', stat)" @unstake="$emit('unstake', stat)")
-  // TODO Make it separete computed to make it reactive
-  // FIXME: MAY BE WE DO NOT NEED IT HERE
-  //.incentive-item(v-for="incentive in userStakes")
 </template>
 
 <script>

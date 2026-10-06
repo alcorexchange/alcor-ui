@@ -386,6 +386,7 @@ export default {
         }])
         this.stakePopup.active = false
         this.unstakePopup.active = false
+        this.$store.dispatch('loadAccountData')
         this.init()
       } catch (e) {
         console.log('error on staking / buying RAM', e)

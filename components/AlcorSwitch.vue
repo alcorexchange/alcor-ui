@@ -29,8 +29,8 @@ export default {
   methods: {
     calcDimentions() {
       this.$nextTick(() => {
-        this.oneWidth = this.$refs.one.getBoundingClientRect().width
-        this.twoWidth = this.$refs.two.getBoundingClientRect().width
+        this.oneWidth = this.$refs.one?.getBoundingClientRect().width || 0
+        this.twoWidth = this.$refs.two?.getBoundingClientRect().width || 0
       })
     },
   },
@@ -45,6 +45,12 @@ export default {
     },
     two() {
       this.calcDimentions()
+    },
+    active: {
+      handler() {
+        this.calcDimentions()
+      },
+      immediate: true,
     },
   },
 }
@@ -84,4 +90,3 @@ export default {
   }
 }
 </style>
-

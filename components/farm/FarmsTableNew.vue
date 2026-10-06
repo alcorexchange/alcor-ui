@@ -3,29 +3,50 @@
   .table-header.farm-item
     .header-item Pair
     .header-item Total Staked
-    .header-item APR
+    .header-item.sortable
+      span(@click="toggleSort('apr')") APR
+      Sorter(sortBy="apr" :activeSort="{ key: sortKey, route: sortDirection }" @change="handleSort")
     .header-item Total Reward
     .header-item Daily Rewards
-    .header-item Rem. Time
+    .header-item.sortable
+      span(@click="toggleSort('time')") Rem. Time
+      Sorter(sortBy="time" :activeSort="{ key: sortKey, route: sortDirection }" @change="handleSort")
     .header-item
-    .header-item.all-stake-actions
-      el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
-        el-tooltip(content="Unstake your finished farms to free account RAM")
-          AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
-      el-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
-        AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
-  .table-items
-    FarmItemNew(
-      v-for="farm in farmPools"
-      :farm="farm"
-      :finished="finished"
-      @claimAll="claimAll"
-      @stakeAll="stakeAll"
-      @unstakeAll="unstakeAll"
-      @claim="claim"
-      @stake="stake"
-      @unstake="unstake"
-    )
+    .header-item
+  client-only
+    DynamicScroller(ref="scroller" :key="sortedItems.length" :pageMode="true" class="recycle-scroller table-items" :minItemSize="isMobile ? 410 : 82" listTag="div" :items="sortedItems")
+      template(#default="{ item: farm, index, active }")
+        DynamicScrollerItem(
+          :item="farm"
+          :active="active"
+          :data-index="index"
+          :size-dependencies="[farm.incentives.length, farm.expanded]"
+        )
+          FarmItemNew(
+            :farm="farm"
+            :finished="finished"
+            @claimAll="claimAll"
+            @stakeAll="stakeAll"
+            @unstakeAll="unstakeAll"
+            @claim="claim"
+            @stake="stake"
+            @unstake="unstake"
+            @expandChange="handleExpandChange"
+            :expanded="farm.expanded"
+        )
+  //- .table-items
+  //-   FarmItemNew(
+  //-     v-for="farm in sortedItems"
+  //-     :key="farm.id"
+  //-     :farm="farm"
+  //-     :finished="finished"
+  //-     @claimAll="claimAll"
+  //-     @stakeAll="stakeAll"
+  //-     @unstakeAll="unstakeAll"
+  //-     @claim="claim"
+  //-     @stake="stake"
+  //-     @unstake="unstake"
+  //-   )
 </template>
 
 <script>
@@ -37,6 +58,8 @@ import FarmsTableActions from '~/components/farm/FarmsTableActions'
 import IncentiveItem from '~/components/farm/IncentiveItem.vue'
 import AuthOnly from '~/components/AuthOnly.vue'
 import FarmItemNew from '~/components/farm/FarmItemNew.vue'
+import Sorter from '~/components/Sorter.vue'
+
 export default {
   name: 'FarmsTable',
   components: {
@@ -48,64 +71,95 @@ export default {
     AuthOnly,
     IncentiveItem,
     FarmItemNew,
+    Sorter,
   },
 
   props: ['noClaim', 'finished', 'farmPools'],
 
   data: () => {
     return {
-      extendedRow: null,
+      expandedItems: [],
+      sortKey: 'apr',
+      sortDirection: null,
     }
   },
 
   computed: {
-    userStakes() {
-      // TODO что то теперь состояние стейкед не обновляет
-      const pool = this.farmPools.find((fp) => fp.id == this.extendedRow.id)
+    sortedItems() {
+      const farms = [
+        ...(this.farmPools?.map((item) => ({
+          ...item,
+          expanded: this.expandedItems.includes(item.id),
+        })) || []),
+      ]
 
-      return pool.incentives
-    },
+      const isTimeSort = this.sortKey === 'time'
+      const isAprSort = this.sortKey === 'apr'
 
-    stakedStakes() {
-      const stakes = []
-      this.$store.getters['farms/farmPools']
-        // pools
-        .forEach((p) =>
-          p.incentives
-            .filter((i) => i.isFinished && i.stakeStatus != 'notStaked' && i.incentiveStats.length > 0)
-            //incentives
-            .forEach((i) =>
-              i.incentiveStats
-                .filter((i) => i.staked)
-                // staked stats
-                .forEach((s) => stakes.push(s))
-            )
-        )
+      if (isAprSort) {
+        const aprSorted = farms.sort((a, b) => {
+          return b.avgAPR > a.avgAPR ? -1 : 1
+        })
 
-      return stakes
-    },
+        if (this.sortDirection === 1) return aprSorted
+        if (this.sortDirection === 0) return aprSorted.reverse()
+      }
 
-    unstakedStakes() {
-      const stakes = []
-      this.$store.getters['farms/farmPools']
-        // pools
-        .forEach((p) =>
-          p.incentives
-            .filter((i) => !i.isFinished && i.stakeStatus != 'staked' && i.incentiveStats.length > 0)
-            //incentives
-            .forEach((i) =>
-              i.incentiveStats
-                .filter((i) => !i.staked && i.position.inRange)
-                // staked stats
-                .forEach((s) => stakes.push(s))
-            )
-        )
+      if (isTimeSort) {
+        const timeSorted = farms.sort((a, b) => {
+          const avgA = a.incentives.reduce((sum, incentive) => sum + incentive.daysRemain, 0) / a.incentives.length
+          const avgB = b.incentives.reduce((sum, incentive) => sum + incentive.daysRemain, 0) / b.incentives.length
 
-      return stakes
+          return avgA - avgB
+        })
+
+        if (this.sortDirection === 1) return timeSorted
+        if (this.sortDirection === 0) return timeSorted.reverse()
+      }
+
+      return this.farmPools.map((item) => ({
+        ...item,
+        expanded: this.expandedItems.includes(item.id),
+      }))
     },
   },
 
   methods: {
+    handleExpandChange(id) {
+      if (this.expandedItems.includes(id)) {
+        this.expandedItems = this.expandedItems.filter((item) => item !== id)
+
+        // Fix for when item is closed sometimes keeps the gap.
+        this.$refs.scroller.forceUpdate()
+        return
+      }
+      this.expandedItems.push(id)
+    },
+    handleSort(newSort) {
+      console.log({ newSort })
+
+      if (this.sortKey == newSort.key && this.sortDirection == newSort.route) {
+        this.sortKey = null
+        this.sortDirection = null
+        return
+      }
+
+      this.sortDirection = newSort.route
+      this.sortKey = newSort.key
+    },
+
+    // Clicking on text instead of arrows
+    toggleSort(newKey) {
+      if (this.sortKey === newKey) {
+        if (this.sortDirection === null) this.sortDirection = 1
+        else if (this.sortDirection === 1) this.sortDirection = 0
+        else this.sortDirection = null
+      } else {
+        this.sortKey = newKey
+        this.sortDirection = 1
+      }
+    },
+
     addLiquidity(row) {
       this.$router.push({
         path: '/positions/new',
@@ -116,30 +170,6 @@ export default {
       })
     },
 
-    async unstakeAllFarms() {
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes: this.stakedStakes,
-          action: 'unstake',
-        })
-        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
-      } catch (e) {
-        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
-      }
-    },
-
-    async stakeAllFarms() {
-      try {
-        await this.$store.dispatch('farms/stakeAction', {
-          stakes: this.unstakedStakes,
-          action: 'stake',
-        })
-        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
-      } catch (e) {
-        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
-      }
-    },
-
     async claimAll(incentive) {
       const stakes = incentive.incentiveStats.filter((i) => i.staked)
       try {
@@ -147,7 +177,7 @@ export default {
           stakes,
           action: 'getreward',
         })
-        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 3000)
       } catch (e) {
         this.$notify({
           title: 'Error',
@@ -287,6 +317,14 @@ export default {
   margin-top: 12px;
   border-radius: 6px;
   overflow: hidden;
+  .header-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    &.sortable {
+      cursor: pointer;
+    }
+  }
 }
 .table-header {
   color: #909399;
@@ -294,10 +332,14 @@ export default {
   font-size: 14px;
 }
 
-.table-items {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+// .table-items {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 8px;
+// }
+
+.recycle-scroller {
+  height: 100%;
 }
 
 @media only screen and (max-width: 900px) {

@@ -3,14 +3,16 @@ component.layout-menu-content-item(:is="renderTag" v-bind="linkAttrs" :style="re
   .icon
     img(:src="icon")
   .content
-    .title {{ title }}
+    .title
+      span {{ title }}
+      .new-dot(v-if="isNew") New
     .description.fs-12.muted {{ description }}
 </template>
 
 <script>
 export default {
   name: 'LayoutContentItem',
-  props: ['title', 'description', 'icon', 'social', 'to', 'href', 'target'],
+  props: ['title', 'description', 'icon', 'social', 'to', 'href', 'target', 'isNew'],
   computed: {
     renderTag() {
       return this.to ? 'nuxt-link' : 'a'
@@ -35,6 +37,20 @@ export default {
   border-radius: var(--radius-2);
   cursor: pointer;
   transition: background 0.2s;
+  .title {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    .new-dot {
+      background: var(--main-action-green);
+      border-radius: 4px;
+      padding: 2px 4px;
+      line-height: 1;
+      color: black;
+      font-size: 0.6rem;
+    }
+  }
   .icon {
     img {
       width: 32px;

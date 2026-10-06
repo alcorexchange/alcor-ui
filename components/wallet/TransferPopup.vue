@@ -1,12 +1,16 @@
 <template lang="pug">
-  el-dialog(:visible.sync="visible" width="25%" v-if="user").text-left.dialog
+.small-dialog-wrapper
+  el-dialog(:visible.sync="visible" v-if="user").text-left.dialog
     template(#title)
       .title-container
         i.el-icon-wallet
         .text Transfer
 
     el-alert(title="Transfering to SCAM account!" type="error" effect="dark" v-if="scam")
-      span You are transfering to SCAM account, or FAKE CEX deposit adress.
+      span You are transfering to SCAM account, or FAKE CEX deposit address.
+
+    el-alert(v-if="token.contract === 'usdt.alcor'" title="Do NOT transfer usdt.alcor to CEX" type="warning" class="mb-2" :closable="false")
+      span This token can not be transfered to CEX address. Use only Withdraw method for it.
 
     el-form(ref="form" :model="form" label-position="left" :rules="rules")
       el-form-item.mt-1(prop="address")
@@ -16,9 +20,9 @@
       el-form-item(prop="amount")
         .label {{$t('Amount') }}
         span {{$t('Balance') }}
-          el-button(type="text" @click="fullAmount").ml-1  {{ tokenBalance }}
+          el-button(type="text" @click="fullAmount").ml-1.hoverable  {{ tokenBalance | commaFloat }}
 
-        el-input(type="number" v-model="form.amount" clearable @change="amountChange").w-100
+        el-input(type="number" v-model="form.amount" clearable placeholder="amount").w-100
           span(slot="suffix").mr-1 {{ token.currency }}
         .text ~${{ usdValue }}
 
@@ -41,13 +45,13 @@ import TokenImage from '~/components/elements/TokenImage'
 
 export default {
   components: {
-    TokenImage
+    TokenImage,
   },
 
   watch: {
     token() {
       console.log('AAA', this.token)
-    }
+    },
   },
 
   data() {
@@ -57,9 +61,9 @@ export default {
       visible: false,
 
       form: {
-        address: '',
-        amount: 0.0,
-        memo: ''
+        address: null,
+        amount: null,
+        memo: null,
       },
 
       addressValid: false,
@@ -84,9 +88,9 @@ export default {
             } finally {
               this.loading = false
             }
-          }
-        }
-      }
+          },
+        },
+      },
     }
   },
 
@@ -98,8 +102,7 @@ export default {
     },
 
     usdValue() {
-      if (!this.user || !this.user.balances || !this.token.currency)
-        return '0.00'
+      if (!this.user || !this.user.balances || !this.token.currency) return '0.00'
 
       return this.$tokenToUSD(this.form.amount, this.token.currency, this.token.contract)
     },
@@ -109,41 +112,44 @@ export default {
     },
 
     chains() {
-      return ['eos', 'bos', 'telos', 'wax'].filter(
-        (c) => c != this.network.name
-      )
+      return ['eos', 'bos', 'telos', 'wax'].filter((c) => c != this.network.name)
     },
 
     tokenBalance() {
-      if (!this.user || !this.user.balances || !this.token.currency)
-        return '0.0000'
+      const balances = this.$store.getters['wallet/balances']
+
+      if (!this.user || !balances || !this.token.currency) return '0.0000'
 
       const balance = this.user.balances.filter((b) => {
-        return (
-          b.currency === this.token.currency &&
-          b.contract === this.token.contract
-        )
+        return b.currency === this.token.currency && b.contract === this.token.contract
       })[0]
 
       if (balance) return `${balance.amount} ${balance.currency}`
-      else
-        return Number(0).toFixed(this.token.precision) + ` ${this.token.name}`
-    }
+      else return Number(0).toFixed(this.token.precision) + ` ${this.token.name}`
+    },
   },
 
   methods: {
+    clean() {
+      this.form = {
+        address: null,
+        amount: null,
+        memo: null,
+      }
+    },
+
     openPopup({ token }) {
       this.token = token
       this.visible = true
     },
+
     closePopup() {
       this.visible = false
+      this.clean()
     },
 
     fullAmount() {
-      this.form.amount = (
-        parseFloat(this.tokenBalance.split(' ')[0]) || 0
-      ).toFixed(parseFloat(this.token.decimals))
+      this.form.amount = (parseFloat(this.tokenBalance.split(' ')[0]) || 0).toFixed(parseFloat(this.token.decimals))
     },
 
     setChain(name) {
@@ -153,9 +159,9 @@ export default {
     },
 
     amountChange() {
-      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(
-        this.token.decimals
-      )
+      if (!this.form.amount) return
+
+      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(this.token.decimals)
     },
 
     async open() {
@@ -164,7 +170,9 @@ export default {
     },
 
     async submit() {
-      const memo = this.form.memo.trim()
+      const memo = this.form.memo?.trim() || ''
+
+      this.form.amount = (parseFloat(this.form.amount) || 0).toFixed(this.token.decimals)
 
       try {
         if (this.network.CEX_CONTRACTS.includes(this.form.address) && memo == '') {
@@ -174,14 +182,14 @@ export default {
             {
               confirmButtonText: 'Yes, i understand',
               cancelButtonText: 'Cancel',
-              type: 'warning'
+              type: 'warning',
             }
           )
         }
       } catch (e) {
         this.$notify({
           title: 'Canceled',
-          type: 'info'
+          type: 'info',
         })
         return
       }
@@ -195,37 +203,44 @@ export default {
           contract: this.token.contract,
           actor: this.user.name,
           quantity,
-          memo
+          memo,
         })
         this.$store.dispatch('loadUserBalances')
 
+        this.clean()
         this.visible = false
 
         const txid = r.transaction_id || r.transaction.id.toString()
-        this.$alert(
-          `<a class="pointer" href="${this.monitorTx(txid)}" target="_blank">Transaction id</a>`,
-          'Transaction complete!',
-          {
-            dangerouslyUseHTMLString: true,
-            confirmButtonText: 'OK',
-            callback: (action) => {
-              this.$notify({ title: 'Token transfered!', type: 'success' })
-            }
-          }
-        )
+        this.$notify({
+          title: 'Token sent',
+          message: `Tx id: ${txid}`,
+          type: 'success',
+        })
+
+        // this.$alert(
+        //   `<a class="pointer" href="${this.monitorTx(txid)}" target="_blank">Transaction id</a>`,
+        //   'Transaction complete!',
+        //   {
+        //     dangerouslyUseHTMLString: true,
+        //     confirmButtonText: 'OK',
+        //     callback: (action) => {
+        //       this.$notify({ title: 'Token transfered!', type: 'success' })
+        //     }
+        //   }
+        // )
       } catch (e) {
         captureException(e)
         this.$notify({
           title: 'Transfer error',
           message: e.message,
-          type: 'error'
+          type: 'error',
         })
         console.log(e)
       } finally {
         loading.close()
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -277,7 +292,6 @@ export default {
 }
 
 .el-input::v-deep {
-
   // margin-bottom: 26px;
   input {
     background: var(--btn-active);

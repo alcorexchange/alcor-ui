@@ -84,9 +84,8 @@ el-tabs.h-100(type="border-card" size="small" v-model="trade").border-tabs.order
     )
       span.mr-1(slot='suffix') {{ base_token.symbol.name }}
 
-    swap-button.swap-link(v-if="relatedPool" :pool="relatedPool.id")
-      | SWAP ({{ relatedPool.rate }} {{ base_token.symbol.name }})
-
+    swap-button.swap-link(v-if="relatedPool" :pool="relatedPool")
+      | {{ $t('SWAP') }} ({{ (relatedPool.tokenB.id == base_token.id ? relatedPool.tokenAPrice : relatedPool.tokenBPrice).toSignificant() }} {{ base_token.symbol.name }})
 
     el-button.w-100.mt-5.capitalize(
       :type='side == "buy" ? "success" : "danger"',

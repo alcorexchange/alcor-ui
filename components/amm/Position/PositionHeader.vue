@@ -6,9 +6,7 @@
     nuxt-link(:to="localePath('positions-history', $i18n.locale)" :exact='true')
       .fs-20 {{ $t('History') }}
   .actions.d-flex.gap-10
-    AlcorButton.new(outline @click="claimAllPositions")
-      i.el-icon-money
-      .fs-14 Claim All
+    ClaimAllButton
 
     AlcorButton.new(access @click="$router.push('/positions/new')")
       i.el-icon-plus
@@ -17,46 +15,10 @@
 
 <script>
 import AlcorButton from '~/components/AlcorButton'
-import { getCollectActions } from '~/utils/amm'
+import ClaimAllButton from '~/components/amm/Position/PositionsClaimAllButton'
 
 export default {
-  components: { AlcorButton },
-
-  methods: {
-    async claimAllPositions() {
-      const positions = this.$store.getters['amm/positions']
-
-      const actions = positions
-        .filter(p => parseFloat(p.feesA) + parseFloat(p.feesB) > 0)
-        .map(p => {
-          return getCollectActions(
-            this.$store.state.network,
-            this.$store.state.user,
-            p
-          )
-        }).flat(1)
-
-      if (actions.length == 1) {
-        this.$notify({
-          type: 'info',
-          title: 'Claim All',
-          message: 'No positions to claim'
-        })
-      }
-
-      console.log(actions)
-
-      try {
-        await this.$store.dispatch('chain/sendTransaction', actions)
-      } catch (e) {
-        this.$notify({
-          type: 'error',
-          title: 'Claim All Positions',
-          message: e.message
-        })
-      }
-    }
-  }
+  components: { AlcorButton, ClaimAllButton },
 }
 </script>
 
@@ -69,7 +31,7 @@ export default {
     color: var(--text-contrast);
   }
 }
-.new:hover{
+.new:hover {
   background: var(--main-green) !important;
   color: var(--text-theme) !important;
 }
@@ -78,10 +40,9 @@ export default {
     flex-direction: column;
     gap: 14px;
     margin-top: 20px !important;
-    .actions{
+    .actions {
       margin-left: auto;
     }
   }
 }
 </style>
-

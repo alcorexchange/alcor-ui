@@ -1,12 +1,29 @@
-const MAX_PAGINATION_FETCHES = 10
+const MAX_PAGINATION_FETCHES = 500
 
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 import { JsonRpc as JsonRpcMultiEnds } from '../assets/libs/eosjs-jsonrpc'
-import { shuffleArray } from './index'
 
-export function getMultyEndRpc(nodes) {
-  shuffleArray(nodes)
+import config from '../config'
+
+export function getChainRpc(chain) {
+  const directEnvKey = `${String(chain).toUpperCase()}_DIRECT_NODE`
+  const directNode = process.env[directEnvKey]
+  const nodes = Object.keys(config.networks[chain].client_nodes)
+
+  // Sort alcor nodes first among public nodes
   nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
+
+  // Direct node always first — must be after sort to stay on top
+  if (directNode) {
+    nodes.unshift(directNode)
+  }
+
+  return getMultyEndRpc(nodes, false)
+}
+
+export function getMultyEndRpc(nodes, alcorSorted = true) {
+  //shuffleArray(nodes)
+  if (alcorSorted) nodes.sort((a, b) => a.includes('alcor') ? -1 : 1)
   const rpc = new JsonRpcMultiEnds(nodes, { fetch })
 
   return rpc
@@ -19,49 +36,26 @@ export const fetchAllRows = async (
 ) => {
   const mergedOptions = {
     json: true,
-    lower_bound: 0,
+    // Empty means "no bound" on every chain. A literal 0 works on Antelope but
+    // Wire rejects it with a 500 — its bounds are JSON objects, not scalars.
+    lower_bound: '',
     upper_bound: undefined,
     limit: 9999,
     ...options,
-  }
-
-  const bigNumberFix = options.bigNumberFix ?? false
-
-  if (bigNumberFix) {
-    delete mergedOptions.bigNumberFix
   }
 
   let rows = []
   let lowerBound = mergedOptions.lower_bound
 
   for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
-    let result
-
-    if (bigNumberFix) {
-      const response = await fetch((rpc.endpoint ?? rpc.currentEndpoint) + '/v1/chain/get_table_rows', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...mergedOptions,
-          lower_bound: lowerBound,
-        }),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
-      })
-
-      result = JSON.parse(
-        (await response.text()).replace(/:(-?\d+),/g, ': "$1",')
-      )
-    } else {
-      result = await rpc.get_table_rows({
-        ...mergedOptions,
-        lower_bound: lowerBound,
-      })
-    }
+    const result = await rpc.get_table_rows({
+      ...mergedOptions,
+      lower_bound: lowerBound,
+    })
 
     rows = rows.concat(result.rows)
 
-    if (!result.more || result.rows.length === 0 || rows.length >= mergedOptions.limit) break
+    if (!result.more || result.rows.length === 0) break
 
     // EOS 2.0 api
     // TODO Add 'more' key
@@ -89,6 +83,26 @@ export const fetchAllScopes = async (rpc, contract, table) => {
     table
   }
 
-  const rows = (await rpc.get_table_by_scope(mergedOptions)).rows
-  return rows.map((row) => row.scope)
+  const scopes = []
+  let lowerBound = mergedOptions.lower_bound
+
+  for (let i = 0; i < MAX_PAGINATION_FETCHES; i += 1) {
+    const result = await rpc.get_table_by_scope({
+      ...mergedOptions,
+      lower_bound: lowerBound,
+    })
+
+    if (Array.isArray(result.rows) && result.rows.length > 0) {
+      scopes.push(...result.rows.map((row) => row.scope))
+    }
+
+    const nextKey = (typeof result.more === 'string' && result.more.length > 0)
+      ? result.more
+      : (typeof result.next_key === 'string' && result.next_key.length > 0 ? result.next_key : null)
+
+    if (!nextKey || result.rows.length === 0) break
+    lowerBound = nextKey
+  }
+
+  return scopes
 }

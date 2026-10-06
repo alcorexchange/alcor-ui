@@ -4,29 +4,61 @@
     .left
       el-input(v-model="search" class="farms-search-input" placeholder="Search Tokens" size="medium" prefix-icon='el-icon-search' clearable)
       AlcorSwitch.alcor-switch(
-        one="All Farms"
-        two="My Farms"
-        :active="$store.state.farms.stakedOnly ? 'two' : 'one'"
-        @toggle="$store.commit('farms/setStakedOnly', $store.state.farms.stakedOnly ? false : true)"
-      )
-      el-switch.farm-switch(
         v-if="!hideStakedOnly"
-        active-color="var(--main-action-green)"
-        active-text="Show Finished"
-        :value="finished"
-        @change="toggle"
+        one="Active"
+        two="Finished"
+        :active="finished ? 'two' : 'one'"
+        @toggle="toggle"
       )
 
       el-switch.farm-switch(
         active-color="var(--main-action-green)"
-        active-text="Advanced Mode"
-        :value="$store.state.farms.view === 'ADVANCED'"
-        @change="$store.commit('farms/toggleView')"
+        active-text="Staked Only"
+        :value="$store.state.farms.stakedOnly"
+        @change="$store.commit('farms/setStakedOnly', $event)"
       )
+
+      //- el-switch.farm-switch(
+      //-   active-color="var(--main-action-green)"
+      //-   active-text="Advanced Mode"
+      //-   :value="$store.state.farms.view === 'ADVANCED'"
+      //-   @change="$store.commit('farms/toggleView')"
+      //- )
 
     .right
-      el-button.mr-auto(size="small" outline @click="$router.push('/farm/create')").hover-opacity Create farm
+      el-popover(trigger="click" placement="bottom" v-model="advancedSettingActive")
+        template(#reference)
+          AlcorButton(iconOnly)
+            i.el-icon-s-tools
+        .advanced-mode-container
+          span View Mode
+          div(v-if="advancedSettingActive")
+            AlcorSwitch.alcor-switch(
+              one="Simple View"
+              two="Advanced View"
+              :active="$store.state.farms.view === 'ADVANCED' ? 'two' : 'one'"
+              @toggle="$store.commit('farms/toggleView')"
+            )
 
+          .mt-2
+            el-checkbox(v-model="hideZeroAPR") Hide zero APR farms
+      AlcorButton(@click="$router.push('/farm/create')") Create farm
+      el-badge.header-action-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
+        el-tooltip(content="Unstake your finished farms to free account RAM")
+          AlcorButton.pulse-animation(@click="unstakeAllFarms") Claim & Unstake All
+      el-badge.header-action-badge(v-if="!finished && unstakedStakes.length != 0" type="warning" :value="unstakedStakes.length")
+        AlcorButton.pulse-animation(@click="stakeAllFarms") Stake All Positions
+      el-badge(v-if="noneFinishedStakes.length && !finished" type="success"  :value="noneFinishedStakes.length")
+        el-tooltip(v-model="showTotal")
+          AlcorButton.farm-claim-button(access @click="claimTotal") Claim All Rewards
+          template(#content)
+            .mb-2 Total Rewards
+            .farm-total-rewards
+              .reward(v-for="reward in totalRewards")
+                TokenImage.icon(:src="$tokenLogo(reward.symbol, reward.contract)" height="16" width="16")
+                .d-flex.gap-4
+                  span {{ reward.amount }}
+                  span.muted {{ reward.symbol }}
       //- el-badge(v-if="finished && stakedStakes.length != 0" type="success" :value="stakedStakes.length")
       //-   el-tooltip(content="Unstake your finished farms to free account RAM")
       //-     GradientBorder.gradient-border
@@ -43,6 +75,8 @@ import AlcorSwitch from '@/components/AlcorSwitch'
 import AlcorLink from '@/components/AlcorLink'
 import AlcorButton from '@/components/AlcorButton'
 import GradientBorder from '@/components/alcor-element/GradientBorder'
+import TokenImage from '~/components/elements/TokenImage'
+import { calculateUserStake } from '~/utils/farms.ts'
 export default {
   name: 'FarmHeader',
 
@@ -51,6 +85,7 @@ export default {
     AlcorLink,
     AlcorButton,
     GradientBorder,
+    TokenImage,
   },
 
   props: ['finished', 'stakedOnly', 'hideStakedOnly', 'hideStakeAll'],
@@ -58,33 +93,181 @@ export default {
   data: () => {
     return {
       search: '',
+      // this data is added to hide the AlcorSwitch component when closed, the popover keeps the content in render causing width calculations of switch not work.
+      interval: null,
+      showTotal: false,
+      totalRewards: [],
+      advancedSettingActive: false,
     }
   },
 
   computed: {
-    // TODO Do we need it ?
-    // unstakedFinished() {
-    //   let count = 0
-    //   this.$store.getters['farms/farmPools']
-    //     .forEach(p => p.incentives.filter(i => i.isFinished && i.stakeStatus != 'notStaked' && i.incentiveStats.length > 0)
-    //       .forEach(i => {
-    //         if (i.stakeStatus != 'notStaked') {
-    //           count += 1
-    //         }
-    //       }))
-    //   return count
-    // },
+    hideZeroAPR: {
+      set(val) {
+        this.$store.commit('farms/setHideZeroAPR', val)
+      },
+
+      get() {
+        return this.$store.state.farms.hideZeroAPR
+      },
+    },
+
+    // The finished stakes that should be unstaked
+    stakedStakes() {
+      const stakes = []
+      this.$store.getters['farms/farmPools']
+        // pools
+        .forEach((p) =>
+          p.incentives
+            .filter((i) => i.isFinished && i.stakeStatus != 'notStaked' && i.incentiveStats.length > 0)
+            //incentives
+            .forEach((i) =>
+              i.incentiveStats
+                .filter((i) => i.staked)
+                // staked stats
+                .forEach((s) => stakes.push(s))
+            )
+        )
+
+      return stakes
+    },
+
+    // None finished incentives that should be staked
+    unstakedStakes() {
+      const stakes = []
+      this.$store.getters['farms/farmPools']
+        // pools
+        .forEach((p) =>
+          p.incentives
+            .filter((i) => !i.isFinished && i.stakeStatus != 'staked' && i.incentiveStats.length > 0)
+            //incentives
+            .forEach((i) =>
+              i.incentiveStats
+                .filter((i) => !i.staked && i.position.inRange)
+                // staked stats
+                .forEach((s) => stakes.push(s))
+            )
+        )
+
+      return stakes
+    },
+
+    // None finished stakes that can be claimed
+    noneFinishedStakes() {
+      const stakes = []
+
+      this.$store.getters['farms/farmPools'].forEach((pool) => {
+        pool.incentives
+          .filter((incentive) => !incentive.isFinished && incentive.stakeStatus != 'notStaked')
+          .forEach((incentive) => {
+            incentive.incentiveStats.filter((s) => s.staked).forEach((s) => stakes.push(s))
+          })
+      })
+
+      return stakes
+    },
   },
 
   watch: {
     search(val) {
       this.$emit('update:search', val)
     },
+
+    showTotal(open) {
+      if (open) {
+        this.setTotalRewards()
+        this.interval = setInterval(() => this.setTotalRewards(), 1000)
+      } else {
+        clearInterval(this.interval)
+      }
+    }
   },
 
   methods: {
+    setTotalRewards() {
+      const reward = {}
+
+      const precisions = {}
+
+      this.$store.getters['farms/farmPools'].forEach((farm) => {
+        farm.incentives
+          .filter((i) => !i.isFinished)
+          .forEach((incentive) => {
+            incentive.incentiveStats
+              .filter((s) => s.staked)
+              .forEach((s) => {
+                const staked = calculateUserStake(s)
+
+                const symbol = staked.farmedReward.symbol.name
+                const amount = staked.farmedReward
+
+                precisions[symbol] = staked.farmedReward.symbol.precision
+
+                if (reward[symbol]) {
+                  reward[symbol].amount = reward[symbol].amount + parseFloat(amount)
+                } else {
+                  reward[symbol] = {
+                    symbol,
+                    amount: parseFloat(amount),
+                    precision: precisions[symbol],
+                    contract: incentive.reward.contract,
+                  }
+                }
+              })
+          })
+      })
+
+      this.totalRewards = Object.values(reward).map((r) => {
+        return {
+          ...r,
+          amount: r.amount?.toFixed(r.precision),
+        }
+      })
+    },
+
+    async claimTotal() {
+      const stakes = this.noneFinishedStakes
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes,
+          action: 'getreward',
+        })
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+      } catch (e) {
+        this.$notify({
+          title: 'Error',
+          message: e.message || e,
+          type: 'error',
+        })
+      }
+    },
+
     toggle() {
       this.$emit('update:finished', !this.finished)
+    },
+
+    async unstakeAllFarms() {
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: this.stakedStakes,
+          action: 'unstake',
+        })
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+      } catch (e) {
+        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
+      }
+    },
+
+    async stakeAllFarms() {
+      try {
+        await this.$store.dispatch('farms/stakeAction', {
+          stakes: this.unstakedStakes,
+          action: 'stake',
+        })
+        setTimeout(() => this.$store.dispatch('farms/updateStakesAfterAction'), 500)
+      } catch (e) {
+        this.$notify({ type: 'Error', title: 'Stake', message: e.message })
+      }
     },
   },
 }
@@ -106,12 +289,12 @@ export default {
   &.is-checked .el-switch__core::after {
     margin-left: -18px !important;
   }
-  // &.is-checked {
-  //   .el-switch__core {
-  //     background-color: var(--main-action-green);
-  //     border-color: var(--main-action-green);
-  //   }
-  // }
+  /* &.is-checked { */
+  /*   .el-switch__core { */
+  /*     background-color: var(--main-action-green); */
+  /*     border-color: var(--main-action-green); */
+  /*   } */
+  /* } */
 }
 .farm-header-container {
   display: flex;
@@ -133,6 +316,7 @@ export default {
 .right {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   .gradient-border {
     &:hover {
@@ -188,6 +372,26 @@ export default {
   .farms-search-input {
     width: 100%;
     max-width: 100%;
+  }
+}
+</style>
+
+<style lang="scss">
+// this element is on the body, style is global
+.farm-total-rewards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  .reward {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+// Accessing internal style, better be global
+.header-action-badge {
+  .el-badge__content {
+    z-index: 2;
   }
 }
 </style>

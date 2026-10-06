@@ -16,7 +16,7 @@ analytics.get('/global', cacheSeconds(0, (req, res) => {
 }), async (req, res) => {
   const network = req.app.get('network')
 
-  const resolution = resolutions[req.query.resolution]
+  const resolution = resolutions[req.query.resolution] || resolutions['1D']
   if (!resolution) return res.status(404).send('Invalid resolution')
 
   const $match = { chain: network.name, time: { $gte: new Date(Date.now() - resolution * 1000) } }
@@ -35,7 +35,7 @@ analytics.get('/global', cacheSeconds(0, (req, res) => {
     swapFees: { $sum: '$swapFees' },
     spotFees: { $sum: '$spotFees' },
 
-    dailyActiveUsers: { $avg: '$dailyActiveUsers' }, // TODO Make db call for resolution here
+    dailyActiveUsers: { $avg: '$dailyActiveUsers' },
 
     swapTransactions: { $sum: '$swapTransactions' },
     spotTransactions: { $sum: '$spotTransactions' },
@@ -44,9 +44,57 @@ analytics.get('/global', cacheSeconds(0, (req, res) => {
     totalSpotPairs: { $max: '$totalSpotPairs' }
   }
 
-  const stats = await GlobalStats.aggregate([{ $match }, { $group }])
+  const [stats] = await GlobalStats.aggregate([{ $match }, { $group }])
 
-  res.json(stats)
+  res.json({
+    ...stats,
+    totalTradingVolume: stats.swapTradingVolume + stats.spotTradingVolume
+  })
+})
+
+// Volume and fees over [start_time, end_time), unix seconds. Built for DefiLlama,
+// which asks for one UTC day at a time and backfills history the same way.
+// A GlobalStats row is stamped with the end of the hour it covers, so the rows
+// of the window are those with start_time < time <= end_time.
+analytics.get('/volume', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network = req.app.get('network')
+
+  const start = parseInt(req.query.start_time)
+  const end = parseInt(req.query.end_time)
+  if (isNaN(start) || isNaN(end) || start >= end) {
+    return res.status(400).send('Expected start_time < end_time, unix seconds')
+  }
+
+  const $match = {
+    chain: network.name,
+    time: { $gt: new Date(start * 1000), $lte: new Date(end * 1000) }
+  }
+
+  const $group = {
+    _id: null,
+    swapVolume: { $sum: '$swapTradingVolume' },
+    spotVolume: { $sum: '$spotTradingVolume' },
+    swapFees: { $sum: '$swapFees' },
+    spotFees: { $sum: '$spotFees' },
+    buckets: { $sum: 1 }
+  }
+
+  const [stats] = await GlobalStats.aggregate([{ $match }, { $group }])
+  const { swapVolume = 0, spotVolume = 0, swapFees = 0, spotFees = 0, buckets = 0 } = stats || {}
+
+  res.json({
+    start_time: start,
+    end_time: end,
+    volume: swapVolume + spotVolume,
+    fees: swapFees + spotFees,
+    swapVolume,
+    spotVolume,
+    swapFees,
+    spotFees,
+    buckets
+  })
 })
 
 analytics.get('/charts', cacheSeconds(360, (req, res) => {
@@ -87,7 +135,7 @@ analytics.get('/charts', cacheSeconds(360, (req, res) => {
     swapFees: { $sum: '$swapFees' },
     spotFees: { $sum: '$spotFees' },
 
-    dailyActiveUsers: { $max: '$dailyActiveUsers' }, // TODO Make db call for resolution here
+    dailyActiveUsers: { $avg: '$dailyActiveUsers' },
 
     swapTransactions: { $sum: '$swapTransactions' },
     spotTransactions: { $sum: '$spotTransactions' },

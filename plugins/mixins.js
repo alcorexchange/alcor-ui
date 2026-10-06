@@ -55,14 +55,18 @@ Vue.mixin({
       network = network ? networks[network] : this.$store.state.network
 
       let url = network.monitor + '/transaction/' + tx
-      if (['eos', 'wax', 'telos'].includes(network.name)) url += '?tab=traces&' + network.monitor_params
+      // bloks.io specific params (not for waxblock.io)
+      if (['eos', 'telos'].includes(network.name)) url += '?tab=traces&' + network.monitor_params
       if (['ux'].includes(network.name)) url = url.replace('transaction', 'tx')
 
       return url
     },
 
     monitorAccount(account) {
-      return `${this.$store.state.network.monitor}/account/${account}?${this.$store.state.network.monitor_params}`
+      const { monitor, monitor_params, name } = this.$store.state.network
+      // waxblock.io doesn't use monitor_params
+      if (name === 'wax') return `${monitor}/account/${account}`
+      return `${monitor}/account/${account}?${monitor_params}`
     },
 
     openInNewTab(url) {

@@ -23,22 +23,57 @@ export const actions = {
 
 export const getters = {
   balances(state, getters, rootState) {
-    const tokens = rootState.tokens
-    const balances = rootState.userBalances
+    const { tokens, userBalances, network } = rootState
 
-    return balances.map(token => {
-      const id = (token.currency + '-' + token.contract).toLowerCase()
+    // Ensure tokens and userBalances are defined
+    if (!tokens || !userBalances) {
+      return []
+    }
 
-      const price = tokens.find(t => t.id == id)?.usd_price || 0
-      const usd_value = parseFloat(token.amount) * price
+    const result = userBalances.map((token) => {
+      const id = `${token.currency}-${token.contract}`.toLowerCase()
+      const tokenData = tokens.find((t) => t.id === id)
+      const usd_price = tokenData ? tokenData.usd_price : 0
+      const system_price = tokenData ? tokenData.system_price : 0
+      const usd_value = parseFloat(token.amount) * usd_price
 
       return {
         ...token,
-        id, // Patching new standart price
+        id,
         symbol: token.currency,
-        usd_value
+        usd_price,
+        system_price,
+        usd_value,
       }
     })
+
+    // Check and add a default entry for 'usdt.alcor' on the 'wax' network if it does not exist
+    if (network.name === 'wax' && !result.some((b) => b.currency === 'WAXUSDC' && b.contract === 'eth.token')) {
+      result.push({
+        currency: 'WAXUSDC',
+        contract: 'eth.token',
+        decimals: 6,
+        amount: 0,
+        id: 'waxusdc-eth.token', // Match the ID format of other entries
+        usd_value: 0,
+      })
+    }
+
+    result.sort((a, b) => {
+      const { baseToken, name } = network
+
+      if (name === 'wax' && a.currency === 'WAXUSDC' && a.contract === 'eth.token') {
+        return -1
+      }
+
+      if (a.contract === baseToken.contract) {
+        return -1
+      }
+
+      return b.usd_value - a.usd_value // Sort by USD value, highest first
+    })
+
+    return result
   },
 
   portfolioUSDValue(state, getters, rootState) {
@@ -46,35 +81,41 @@ export const getters = {
   },
 
   buyPositionsCount(state, getters, rootState) {
-    return rootState.userOrders.filter(p => p.type == 'buy').length
+    return rootState.userOrders.filter((p) => p.type == 'buy').length
   },
 
   sellPositionsCount(state, getters, rootState) {
-    return rootState.userOrders.filter(p => p.type == 'sell').length
+    return rootState.userOrders.filter((p) => p.type == 'sell').length
   },
 
   pairPositions(state, getters, rootState) {
     const markets = []
 
-    rootState.userOrders.map(o => {
-      if (markets.filter(m => m.id == o.market_id).length == 0) {
+    rootState.userOrders.map((o) => {
+      if (markets.filter((m) => m.id == o.market_id).length == 0) {
         markets.push({
           ...rootState.markets_obj[o.market_id],
-          orders: [o]
+          orders: [o],
         })
       } else {
-        markets.filter(m => m.id == o.market_id)[0].orders.push(o)
+        markets.filter((m) => m.id == o.market_id)[0].orders.push(o)
       }
     })
 
-    return markets.map(m => {
+    return markets.map((m) => {
       m.orderCount = {
-        buy: m.orders.filter(o => o.type == 'buy').length,
-        sell: m.orders.filter(o => o.type == 'sell').length
+        buy: m.orders.filter((o) => o.type == 'buy').length,
+        sell: m.orders.filter((o) => o.type == 'sell').length,
       }
 
-      m.totalBase = m.orders.filter(o => o.type == 'buy').map(o => parseFloat(o.bid.prefix)).reduce((a, b) => a + b, 0)
-      m.totalQuote = m.orders.filter(o => o.type == 'sell').map(o => parseFloat(o.bid.prefix)).reduce((a, b) => a + b, 0)
+      m.totalBase = m.orders
+        .filter((o) => o.type == 'buy')
+        .map((o) => parseFloat(o.bid.prefix))
+        .reduce((a, b) => a + b, 0)
+      m.totalQuote = m.orders
+        .filter((o) => o.type == 'sell')
+        .map((o) => parseFloat(o.bid.prefix))
+        .reduce((a, b) => a + b, 0)
 
       return m
     })
@@ -85,14 +126,19 @@ export const getters = {
 
     for (const position of getters.pairPositions) {
       for (const order of position.orders) {
-        orders.unshift({ ...order, market_id: position.id, market_symbol: position.symbol, market: { id: position.id, slug: position.slug } })
+        orders.unshift({
+          ...order,
+          market_id: position.id,
+          market_symbol: position.symbol,
+          market: { id: position.id, slug: position.slug },
+        })
       }
     }
 
-    return orders
+    return orders.sort((a, b) => b.unit_price - a.unit_price)
   },
 
   pairsCount(state, getters, rootState) {
     return getters.pairPositions.length
-  }
+  },
 }

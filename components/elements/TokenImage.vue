@@ -22,6 +22,10 @@ export default {
     width: {
       type: String,
       default: 'auto'
+    },
+
+    disableInfo: {
+      type: Boolean,
     }
 
   },

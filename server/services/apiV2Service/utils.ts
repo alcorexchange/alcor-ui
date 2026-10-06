@@ -1,0 +1,153 @@
+import path from 'path'
+
+import _ from 'lodash'
+import workerpool from 'workerpool'
+import invariant from 'tiny-invariant'
+
+import { getBestSwapRoute, CurrencyAmount, Route, Currency, Percent, Trade, TradeType, SplitRouteQuote } from '@alcorexchange/alcor-swap-sdk'
+
+const WorkerPool = workerpool.pool(path.resolve(__dirname, 'workers/computeTradeFromRoute.js'), { maxWorkers: 6 })
+
+export async function bestTradeWithSplitMultiThreaded(
+  _routes: Route<Currency, Currency>[],
+  amount: CurrencyAmount<Currency>,
+  percents: number[],
+  tradeType: TradeType,
+  swapConfig = { minSplits: 1, maxSplits: 10 }
+): Promise<Trade<Currency, Currency, TradeType>> | null {
+  invariant(_routes.length > 0, 'ROUTES')
+  invariant(percents.length > 0, 'PERCENTS')
+
+  // Compute routes for all percents for all routes
+  const route_promises: Promise<any>[] = []
+
+  _routes.forEach(route => {
+    for (const percent of percents) {
+      const params = [
+        Route.toBuffer(route),
+        amount.quotient.toString(),
+        tradeType,
+        percent
+      ]
+
+      route_promises.push(WorkerPool.exec('processRoute', params) as any)
+    }
+  })
+
+  const trades = await Promise.all(route_promises)
+
+  const percentToQuotes: { [percent: number]: SplitRouteQuote[] } = {}
+  for (let { inputAmount, outputAmount, routeBuffer, percent } of trades.filter(t => !!t)) {
+    const route = Route.fromBuffer(routeBuffer)
+
+    inputAmount = CurrencyAmount.fromRawAmount(_routes[0].input, inputAmount)
+    outputAmount = CurrencyAmount.fromRawAmount(_routes[0].output, outputAmount)
+
+    if (!inputAmount.greaterThan(0)) continue
+
+    if (!percentToQuotes[percent]) {
+      percentToQuotes[percent] = []
+    }
+
+    percentToQuotes[percent].push({ percent, route, inputAmount, outputAmount })
+  }
+
+  const bestTrades = getBestSwapRoute(tradeType, percentToQuotes, percents, swapConfig)
+  if (!bestTrades) return null
+
+  const routes = bestTrades.map(({ inputAmount, outputAmount, route, percent }) => {
+    return { inputAmount, outputAmount, route, percent }
+  })
+
+  // Check missing input after splitting
+  // TODO Do we need it for exact out?
+  if (tradeType === TradeType.EXACT_INPUT) {
+    const totalAmount = _.reduce(
+      routes,
+      (total, route) => total.add(route.inputAmount),
+      CurrencyAmount.fromRawAmount(routes[0].route.input, 0)
+    )
+
+    const missingAmount = amount.subtract(totalAmount)
+
+    if (missingAmount.greaterThan(0)) {
+      console.log("MISSING AMOUNT!!!", missingAmount.toFixed())
+      routes[0].inputAmount = routes[0].inputAmount.add(missingAmount)
+    }
+  }
+
+  return Trade.createUncheckedTradeWithMultipleRoutes({ routes, tradeType })
+}
+
+function getPoolDetailsMap(trade) {
+  const pools = {}
+
+  for (const swap of trade.swaps) {
+    for (const pool of swap.route.pools) {
+      if (pools[pool.id]) continue
+
+      pools[pool.id] = {
+        fee: Number(pool.fee),
+        tokenA: {
+          id: pool.tokenA.id,
+          symbol: pool.tokenA.symbol
+        },
+        tokenB: {
+          id: pool.tokenB.id,
+          symbol: pool.tokenB.symbol
+        }
+      }
+    }
+  }
+
+  return pools
+}
+
+export function parseTrade(trade, slippage, receiver, includePoolDetails = false) {
+  // Parse Trade into api format object
+  const exactIn = trade.tradeType === TradeType.EXACT_INPUT
+
+  const maxSent = exactIn ? trade.inputAmount : trade.maximumAmountIn(slippage)
+  const minReceived = exactIn ? trade.minimumAmountOut(slippage) : trade.outputAmount
+
+  const tradeType = trade.tradeType == TradeType.EXACT_INPUT ? 'swapexactin' : 'swapexactout'
+
+  const swaps = trade.swaps.map(({ route, percent, inputAmount, outputAmount }) => {
+    route = route.pools.map(p => p.id)
+
+    const maxSent = exactIn ? inputAmount : trade.maximumAmountIn(slippage, inputAmount)
+    const minReceived = exactIn ? trade.minimumAmountOut(slippage, outputAmount) : outputAmount
+
+    const input = inputAmount.toAsset()
+    const output = outputAmount.toAsset()
+
+    const memo = `${tradeType}#${route.join(',')}#${receiver}#${minReceived.toExtendedAsset()}#0`
+    return { input, route, output, percent, memo, maxSent: maxSent.toFixed(), minReceived: minReceived.toFixed() }
+  })
+
+  const result: any = {
+    route: null,
+    memo: null,
+    swaps,
+    input: trade.inputAmount.toFixed(),
+    output: trade.outputAmount.toFixed(),
+    minReceived: minReceived.toFixed(),
+    maxSent: maxSent.toFixed(),
+    priceImpact: trade.priceImpact.toSignificant(2),
+
+    executionPrice: {
+      numerator: trade.executionPrice.numerator.toString(),
+      denominator: trade.executionPrice.denominator.toString()
+    }
+  }
+
+  if (includePoolDetails) {
+    result.pools = getPoolDetailsMap(trade)
+  }
+
+  // FIXME DEPRECATED Hotfix for legacy v1
+  result.route = trade.swaps[0].route.pools.map((p) => p.id)
+  result.memo = `${tradeType}#${result.route.join(',')}#${receiver}#${minReceived.toExtendedAsset()}#0`
+
+  return result
+}

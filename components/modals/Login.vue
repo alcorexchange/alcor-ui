@@ -7,6 +7,15 @@
     .text-center.p-3(v-else) {{ $t('Select wallet') }}
   .body.row(v-loading='loading')
     .items
+      //- Kept out of `wallets`: the sections below pick wallets from it by position.
+      .item.signer(v-if='signer')
+        AlcorButton.button.signer-button(@click='login(signer.id)', alternative)
+          img.mr-2(:src='signer.logo', height='34')
+          .signer-details
+            .signer-name
+              | {{ signer.name }}
+              span.signer-badge Recommended
+            .signer-description Passkey · one-tap trades · no app to install
       .item(v-for='wallet in wallets')
         AlcorButton.button(@click='login(wallet.id)', alternative)
           img.mr-2(:src='wallet.logo', height='30')
@@ -17,18 +26,30 @@
       span.line
     .items(v-if='wallets.length > 0')
       .item
-        AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
-          img.mr-2(:src='wallets[0].logo', height='30')
-          span {{ $t('Get') }} {{ $t(wallets[0].name) }}
-      .item
         AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
           img.mr-2(:src='wallets[1].logo', height='30')
           span {{ $t('Get') }} {{ $t(wallets[1].name) }}
+      .item
+        AlcorButton.button(alternative, @click='openInNewTab(wallets[0].create)')
+          img.mr-2(:src='wallets[0].logo', height='30')
+          span {{ $t('Get') }} {{ $t(wallets[0].name) }}
     .divider
       span.line
       .text {{ $t("Create Account") }}
       span.line
     .items(v-if='wallets[0]')
+      .item(v-if="network.name == 'wax'")
+        AlcorButton.button(alternative, @click='openInNewTab(wallets[1].create)')
+          img.mr-2(:src='wallets[1].logo', height='30')
+          .details
+            span {{ $t('Get') }} {{ $t(wallets[1].name) }}
+            span.description From Wax Team
+      .item(v-if="network.name != 'ultra'")
+        AlcorButton.button(alternative, @click='openInNewTab(wallets[wallets.length - 1].create)')
+          img.mr-2(:src='require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)', height='30')
+          .details
+            span Wombat Wallet
+            span.description From Wombat Team
       .item
         AlcorButton.button(alternative, @click='openInNewTab("https://create.anchor.link/create?return_url=https%3A%2F%2Funicove.com%2F&scope=unicove")')
           img.mr-2(:src='wallets[0].logo', height='30')
@@ -59,22 +80,39 @@ export default {
     ...mapState(['user', 'network']),
     ...mapState('modal', ['context']),
 
+    // Alcor Signer signs only where its vault knows the network.
+    signer() {
+      const chain = this.context?.chain || this.network.name
+      if (!['wax', 'proton', 'telos'].includes(chain)) return null
+
+      return { id: 'vault', name: 'Alcor Signer', logo: require('@/assets/logos/alcor-signer.svg') }
+    },
+
     wallets() {
       const chain = this.context?.chain ? this.context.chain : this.network.name
 
-      const wallets = [
-        {
-          id: 'anchor',
-          name: 'Anchor',
-          logo: require('@/assets/logos/anchor.svg'),
-          create: 'https://greymass.com/en/anchor/'
-        }
-      ]
+      const wallets = []
+
+      if (this.network.name == 'ultra' || this.context?.chain == 'ultra') {
+        wallets.push({
+          id: 'ultra',
+          name: 'Ultra Wallet',
+          logo: require('@/assets/icons/ultra.png'),
+          create: 'https://developers.ultra.io/products/ultra-wallet/'
+        })
+      }
+
+      wallets.push({
+        id: 'anchor',
+        name: 'Anchor',
+        logo: require('@/assets/logos/anchor.svg'),
+        create: 'https://greymass.com/en/anchor'
+      })
 
       if (this.network.name == 'proton' || this.context?.chain == 'proton') {
         wallets.push({
           id: 'proton',
-          name: 'Proton',
+          name: 'WebAuth',
           logo: require('@/assets/icons/proton.png'),
           create: 'https://www.protonchain.com/wallet/'
         })
@@ -88,43 +126,15 @@ export default {
           index: 'wax',
           create: 'https://www.mycloudwallet.com/signin#create-account'
         })
-        wallets.push({
-          id: 'wombat',
-          name: '',
-          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
-        })
       }
 
-      if (chain == 'eos') {
+      if (['wax', 'eos', 'telos', 'proton'].includes(chain)) {
         wallets.push({
           id: 'wombat',
-          name: '',
-          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
-        })
-        wallets.push({
-          name: 'Keycat',
-          logo: require('@/assets/logos/keycat.svg')
-        })
-      }
-
-      wallets.push({
-        id: 'scatter',
-        name: 'Scatter / TP / Starteos',
-        logo: require('@/assets/logos/scatter.svg'),
-        create:
-          'https://github.com/GetScatter/ScatterDesktop/releases/tag/11.0.1'
-      }, {
-        name: 'SimplEOS',
-        logo: require('@/assets/logos/simpleos.svg')
-      }, {
-        name: 'Ledger', logo: require('@/assets/logos/ledger.svg')
-      })
-
-      if (chain == 'telos') {
-        wallets.push({
-          id: 'wombat',
-          name: '',
-          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`)
+          name: 'Wombat Wallet',
+          logo: require(`@/assets/logos/wombat_${this.$colorMode.value}.png`),
+          create:
+            'https://help.wombat.app/'
         })
       }
 
@@ -215,6 +225,46 @@ export default {
     height: 2px;
     background: rgba(100, 100, 100, 0.5);
   }
+}
+
+// Alcor Signer: full width above the rest, outlined in the accent colour — the
+// one we point people to. No glow, no fill.
+.items .item.signer {
+  width: 100%;
+}
+
+.signer-button {
+  border: 1px solid var(--main-green) !important;
+  padding: 12px 8px;
+}
+
+.signer-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+}
+
+.signer-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.signer-badge {
+  flex: none !important;
+  padding: 1px 8px;
+  border: 1px solid var(--main-green);
+  border-radius: 10px;
+  color: var(--main-green);
+  font-size: 11px;
+}
+
+.signer-description {
+  color: var(--text-disable);
+  font-size: 12px;
 }
 
 @media only screen and (max-width: 840px) {

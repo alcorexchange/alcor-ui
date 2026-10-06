@@ -13,6 +13,7 @@
       el-form-item
         el-input(
           type="number"
+          inputmode="decimal"
           :placeholder="$t('Buy at best price')"
           size="medium"
           disabled
@@ -22,6 +23,7 @@
       el-form-item
         el-input(
           type="number"
+          inputmode="decimal"
           v-model="totalBuy"
           size="medium"
           placeholder="0"

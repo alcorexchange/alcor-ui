@@ -8,14 +8,17 @@ el-dialog#alcor-modal-component(
 
 <script>
 import { mapState } from 'vuex'
+import { op } from '~/plugins/openpanel'
 
 export default {
   computed: {
-    ...mapState('modal', ['visible'])
+    ...mapState('modal', ['visible', 'current'])
   },
 
   methods: {
+    // Only the user closes the dialog this way (cross, Esc, backdrop).
     close() {
+      if (this.current === 'login' && !this.$store.state.user) op.track('wallet_modal_dismissed')
       this.$store.dispatch('modal/closeModal')
     }
   }

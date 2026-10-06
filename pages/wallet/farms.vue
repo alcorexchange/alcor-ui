@@ -16,6 +16,13 @@
 
   .fs-20.mb-3.mt-5.fw-medium Staked Farms
 
+  NewUiCallout.mb-3(
+    path="/swap/farms"
+    title="Manage your farms on the new Alcor"
+    text="Every staked position in one place — claim, stake and unstake without opening each position."
+    cta="Open new Farms"
+  )
+
   FarmHeader(:search.sync="search" :finished.sync="finished" :hideStakedOnly="true" :hideStakeAll="true").mb-2.mt-4
   FarmsTableNew(:farmPools="farmPools" :finished="finished")
 
@@ -27,6 +34,7 @@ import FarmHeader from '@/components/farm/FarmHeader'
 import AlcorLink from '@/components/AlcorLink'
 import FarmsTableNew from '@/components/farm/FarmsTableNew'
 import OwnedFarmItem from '~/components/owned-farm/OwnedFarmItem'
+import NewUiCallout from '@/components/layout/NewUiCallout'
 
 export default {
   name: 'WalletFarms',
@@ -35,6 +43,7 @@ export default {
     FarmHeader,
     FarmsTableNew,
     AlcorLink,
+    NewUiCallout,
   },
 
   data: () => {

@@ -21,6 +21,10 @@
           )
             span {{ item.name }}
             i.el-icon-caret-bottom
+            .new-badge(v-if="item.isNew") New
+          a.menu-item(v-else-if="item.href" :href="item.href" target="_blank")
+            span {{ item.name }}
+            .new-badge(v-if="item.isNew") New
           nuxt-link.menu-item(v-else :to="localePath(item.to)")
             span {{ item.name }}
     .end
@@ -37,36 +41,16 @@
       )
         TransitionGroup(:name="`content-${transitionDirection}`" @enter="handleContentEnter" appear)
 
-          .menu-content.trade-content(v-show="currentContent === 'trade'" key="trade")
-            ul.content-items
-              LayoutMenuContentItem(title="Spot Markets" description="Trade tokens with advanced orderbooks" to="/markets" :icon="require('~/assets/icons/menu-spot.svg')")
-              LayoutMenuContentItem(title="OTC" description="Trade tokens in bulk" to="/otc" :icon="require('~/assets/icons/menu-otc.svg')")
-              LayoutMenuContentItem(title="NFT" description="Trade, Explore and create NFTs" to="/nft-market" :icon="require('~/assets/icons/menu-nft.svg')")
-
-          .menu-content.earn-content(v-show="currentContent === 'earn'" key="earn")
-            ul.content-items
-              LayoutMenuContentItem(title="Pools" description="Manage liquidity pools" to="/positions" :icon="require('~/assets/icons/menu-pools.svg')")
-              LayoutMenuContentItem(title="Farms" description="Stake your liquidity positions in farms" to="/farm" :icon="require('~/assets/icons/menu-farms.svg')")
-
-          .menu-content.bridge-content(v-show="currentContent === 'bridge'" key="bridge")
-            ul.content-items
-              LayoutMenuContentItem(title="IBC Bridge" description="Bridge from EOS, WAX, Telos and UX Network" to="/bridge" :icon="require('~/assets/icons/menu-ibc.svg')")
-              LayoutMenuContentItem(title="Simple Bridge" description="Use SimpleSwap to buy & swap crypto" to="/buy-crypto" :icon="require('~/assets/icons/menu-bridge.svg')")
-
-          .menu-content.docs-content(v-show="currentContent === 'docs'" key="docs")
-            ul.content-items
-              LayoutMenuContentItem(title="Docs" description="Alcor Documentation" to="/docs" :icon="require('~/assets/icons/menu-docs.svg')")
-              LayoutMenuContentItem(title="API" description="Alcor API documentation" href="http://api.alcor.exchange" :icon="require('~/assets/icons/menu-api.svg')")
-              LayoutMenuContentItem(title="Github" description="Code & Contribution" href="https://github.com/avral/alcor-ui" :icon="require('~/assets/icons/menu-git.svg')")
-            ul.content-items
-              LayoutMenuContentItem(title="Telegram" description="Support & Trading Talks" :social="true" href="https://t.me/alcorexchange" :icon="require('~/assets/icons/Telegram.svg')")
-              LayoutMenuContentItem(title="Twitter" description="Announcements" :social="true" href="https://twitter.com/alcorexchange" :icon="require('~/assets/icons/Twitter.svg')")
-              LayoutMenuContentItem(title="Discord" description="General Chatting" :social="true" href="https://discord.gg/Sxum2ETSzq" :icon="require('~/assets/icons/Discord.svg')")
+          template(v-for="section in itemsWithIcons")
+            .menu-content(v-show="currentContent === section.contentKey" :key="section.contentKey")
+              ul.content-items(v-for="column in section.content")
+                LayoutMenuContentItem(v-for="item in column" :key="item.title" :isNew="item.isNew" :title="item.title" :description="item.description" :to="item.to" :href="item.href" :isSocial="item.isSocial" :icon="item.iconSrc")
 </template>
 
 <script>
 import LayoutMenuContentItem from '~/components/layout/LayoutMenuContentItem.vue'
 import ConnectNav from '~/components/layout/ConnectNav'
+import { newAlcorUrl } from '~/utils/newAlcor'
 export default {
   name: 'LayoutMenu',
 
@@ -80,19 +64,10 @@ export default {
       isOpen: false,
       closeTimeout: null,
       size: null,
-      resizeObserver: null,
       currentContent: null, // 'trade' | 'earn' | 'bridge' | 'docs'
       contentOffset: null,
       transitionDirection: 'forward', // 'backward'
-      items: [
-        { name: 'Swap', contentKey: null, to: '/swap' },
-        { name: 'Trade', contentKey: 'trade' },
-        { name: 'Earn', contentKey: 'earn' },
-        { name: 'Analytics', contentKey: null, to: '/analytics' },
-        { name: 'Wallet', contentKey: null, to: '/wallet' },
-        { name: 'Bridge', contentKey: 'bridge' },
-        { name: 'Docs & Socials', contentKey: 'docs' },
-      ],
+      cachedItems: null,
     }
   },
 
@@ -104,9 +79,35 @@ export default {
         '--content-offset': `${this.contentOffset}px`,
       }
     },
+    items() {
+      return this.cachedItems || []
+    },
+    sectionsWithContent() {
+      return this.items.filter((item) => item.contentKey)
+    },
+    itemsWithIcons() {
+      return this.sectionsWithContent.map((section) => {
+        return {
+          ...section,
+          content: section.content.map((column) =>
+            column.map((item) => ({
+              ...item,
+              iconSrc: require(`~/assets/icons/${item.icon}.svg`),
+            }))
+          ),
+        }
+      })
+    },
+  },
+
+  created() {
+    this.buildItems()
   },
 
   watch: {
+    '$store.state.network.name'() {
+      this.buildItems()
+    },
     $route() {
       this.close()
     },
@@ -129,11 +130,169 @@ export default {
     },
   },
 
-  mounted() {
-    this.runResizeObserver()
+  beforeDestroy() {
+    clearTimeout(this.closeTimeout)
   },
 
   methods: {
+    buildItems() {
+      const swap = { name: 'Swap', contentKey: null, to: '/swap' }
+      const trade = {
+        name: 'Trade',
+        contentKey: 'trade',
+        // first array is for columns, nested array is for items in each column.
+        content: [
+          [
+            {
+              title: 'Spot Market',
+              description: 'Trade tokens with advanced orderbooks',
+              to: '/markets',
+              icon: 'menu-spot',
+            },
+            {
+              title: 'OTC',
+              description: 'Trade tokens in bulk',
+              to: '/otc',
+              icon: 'menu-otc',
+            },
+            {
+              title: 'NFT',
+              description: 'Trade, Explore and create NFTs',
+              to: '/nft-market',
+              icon: 'menu-nft',
+            },
+          ],
+        ],
+      }
+      const earn = {
+        name: 'Earn',
+        contentKey: 'earn',
+        isNew: false,
+        content: [
+          [
+            {
+              title: 'Pools',
+              description: 'Manage liquidity pools',
+              to: '/positions',
+              icon: 'menu-pools',
+            },
+            {
+              title: 'Farms',
+              description: 'Stake your liquidity positions in farms',
+              to: '/farm',
+              icon: 'menu-farms',
+            },
+          ],
+        ],
+      }
+
+      // TODO: make symbol based on network
+      if (this.$store.state.network.name === 'wax') {
+        earn.content[0].push({
+          title: 'Staking',
+          description: 'Stake your WAX to earn interest and rewards',
+          to: '/staking',
+          icon: 'Treasure',
+        })
+      }
+
+      const bridge = {
+        name: 'Bridge',
+        contentKey: 'bridge',
+        content: [
+          [
+            // {
+            //   title: 'IBC Bridge',
+            //   description: 'Bridge from EOS, WAX, Telos and UX Network',
+            //   to: '/bridge',
+            //   icon: 'menu-ibc',
+            // },
+            {
+              title: 'Simple Bridge',
+              description: 'Use SimpleSwap to buy & swap crypto',
+              to: '/buy-crypto',
+              icon: 'menu-bridge',
+            },
+            {
+              title: 'WAX Token Bridge',
+              description: 'Bridge from Solana, Polygon, Ethereum, BNB and other',
+              href: 'https://bridge.mycloudwallet.com',
+              icon: 'wcw-bridge',
+            },
+          ],
+        ],
+      }
+      const docs = {
+        name: 'Docs & Socials',
+        contentKey: 'docs',
+        content: [
+          [
+            {
+              title: 'Docs',
+              description: 'Alcor Documentation',
+              to: '/docs',
+              icon: 'menu-docs',
+            },
+            {
+              title: 'API',
+              description: 'Alcor API documentation',
+              href: 'http://api.alcor.exchange',
+              icon: 'menu-api',
+            },
+            {
+              title: 'Github',
+              description: 'Code & Contribution',
+              href: 'https://github.com/avral/alcor-ui',
+              icon: 'menu-git',
+            },
+          ],
+          [
+            {
+              title: 'Telegram',
+              description: 'Support & Trading Talks',
+              href: 'https://t.me/alcorexchange',
+              icon: 'Telegram',
+              isSocial: true,
+            },
+            {
+              title: 'Twitter',
+              description: 'Announcements',
+              href: 'https://twitter.com/alcorexchange',
+              icon: 'Twitter',
+              isSocial: true,
+            },
+            {
+              title: 'Discord',
+              description: 'General Chatting',
+              href: 'https://discord.gg/Sxum2ETSzq',
+              icon: 'Discord',
+              isSocial: true,
+            },
+          ],
+        ],
+      }
+
+      // EOS trades as `vaulta` over there, not `eos` — this link was built
+      // from the raw network name and sent EOS users to a 500.
+      const terminal = {
+        name: 'Terminal',
+        contentKey: null,
+        href: newAlcorUrl(this.$store.state.network.name, '/terminal'),
+        isNew: true,
+      }
+
+      this.cachedItems = [
+        swap,
+        trade,
+        terminal,
+        earn,
+        { name: 'Analytics', contentKey: null, to: '/analytics' },
+        { name: 'Wallet', contentKey: null, to: '/wallet' },
+        bridge,
+        docs,
+      ]
+    },
+
     hasActiveLink(contentKey) {
       const { path } = this.$route
 
@@ -146,7 +305,7 @@ export default {
         )
       }
       if (contentKey == 'earn') {
-        return path.includes('/positions') || path.includes('/farm')
+        return path.includes('/positions') || path.includes('/farm') || path.includes('/staking')
       }
       if (contentKey == 'bridge') {
         return path.includes('/bridge') || path.includes('/buy-crypto')
@@ -219,14 +378,6 @@ export default {
       }
       this.close()
     },
-
-    runResizeObserver() {
-      this.resizeObserver = new ResizeObserver((entries) => {
-        console.log(entries)
-      })
-
-      // this.resizeObserver.observe(this.$refs.contentContainer)
-    },
   },
 }
 </script>
@@ -261,6 +412,21 @@ export default {
       align-items: center;
       gap: 4px;
       color: var(--text-disable);
+      position: relative;
+      .new-badge {
+        position: absolute;
+        background: var(--main-action-green);
+        padding: 2px 4px;
+        line-height: 1;
+        border-radius: 4px;
+        color: black;
+        top: 0;
+        right: 0;
+        font-size: 0.6rem;
+        pointer-events: none;
+        transform: translate(20%, -40%);
+        z-index: 1;
+      }
       &.active {
         color: var(--text-default);
       }
@@ -308,12 +474,10 @@ export default {
   left: 0;
   width: auto;
   padding: 16px;
-
-  &.docs-content {
-    display: flex;
-    gap: 40px;
-  }
+  display: flex;
+  gap: 40px;
 }
+
 .content-items {
   display: flex;
   flex-direction: column;

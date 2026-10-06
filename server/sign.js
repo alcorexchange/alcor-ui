@@ -2,8 +2,8 @@ const { TextEncoder, TextDecoder } = require('util')
 
 const fetch = require('node-fetch')
 const { BAD_REQUEST, CREATED } = require('http-status-codes')
-const { Api, JsonRpc } = require('eosjs')
-const { JsSignatureProvider } = require('eosjs/dist/eosjs-jssig')
+const { Api, JsonRpc } = require('enf-eosjs')
+const { JsSignatureProvider } = require('enf-eosjs/dist/eosjs-jssig')
 
 const network = require('../config.js').networks.eos
 

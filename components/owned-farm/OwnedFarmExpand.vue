@@ -29,12 +29,14 @@
           td {{ incentive.rewardPerDay | nFormat(3) }} {{ incentive.reward.quantity.split(' ')[1] }}
           td
             .action
-              AlcorButton(@click="$emit('extend', incentive)" access) Top up
+              ExtendFarmModal(:incentive="incentive")
+              //AlcorButton(@click="$emit('extend', incentive)" access) Top up
 </template>
 
 <script>
 import TokenImage from '~/components/elements/TokenImage'
 import AlcorButton from '~/components/AlcorButton'
+import ExtendFarmModal from '~/components/owned-farm/ExtendFarmModal'
 
 export default {
   name: 'OwnedFarmExpand',
@@ -42,6 +44,7 @@ export default {
   components: {
     TokenImage,
     AlcorButton,
+    ExtendFarmModal
   },
 
   props: ['farm'],

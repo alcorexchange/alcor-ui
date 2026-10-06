@@ -17,11 +17,8 @@ no-ssr
         el-radio-button(:label='network.baseToken.symbol')
           span {{ network.baseToken.symbol }}
 
-        el-radio-button(:label="network.USD_TOKEN.split('-')[0].toUpperCase()")
-          span {{ network.USD_TOKEN.split('-')[0].toUpperCase() }}
-
-        el-radio-button(v-if='network.name == "eos"', label='USDT')
-          span {{ $t('USDT') }}
+        el-radio-button(label="USD")
+          span USD
 
         el-radio-button(value='cross-chain', label='Cross-Chain')
           span {{ $t('Cross-Chain') }}
@@ -200,61 +197,75 @@ export default {
         case this.network.baseToken.symbol:
           markets = this.markets.filter(
             i => i.base_token.symbol.name == this.network.baseToken.symbol ||
-            this.network.USD_TOKEN == i.base_token.str.replace('@', '-').toLowerCase()
+            i.base_token.id == 'waxusdc-eth.token'
           )
           break
 
-        case 'fav':
-          markets = this.markets.filter(
-            i => this.favMarkets.includes(i.id)
-          )
+        case 'fav': {
+          // Convert to Set for O(1) lookup
+          const favSet = new Set(this.favMarkets)
+          markets = this.markets.filter(i => favSet.has(i.id))
           break
+        }
 
-        case this.network.USD_TOKEN.split('-')[0].toUpperCase():
+        case 'USD':
           markets = this.markets.filter((i) => {
-            return this.network.USD_TOKEN.includes(i.base_token.contract) ||
-              this.network.USD_TOKEN.includes(i.quote_token.contract)
+            return (
+              this.network.USD_TOKEN.includes(i.base_token.contract) ||
+              this.network.USD_TOKEN.includes(i.quote_token.contract) ||
+              ([i.quote_token.contract, i.base_token.contract].includes('eth.token') &&
+               [i.quote_token.symbol.name, i.base_token.symbol.name].some(s => s.includes('USD')))
+            )
           })
           break
 
         case 'Cross-Chain': {
-          // Cross Chain
-          const ibcTokens = this.$store.state.ibcTokens.filter(
-            i => i != this.network.baseToken.contract
-          )
+          // Convert to Set for O(1) lookup
+          const ibcSet = new Set(this.$store.state.ibcTokens.filter(i => i != this.network.baseToken.contract))
           markets = this.markets.filter((i) => {
             return (
               this.network.USD_TOKEN.includes(i.base_token.contract) ||
-              ibcTokens.includes(i.base_token.contract) ||
-              ibcTokens.includes(i.quote_token.contract) ||
-
-              Object.keys(this.network.withdraw).includes(i.quote_token.str) ||
-              Object.keys(this.network.withdraw).includes(i.base_token.str)
+              ibcSet.has(i.base_token.contract) ||
+              ibcSet.has(i.quote_token.contract)
             )
           })
           break
         }
       }
 
-      markets = markets
-        .filter(i => i.slug.includes(this.search.toLowerCase()) && !i.scam)
-        .sort((a, b) => b.volumeWeek - a.volumeWeek)
-        .reduce((res, i) => {
-          i.promoted ? res[0].push(i) : res[1].push(i)
-          return res
-        }, [[], []])
-        .reduce((res, subArr) => {
-          res.push(...subArr)
-          return res
-        }, []).sort((a, b) => {
-          if (a.promoted && b.promoted) {
-            return this.network.PINNED_MARKETS.indexOf(a.id) - this.network.PINNED_MARKETS.indexOf(b.id)
-          }
+      // Single pass: filter + deduplicate + separate promoted/regular
+      const searchLower = this.search.toLowerCase()
+      const seen = new Set()
+      const promoted = []
+      const regular = []
 
-          return 0
-        })
+      for (const market of markets) {
+        // Skip duplicates, scam, and non-matching search
+        if (seen.has(market.id) || market.scam || !market.slug.includes(searchLower)) {
+          continue
+        }
 
-      return markets
+        seen.add(market.id)
+
+        if (market.promoted) {
+          promoted.push(market)
+        } else {
+          regular.push(market)
+        }
+      }
+
+      // Sort each group separately
+      promoted.sort((a, b) => {
+        const indexA = this.network.PINNED_MARKETS.indexOf(a.id)
+        const indexB = this.network.PINNED_MARKETS.indexOf(b.id)
+        if (indexA !== indexB) return indexA - indexB
+        return b.volumeWeek - a.volumeWeek
+      })
+
+      regular.sort((a, b) => b.volumeWeek - a.volumeWeek)
+
+      // Combine: promoted first, then regular
+      return promoted.concat(regular)
     }
   },
 

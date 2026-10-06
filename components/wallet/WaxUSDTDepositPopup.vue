@@ -7,7 +7,7 @@
     .main(v-if="this.$store.state.user && this.$store.state.user.name")
       blockquote.blockquote.text-left
         p.text-wrap.mb-0
-          | We use the EOS network as a USDT provider. When withdrawing, you must select the EOS network.
+          | Alcor use the EOS network as a USDT provider. When withdrawing, you must select the EOS network.
         footer.blockquote-footer.mt-1
           | Carefully read the instructions before making a deposit.
         footer.blockquote-footer.mt-1
@@ -59,7 +59,7 @@ export default {
       navigator.clipboard.writeText('w.ibc.alcor')
       this.$notify({
         title: 'Clipboard',
-        message: 'Address name copyed to Clipboard',
+        message: 'Address name copied to Clipboard',
         type: 'info'
       })
     },
@@ -68,7 +68,7 @@ export default {
       navigator.clipboard.writeText(this.memo)
       this.$notify({
         title: 'Clipboard',
-        message: 'Account name copyed to Clipboard',
+        message: 'Account name copied to Clipboard',
         type: 'info'
       })
     },

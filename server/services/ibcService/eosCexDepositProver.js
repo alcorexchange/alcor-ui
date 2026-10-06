@@ -1,7 +1,7 @@
 require('dotenv').config()
 
-import { Api } from 'eosjs'
-import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig'
+import { Api } from 'enf-eosjs'
+import { JsSignatureProvider } from 'enf-eosjs/dist/eosjs-jssig'
 
 import { fetchAllRows } from '../../../utils/eosjs'
 import { chains } from './ibcChains'
@@ -72,7 +72,7 @@ export async function eosCexDepsitsWorker() {
   while (true) {
     try {
       await transferDeposits()
-      await sleep(5000)
+      await sleep(15000)
     } catch (e) {
       console.error('EOS DEPOSITS WORKER ERR:', e)
     }

@@ -8,15 +8,20 @@ recycle-scroller(
   :item-size="table.itemSize"
   :pageMode="table.pageMode"
   :buffer="buffer || 450"
+  key-field="id"
   list-tag="div"
 )
   template(#before)
     div.header(:class="{ 'mobile': isMobile }")
-      div.header__column(v-for="head in table.header" v-if="!isMobile || !head.desktopOnly" :key="head.value" :style="{ width: head.width }" )
-        span(:class="{ pointer: head.sortable }" @click="() => head.sortable ? sort({ key: head.value, route: 0 }) : null") {{ $t(head.label) }}
+      div.header__column(v-for="head in table.header" v-if="!isMobile || !head.desktopOnly" :key="head.value" :style="{ width: head.width, '--mobile-width': head.mobileWidth || '33%' }" )
+        span(:class="{ pointer: head.sortable }" @click="() => head.sortable ? sort({ key: head.value, route: 0 }) : null")
+          slot(:name="`${head.slot}-header`") {{ $t(head.label) }}
         sorter(v-if="head.sortable" :sort-by="head.value" :active-sort="activeSort" @change="sort")
   template(v-slot="{ item }")
     slot(name="row" :item="item")
+
+  template(#empty v-if="!sortedData || !sortedData.length")
+    slot(name="empty")
 </template>
 
 <script>
@@ -58,6 +63,17 @@ export default {
 </script>
 
 <style>
+.scroller .vue-recycle-scroller__item-wrapper {
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+.scroller .vue-recycle-scroller__item-view {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .scroller .vue-recycle-scroller__item-view.hover {
   background: var(--hover);
 }
@@ -119,7 +135,7 @@ export default {
 }
 
 .header.mobile .header__column {
-  width: 33.33% !important;
+  width: var(--mobile-width) !important;
   font-size: 11px;
 }
 

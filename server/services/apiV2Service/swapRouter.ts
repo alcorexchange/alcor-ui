@@ -1,93 +1,294 @@
 import { performance } from 'perf_hooks'
 
-import { Trade, Percent, computeAllRoutes } from '@alcorexchange/alcor-swap-sdk'
+import { TradeType, Trade, Percent, Pool, Route } from '@alcorexchange/alcor-swap-sdk'
 import { Router } from 'express'
-
 import { tryParseCurrencyAmount } from '../../../utils/amm'
-
 import { getPools } from '../swapV2Service/utils'
+import { getSubscriber } from '../redis'
+import { fetchRustRoutes } from '../rustRouter'
+import { parseTrade } from './utils'
 
 export const swapRouter = Router()
 
-const ROUTES_CACHE_TIMEOUT = 60 * 60 * 1 // In seconds
 const TRADE_LIMITS = { maxNumResults: 1, maxHops: 3 }
+const POOLS = {}
+const POOLS_LOADING_PROMISES = {}
+const TOKEN_INDEX = {} // { chain: Map<tokenId, Token> }
+const TRADE_CACHE = new Map() // Кеш для результатов trade
+const CACHE_TTL = 5000 // 3 секунды TTL для кеша
 
-// storing pools globally for access by getRoute(for cache)
-let POOLS = []
+// Статистика по источникам запросов
+const REQUEST_STATS = new Map() // origin -> { count, lastSeen, routes: Map }
+const STATS_WINDOW = 60 * 60 * 1000 // 1 час окно статистики
 
-const ROUTES = {}
-function getCachedRoutes(chain, inputTokenID, outputTokenID, maxHops = 2) {
-  const cache_key = `${chain}-${inputTokenID}-${outputTokenID}-${maxHops}`
+// Функция для очистки старой статистики
+function cleanRequestStats() {
+  const now = Date.now()
+  for (const [origin, stats] of REQUEST_STATS.entries()) {
+    if (now - stats.lastSeen > STATS_WINDOW) {
+      REQUEST_STATS.delete(origin)
+    }
+  }
+}
 
-  if (ROUTES[cache_key]) {
-    return ROUTES[cache_key]
+// Функция для записи статистики
+function recordRequestStats(origin, route) {
+  if (!origin) origin = 'direct'
+
+  if (!REQUEST_STATS.has(origin)) {
+    REQUEST_STATS.set(origin, {
+      count: 0,
+      lastSeen: Date.now(),
+      routes: new Map()
+    })
   }
 
-  // We pass chain to keep cache for different chains
-  const input = POOLS.find(p => p.tokenA.id == inputTokenID)?.tokenA || POOLS.find(p => p.tokenB.id == inputTokenID)?.tokenB
-  const output = POOLS.find(p => p.tokenA.id == outputTokenID)?.tokenA || POOLS.find(p => p.tokenB.id == outputTokenID)?.tokenB
+  const stats = REQUEST_STATS.get(origin)
+  stats.count++
+  stats.lastSeen = Date.now()
 
-  if (!input || !output) {
-    console.log('getCachedPools: INVALID input/output: ', chain, { cache_key })
-    return []
+  // Считаем популярные роуты для каждого источника
+  const routeKey = route
+  stats.routes.set(routeKey, (stats.routes.get(routeKey) || 0) + 1)
+
+  // Периодически чистим старую статистику
+  if (REQUEST_STATS.size > 1000) {
+    cleanRequestStats()
   }
+}
 
-  const routes = computeAllRoutes(input, output, POOLS, maxHops)
+// Subscribe после инициализации Redis (вызывается из index.ts)
+export function initSwapRouterSubscriptions() {
+  getSubscriber().subscribe('swap:pool:instanceUpdated', async msg => {
+    const { chain, pool: poolJson } = JSON.parse(msg)
+    const pool = Pool.fromJSON(poolJson)
 
-  // Caching
-  ROUTES[cache_key] = routes
-  setTimeout(() => delete ROUTES[cache_key], ROUTES_CACHE_TIMEOUT * 1000)
+    if (!POOLS[chain]) return getAllPools(chain)
+
+    if (!pool) {
+      console.warn('ADDING NULL POOL TO POOLS MAP!', pool)
+    }
+
+    POOLS[chain].set(pool.id, pool)
+
+    // Обновляем индекс токенов
+    if (TOKEN_INDEX[chain]) {
+      TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
+      TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
+    }
+  })
+}
+
+async function getAllPools(chain) {
+  if (!POOLS[chain]) {
+    // Если промис загрузки еще не существует, создаем его.
+    // ВАЖНО: промис удаляется из POOLS_LOADING_PROMISES и при ошибке (finally
+    // ниже) — иначе упавшая загрузка (например, Redis в LOADING после рестарта)
+    // кэшируется навсегда и все запросы чейна виснут до рестарта процесса.
+    POOLS_LOADING_PROMISES[chain] =
+      POOLS_LOADING_PROMISES[chain] ||
+      (async () => {
+        const pools = await getPools(chain, true, (p) => p.active)
+        POOLS[chain] = new Map(pools.map((p) => [p.id, p]))
+
+        // Создаем индекс токенов для быстрого поиска
+        // Берём токен только из пулов с ликвидностью, чтобы избежать мусорных пулов с неправильными decimals
+        TOKEN_INDEX[chain] = new Map()
+        for (const pool of pools) {
+          if (BigInt(pool.liquidity || 0) > BigInt(0)) {
+            if (!TOKEN_INDEX[chain].has(pool.tokenA.id)) {
+              TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
+            }
+            if (!TOKEN_INDEX[chain].has(pool.tokenB.id)) {
+              TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
+            }
+          }
+        }
+        // Fallback для токенов которые есть только в пулах без ликвидности
+        for (const pool of pools) {
+          if (!TOKEN_INDEX[chain].has(pool.tokenA.id)) {
+            TOKEN_INDEX[chain].set(pool.tokenA.id, pool.tokenA)
+          }
+          if (!TOKEN_INDEX[chain].has(pool.tokenB.id)) {
+            TOKEN_INDEX[chain].set(pool.tokenB.id, pool.tokenB)
+          }
+        }
+
+        console.log(POOLS[chain].size, 'initial', chain, 'pools fetched')
+        return POOLS[chain]
+      })().finally(() => {
+        delete POOLS_LOADING_PROMISES[chain]
+      })
+    // Ждем завершения загрузки
+    POOLS[chain] = await POOLS_LOADING_PROMISES[chain]
+  }
+  return POOLS[chain]
+}
+
+// Build SDK Route objects from lists of pool ids, skipping any route whose pools
+// are missing/inactive/tickless. Fed by the Rust route-finder service.
+function buildRoutesFromPoolIdLists(poolIdLists, allPools, inputToken, outputToken) {
+  const routes = []
+
+  for (const poolIds of poolIdLists) {
+    const pools = poolIds.map(p => allPools.get(p))
+    const poolsValid = pools.every(p => p != undefined && p.active && p.tickDataProvider.ticks.length > 0)
+
+    if (poolsValid) {
+      routes.push(new Route(pools, inputToken, outputToken))
+    }
+  }
 
   return routes
 }
 
-swapRouter.get('/getRoute', async (req, res) => {
-  const network: Network = req.app.get('network')
+// Оптимизированный поиск токенов через индекс O(1)
+function findToken(chain, tokenID) {
+  return TOKEN_INDEX[chain]?.get(tokenID)
+}
 
-  let { v2, trade_type, input, output, amount, slippage, receiver = '<receiver>', maxHops } = <any>req.query
+// Функция для очистки кеша
+function cleanTradeCache() {
+  const now = Date.now()
+  for (const [key, value] of TRADE_CACHE.entries()) {
+    if (now - value.timestamp > CACHE_TTL) {
+      TRADE_CACHE.delete(key)
+    }
+  }
+}
 
-  if (!trade_type || !input || !output || !amount)
+// Эндпоинт для просмотра статистики
+swapRouter.get('/stats', async (req, res) => {
+  const stats = []
+
+  // Чистим старую статистику перед показом
+  cleanRequestStats()
+
+  for (const [origin, data] of REQUEST_STATS.entries()) {
+    const topRoutes = Array.from(data.routes.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([route, count]) => ({ route, count }))
+
+    stats.push({
+      origin,
+      count: data.count,
+      lastSeen: new Date(data.lastSeen).toISOString(),
+      topRoutes
+    })
+  }
+
+  // Сортируем по количеству запросов
+  stats.sort((a, b) => b.count - a.count)
+
+  res.json({
+    totalOrigins: stats.length,
+    totalRequests: stats.reduce((sum, s) => sum + s.count, 0),
+    window: '1 hour',
+    stats: stats.slice(0, 50) // Топ 50 источников
+  })
+})
+
+// Тело getRoute вынесено в функцию, а регистрация обёрнута в try/catch:
+// express 4 не ловит ошибки async-хендлеров, и любой throw оставлял запрос
+// висеть без ответа. Теперь клиент получает 500 сразу.
+async function handleGetRoute(req, res) {
+  const network = req.app.get('network')
+  let {
+    v2,
+    trade_type,
+    input,
+    output,
+    amount,
+    slippage,
+    receiver = '<receiver>',
+    maxHops,
+    includePoolDetails
+  } = <any>req.query
+
+  if (!trade_type || !input || !output) {
     return res.status(403).send('Invalid request')
+  }
 
-  if (!slippage) slippage = 0.3
-  slippage = new Percent(slippage * 100, 10000)
+  if (isNaN(amount)) {
+    return res.status(403).send('Invalid amount')
+  }
 
-  // Max hoop can be only 3 due to perfomance
-  maxHops = (!isNaN(parseInt(maxHops))) ? parseInt(maxHops) : TRADE_LIMITS.maxHops
+  slippage = slippage ? new Percent(parseFloat(slippage) * 100, 10000) : new Percent(30, 10000)
 
-  const exactIn = trade_type == 'EXACT_INPUT'
+  maxHops = Math.min(3, !isNaN(parseInt(maxHops)) ? parseInt(maxHops) : TRADE_LIMITS.maxHops)
+  includePoolDetails = includePoolDetails === true || includePoolDetails === 'true'
 
-  // Updating global pools
-  const allPools = await getPools(network.name)
+  const exactIn = trade_type === 'EXACT_INPUT'
 
-  const inputToken = allPools.find(p => p.tokenA.id == input)?.tokenA || allPools.find(p => p.tokenB.id == input)?.tokenB
-  const outputToken = allPools.find(p => p.tokenA.id == output)?.tokenA || allPools.find(p => p.tokenB.id == output)?.tokenB
+  // Создаем ключ для кеша
+  const tradeCacheKey = `${network.name}-${input}-${output}-${amount}-${trade_type}-${maxHops}-${slippage.toSignificant()}-${v2}-${includePoolDetails}`
 
-  if (!inputToken || !outputToken) return res.status(403).send('Invalid input/output')
-
-  POOLS = allPools.filter(p => p.tickDataProvider.ticks.length > 0)
-
-  amount = tryParseCurrencyAmount(amount, exactIn ? inputToken : outputToken)
-  if (!amount) return res.status(403).send('Invalid amount')
+  // Проверяем кеш
+  const cached = TRADE_CACHE.get(tradeCacheKey)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
+    const routeInfo = `${input}->${output}`
+    recordRequestStats(origin, routeInfo)
+    console.log(`Cache hit for ${input} -> ${output} from ${origin}`)
+    return res.json(cached.data)
+  }
 
   const startTime = performance.now()
 
-  let trade: any
+  const allPools = await getAllPools(network.name)
 
-  const routes = getCachedRoutes(network.name, input, output, Math.min(maxHops, 3))
+  const inputToken = findToken(network.name, input)
+  const outputToken = findToken(network.name, output)
+
+  if (!inputToken || !outputToken || inputToken.equals(outputToken)) {
+    return res.status(403).send('Invalid input/output')
+  }
 
   try {
-    if (v2) {
-      return res.status(403).send('')
-      // const nodes = Object.keys(network.client_nodes)
+    amount = tryParseCurrencyAmount(amount, exactIn ? inputToken : outputToken)
+  } catch (e) {
+    return res.status(403).send(e.message)
+  }
 
-      // ;[trade] = exactIn
-      //   ? await Trade.bestTradeExactInReadOnly(nodes, routes, amount)
-      //   : await Trade.bestTradeExactOutReadOnly(nodes, routes, amount)
+  if (!amount) {
+    return res.status(403).send('Invalid amount')
+  }
+
+  // Routes come exclusively from the Rust route-finder service.
+  const rustRoutes = await fetchRustRoutes({
+    chain: network.name,
+    tokenIn: input,
+    tokenOut: output,
+    amount: amount.quotient.toString(),
+    exactIn,
+    maxHops,
+  })
+
+  const routes = rustRoutes
+    ? buildRoutesFromPoolIdLists(rustRoutes.map(r => r.poolIds), allPools, inputToken, outputToken)
+    : []
+
+  if (routes.length == 0) {
+    console.log(`No routes available: ${network.name} ${inputToken.symbol}(${inputToken.id}) -> ${outputToken.symbol}(${outputToken.id}) maxHops:${maxHops}`)
+    return res.status(404).send('No trading route available. Try again in a few moments.')
+  }
+
+  let trade
+  try {
+    if (v2) {
+      trade = Trade.bestTradeWithSplit(
+        routes,
+        amount,
+        maxHops > 2 ? [25, 50, 75, 100] : [5, 10, 15, 25, 50, 75, 100],
+        //[5, 10, 15, 25, 50, 75, 100],
+        exactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
+        { minSplits: 1, maxSplits: 10 }
+      )
     } else {
-      [trade] = exactIn
-        ? Trade.bestTradeExactIn(routes, POOLS, amount)
-        : Trade.bestTradeExactOut(routes, POOLS, amount)
+      ;[trade] = exactIn
+        ? Trade.bestTradeExactIn(routes, amount)
+        : Trade.bestTradeExactOut(routes, amount)
     }
   } catch (e) {
     console.error('GET ROUTE ERROR', e)
@@ -96,32 +297,55 @@ swapRouter.get('/getRoute', async (req, res) => {
 
   const endTime = performance.now()
 
-  console.log(network.name, `find route took maxHops('${maxHops}') ${endTime - startTime} milliseconds v2: ${Boolean(v2)}`)
+  const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+  const origin = req.headers['origin'] || req.headers['referer'] || 'direct'
 
-  if (!trade) return res.status(403).send('No route found')
-
-  const method = exactIn ? 'swapexactin' : 'swapexactout'
-  const route = trade.route.pools.map(p => p.id)
-
-  const maxSent = exactIn ? trade.inputAmount : trade.maximumAmountIn(slippage)
-  const minReceived = exactIn ? trade.minimumAmountOut(slippage) : trade.outputAmount
-
-  // Memo Format <Service Name>#<Pool ID's>#<Recipient>#<Output Token>#<Deadline>
-  const memo = `${method}#${route.join(',')}#${receiver}#${minReceived.toExtendedAsset()}#0`
-
-  const result = {
-    input: trade.inputAmount.toFixed(),
-    output: trade.outputAmount.toFixed(),
-    minReceived: minReceived.toFixed(),
-    maxSent: maxSent.toFixed(),
-    priceImpact: trade.priceImpact.toSignificant(2),
-    memo,
-    route,
-    executionPrice: {
-      numerator: trade.executionPrice.numerator.toString(),
-      denominator: trade.executionPrice.denominator.toString()
-    }
+  // Извлекаем домен или IP для direct calls
+  let source
+  if (origin === 'direct') {
+    // Если direct call, показываем IP
+    const ipString = Array.isArray(clientIp) ? clientIp[0] : clientIp
+    source = ipString ? ipString.split(',')[0].trim() : 'unknown'
+  } else {
+    // Если есть origin/referer, показываем домен
+    source = new URL(origin).hostname
   }
 
-  return res.json(result)
+  // Записываем статистику
+  const routeInfo = `${inputToken.symbol}->${outputToken.symbol}`
+  recordRequestStats(origin, routeInfo)
+
+  console.log(
+    `[${network.name.toUpperCase()}] ${Math.round(endTime - startTime)}ms | ${inputToken.symbol} → ${outputToken.symbol} | h${maxHops} | ${source}`
+  )
+
+  if (!trade) {
+    return res.status(403).send('No route found')
+  }
+
+  const parsedTrade = parseTrade(trade, slippage, receiver, includePoolDetails)
+
+  // Сохраняем результат в кеш
+  TRADE_CACHE.set(tradeCacheKey, {
+    data: parsedTrade,
+    timestamp: Date.now()
+  })
+
+  // Периодически чистим кеш
+  if (TRADE_CACHE.size > 1000) {
+    cleanTradeCache()
+  }
+
+  return res.json(parsedTrade)
+}
+
+swapRouter.get('/getRoute', async (req, res) => {
+  try {
+    await handleGetRoute(req, res)
+  } catch (e) {
+    console.error('getRoute failed:', e)
+    if (!res.headersSent) res.status(500).send('Internal error')
+  }
 })
+
+export default swapRouter

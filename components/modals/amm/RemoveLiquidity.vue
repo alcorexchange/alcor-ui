@@ -178,7 +178,7 @@ export default {
         // TODO Notify & update position
         const result = await this.$store.dispatch('chain/sendTransaction', actions)
         if (this.percent == 100) this.$router.push('/manage-liquidity')
-        setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 1500)
+        setTimeout(() => this.$store.dispatch('amm/fetchPositions'), 5000)
         this.visible = false
         console.log({ result })
       } catch (e) {
