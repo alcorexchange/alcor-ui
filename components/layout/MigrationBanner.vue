@@ -1,19 +1,25 @@
 <template lang="pug">
 .migration-banner(v-if="!dismissed")
   .banner-content
-    span.banner-text
+    span.banner-text(v-if="bridgeChain")
+      span.banner-tag New
+      | Alcor Bridge: bring USDT, USDC and ETH from Ethereum or BNB from BSC straight to {{ bridgeChain }}.
+    span.banner-text(v-else)
       | New Alcor Exchange is live! Faster, better UI, new features.
     a.banner-link(:href="newAlcorUrl" target="_blank" rel="noopener")
-      | Try it now
+      | {{ bridgeChain ? 'Open bridge' : 'Try it now' }}
       i.el-icon-right
   button.banner-close(@click="dismiss" aria-label="Close")
     i.el-icon-close
 </template>
 
 <script>
-import { newAlcorUrl } from '~/utils/newAlcor'
+import { newAlcorUrl, newBridgeChain } from '~/utils/newAlcor'
 
+// The bridge has its own key: someone who closed "New Alcor is live" has not
+// heard about the bridge yet.
 const STORAGE_KEY = 'alcor_migration_banner_dismissed_at'
+const BRIDGE_STORAGE_KEY = 'alcor_bridge_banner_dismissed_at'
 const DAYS_TO_SHOW_AGAIN = 3
 
 export default {
@@ -24,13 +30,22 @@ export default {
   },
 
   computed: {
+    /** Where the new bridge reaches this network, the banner is about it. */
+    bridgeChain() {
+      return newBridgeChain(this.$store.state.network.name)
+    },
+
     newAlcorUrl() {
-      return newAlcorUrl(this.$store.state.network.name, '/swap')
+      return newAlcorUrl(this.$store.state.network.name, this.bridgeChain ? '/bridge' : '/swap')
+    },
+
+    storageKey() {
+      return this.bridgeChain ? BRIDGE_STORAGE_KEY : STORAGE_KEY
     },
   },
 
   mounted() {
-    const dismissedAt = localStorage.getItem(STORAGE_KEY)
+    const dismissedAt = localStorage.getItem(this.storageKey)
     if (!dismissedAt) {
       this.dismissed = false
       return
@@ -43,7 +58,7 @@ export default {
   methods: {
     dismiss() {
       this.dismissed = true
-      localStorage.setItem(STORAGE_KEY, Date.now().toString())
+      localStorage.setItem(this.storageKey, Date.now().toString())
     },
   },
 }
@@ -73,6 +88,18 @@ export default {
 .banner-text {
   font-size: 14px;
   font-weight: 500;
+}
+
+.banner-tag {
+  margin-right: 8px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--main-action-green);
+  color: #000;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .banner-link {
