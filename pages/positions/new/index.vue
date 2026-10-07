@@ -280,6 +280,7 @@ export default {
       })
 
       return [
+        { value: FeeAmount.LOWEST, desc: this.$t('Best for stable pairs'), selectedPercent: fees[FeeAmount.LOWEST] },
         { value: FeeAmount.LOW, desc: this.$t('Best for very high liquidity tokens'), selectedPercent: fees[FeeAmount.LOW] },
         { value: FeeAmount.MEDIUM, desc: this.$t('Best for most pairs'), selectedPercent: fees[FeeAmount.MEDIUM] },
         { value: FeeAmount.HIGH, desc: this.$t('Best for low liqudity pairs'), selectedPercent: fees[FeeAmount.HIGH] }

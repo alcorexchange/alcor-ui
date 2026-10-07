@@ -18,10 +18,10 @@
     hamt_plus "^1.0.2"
     list "^2.0.19"
 
-"@alcorexchange/alcor-swap-sdk@^1.1.5":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@alcorexchange/alcor-swap-sdk/-/alcor-swap-sdk-1.1.5.tgz#921138e18cd063f65f721eaadd09679cb6948336"
-  integrity sha512-VNlHXPmtWztjoCSMj2RcYBhxoyt/Xrx7Hb8WcBCjtGdrCi1CWY3urRLUL+p2o2bNtpWdyPHoyTcTrER/bHEZsQ==
+"@alcorexchange/alcor-swap-sdk@^1.1.6":
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@alcorexchange/alcor-swap-sdk/-/alcor-swap-sdk-1.1.6.tgz#6855930d4f727c24d0a1c7645744374c1b1ddf97"
+  integrity sha512-SGytBa2L87+1PRlCF3fAzrLfUn7tFxJpJBlOiyKHU9bfCVPZrixdyHVadc9T8mTQ9erst56+jZuQqApYsLm5AA==
   dependencies:
     "@msgpack/msgpack" "^3.1.2"
     big.js "^5.2.2"

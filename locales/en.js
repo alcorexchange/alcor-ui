@@ -658,6 +658,7 @@ export default {
   'Fee Tier': 'Fee Tier',
   Selected: 'Selected',
   'Not created': 'Not created',
+  'Best for stable pairs': 'Best for stable pairs',
   'Best for very high liquidity tokens': 'Best for very high liquidity tokens',
   'Best for most pairs': 'Best for most pairs',
   'Best for low liqudity pairs': 'Best for low liqudity pairs',
