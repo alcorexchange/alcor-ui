@@ -638,7 +638,7 @@ const networks = {
     STABLE_TOKENS: ['usdt-usdt.alcor', 'usdt-wrap.alcor', 'usdc-wrap.alcor'],
 
     // Trusted regardless of their score: bridged blue chips backed 1:1.
-    TRUSTED_TOKENS: ['eth-wrap.alcor'],
+    TRUSTED_TOKENS: ['eth-wrap.alcor', 'bnb-wrap.alcor', 'pol-wrap.alcor'],
 
     // CoinMarketCap UCIDs reported in the CMC / CoinGecko feeds (base_cmc_ucid,
     // target_cmc_ucid). Bridged tokens backed 1:1 carry their origin asset's UCID.
@@ -648,6 +648,8 @@ const networks = {
       'usdt-wrap.alcor': 825,
       'usdc-wrap.alcor': 3408,
       'eth-wrap.alcor': 1027,
+      'bnb-wrap.alcor': 1839,
+      'pol-wrap.alcor': 28321,
       'usdt-usdt.alcor': 825,
       'eos-ibc.wt.eos': 1765,
       'tlos-ibc.wt.tlos': 4660,
@@ -760,7 +762,7 @@ const networks = {
     STABLE_TOKENS: ['usdt-wrap.alcor', 'usdc-wrap.alcor'],
 
     // Trusted regardless of their score: bridged blue chips backed 1:1.
-    TRUSTED_TOKENS: ['eth-wrap.alcor', 'wax-wrap.alcor'],
+    TRUSTED_TOKENS: ['eth-wrap.alcor', 'wax-wrap.alcor', 'bnb-wrap.alcor', 'pol-wrap.alcor'],
 
     // CoinMarketCap UCIDs reported in the CMC / CoinGecko feeds (base_cmc_ucid,
     // target_cmc_ucid). Bridged tokens backed 1:1 carry their origin asset's UCID.
@@ -770,6 +772,8 @@ const networks = {
       'usdt-wrap.alcor': 825,
       'usdc-wrap.alcor': 3408,
       'eth-wrap.alcor': 1027,
+      'bnb-wrap.alcor': 1839,
+      'pol-wrap.alcor': 28321,
       'wax-wrap.alcor': 2300,
       'eos-ibc.wt.eos': 1765,
     },
