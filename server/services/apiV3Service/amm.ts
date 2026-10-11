@@ -854,12 +854,18 @@ amm.get('/pools/:id/positions', async (req, res) => {
     const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`) || '[]')
     const historyCache = new Map()
 
-    const positionsWithStats = await Promise.all(
-      slice.map(async (pos) => ({
-        ...pos,
-        ...(await getPositionStats(network.name, pos, tokenPrices, historyCache)),
-      }))
-    )
+    // One position the math cannot read is that position's problem, not the
+    // pool's: it is logged and left out, as the account endpoint does.
+    const positionsWithStats = (await Promise.all(
+      slice.map(async (pos) => {
+        try {
+          return { ...pos, ...(await getPositionStats(network.name, pos, tokenPrices, historyCache)) }
+        } catch (err) {
+          console.error(`Failed to get stats for position ${pos.id} in pool ${id}`, err)
+          return null
+        }
+      })
+    )).filter(Boolean)
 
     const response = await buildPositionsResponse(network, positionsWithStats, incentivesFilter)
     if (sort === 'totalvalueusd') {
