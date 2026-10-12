@@ -1,5 +1,5 @@
 import { op } from '~/plugins/openpanel'
-import VaultWallet from '~/plugins/wallets/Vault'
+import VaultWallet, { VAULT_CHAINS } from '~/plugins/wallets/Vault'
 import { VAULT_ORIGIN, requestEnroll, requestImport, requestSettings } from '~/plugins/wallets/vault/popup'
 import { rememberVaultSession, setVaultLevel } from '~/plugins/wallets/vault/sessions'
 import { addKeyAction, keyRpid, keySignsAlone } from '~/plugins/wallets/vault/authority'
@@ -17,9 +17,6 @@ import { addKeyAction, keyRpid, keySignsAlone } from '~/plugins/wallets/vault/au
  *   the passkey itself.
  * Nothing is removed from the account either way.
  */
-
-/** Networks the vault signs on. */
-const SIGNER_CHAINS = ['wax', 'proton', 'telos']
 
 /**
  * Old wallets the offer is for:
@@ -132,7 +129,7 @@ export const getters = {
   target(state, getters, rootState) {
     const user = rootState.user
     const chain = rootState.network.name
-    if (!user?.authorization?.actor || user.viewOnly || !SIGNER_CHAINS.includes(chain)) return null
+    if (!user?.authorization?.actor || user.viewOnly || !VAULT_CHAINS.includes(chain)) return null
 
     // The wallet itself, not `lastWallet`: a manual login records that only after the login hook.
     return { chain, account: user.name, permission: user.authorization.permission, wallet: rootState.chain.wallet?.name }

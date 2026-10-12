@@ -9,9 +9,11 @@ import { forgetVaultSession, lastVaultSession, rememberVaultSession, setVaultLev
  * things the user never sees on the confirm screen), so `transact` options are
  * ignored. It never broadcasts: the store pushes, as for every other wallet.
  * The WAX CPU payer `noop` is recognised by the vault and shown as "paid by Alcor".
- *
- * Networks: the ones the vault can sign on — wax, proton (xpr there), telos.
  */
+
+/** Networks the vault signs on, by this app's names (the vault calls proton `xpr`, eos `vaulta`). */
+export const VAULT_CHAINS = ['wax', 'proton', 'telos', 'eos']
+
 export default class VaultWallet {
   name = 'vault'
   network = null

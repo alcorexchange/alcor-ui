@@ -64,6 +64,7 @@ import { captureException } from '@sentry/browser'
 import { mapState } from 'vuex'
 import AlcorButton from '@/components/AlcorButton'
 import AlcorModal from '~/components/AlcorModal.vue'
+import { VAULT_CHAINS } from '~/plugins/wallets/Vault'
 
 export default {
   components: {
@@ -83,7 +84,7 @@ export default {
     // Alcor Signer signs only where its vault knows the network.
     signer() {
       const chain = this.context?.chain || this.network.name
-      if (!['wax', 'proton', 'telos'].includes(chain)) return null
+      if (!VAULT_CHAINS.includes(chain)) return null
 
       return { id: 'vault', name: 'Alcor Signer', logo: require('@/assets/logos/alcor-signer.svg') }
     },
