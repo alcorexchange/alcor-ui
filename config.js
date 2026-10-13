@@ -279,7 +279,7 @@ const networks = {
     popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens', 'clan-clanx', 'atom-tokencreate'],
 
     // Tokens taken as $1: price anchors for every other token's USD price.
-    STABLE_TOKENS: ['xusdc-xtokens', 'xusdt-xtokens'],
+    STABLE_TOKENS: ['xusdc-xtokens', 'xusdt-xtokens', 'usdt-wrap.alcor', 'usdc-wrap.alcor'],
 
     // Trusted regardless of their score: bridged blue chips backed 1:1.
     TRUSTED_TOKENS: [],
