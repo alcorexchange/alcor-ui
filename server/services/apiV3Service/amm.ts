@@ -829,6 +829,14 @@ amm.get('/positions/:id/history', async (req, res) => {
   }
 })
 
+// `sort` query value (lowercased) → the response field it orders by
+const POOL_POSITION_SORT_FIELDS = {
+  totalvalueusd: 'totalValueUSD',
+  totalfeesusd: 'totalFeesUSD',
+  pnlusd: 'pnlUSD',
+  poolsharepct: 'poolSharePct',
+}
+
 amm.get('/pools/:id/positions', async (req, res) => {
   const network = req.app.get('network')
   const incentivesFilter = String(req.query?.incentives || 'active').toLowerCase()
@@ -868,10 +876,9 @@ amm.get('/pools/:id/positions', async (req, res) => {
     )).filter(Boolean)
 
     const response = await buildPositionsResponse(network, positionsWithStats, incentivesFilter)
-    if (sort === 'totalvalueusd') {
-      response.sort((a, b) => ((a?.totalValueUSD ?? 0) - (b?.totalValueUSD ?? 0)) * dir)
-    } else if (sort === 'totalfeesusd') {
-      response.sort((a, b) => ((a?.totalFeesUSD ?? 0) - (b?.totalFeesUSD ?? 0)) * dir)
+    const sortField = POOL_POSITION_SORT_FIELDS[sort]
+    if (sortField) {
+      response.sort((a, b) => ((a?.[sortField] ?? 0) - (b?.[sortField] ?? 0)) * dir)
     }
     res.json({ items: response, page, limit, total: poolPositions.length })
   } catch (err) {

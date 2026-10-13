@@ -151,6 +151,7 @@ Query:
 - `limit` (default: `50`, max: `500`)
 - `page` (default: `1`)
 - `search` (optional, token symbol/name/contract/id, supports `A/B` or space-separated terms)
+- `account` (optional, only pools where this account holds an open position)
 - `hide_scam=true|false`
 - `include=incentives` (optional)
 - `sort=apr` uses 7d annualized APR; with `include=incentives` sorts by `apr.total`, otherwise by fee APR
@@ -394,6 +395,11 @@ Single position details.
 
 ### GET `/amm/pools/:id/positions`
 Positions for pool.
+
+Query:
+- `limit` (default `200`, max `500`), `page`
+- `sort`: `totalValueUSD | totalFeesUSD | pnlUSD | poolSharePct`
+- `order`: `asc | desc` (default `desc`)
 
 ### GET `/amm/account/:account/history`
 Position history for account (mint/burn/collect), optimized for cursor pagination.
