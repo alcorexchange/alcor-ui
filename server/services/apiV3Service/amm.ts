@@ -829,6 +829,14 @@ amm.get('/positions/:id/history', async (req, res) => {
   }
 })
 
+// `sort` query value (lowercased) → the response field it orders by
+const POOL_POSITION_SORT_FIELDS = {
+  totalvalueusd: 'totalValueUSD',
+  totalfeesusd: 'totalFeesUSD',
+  pnlusd: 'pnlUSD',
+  poolsharepct: 'poolSharePct',
+}
+
 amm.get('/pools/:id/positions', async (req, res) => {
   const network = req.app.get('network')
   const incentivesFilter = String(req.query?.incentives || 'active').toLowerCase()
@@ -854,18 +862,23 @@ amm.get('/pools/:id/positions', async (req, res) => {
     const tokenPrices = JSON.parse(await redis().get(`${network.name}_token_prices`) || '[]')
     const historyCache = new Map()
 
-    const positionsWithStats = await Promise.all(
-      slice.map(async (pos) => ({
-        ...pos,
-        ...(await getPositionStats(network.name, pos, tokenPrices, historyCache)),
-      }))
-    )
+    // One position the math cannot read is that position's problem, not the
+    // pool's: it is logged and left out, as the account endpoint does.
+    const positionsWithStats = (await Promise.all(
+      slice.map(async (pos) => {
+        try {
+          return { ...pos, ...(await getPositionStats(network.name, pos, tokenPrices, historyCache)) }
+        } catch (err) {
+          console.error(`Failed to get stats for position ${pos.id} in pool ${id}`, err)
+          return null
+        }
+      })
+    )).filter(Boolean)
 
     const response = await buildPositionsResponse(network, positionsWithStats, incentivesFilter)
-    if (sort === 'totalvalueusd') {
-      response.sort((a, b) => ((a?.totalValueUSD ?? 0) - (b?.totalValueUSD ?? 0)) * dir)
-    } else if (sort === 'totalfeesusd') {
-      response.sort((a, b) => ((a?.totalFeesUSD ?? 0) - (b?.totalFeesUSD ?? 0)) * dir)
+    const sortField = POOL_POSITION_SORT_FIELDS[sort]
+    if (sortField) {
+      response.sort((a, b) => ((a?.[sortField] ?? 0) - (b?.[sortField] ?? 0)) * dir)
     }
     res.json({ items: response, page, limit, total: poolPositions.length })
   } catch (err) {

@@ -338,9 +338,14 @@ swap.get('/pools/:id/positions', cacheSeconds(60, (req, res) => {
 
   const result = []
   for (const position of positions.filter(p => p.pool == req.params.id)) {
-    const stats = await getPositionStats(network.name, position)
-
-    result.push({ ...position, ...stats })
+    // Caught here, not left to Express: an async throw in a v4 handler is
+    // never answered, and the request hangs until the proxy gives up.
+    try {
+      const stats = await getPositionStats(network.name, position)
+      result.push({ ...position, ...stats })
+    } catch (err) {
+      console.error(`Failed to get stats for position ${position.id} in pool ${req.params.id}`, err)
+    }
   }
 
   res.json(result)

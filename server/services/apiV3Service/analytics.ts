@@ -12,6 +12,7 @@ import { getScamLists } from '../apiV2Service/config'
 import { getSwapBarPriceAsString } from '../../../utils/amm'
 import { resolutions as candleResolutions, normalizeResolution } from '../updaterService/charts'
 import { getIncentives } from '../apiV2Service/farms'
+import { getAccountPoolIds } from '../apiV2Service/account'
 import { getChainRpc } from '../../../utils/eosjs'
 import { getOrderbook } from '../orderbookService/start'
 import { sqrt } from '../../../utils/bigint'
@@ -2056,11 +2057,17 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
   const includeTx = includes.has('tx')
   const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
   const search = String(req.query.search || '').toLowerCase().trim()
+  const account = String(req.query.account || '').trim()
   const sort = String(req.query.sort || 'volume').toLowerCase()
   const order = String(req.query.order || 'desc').toLowerCase()
   const dir = order === 'asc' ? 1 : -1
 
   let pools = await SwapPool.find({ chain: network.name }).lean()
+
+  if (account) {
+    const accountPoolIds = await getAccountPoolIds(network.name, account)
+    pools = pools.filter((p) => accountPoolIds.has(Number(p.id)))
+  }
 
   if (hideScam) {
     const { scam_contracts, scam_tokens } = await getScamLists(network)

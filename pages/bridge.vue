@@ -1,5 +1,12 @@
 <template lang="pug">
 #bridge-page.d-flex.align-items-center.flex-column.gap-16.mt-2
+  NewUiCallout.new-bridge(
+    v-if="newBridgeChain"
+    path="/bridge"
+    :title="`New: bridge from Ethereum and BSC to ${newBridgeChain}`"
+    text="USDT, USDC, ETH and BNB, straight to your account — on the new Alcor."
+    cta="Open bridge"
+  )
   .greet
     h1.fs-20.md-fs-36.text-center Alcor IBC Bridge
     .fs-16.md-fs-24 Bridge assets between Antelope chains
@@ -16,6 +23,8 @@ import BridgeForm from '~/components/bridge/BridgeForm.vue'
 import CirclesBg from '~/components/bridge/CirclesBg.vue'
 import Circle1 from '~/components/bridge/Circle1.vue'
 import Circle2 from '~/components/bridge/Circle2.vue'
+import NewUiCallout from '~/components/layout/NewUiCallout'
+import { newBridgeChain } from '~/utils/newAlcor'
 
 const DEFAULT_COLOR = '#575757'
 
@@ -23,7 +32,7 @@ export default {
 
   name: "BridgePage",
 
-  components: { BridgeForm, CirclesBg, Circle1, Circle2 },
+  components: { BridgeForm, CirclesBg, Circle1, Circle2, NewUiCallout },
 
   data: () => ({
     colors: [
@@ -36,6 +45,11 @@ export default {
   }),
 
   computed: {
+    /** Where the new Alcor's bridge reaches this network, it is offered above the IBC one. */
+    newBridgeChain() {
+      return newBridgeChain(this.$store.state.network.name)
+    },
+
     sourceColor() {
       const { color } = this.colors.find(c => c.value == this.$store.state.ibcBridge.sourceName) || {}
       return color || DEFAULT_COLOR
@@ -66,6 +80,11 @@ export default {
 <style lang="scss" scoped>
 .greet {
   z-index: 100
+}
+.new-bridge {
+  z-index: 100;
+  width: 100%;
+  max-width: 560px;
 }
 #bridge-page {
   position: relative;

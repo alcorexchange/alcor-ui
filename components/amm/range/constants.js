@@ -1,7 +1,7 @@
 import { FeeAmount } from '@alcorexchange/alcor-swap-sdk'
 
 export const ZOOM_LEVELS = {
-  [FeeAmount.LOWEST]: { // Not userd for now
+  [FeeAmount.LOWEST]: {
     initialMin: 0.999,
     initialMax: 1.001,
     min: 0.00001,

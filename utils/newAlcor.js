@@ -10,6 +10,24 @@ const VENUE_BY_NETWORK = {
 }
 
 /**
+ * Networks the new Alcor's bridge reaches, by the name they go by in copy.
+ * There USDT, USDC and ETH come from Ethereum and BNB from BSC.
+ */
+const NEW_BRIDGE_CHAINS = {
+  wax: 'WAX',
+  telos: 'Telos',
+}
+
+/**
+ * The network's name for bridge copy, or null where the new bridge does not reach.
+ *
+ * @param {string} network - `$store.state.network.name`
+ */
+export function newBridgeChain(network) {
+  return NEW_BRIDGE_CHAINS[network] || null
+}
+
+/**
  * Link to the same account's world on the new Alcor.
  *
  * @param {string} network - `$store.state.network.name`

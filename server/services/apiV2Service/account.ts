@@ -16,11 +16,21 @@ import { getIncentives } from './farms'
 export const account = Router()
 const PrecisionMultiplier = bigInt('1000000000000000000')
 
+// Open positions of an account, raw from the owner index (no stats)
+async function getAccountOpenPositions(chain: string, account: string) {
+  return JSON.parse(await redis().get(`positions_${chain}_owner_${account}`)) || []
+}
+
+// Ids of the pools an account holds open positions in
+export async function getAccountPoolIds(chain: string, account: string): Promise<Set<number>> {
+  const positions = await getAccountOpenPositions(chain, account)
+  return new Set(positions.map((p) => Number(p.pool)))
+}
+
 export async function getAccountPoolPositions(chain: string, account: string) {
   const startTime = performance.now()
 
-  // Use owner index for fast lookup
-  const accountPositions = JSON.parse(await redis().get(`positions_${chain}_owner_${account}`)) || []
+  const accountPositions = await getAccountOpenPositions(chain, account)
 
   const tokenPrices = JSON.parse(await redis().get(`${chain}_token_prices`))
   const historyCache = new Map()
