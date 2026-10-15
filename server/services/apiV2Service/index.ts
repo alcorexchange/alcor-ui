@@ -18,6 +18,7 @@ import { analytics as analyticsV3 } from '../apiV3Service/analytics'
 import { swap as swapV3 } from '../apiV3Service/swap'
 import { launchpad as launchpadV3 } from '../apiV3Service/launchpad'
 import { feed as feedV3 } from '../apiV3Service/feed'
+import { cmcFeed as cmcFeedV3 } from '../apiV3Service/cmcFeed'
 import { spot } from './spot'
 import { ammFeed } from './ammFeed'
 import { swap } from './swap'
@@ -79,6 +80,7 @@ async function start () {
   app.use('/api/v3/analytics', analyticsV3)
   app.use('/api/v3/swap', swapV3)
   app.use('/api/v3/launchpad', launchpadV3)
+  app.use('/api/v3/feed/cmc', cmcFeedV3)
   app.use('/api/v3/feed', feedV3)
 
   // Listen the server

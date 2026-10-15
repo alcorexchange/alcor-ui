@@ -13,6 +13,38 @@ const CONTRACT_ACTIONS = [
 const MARKET_STATS_CACHE_TIME = 60 * 30
 
 // TODO Check is all chains configs is the same structure
+// CoinMarketCap symbol of each UCID in the networks' CMC_IDS: a bridged token is
+// listed under its origin asset's symbol (XUSDC on XPR is USDC, WAX on Telos is WAXP).
+const CMC_SYMBOLS = {
+  1: 'BTC',
+  52: 'XRP',
+  512: 'XLM',
+  825: 'USDT',
+  1027: 'ETH',
+  1765: 'EOS',
+  1788: 'MTL',
+  1839: 'BNB',
+  2300: 'WAXP',
+  2666: 'EFX',
+  2930: 'IQ',
+  3330: 'USDP',
+  3408: 'USDC',
+  4660: 'TLOS',
+  5350: 'XPR',
+  8534: 'CHEX',
+  9119: 'TLM',
+  17895: 'MARTIA',
+  19216: 'BRWL',
+  20603: 'MLNK',
+  20997: 'WOMBAT',
+  21769: 'METAL',
+  22071: 'LOAN',
+  28321: 'POL',
+  30683: 'WUF',
+  36462: 'A',
+  38457: 'XMD',
+}
+
 const networks = {
   eos: {
     name: 'eos',
@@ -133,7 +165,7 @@ const networks = {
     ],
 
     // Tokens taken as $1: price anchors for every other token's USD price.
-    STABLE_TOKENS: ['usdt-tethertether'],
+    STABLE_TOKENS: ['usdt-tethertether', 'usdc-wrap.alcor'],
 
     // Trusted regardless of their score: bridged blue chips backed 1:1.
     TRUSTED_TOKENS: [],
@@ -145,6 +177,7 @@ const networks = {
       'eos-eosio.token': 1765,
       'a-core.vaulta': 36462,
       'usdt-tethertether': 825,
+      'usdc-wrap.alcor': 3408,
       'wax-ibc.wt.wax': 2300,
       'chex-chexchexchex': 8534,
       'iq-everipediaiq': 2930,
@@ -289,6 +322,8 @@ const networks = {
     // A pair where both tokens are listed here also gets a global_ticker_id.
     CMC_IDS: {
       'xpr-eosio.token': 5350,
+      'usdt-wrap.alcor': 825,
+      'usdc-wrap.alcor': 3408,
       'xusdc-xtokens': 3408,
       'xusdt-xtokens': 825,
       'xbtc-xtokens': 1,
@@ -775,6 +810,8 @@ const networks = {
       'bnb-wrap.alcor': 1839,
       'pol-wrap.alcor': 28321,
       'wax-wrap.alcor': 2300,
+      'xpr-wrap.alcor': 5350,
+      'a-wrap.alcor': 36462,
       'eos-ibc.wt.eos': 1765,
     },
   },
@@ -1450,6 +1487,7 @@ module.exports = {
   TRADE_LAYOUTS,
   IBC_NETWORKS: [networks.eos, networks.telos, networks.ux, networks.wax],
   NFT_LIST_ITEM_PP: 8,
+  CMC_SYMBOLS,
 
   networks,
 }
