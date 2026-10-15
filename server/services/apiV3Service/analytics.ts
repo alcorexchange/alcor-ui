@@ -86,7 +86,7 @@ function safeNumber(value: any, fallback = 0) {
   return Number.isFinite(n) ? n : fallback
 }
 
-function getSafeUsdPrice(token: any, fallback = 0) {
+export function getSafeUsdPrice(token: any, fallback = 0) {
   return safeNumber(token?.safe_usd_price, fallback)
 }
 

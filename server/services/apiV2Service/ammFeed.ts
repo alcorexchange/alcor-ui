@@ -10,7 +10,7 @@ import { cacheSeconds } from 'route-cache'
 
 import { SwapPool, Swap } from '../../models'
 import { getSwrString } from '../swrCache'
-import { getScamLists } from './config'
+import { getScamLists, hasScamToken } from './config'
 import { cmcUcid, globalTickerId, marketUrl, parseTimeRange, parseTradesLimit } from './feed'
 
 // Same SWR windows as the spot /tickers: both are polled once a minute.
@@ -34,7 +34,7 @@ function formatToken(token) {
 
 // Pools of one pair, in the orientation their ticker_id was built from. A pool
 // holding the same two tokens the other way round is a ticker of its own.
-async function findPools(chain, ticker_id) {
+export async function findPools(chain, ticker_id) {
   const [base, target] = String(ticker_id).toLowerCase().split('_')
 
   return await SwapPool.find({ chain, active: true, 'tokenA.id': base, 'tokenB.id': target })
@@ -52,24 +52,26 @@ function tickerIdHandler(req, res, next) {
   next()
 }
 
-async function getFeedPools(req) {
-  const network = req.app.get('network')
-
-  const min_liquidity_usd = parseFloat(req.query.min_liquidity_usd) || 0
-
+// Active pools of a chain holding at least `minLiquidityUsd`, optionally without scam tokens.
+export async function feedPools(network, { minLiquidityUsd = 0, hideScam = false } = {}) {
   const pools = await SwapPool.find({ chain: network.name, active: true })
     .select('id tokenA tokenB priceA volumeA24 volumeB24 volumeUSD24 tvlUSD high24 low24 fee')
     .lean()
 
-  const liquid = pools.filter(p => (p.tvlUSD || 0) >= min_liquidity_usd)
+  const liquid = pools.filter(p => (p.tvlUSD || 0) >= minLiquidityUsd)
 
-  if (req.query.hide_scam !== 'true') return liquid
+  if (!hideScam) return liquid
 
-  const { scam_contracts, scam_tokens } = await getScamLists(network)
+  const scamLists = await getScamLists(network)
 
-  return liquid.filter(p =>
-    !scam_contracts.has(p.tokenA.contract) && !scam_contracts.has(p.tokenB.contract) &&
-    !scam_tokens.has(p.tokenA.id) && !scam_tokens.has(p.tokenB.id))
+  return liquid.filter(p => !hasScamToken(scamLists, [p.tokenA, p.tokenB]))
+}
+
+function getFeedPools(req) {
+  return feedPools(req.app.get('network'), {
+    minLiquidityUsd: parseFloat(req.query.min_liquidity_usd) || 0,
+    hideScam: req.query.hide_scam === 'true'
+  })
 }
 
 ammFeed.get('/pairs', cacheSeconds(60, (req, res) => {
@@ -120,7 +122,7 @@ ammFeed.get('/tickers', async (req, res) => {
 
 // Swaps are stored signed: positive means the token went into the pool.
 // So tokenA > 0 is the base being sold, tokenA < 0 is the base being bought.
-function formatSwap(s, ticker_id) {
+export function formatSwap(s, ticker_id) {
   const base_volume = Math.abs(s.tokenA)
   const target_volume = Math.abs(s.tokenB)
 
@@ -152,17 +154,26 @@ ammFeed.get('/historical_trades', tickerIdHandler, async (req, res) => {
   const pools = await findPools(network.name, ticker_id)
   if (pools.length == 0) return res.status(404).send(`No pool for ticker ${ticker_id}`)
 
-  const q: any = { chain: network.name, pool: { $in: pools.map(p => p.id) } }
-
-  // A sell puts the base token into the pool, a buy takes it out.
-  if (type) q.tokenA = type == 'sell' ? { $gt: 0 } : { $lt: 0 }
-  if (time.range) q.time = time.range
-
-  const swaps = await Swap.find(q)
-    .select('pool trx_id global_sequence tokenA tokenB time')
-    .sort({ time: -1 })
-    .limit(parseTradesLimit(req.query.limit))
-    .lean()
+  const swaps = await findSwaps(network.name, pools.map(p => p.id), {
+    type,
+    range: time.range,
+    limit: parseTradesLimit(req.query.limit)
+  })
 
   res.json(swaps.reverse().map(s => formatSwap(s, ticker_id)))
 })
+
+// The latest `limit` swaps of the pools, newest first. `type` is the base token's side.
+export async function findSwaps(chain, poolIds, { type, range, limit }) {
+  const q: any = { chain, pool: { $in: poolIds } }
+
+  // A sell puts the base token into the pool, a buy takes it out.
+  if (type) q.tokenA = type == 'sell' ? { $gt: 0 } : { $lt: 0 }
+  if (range) q.time = range
+
+  return await Swap.find(q)
+    .select('pool trx_id global_sequence tokenA tokenB time')
+    .sort({ time: -1 })
+    .limit(limit)
+    .lean()
+}
