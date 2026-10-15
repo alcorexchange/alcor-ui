@@ -28,6 +28,14 @@ export async function getScamLists(network: Network): Promise<{ scam_contracts: 
   }
 }
 
+// True when any of the tokens is listed as scam, by its contract or by its id.
+export function hasScamToken(
+  { scam_contracts, scam_tokens }: { scam_contracts: Set<string>, scam_tokens: Set<string> },
+  tokens: { id?: string, contract?: string }[]
+): boolean {
+  return tokens.some(t => scam_contracts.has(t.contract) || scam_tokens.has(t.id))
+}
+
 configRouter.get('/scam-lists', async (req: Request, res: Response) => {
   const network: Network = req.app.get('network')
   const { scam_contracts, scam_tokens } = await getScamLists(network)

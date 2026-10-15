@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 
 import { GlobalStats } from '../../models'
+import { mongoBucketStart } from '../apiV3Service/chartSeries'
 
 export const analytics = Router()
 
@@ -97,32 +98,30 @@ analytics.get('/volume', cacheSeconds(60, (req, res) => {
   })
 })
 
+// `resolution` names the window: 1D, 1W, 1M or ALL. Points are the hourly snapshots in
+// a window, days in ALL; bucket sizes are in ms, like the stored times.
+const HOUR_MS = 60 * 60 * 1000
+const DAY_MS = 24 * HOUR_MS
+
 analytics.get('/charts', cacheSeconds(360, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + req.query.resolution
 }), async (req, res) => {
   const network = req.app.get('network')
 
-  const resolution = resolutions[req.query.resolution]
+  const windowSeconds = resolutions[req.query.resolution]
   const isAll = req.query.resolution == 'ALL'
 
-  if (!resolution && !isAll) return res.status(404).send('Invalid resolution')
+  if (!windowSeconds && !isAll) return res.status(404).send('Invalid resolution')
 
   const $match = {
     chain: network.name,
     time: {
-      $gte: isAll ? new Date(0) : new Date(Date.now() - resolution * 1000)
+      $gte: isAll ? new Date(0) : new Date(Date.now() - windowSeconds * 1000)
     }
   }
 
   const $group = {
-    _id: {
-      $toDate: {
-        $subtract: [
-          { $toLong: '$time' },
-          { $mod: [{ $toLong: '$time' }, resolution || 60 * 60 * 24 * 1000] }
-        ]
-      }
-    },
+    _id: mongoBucketStart(isAll ? DAY_MS : HOUR_MS),
 
     totalValueLocked: { $last: '$totalValueLocked' },
 
@@ -144,7 +143,8 @@ analytics.get('/charts', cacheSeconds(360, (req, res) => {
     totalSpotPairs: { $max: '$totalSpotPairs' }
   }
 
-  const stats = await GlobalStats.aggregate([{ $match }, { $group }, { $sort: { _id: 1 } }])
+  // Sorted first, or $last picks an arbitrary snapshot of the bucket for TVL.
+  const stats = await GlobalStats.aggregate([{ $match }, { $sort: { time: 1 } }, { $group }, { $sort: { _id: 1 } }])
 
   res.json(stats)
 })

@@ -227,8 +227,20 @@ spot.get('/tickers/:ticker_id/orderbook', tickerHandler, depthHandler, async (re
   const market = await Market.findOne({ ticker_id, chain: network.name })
   if (!market) return res.status(404).send(`Ticker ${ticker_id} not found or closed :(`)
 
-  const _bids = (JSON.parse(await redisClient.get(`orderbook_${network.name}_buy_${market.id}`)) || []).slice(0, depth)
-  const _asks = (JSON.parse(await redisClient.get(`orderbook_${network.name}_sell_${market.id}`)) || []).slice(0, depth)
+  const { bids, asks } = await marketOrderbook(redisClient, network.name, market, depth)
+
+  return res.json({
+    ticker_id,
+    timestamp: Date.now(),
+    bids,
+    asks
+  })
+})
+
+// Top `depth` price levels of each side as [price, base_quantity] strings, best first.
+export async function marketOrderbook(redisClient, chain, market, depth) {
+  const _bids = (JSON.parse(await redisClient.get(`orderbook_${chain}_buy_${market.id}`)) || []).slice(0, depth)
+  const _asks = (JSON.parse(await redisClient.get(`orderbook_${chain}_sell_${market.id}`)) || []).slice(0, depth)
 
   // Quantities are quoted in base_currency on both sides, so a buy order is read
   // from its `ask` (what it wants) and a sell order from its `bid` (what it offers).
@@ -242,18 +254,13 @@ spot.get('/tickers/:ticker_id/orderbook', tickerHandler, depthHandler, async (re
     .sort((a, b) => a[0] - b[0])
     .map(a => [write_decimal(a[0], 8, false), quantity(a[1][1])])
 
-  return res.json({
-    ticker_id,
-    timestamp: Date.now(),
-    bids,
-    asks
-  })
-})
+  return { bids, asks }
+}
 
 // Matches carry bid/ask swapped by side: the contract writes base_token into
 // `bid` for a buymatch and into `ask` for a sellmatch (eostokensdex.cpp
 // match_processing), while the feed always counts base_volume in base_currency.
-function formatMatch(m) {
+export function formatMatch(m) {
   const isBuy = m.type == 'buymatch'
 
   return {
@@ -288,18 +295,27 @@ spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1,
   const market = await Market.findOne({ ticker_id, chain: network.name })
   if (!market) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
 
-  const q = { chain: network.name, market: market.id }
-  if (type) q.type = type == 'buy' ? 'buymatch' : 'sellmatch'
-  if (time.range) q.time = time.range
-
-  const matches = await Match.find(q)
-    .select(TRADE_FIELDS)
-    .sort({ time: -1 })
-    .limit(parseTradesLimit(req.query.limit))
-    .lean()
+  const matches = await findMatches(network.name, market.id, {
+    type,
+    range: time.range,
+    limit: parseTradesLimit(req.query.limit)
+  })
 
   res.json(matches.reverse().map(formatMatch))
 })
+
+// The latest `limit` matches of an orderbook market, newest first.
+export async function findMatches(chain, marketId, { type, range, limit }) {
+  const q = { chain, market: marketId }
+  if (type) q.type = type == 'buy' ? 'buymatch' : 'sellmatch'
+  if (range) q.time = range
+
+  return await Match.find(q)
+    .select(TRADE_FIELDS)
+    .sort({ time: -1 })
+    .limit(limit)
+    .lean()
+}
 
 // время в UTC стартовое надо
 spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {

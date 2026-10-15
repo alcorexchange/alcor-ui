@@ -21,6 +21,7 @@ import { getLockedLiquidityByToken, buildLockedLiquidityCard } from './lockedLiq
 import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import type { ProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import { getSimpleTokenLogoUrl } from '../simpleTokenLogoService'
+import { MAX_CHART_POINTS, chartRange, fillSeries, mongoBucketStart } from './chartSeries'
 import fs from 'fs'
 import path from 'path'
 
@@ -86,7 +87,7 @@ function safeNumber(value: any, fallback = 0) {
   return Number.isFinite(n) ? n : fallback
 }
 
-function getSafeUsdPrice(token: any, fallback = 0) {
+export function getSafeUsdPrice(token: any, fallback = 0) {
   return safeNumber(token?.safe_usd_price, fallback)
 }
 
@@ -2417,50 +2418,60 @@ analytics.get('/global/charts', cacheSeconds(120, (req, res) => {
 }), async (req, res) => {
   const network: Network = req.app.get('network')
   const window = getWindow(req.query.window)
-  const resolution = getResolution(req.query.resolution)
+  const step = getResolution(req.query.resolution)
 
-  const $match = {
-    chain: network.name,
-    ...(window.since ? { time: { $gte: window.since } } : {}),
+  // 'all' starts at the first snapshot.
+  const first = window.since ? null : await GlobalStats.findOne({ chain: network.name }).sort({ time: 1 }).select('time').lean()
+  const from = window.since ?? first?.time
+  const emptyCharts = { tvl: [], volume: [], fees: [], swapVolume: [], spotVolume: [], swapFees: [], spotFees: [] }
+  if (!from) return res.json({ meta: buildMeta(network, window.label), charts: emptyCharts, items: [] })
+
+  const range = chartRange(from, new Date(), step)
+  if (range.points > MAX_CHART_POINTS) {
+    return res.status(400).send(`${range.points} points is too many, use a coarser resolution`)
   }
 
-  const $group = {
-    _id: {
-      $toDate: {
-        $subtract: [
-          { $toLong: '$time' },
-          { $mod: [{ $toLong: '$time' }, resolution] },
-        ],
+  const [rows, seed] = await Promise.all([
+    GlobalStats.aggregate([
+      { $match: { chain: network.name, time: { $gte: new Date(range.start) } } },
+      { $sort: { time: 1 } },
+      {
+        $group: {
+          _id: mongoBucketStart(step),
+          totalValueLocked: { $last: '$totalValueLocked' },
+          swapTradingVolume: { $sum: '$swapTradingVolume' },
+          spotTradingVolume: { $sum: '$spotTradingVolume' },
+          swapFees: { $sum: '$swapFees' },
+          spotFees: { $sum: '$spotFees' },
+        },
       },
-    },
-    totalValueLocked: { $last: '$totalValueLocked' },
-    swapTradingVolume: { $sum: '$swapTradingVolume' },
-    spotTradingVolume: { $sum: '$spotTradingVolume' },
-    swapFees: { $sum: '$swapFees' },
-    spotFees: { $sum: '$spotFees' },
-  }
-
-  const rows = await GlobalStats.aggregate([
-    { $match },
-    { $sort: { time: 1 } },
-    { $group },
-    { $sort: { _id: 1 } },
+    ]),
+    // TVL as it stood when the range opens, for the buckets before its first snapshot.
+    GlobalStats.findOne({ chain: network.name, time: { $lt: new Date(range.start) } })
+      .sort({ time: -1 }).select('totalValueLocked').lean(),
   ])
 
-  const items = rows.map((i) => {
-    const tvl = safeNumber(i.totalValueLocked)
+  const series = fillSeries({
+    rows,
+    start: range.start,
+    end: range.end,
+    step,
+    levels: ['totalValueLocked'],
+    flows: ['swapTradingVolume', 'spotTradingVolume', 'swapFees', 'spotFees'],
+    seed,
+  })
+
+  const items = series.map((i) => {
     const swapVolume = safeNumber(i.swapTradingVolume)
     const spotVolume = safeNumber(i.spotTradingVolume)
     const swapFees = safeNumber(i.swapFees)
     const spotFees = safeNumber(i.spotFees)
-    const volume = swapVolume + spotVolume
-    const fees = swapFees + spotFees
 
     return {
-      t: i._id,
-      tvl,
-      volume,
-      fees,
+      t: i.t,
+      tvl: safeNumber(i.totalValueLocked),
+      volume: swapVolume + spotVolume,
+      fees: swapFees + spotFees,
       swapVolume,
       spotVolume,
       swapFees,
@@ -2510,47 +2521,64 @@ analytics.get('/pools/:id/charts', cacheSeconds(120, (req, res) => {
   const pool = await SwapPool.findOne({ chain: network.name, id }).lean()
   if (!pool) return res.status(404).send('Pool is not found')
 
-  const $match: any = {
-    chain: network.name,
-    pool: id,
+  // A pool's points start with its first trade; 'all' and an open-ended range start there.
+  const first = (hasCustomRange ? from : window.since)
+    ? null
+    : await SwapChartPoint.findOne({ chain: network.name, pool: id }).sort({ time: 1 }).select('time').lean()
+  const since = (hasCustomRange ? from : window.since) ?? first?.time
+  const until = to && to < new Date() ? to : new Date()
+
+  const emptyCharts = { tvl: [], volume: [], fees: [] }
+  const feeRate = getPoolLpFeeRate(pool)
+  const meta = buildMeta(network, hasCustomRange ? 'custom' : window.label)
+  if (!since || since > until) return res.json({ meta, poolId: id, feeRate, charts: emptyCharts, items: [] })
+
+  const range = chartRange(since, until, resolution)
+  if (range.points > MAX_CHART_POINTS) {
+    return res.status(400).send(`${range.points} points is too many, use a coarser resolution`)
   }
 
-  const since = hasCustomRange ? from : window.since
-  if (since || to) {
-    $match.time = {}
-    if (since) $match.time.$gte = since
-    if (to) $match.time.$lte = to
-  }
-
-  const rows = await SwapChartPoint.aggregate([
-    { $match },
-    { $sort: { time: 1 } },
-    {
-      $group: {
-        _id: {
-          $toDate: {
-            $subtract: [
-              { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, resolution] },
-            ],
-          },
+  const [rows, seed] = await Promise.all([
+    SwapChartPoint.aggregate([
+      {
+        $match: {
+          chain: network.name,
+          pool: id,
+          time: { $gte: new Date(range.start), $lte: until },
         },
-        usdReserveA: { $last: '$usdReserveA' },
-        usdReserveB: { $last: '$usdReserveB' },
-        volumeUSD: { $sum: '$volumeUSD' },
       },
-    },
-    { $sort: { _id: 1 } },
+      { $sort: { time: 1 } },
+      {
+        $group: {
+          _id: mongoBucketStart(resolution),
+          usdReserveA: { $last: '$usdReserveA' },
+          usdReserveB: { $last: '$usdReserveB' },
+          volumeUSD: { $sum: '$volumeUSD' },
+        },
+      },
+    ]),
+    // Reserves as they stood when the range opens: a quiet pool still holds its liquidity.
+    SwapChartPoint.findOne({ chain: network.name, pool: id, time: { $lt: new Date(range.start) } })
+      .sort({ time: -1 }).select('usdReserveA usdReserveB').lean(),
   ])
 
-  const feeRate = getPoolLpFeeRate(pool)
-  const items = rows.map((row) => {
-    const tvl = safeNumber(row.usdReserveA) + safeNumber(row.usdReserveB)
-    const volume = normalizeSwapChartVolumeUSD(row.volumeUSD)
+  const series = fillSeries({
+    rows,
+    start: range.start,
+    end: range.end,
+    step: resolution,
+    levels: ['usdReserveA', 'usdReserveB'],
+    flows: ['volumeUSD'],
+    seed,
+  })
+
+  const items = series.map((point) => {
+    const tvl = safeNumber(point.usdReserveA) + safeNumber(point.usdReserveB)
+    const volume = normalizeSwapChartVolumeUSD(point.volumeUSD)
     const fees = volume * feeRate
 
     return {
-      t: row._id,
+      t: point.t,
       tvl: Number(tvl.toFixed(8)),
       volume: Number(volume.toFixed(8)),
       fees: Number(fees.toFixed(8)),
@@ -2558,7 +2586,7 @@ analytics.get('/pools/:id/charts', cacheSeconds(120, (req, res) => {
   })
 
   res.json({
-    meta: buildMeta(network, hasCustomRange ? 'custom' : window.label),
+    meta,
     poolId: id,
     feeRate,
     charts: {
