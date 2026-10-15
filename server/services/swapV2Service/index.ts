@@ -392,17 +392,18 @@ async function handlePoolChart(
   //const minResolution = 60 * 60 // One hour
   const minResolution = 60 // FIXME
   if (last_point && Math.floor(Number(last_point.time) / 1000 / minResolution) == Math.floor(new Date(block_time).getTime() / 1000 / minResolution)) {
-    last_point.price = littleEndianToDesimalString(sqrtPriceX64)
-
-    last_point.reserveA = reserveA
-    last_point.reserveB = reserveB
-
-    last_point.usdReserveA = usdReserveA
-    last_point.usdReserveB = usdReserveB
-
-    last_point.volumeUSD += volumeUSD
-
-    return await last_point.save()
+    // $inc, not read-modify-save: a mint/burn and a swap batch can update the same
+    // point at once, and a save would drop the volume the other one added.
+    return await SwapChartPoint.updateOne({ _id: last_point._id }, {
+      $set: {
+        price: littleEndianToDesimalString(sqrtPriceX64),
+        reserveA,
+        reserveB,
+        usdReserveA,
+        usdReserveB,
+      },
+      $inc: { volumeUSD },
+    })
   } else {
     return await SwapChartPoint.create({
       chain,
@@ -1082,6 +1083,6 @@ export async function onSwapAction(message: string) {
       sqrtPriceX64,
       parseAssetPlain(data.reserveA).amount,
       parseAssetPlain(data.reserveB).amount,
-    )
+    ).catch(e => console.error(`[${chain}] pool chart update error:`, e.message))
   }
 }

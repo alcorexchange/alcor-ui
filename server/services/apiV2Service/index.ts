@@ -13,6 +13,7 @@ axiosRetry(axios, { retries: 3 })
 import { initRedis, mongoConnect } from '../../utils'
 import { getRedis, getPublisher } from '../redis'
 import { networkResolver } from '../apiService/middleware'
+import { apiErrorHandler } from '../asyncRouter'
 import { amm as ammV3 } from '../apiV3Service/amm'
 import { analytics as analyticsV3 } from '../apiV3Service/analytics'
 import { swap as swapV3 } from '../apiV3Service/swap'
@@ -83,6 +84,8 @@ async function start () {
   app.use('/api/v3/launchpad', launchpadV3)
   app.use('/api/v3/feed/cmc', cmcFeedV3)
   app.use('/api/v3/feed', feedV3)
+
+  app.use(apiErrorHandler)
 
   // Listen the server
   const PORT = process.env.PORT || 8000

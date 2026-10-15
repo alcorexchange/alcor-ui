@@ -24,9 +24,13 @@ export function bucketStartMs(ms: number, step: number): number {
   return ms - ((((ms - origin) % step) + step) % step)
 }
 
-// The same bucket start as bucketStartMs, as a Mongo expression over `$time`.
-export function mongoBucketStart(step: number) {
-  const time = { $toLong: '$time' }
+// A GlobalStats row is stamped with the end of the hour it covers (DefiLlama's /volume
+// relies on that), so charts place it at the start of that hour.
+export const GLOBAL_STATS_HOUR_START = { $subtract: ['$time', HOUR_MS] }
+
+// The same bucket start as bucketStartMs, as a Mongo expression over a date (`$time` by default).
+export function mongoBucketStart(step: number, date: any = '$time') {
+  const time = { $toLong: date }
   return {
     $toDate: {
       $subtract: [time, { $mod: [{ $subtract: [time, originOf(step)] }, step] }],

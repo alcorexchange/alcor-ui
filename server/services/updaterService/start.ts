@@ -57,8 +57,9 @@ export async function updater(chain: string, services: string[]) {
     console.log(`[${chain}] GlobalStats err`, e)
   }
 
-  schedule.scheduleJob('58 * * * *', () => updateGlobalStats(network))
-  setInterval(() => updateGlobalStats(network), 60 * 60 * 1000)
+  // A rejection left unhandled would crash the updater, streamers included.
+  schedule.scheduleJob('58 * * * *', () => updateGlobalStats(network)
+    .catch(e => console.log(`[${chain}] GlobalStats err`, e)))
 
   if (services.includes('prices')) {
     console.log(`[${chain}] Starting price updater...`)

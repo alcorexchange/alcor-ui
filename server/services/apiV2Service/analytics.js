@@ -1,10 +1,10 @@
-import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 
 import { GlobalStats } from '../../models'
-import { mongoBucketStart } from '../apiV3Service/chartSeries'
+import { GLOBAL_STATS_HOUR_START, mongoBucketStart } from '../apiV3Service/chartSeries'
+import { asyncRouter } from '../asyncRouter'
 
-export const analytics = Router()
+export const analytics = asyncRouter()
 
 export const resolutions = {
   '1D': 60 * 60 * 24,
@@ -45,7 +45,9 @@ analytics.get('/global', cacheSeconds(0, (req, res) => {
     totalSpotPairs: { $max: '$totalSpotPairs' }
   }
 
-  const [stats] = await GlobalStats.aggregate([{ $match }, { $group }])
+  // Sorted first, or $last picks an arbitrary snapshot for TVL.
+  const [stats] = await GlobalStats.aggregate([{ $match }, { $sort: { time: 1 } }, { $group }])
+  if (!stats) return res.status(404).send('No global stats in this window')
 
   res.json({
     ...stats,
@@ -99,7 +101,8 @@ analytics.get('/volume', cacheSeconds(60, (req, res) => {
 })
 
 // `resolution` names the window: 1D, 1W, 1M or ALL. Points are the hourly snapshots in
-// a window, days in ALL; bucket sizes are in ms, like the stored times.
+// a window, days in ALL, each placed at the start of the hour it covers; bucket sizes
+// are in ms, like the stored times.
 const HOUR_MS = 60 * 60 * 1000
 const DAY_MS = 24 * HOUR_MS
 
@@ -121,7 +124,7 @@ analytics.get('/charts', cacheSeconds(360, (req, res) => {
   }
 
   const $group = {
-    _id: mongoBucketStart(isAll ? DAY_MS : HOUR_MS),
+    _id: mongoBucketStart(isAll ? DAY_MS : HOUR_MS, GLOBAL_STATS_HOUR_START),
 
     totalValueLocked: { $last: '$totalValueLocked' },
 

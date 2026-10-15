@@ -58,6 +58,12 @@ function isTrustedToken(network: Network, tokenId: string, systemTokenId: string
   return score > positiveNumber(process.env.TOKEN_TRUSTED_SCORE_MIN, 40)
 }
 
+// The base-token side of a spot match: alcordexmain logs it as bid in a buymatch
+// and as ask in a sellmatch.
+function matchBaseAmount(match: any) {
+  return Number((match.type === 'buymatch' ? match.bid : match.ask) || 0)
+}
+
 export async function updateSystemPrice(network: Network) {
   const price = await getChain(network.name).getSystemUsdPrice()
 
@@ -257,8 +263,7 @@ export async function makeAllTokensWithPrices(network: Network) {
         const unitPrice = Number(last_deal.unit_price)
         const dealTime = new Date(last_deal.time).getTime()
         const ageMs = Date.now() - dealTime
-        const systemAmount = Number(last_deal.ask || 0)
-        const dealNotionalUsd = systemAmount * systemPrice
+        const dealNotionalUsd = matchBaseAmount(last_deal) * systemPrice
 
         if (
           Number.isFinite(unitPrice) &&
@@ -403,7 +408,7 @@ export async function buildOnDemandToken(network: Network, tokenId: string, pool
         if (last_deal) {
           const unitPrice = Number(last_deal.unit_price)
           const ageMs = Date.now() - new Date(last_deal.time).getTime()
-          const dealNotionalUsd = Number(last_deal.ask || 0) * systemPrice
+          const dealNotionalUsd = matchBaseAmount(last_deal) * systemPrice
           if (
             Number.isFinite(unitPrice) && unitPrice > 0 &&
             ageMs >= 0 && ageMs <= marketPriceMaxAgeMs &&
