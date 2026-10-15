@@ -2,23 +2,29 @@
 //
 // CMC shows an exchange as a list of asset pairs (USDC/WAXP), not of pools. Here every
 // ticker of the feed (feed.ts) that trades the same two assets is one market, whichever
-// pool, fee tier or chain it runs on. A token CMC lists is the asset of its UCID, so a
-// bridged token counts as its origin: USDC@wrap.alcor on WAX and Telos and XUSDC on XPR
-// are all USDC. A token CMC does not list stays its own `<chain>:<symbol>-<contract>`.
+// pool, fee tier or chain it runs on. A token is the asset of its UCID, so a bridged token
+// counts as its origin: USDC@wrap.alcor on WAX and Telos and XUSDC on XPR are all USDC.
+//
+// Only pairs of two tokens with a UCID in config.js are listed. CMC matches a token it
+// is not told the UCID of by its symbol alone, and so it took KEK@waxpepetoken for the
+// KEK of Ethereum and HONEY@nfthivehoney for Hivemapper.
 //
 // A market sums the volumes and liquidity of its pools and links to the most liquid one.
+//
+// CMC still polls the WAX /api/v2 feed (request #1464818 asks it to move here), so until
+// it does, its fetcher gets this feed at those URLs too: see cmcLegacy below.
 
 import { Router } from 'express'
 
 import { cmcUcid } from '../apiV2Service/feed'
 import {
-  FEED_NETWORKS, FeedTicker, cmcSymbol, currencyId, getTickers, latestTrades, networkBySlug,
+  FEED_NETWORKS, FeedTicker, cmcSymbol, getTickers, latestTrades, networkBySlug,
   parseDepth, parseTradesQuery, tickerBook, tickerTrades,
 } from './feed'
 
 export const cmcFeed = Router()
 
-type Asset = { key: string, ucid: number | null, rank: number }
+type Asset = { key: string, ucid: number, rank: number }
 
 type Member = { ticker: FeedTicker, flip: boolean }
 
@@ -26,9 +32,9 @@ type CmcTicker = {
   ticker_id: string
   base_currency: string
   target_currency: string
-  base_cmc_ucid: number | null
-  target_cmc_ucid: number | null
-  global_ticker_id: string | null
+  base_cmc_ucid: number
+  target_cmc_ucid: number
+  global_ticker_id: string
   last_price: number
   base_volume: number
   target_volume: number
@@ -50,23 +56,20 @@ const STABLE_UCIDS = ucidsOf(n => n.STABLE_TOKENS)
 const CHAIN_COIN_UCIDS = ucidsOf(n => [n.baseToken.id])
 
 // Which side of a pair an asset is quoted in: stablecoins over chain coins over the rest.
-function quoteRank(network, tokenId: string, ucid: number | null): number {
+function quoteRank(network, tokenId: string, ucid: number): number {
   if (network.STABLE_TOKENS.includes(tokenId) || STABLE_UCIDS.has(ucid)) return 2
   if (network.baseToken.id === tokenId || CHAIN_COIN_UCIDS.has(ucid)) return 1
   return 0
 }
 
-// `wax:usdc-wrap.alcor` -> USDC; a token CMC does not list keeps its feed currency id.
-function assetOf(currency: string): Asset {
+// `wax:usdc-wrap.alcor` -> USDC. Null for a token without a UCID in config.js.
+function assetOf(currency: string): Asset | null {
   const [chain, tokenId] = currency.split(':')
   const network = networkBySlug.get(chain)
   const ucid = cmcUcid(network, tokenId)
+  if (!ucid) return null
 
-  return {
-    key: cmcSymbol(network, tokenId) || currencyId(network, tokenId),
-    ucid,
-    rank: quoteRank(network, tokenId, ucid),
-  }
+  return { key: cmcSymbol(network, tokenId), ucid, rank: quoteRank(network, tokenId, ucid) }
 }
 
 const inverse = (x?: number | null) => (x ? 1 / x : x)
@@ -121,7 +124,7 @@ function mergeMarket(base: Asset, target: Asset, members: Member[]): CmcTicker {
     target_currency: target.key,
     base_cmc_ucid: base.ucid,
     target_cmc_ucid: target.ucid,
-    global_ticker_id: base.ucid && target.ucid ? `${base.key}-${target.key}` : null,
+    global_ticker_id: `${base.key}-${target.key}`,
     last_price: lead.last_price,
     base_volume: sum(tickers, 'base_volume'),
     target_volume: sum(tickers, 'target_volume'),
@@ -144,6 +147,7 @@ async function getMarkets(): Promise<CmcMarket[]> {
 
   for (const ticker of await getTickers()) {
     let [base, target] = [assetOf(ticker.base_currency), assetOf(ticker.target_currency)]
+    if (!base || !target) continue
 
     // A pool of one asset on both sides (USDC@wrap.alcor / XUSDC) is a bridge, not a market.
     if (base.key === target.key) continue
@@ -167,30 +171,30 @@ async function findMarket(ticker_id: any): Promise<CmcMarket | undefined> {
   return (await getMarkets()).find(m => m.ticker.ticker_id.toLowerCase() === wanted)
 }
 
-cmcFeed.get('/tickers', async (req, res) => {
+async function sendTickers(req, res) {
   res.json((await getMarkets()).map(m => m.ticker))
-})
+}
 
-cmcFeed.get('/pairs', async (req, res) => {
+async function sendPairs(req, res) {
   res.json((await getMarkets()).map(({ ticker: t }) => ({
     ticker_id: t.ticker_id,
     base: t.base_currency,
     target: t.target_currency,
     pool_id: t.pool_id,
   })))
-})
+}
 
 // The book of the market's most liquid orderbook; AMM pools have none.
-cmcFeed.get('/orderbook', async (req, res) => {
-  const depth = parseDepth(req.query.depth)
+async function sendOrderbook(res, ticker_id: any, depthQuery: any) {
+  const depth = parseDepth(depthQuery)
   if (depth.error) return res.status(400).send(depth.error)
 
-  const market = await findMarket(req.query.ticker_id)
-  if (!market) return res.status(404).send(`Ticker ${req.query.ticker_id} is not listed`)
+  const market = await findMarket(ticker_id)
+  if (!market) return res.status(404).send(`Ticker ${ticker_id} is not listed`)
 
   const member = market.members.find(m => m.ticker.type === 'orderbook')
   const book = member && await tickerBook(member.ticker, depth.perSide)
-  if (!book) return res.status(404).send(`No orderbook market for ${req.query.ticker_id}`)
+  if (!book) return res.status(404).send(`No orderbook market for ${ticker_id}`)
 
   res.json({
     ticker_id: market.ticker.ticker_id,
@@ -198,7 +202,11 @@ cmcFeed.get('/orderbook', async (req, res) => {
     timestamp: Date.now(),
     ...(member.flip ? flipBook(book) : book),
   })
-})
+}
+
+cmcFeed.get('/tickers', sendTickers)
+cmcFeed.get('/pairs', sendPairs)
+cmcFeed.get('/orderbook', (req, res) => sendOrderbook(res, req.query.ticker_id, req.query.depth))
 
 // The trades of every pool and book of the market, on every chain, each naming its pool_id.
 cmcFeed.get('/historical_trades', async (req, res) => {
@@ -216,3 +224,14 @@ cmcFeed.get('/historical_trades', async (req, res) => {
 
   res.json(latestTrades(trades.flat(), query.limit))
 })
+
+// The CMC fetcher at the WAX /api/v2 URLs it polls (/pairs, /tickers, /tickers/:id/orderbook).
+// Everyone else, the site included, falls through to the /api/v2 feed.
+const CMC_FETCHER = /^ReactorNetty\//
+
+export const cmcLegacy = Router()
+
+cmcLegacy.use((req, res, next) => (CMC_FETCHER.test(req.get('user-agent') || '') ? next() : next('router')))
+cmcLegacy.get('/tickers', sendTickers)
+cmcLegacy.get('/pairs', sendPairs)
+cmcLegacy.get('/tickers/:ticker_id/orderbook', (req, res) => sendOrderbook(res, req.params.ticker_id, req.query.depth))
