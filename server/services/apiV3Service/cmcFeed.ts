@@ -11,8 +11,8 @@
 //
 // A market sums the volumes and liquidity of its pools and links to the most liquid one.
 //
-// CMC still polls the WAX /api/v2 feed (request #1464818 asks it to move here), so until
-// it does, its fetcher gets this feed at those URLs too: see cmcLegacy below.
+// CMC still polls the WAX /api/v2 feed. Its markets are bound to that feed's ticker_ids, so
+// it moves here only when its listing team maps these pairs (request #1464818).
 
 import { Router } from 'express'
 
@@ -224,14 +224,3 @@ cmcFeed.get('/historical_trades', async (req, res) => {
 
   res.json(latestTrades(trades.flat(), query.limit))
 })
-
-// The CMC fetcher at the WAX /api/v2 URLs it polls (/pairs, /tickers, /tickers/:id/orderbook).
-// Everyone else, the site included, falls through to the /api/v2 feed.
-const CMC_FETCHER = /^ReactorNetty\//
-
-export const cmcLegacy = Router()
-
-cmcLegacy.use((req, res, next) => (CMC_FETCHER.test(req.get('user-agent') || '') ? next() : next('router')))
-cmcLegacy.get('/tickers', sendTickers)
-cmcLegacy.get('/pairs', sendPairs)
-cmcLegacy.get('/tickers/:ticker_id/orderbook', (req, res) => sendOrderbook(res, req.params.ticker_id, req.query.depth))

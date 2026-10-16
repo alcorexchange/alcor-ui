@@ -19,7 +19,7 @@ import { analytics as analyticsV3 } from '../apiV3Service/analytics'
 import { swap as swapV3 } from '../apiV3Service/swap'
 import { launchpad as launchpadV3 } from '../apiV3Service/launchpad'
 import { feed as feedV3 } from '../apiV3Service/feed'
-import { cmcFeed as cmcFeedV3, cmcLegacy } from '../apiV3Service/cmcFeed'
+import { cmcFeed as cmcFeedV3 } from '../apiV3Service/cmcFeed'
 import { spot } from './spot'
 import { ammFeed } from './ammFeed'
 import { swap } from './swap'
@@ -64,7 +64,6 @@ async function start () {
   app.use(bodyParser.json())
 
   // Server routes
-  app.use('/api/v2/', cmcLegacy)
   app.use('/api/v2/', spot)
   app.use('/api/v2/amm', ammFeed)
   app.use('/api/v2/', tokens)
