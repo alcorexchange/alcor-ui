@@ -6,7 +6,7 @@ import { resolutions, normalizeResolution } from '../updaterService/charts'
 import { SwapPool, Bar, Match, Market } from '../../models'
 import { getTokens } from '../../utils'
 import { getSwrString } from '../swrCache'
-import { getScamLists } from './config'
+import { getScamLists, hasScamToken } from './config'
 import { cmcUcid, globalTickerId, marketUrl, parseTimeRange, parseTradesLimit } from './feed'
 
 // SWR windows for /tickers: serve a process-local serialized string for
@@ -44,6 +44,13 @@ function formatToken(token) {
     symbol: token.symbol.name,
     precision: token.symbol.precision
   }
+}
+
+// A ticker_id names both legs as `symbol-contract`; either one being listed
+// as scam, by its id or its contract, makes the market scam.
+function isScamTicker(scamLists, ticker_id) {
+  const legs = String(ticker_id || '').toLowerCase().split('_')
+  return hasScamToken(scamLists, legs.map(id => ({ id, contract: id.split('-')[1] })))
 }
 
 function getPairKey(a, b) {
@@ -139,7 +146,7 @@ spot.get('/tickers', async (req, res) => {
 
   const cacheKey = `spot_tickers_swr|${network.name}|${req.originalUrl}`
   const body = await getSwrString(cacheKey, async () => {
-    const [tokens, pools, rawMarkets] = await Promise.all([
+    const [tokens, pools, rawMarkets, scamLists] = await Promise.all([
       getTokens(network.name),
       SwapPool.find({ chain: network.name })
         .select('tokenA.id tokenA.quantity tokenB.id tokenB.quantity volumeA24 volumeB24 volumeUSD24')
@@ -147,26 +154,15 @@ spot.get('/tickers', async (req, res) => {
       Market.find({ chain: network.name })
         .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek')
         .lean(),
+      getScamLists(network),
     ])
 
-    let markets = rawMarkets
+    rawMarkets.forEach(m => { m.is_scam = isScamTicker(scamLists, m.ticker_id) })
+    const markets = hide_scam ? rawMarkets.filter(m => !m.is_scam) : rawMarkets
 
     // Depth 2/-2%
     // > baseTokenLiquidity * (Math.sqrt(1 / 1.02) - 1)
     // > baseTokenLiquidity * (1 - Math.sqrt(1 / 0.98))
-
-    if (hide_scam) {
-      const { scam_contracts, scam_tokens } = await getScamLists(network)
-      markets = markets.filter(m => {
-        const [baseCurrency, targetCurrency] = String(m.ticker_id || '').toLowerCase().split('_')
-        const baseContract = String(baseCurrency || '').split('-')[1]
-        const targetContract = String(targetCurrency || '').split('-')[1]
-        return !scam_contracts.has(baseContract) &&
-               !scam_contracts.has(targetContract) &&
-               !scam_tokens.has(baseCurrency) &&
-               !scam_tokens.has(targetCurrency)
-      })
-    }
 
     const tokenById = new Map((tokens || []).map(t => [t.id, t]))
     const poolsByPair = new Map()
@@ -194,7 +190,7 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
 
   const { ticker_id } = req.params
   const [baseCurrency, targetCurrency] = String(ticker_id).toLowerCase().split('_')
-  const [pools, tokens] = await Promise.all([
+  const [pools, tokens, scamLists] = await Promise.all([
     SwapPool.find({
       chain: network.name,
       $or: [
@@ -205,6 +201,7 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
       .select('tokenA.id tokenA.quantity tokenB.id tokenB.quantity volumeA24 volumeB24 volumeUSD24')
       .lean(),
     getTokens(network.name),
+    getScamLists(network),
   ])
   const m = await Market.findOne({ ticker_id, chain: network.name })
     .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
@@ -214,6 +211,7 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   const tokenById = new Map((tokens || []).map(t => [t.id, t]))
   formatTicker(m, network)
   formatMarket(m, pools, tokenById)
+  m.is_scam = isScamTicker(scamLists, ticker_id)
 
   res.json(m)
 })
