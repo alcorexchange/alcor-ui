@@ -19,6 +19,9 @@ export const geckoAdapter = asyncRouter()
 // About 14 hours of WAX blocks; GeckoTerminal asks for far less at a time.
 const MAX_EVENTS_RANGE = 100000
 
+// Antelope chains make at most one block per half second.
+const BLOCK_MS = 500
+
 const SUPPLY_TTL_MS = 10 * 60 * 1000
 const MAX_CACHED_BLOCKS = 10000
 
@@ -43,7 +46,7 @@ async function indexedBlock(network): Promise<number> {
 
 const blockTimes = new Map<string, number>()
 
-// Unix seconds of a block, from the chain.
+// Unix seconds of a block, from the chain. Nodes keep only recent blocks.
 async function blockTime(network, blockNumber: number): Promise<number> {
   const key = `${network.name}:${blockNumber}`
   if (blockTimes.has(key)) return blockTimes.get(key)
@@ -55,6 +58,29 @@ async function blockTime(network, blockNumber: number): Promise<number> {
   blockTimes.set(key, time)
 
   return time
+}
+
+// A time range holding every swap of blocks fromBlock..toBlock, for the swaps' time index.
+// Blocks are at least BLOCK_MS apart, so a block's time is bounded by any later block's,
+// and the latest swap stored before fromBlock bounds the range from below.
+async function swapTimeRange(network, fromBlock: number, toBlock: number, latest: number): Promise<{ $gte: Date, $lte: Date }> {
+  const latestMs = (await blockTime(network, latest)) * 1000
+  const end = new Date(latestMs - (latest - toBlock) * BLOCK_MS)
+
+  // Latest time block fromBlock - 1 can have; a swap stored by then may still be later in the chain.
+  let bound = latestMs - (latest - fromBlock + 1) * BLOCK_MS
+
+  while (true) {
+    const s: any = await Swap.findOne({ chain: network.name, time: { $lte: new Date(bound) }, block_num: { $exists: true } })
+      .sort({ time: -1 })
+      .select('block_num time')
+      .lean()
+
+    if (!s) return { $gte: new Date(0), $lte: end }
+    if (s.block_num < fromBlock) return { $gte: s.time, $lte: end }
+
+    bound = s.time.getTime() - (s.block_num - fromBlock + 1) * BLOCK_MS
+  }
 }
 
 const supplies = new Map<string, { supply: number, at: number }>()
@@ -186,12 +212,9 @@ geckoAdapter.get('/:chain/events', async (req, res) => {
   const latest = await indexedBlock(network)
   if (toBlock > latest) return res.status(400).json({ error: `toBlock is past the latest indexed block ${latest}` })
 
-  // Swaps are indexed by time, not block: the blocks' times bound the search.
-  const [start, end] = await Promise.all([blockTime(network, fromBlock), blockTime(network, toBlock)])
-
   const swaps: any[] = await Swap.find({
     chain: network.name,
-    time: { $gte: new Date(start * 1000), $lte: new Date(end * 1000) },
+    time: await swapTimeRange(network, fromBlock, toBlock, latest),
     block_num: { $gte: fromBlock, $lte: toBlock },
   })
     .select('pool trx_id sender tokenA tokenB sqrtPriceX64 reserveA reserveB time block_num')
