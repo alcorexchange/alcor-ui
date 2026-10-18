@@ -1,7 +1,7 @@
 import schedule from 'node-schedule'
 
 import config from '../../../config'
-import { initialUpdate as swapInitialUpdate } from '../swapV2Service'
+import { initialUpdate as swapInitialUpdate, flushSwapBatchBefore } from '../swapV2Service'
 
 import { getSettings } from '../../utils'
 import { getChain } from '../chain'
@@ -100,7 +100,8 @@ export async function updater(chain: string, services: string[]) {
       network.amm.contract,
       ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect', 'transferpos', 'logtransfer', 'loglock'],
       newSwapAction,
-      300
+      300,
+      nextBlock => flushSwapBatchBefore(chain, nextBlock)
     )
       .catch(e => { console.log(`[${chain}:${network.amm.contract}] Streamer error:`, e.message); process.exit(1) })
   }

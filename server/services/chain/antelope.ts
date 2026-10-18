@@ -3,7 +3,7 @@ import axios from 'axios'
 import { streamByTrace } from '../updaterService/streamers'
 import { getNodes } from './nodes'
 import { makeRpc } from './rpc'
-import type { Balance, ChainAdapter, ActionCallback } from './types'
+import type { Balance, ChainAdapter, ActionCallback, ProgressCallback } from './types'
 
 // CoinGecko ids match our chain names, except for the testnets, which are priced
 // off their mainnet counterparts.
@@ -23,8 +23,8 @@ export function createAntelopeAdapter(network: Network): ChainAdapter {
       return cachedRpc
     },
 
-    streamActions(account, names, callback: ActionCallback, delay = 500) {
-      return streamByTrace(network, account, callback, names, delay) as Promise<never>
+    streamActions(account, names, callback: ActionCallback, delay = 500, onProgress?: ProgressCallback) {
+      return streamByTrace(network, account, callback, names, delay, onProgress) as Promise<never>
     },
 
     async getBalances(account): Promise<Balance[]> {

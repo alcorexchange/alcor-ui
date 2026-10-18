@@ -61,6 +61,16 @@ async function markPoolFirstSeen(chain: string, poolId: any, blockTime: any) {
   }
 }
 
+// Stores the chain's pending batch once the streamer is past its block, so the swaps of
+// every block before `nextBlock` are in the DB when the streamer marks them processed.
+export async function flushSwapBatchBefore(chain: string, nextBlock: number) {
+  const batch = chainBatches.get(chain)
+  if (!batch || batch.block_num >= nextBlock) return
+
+  await flushSwapBatch(chain, batch)
+  chainBatches.delete(chain)
+}
+
 // Flush all pending batches (for graceful shutdown)
 export async function flushAllSwapBatches() {
   for (const [chain, batch] of chainBatches) {
@@ -156,6 +166,8 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
       totalUSDVolume,
       tokenA: tokenAamount,
       tokenB: tokenBamount,
+      reserveA: parseAssetPlain(data.reserveA).amount,
+      reserveB: parseAssetPlain(data.reserveB).amount,
       time: swapTime,
       block_num,
     }
@@ -963,6 +975,8 @@ export async function handleSwap({ chain, data, trx_id, block_time, block_num })
     totalUSDVolume,
     tokenA: tokenAamount,
     tokenB: tokenBamount,
+    reserveA: parseAssetPlain(data.reserveA).amount,
+    reserveB: parseAssetPlain(data.reserveB).amount,
     time: block_time,
     block_num,
   })

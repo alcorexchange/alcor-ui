@@ -69,7 +69,7 @@ export type FeedTicker = {
 }
 
 // The public chain name: `xpr`, not the internal `proton`.
-function chainSlug(network): string {
+export function chainSlug(network): string {
   return network.alcorSlug || network.name
 }
 

@@ -1,6 +1,6 @@
 import { getNodes } from '../nodes'
 import { makeRpc } from '../rpc'
-import type { Balance, ChainAdapter, ActionCallback } from '../types'
+import type { Balance, ChainAdapter, ActionCallback, ProgressCallback } from '../types'
 import { getWireBalances } from './balances'
 import { streamByWireActions } from './streamer'
 
@@ -17,8 +17,8 @@ export function createWireAdapter(network: Network): ChainAdapter {
 
     rpc,
 
-    streamActions(account, names, callback: ActionCallback, delay = 500) {
-      return streamByWireActions(network, account, rpc(), callback, names, delay)
+    streamActions(account, names, callback: ActionCallback, delay = 500, onProgress?: ProgressCallback) {
+      return streamByWireActions(network, account, rpc(), callback, names, delay, onProgress)
     },
 
     getBalances(account, tokenContracts): Promise<Balance[]> {

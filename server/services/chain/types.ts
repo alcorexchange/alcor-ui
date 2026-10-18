@@ -6,6 +6,9 @@ export type Balance = {
 
 export type ActionCallback = (action: any, network: Network) => Promise<void> | void
 
+/** Every block before `nextBlock` has gone through the callback. */
+export type ProgressCallback = (nextBlock: number) => Promise<void>
+
 /**
  * The four things that differ between a stock Antelope chain and Wire. Everything
  * else — asset strings, account names, scopes, get_table_by_scope, ABIs — is
@@ -21,8 +24,17 @@ export interface ChainAdapter {
    * Follows `account` forever, invoking `callback` for each action named in
    * `names` ('*' matches every action). Never returns; throws only when the
    * stream cannot be resumed at all.
+   *
+   * `onProgress` runs before the stream records a block as processed, so the
+   * caller can store what it still holds of the blocks behind that mark.
    */
-  streamActions(account: string, names: string[], callback: ActionCallback, delay?: number): Promise<never>
+  streamActions(
+    account: string,
+    names: string[],
+    callback: ActionCallback,
+    delay?: number,
+    onProgress?: ProgressCallback
+  ): Promise<never>
 
   /**
    * Every token balance held by `account`.
