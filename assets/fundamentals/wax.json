@@ -1,4 +1,25 @@
-{ "SCK@alexflycreat": {
+{  "CRW@chickentoken": {
+    "name": "Chick & Rich Wood",
+    "website": { "link": "https://chickandrich.com", "name": "chickandrich.com" },
+    "tags": ["Gaming"],
+        "socials": ["https://discord.gg/pMxT9dcyuy", "https://x.com/chickandrich", "https://medium.com/@chickandrich", "https://atomichub.io/explorer/collection/wax-mainnet/chickandrich"],
+    "description": "Wood resource of Lands, the farming expansion of the WAX game Chick & Rich. Gathered with wood tools and used to craft tools and Item Packs."
+  },
+  "CRF@chickentoken": {
+    "name": "Chick & Rich Food",
+    "website": { "link": "https://chickandrich.com", "name": "chickandrich.com" },
+    "tags": ["Gaming"],
+        "socials": ["https://discord.gg/pMxT9dcyuy", "https://x.com/chickandrich", "https://medium.com/@chickandrich", "https://atomichub.io/explorer/collection/wax-mainnet/chickandrich"],
+    "description": "Food resource of Lands, the farming expansion of the WAX game Chick & Rich. Caught with fishing tools and used to refill energy."
+  },
+  "CRG@chickentoken": {
+    "name": "Chick & Rich Gold",
+    "website": { "link": "https://chickandrich.com", "name": "chickandrich.com" },
+    "tags": ["Gaming"],
+        "socials": ["https://discord.gg/pMxT9dcyuy", "https://x.com/chickandrich", "https://medium.com/@chickandrich", "https://atomichub.io/explorer/collection/wax-mainnet/chickandrich"],
+    "description": "Gold resource of Lands, the farming expansion of the WAX game Chick & Rich. Mined with the Mining Drill and used to repair tools, craft tools and Worker Packs."
+  },  
+  "SCK@alexflycreat": {
     "name": "ShinChanKid",
     "website": {
       "link": "https://shinchankidcto.wixsite.com/premint",
