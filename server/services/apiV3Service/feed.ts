@@ -297,13 +297,30 @@ export function latestTrades<T extends { trade_timestamp: number }>(trades: T[],
 }
 
 const INVALID_TICKER = 'Invalid ticker_id, expected <chain>:<symbol>-<contract>_<chain>:<symbol>-<contract>'
+const INVALID_CHAIN = `Invalid chain, expected one of ${[...networkBySlug.keys()].join(', ')}`
+
+// Every chain's tickers, or one chain's with `?chain=telos`: CoinGecko shows one chain per exchange page.
+// Null for an unknown chain.
+async function chainTickers(chain: any): Promise<FeedTicker[] | null> {
+  const tickers = await getTickers()
+  if (chain === undefined) return tickers
+
+  const slug = String(chain).toLowerCase()
+  if (!networkBySlug.has(slug)) return null
+
+  return tickers.filter(t => t.chain === slug)
+}
 
 feed.get('/tickers', async (req, res) => {
-  res.json(await getTickers())
+  const tickers = await chainTickers(req.query.chain)
+  if (!tickers) return res.status(400).send(INVALID_CHAIN)
+
+  res.json(tickers)
 })
 
 feed.get('/pairs', async (req, res) => {
-  const tickers = await getTickers()
+  const tickers = await chainTickers(req.query.chain)
+  if (!tickers) return res.status(400).send(INVALID_CHAIN)
 
   res.json(tickers.map(t => ({
     ticker_id: t.ticker_id,
