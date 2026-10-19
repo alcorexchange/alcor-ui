@@ -85,7 +85,11 @@ async function swapTimeRange(network, fromBlock: number, toBlock: number, latest
 
 const supplies = new Map<string, { supply: number | null, at: number }>()
 
-// Null when the token's contract no longer has a `stat` table in its ABI, so no node can read its supply.
+// Node errors about the token contract itself: its ABI has no `stat` table, or the table holds data
+// that is not an asset. No node can read such a token's supply.
+const UNREADABLE_SUPPLY_ERRORS = ['contract_table_query_exception', 'asset_type_exception']
+
+// Null when the token's contract makes its supply unreadable.
 async function totalSupply(network, contract: string, symbol: string): Promise<number | null> {
   const key = `${network.name}:${contract}:${symbol}`
   const cached = supplies.get(key)
@@ -96,7 +100,7 @@ async function totalSupply(network, contract: string, symbol: string): Promise<n
     const stats = await getChain(network.name).rpc().get_currency_stats(contract, symbol)
     supply = parseFloat(stats[symbol].supply)
   } catch (e) {
-    if (e.json?.error?.name !== 'contract_table_query_exception') throw e
+    if (!UNREADABLE_SUPPLY_ERRORS.includes(e.json?.error?.name)) throw e
     supply = null
   }
 
