@@ -60,6 +60,17 @@ async function start () {
 
   app.use(networkResolver)
 
+  // res.send(string) answers text/html, so a browser would run any markup an error echoes from the
+  // request (`No orderbook market for <svg onload=...>`). The API serves no HTML: a string is plain text.
+  app.use((req, res, next) => {
+    const send = res.send.bind(res)
+    res.send = (body?: any) => {
+      if (typeof body === 'string' && !res.get('Content-Type')) res.type('text/plain')
+      return send(body)
+    }
+    next()
+  })
+
   // Before bodyParser coz use formidable
   app.use(bodyParser.urlencoded({ extended: true }))
   app.use(bodyParser.json())
