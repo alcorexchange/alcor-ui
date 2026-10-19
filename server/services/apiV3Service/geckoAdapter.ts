@@ -83,15 +83,22 @@ async function swapTimeRange(network, fromBlock: number, toBlock: number, latest
   }
 }
 
-const supplies = new Map<string, { supply: number, at: number }>()
+const supplies = new Map<string, { supply: number | null, at: number }>()
 
-async function totalSupply(network, contract: string, symbol: string): Promise<number> {
+// Null when the token's contract no longer has a `stat` table in its ABI, so no node can read its supply.
+async function totalSupply(network, contract: string, symbol: string): Promise<number | null> {
   const key = `${network.name}:${contract}:${symbol}`
   const cached = supplies.get(key)
   if (cached && Date.now() - cached.at < SUPPLY_TTL_MS) return cached.supply
 
-  const stats = await getChain(network.name).rpc().get_currency_stats(contract, symbol)
-  const supply = parseFloat(stats[symbol].supply)
+  let supply: number | null
+  try {
+    const stats = await getChain(network.name).rpc().get_currency_stats(contract, symbol)
+    supply = parseFloat(stats[symbol].supply)
+  } catch (e) {
+    if (e.json?.error?.name !== 'contract_table_query_exception') throw e
+    supply = null
+  }
 
   supplies.set(key, { supply, at: Date.now() })
   return supply
@@ -165,6 +172,7 @@ geckoAdapter.get('/:chain/asset', async (req, res) => {
   if (!pool) return res.status(404).json({ error: 'Asset not found' })
 
   const { symbol, contract, decimals } = pool.tokenA.id === tokenId ? pool.tokenA : pool.tokenB
+  const supply = await totalSupply(network, contract, symbol)
 
   res.json({
     asset: {
@@ -172,7 +180,7 @@ geckoAdapter.get('/:chain/asset', async (req, res) => {
       name: symbol,
       symbol,
       decimals,
-      totalSupply: await totalSupply(network, contract, symbol),
+      ...(supply != null && { totalSupply: supply }),
     },
   })
 })
