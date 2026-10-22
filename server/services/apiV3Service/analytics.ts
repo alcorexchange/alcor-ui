@@ -20,6 +20,7 @@ import { getLockedLiquidityByToken, buildLockedLiquidityCard } from './lockedLiq
 import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import type { ProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import { getSimpleTokenLogoUrl } from '../simpleTokenLogoService'
+import { isSuppressedTokenLogo } from '../tokenLogoDenylist'
 import { asyncRouter } from '../asyncRouter'
 import { GLOBAL_STATS_HOUR_START, MAX_CHART_POINTS, chartRange, fillSeries, mongoBucketStart } from './chartSeries'
 import fs from 'fs'
@@ -264,6 +265,8 @@ async function getLogoUrl(network: any, token: any, protonRegistryToken: ProtonT
   const tokenId = String(token.id || '')
   const symbol = String(token.symbol || '').toLowerCase()
   const contract = String(token.contract || '')
+
+  if (isSuppressedTokenLogo(network.name, symbol, contract)) return null
 
   const local = getLocalLogoUrl(network.name, tokenId, symbol, contract)
   if (local) return local
@@ -578,8 +581,11 @@ async function getFundamental(network: any, token: any, protonRegistryToken: Pro
 
   const protonToken = protonRegistryToken || await getProtonTokenRegistryEntry(network, symbol, contract)
   const protonFundamental = buildFundamentalFromProton(protonToken)
-
-  return mergeFundamental(base, protonFundamental)
+  const fundamental = mergeFundamental(base, protonFundamental)
+  if (fundamental && isSuppressedTokenLogo(network.name, symbol, contract)) {
+    return { ...fundamental, iconurl: null }
+  }
+  return fundamental
 }
 
 function pickPoolVolumes(pool: any, window: string) {
