@@ -239,7 +239,27 @@
         "https://flex.report",
         "https://flex.forex"
       ],
-      "description": "✨ Holographic MEME 💎 Holographic Flex Tokens for real collectors. Max supply: 10,000. 1,000 are redeemable for a trading card NFT. First come, lowest mint numbers. Collectors know holographic foil means money. Same here. Every transfer takes a 2% tax. 1.62% is yielded directly to holders. You can send 0–100% of your yield to a heir account and choose your yield option. 0.38% goes to the dev making these cards physical and planning real 52-card decks (art for holders only). Starting with NFTs. Hop into Telegram to ask about the prototype designs. By Flex Tokens—the #1 community project on XPR by swap volume. 💬 t.me/flextokens · flex.report (docs + legal) · flex.forex (launcher + tools)"
+      "description": "✨Holographic MEME 💎 Holographic Flex Tokens. For the Real collectors. Max Supply 10,000 🪙 1,000 are redeemable for a trading card NFT 🂡 first come, low mint #. Collectors know holographic foil means money, same here. Every Holographic token takes 2% transfer tax. 1.62% is yielded directly to holders. 💸 You can direct 0-100% of your yield to a heir account if you like, and choose from different yield options. 💰0.38% goes to the dev who wants to make these cards physical, and is planning real 52-card decks with the art for holders only. To start, NFTs. Hop into Telegram and ask about the prototype NFT designs. By Flex Tokens, the #1 community project on XPR by swap volume. 💬 t.me/flextokens · flex.report (docs + legal) · flex.forex (launcher + tools)"
+    },
+    "HOLOWON@for3x": {
+      "name": "Holographic WON",
+      "website": {
+        "link": "https://flex.forex",
+        "name": "Holographic WON (Official)"
+      },
+      "tags": [
+        "won",
+        "nft",
+        "collectors",
+        "holographic",
+        "reflection"
+      ],
+      "socials": [
+        "https://t.me/flextokens",
+        "https://flex.report",
+        "https://flex.forex"
+      ],
+      "description": "✨ Holographic WON ⓦ Holographic Flex Tokens and official NFTs for real collectors. Max supply: 10,000. 1,000 are redeemable for a trading card NFT. First come, lowest mint numbers. Collectors know holographic foil, now the tokens reflect. Every transfer takes a 3.3% reflection fee. 80% is yielded directly to holders, 10% to jackpot, and 10% Angel Numbers. You can send 0–100% of your yield to a heir account and choose your yield token (default HOLOWON) for reflections. 0.3% project fee. Total 3.6% transfer tax. NFTs are playing card designs with the logo of WON. Hop into Telegram to ask about the prototype designs and plans. By Flex Tokens | #1 on XPR swap on Alcor. 💬 t.me/flextokens · flex.report (docs + legal) · flex.forex (launcher + tools)"
     },
     "GRAMS@gold.mon3y": {
       "name": "GRAMS",
