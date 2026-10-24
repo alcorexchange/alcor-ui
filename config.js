@@ -163,6 +163,40 @@ const networks = {
     ],
     CEX_CONTRACTS: [],
 
+    // Exchange wallets besides the deposit accounts in CEX_CONTRACTS: hot, cold and
+    // withdrawal wallets, each confirmed by its transfers. Tokens on an exchange belong
+    // to its users, so the holder distribution does not count them as one wallet's stack.
+    EXCHANGE_ACCOUNTS: [
+      'eosbndeposit', 'maineosofbin', 'binancecleos', 'binancecold2', 'binancestaka',
+      'binancestake', 'useosdeposit', 'useosofbinan', 'eosupbitsusr', 'eosupbitcold',
+      'eosupbitsnd1', 'eosupbitsnd2', 'eosupbitsnd3', 'eosupbitsnd4', 'eosupbitsnd5',
+      'bithumbrecv1', 'bithumbsenda', 'qlteossthumb', 'ghleossthumb', 'okxeoswltxaa',
+      'okxeoswltxca', 'okxeoswltxda', 'okxeoswltxfa', 'okxeoswltxga', 'okxeoswltaad',
+      'okxeoswltaag', 'okxeoswltaaj', 'okxeoscoldxa', 'okxeoscoldxd', 'okxeoscoldac',
+      'okxstakeseos', 'okbtothemoon', 'bybitdeposit', 'eosdididada2', 'eosdididada3',
+      'eurbybitdepo', 'eurbybitdida', 'tokenbybit11', 'krakenkraken', 'krakeneukrak',
+      'krakenkrakus', 'krakenkrakco', 'krakenkrakca', 'kcdeposit4in', 'kucoinrise11',
+      'kucoinrise12', 'kucoinatwarm', 'huobideposit', 'vuniyuoxoeub', 'gateiowallet',
+      'bitgeteosdep', 'mxcexdeposit', 'coinbasebase', 'coinonekorea', 'coinonewallt',
+      'coinonecold1', 'bitfinexdep1', 'bitfinexcw55', 'eosuscoldcdc', 'eoscacoldcdc',
+      'ccomtranseos', 'jababcdefgh1', 'korbiteosdep', 'korbiteosact', 'hitbtcpayins',
+      'hitbtcpayout', 'paribuwallet', 'whitebitcom1', 'coinspoteos1', 'gopaxdeposit',
+      'bigpoloniex3', 'coinwwallet3', 'bitruebitrue', 'phemexprd252', 'biconomyaddr',
+      'wlxdepositos', 'xt2234554322', 'eos11bitmart', 'lbank2wallet', 'cceosdeposit',
+      'probitandeos', 'coinex2e2hot', 'indodaxwarm1',
+    ],
+
+    // Contracts that custody other accounts' tokens (staking, REX, RAM, bridges, farm
+    // rewards). The holder distribution counts them apart from wallets, like pooled liquidity.
+    PROTOCOL_ACCOUNTS: [
+      'eosio.stake', 'eosio.rex', 'eosio.ram', 'core.vaulta', 'reward.alcor', 'bridge.alcor',
+    ],
+
+    // Accounts tokens are burned into: their balance is retired supply.
+    BURN_ACCOUNTS: [
+      'eosio.null',
+    ],
+
     nftMarket: {
       contract: 'alcornftswap',
     },
@@ -319,6 +353,27 @@ const networks = {
       'xtrade.xpr', 'xtrader.xpr', 'xtokenn.xpr', 'x1234.xpr', 'superx.xpr', 'pmeta.xpr', 'pmetal.xpr', 'xmeta.xpr', 'xppr.xpr', 'eosiio.xpr'
     ],
     CEX_CONTRACTS: [],
+
+    // Exchange wallets besides the deposit accounts in CEX_CONTRACTS: hot, cold and
+    // withdrawal wallets, each confirmed by its transfers. Tokens on an exchange belong
+    // to its users, so the holder distribution does not count them as one wallet's stack.
+    EXCHANGE_ACCOUNTS: [
+      'bithumbxprr1', 'bithumbxprs1', 'bithumbxprs2', 'bithumbxprw1', 'qltxprrthumb',
+      'qltxprthumb3', 'kcdeposit4in', 'kucoinrise15', 'kucoinrise21', 'kucoindotxpr',
+      'gatedeposit', 'mexcloanloan', 'bitgetxpr', 'coinspotxpr1', 'hitbtcxprins', 'hitbtcxprout',
+      'mpcustodial',
+    ],
+
+    // Contracts that custody other accounts' tokens (staking, REX, RAM, bridges, farm
+    // rewards). The holder distribution counts them apart from wallets, like pooled liquidity.
+    PROTOCOL_ACCOUNTS: [
+      'stake.proton', 'eosio.ram', 'reward.alcor', 'bridge.alcor',
+    ],
+
+    // Accounts tokens are burned into: their balance is retired supply.
+    BURN_ACCOUNTS: [
+      'token.burn', 'eosio.null',
+    ],
 
     nftMarket: {
       contract: 'alcornftswap',
@@ -684,6 +739,31 @@ const networks = {
       'bithumbwaxr1',
     ],
 
+    // Exchange wallets besides the deposit accounts in CEX_CONTRACTS: hot, cold and
+    // withdrawal wallets, each confirmed by its transfers. Tokens on an exchange belong
+    // to its users, so the holder distribution does not count them as one wallet's stack.
+    EXCHANGE_ACCOUNTS: [
+      'waxofbinance', 'fr14kr5oqfpg', 'binanceusdep', 'binanceuswdr', 'upbitswaxusr',
+      'waxupbitcold', 'waxupbitsnd1', 'waxupbitsnd2', 'qltwaxxthumb', 'bithumbsendw',
+      'okxwaxwltxaa', 'okxwaxwltxeb', 'okxwalletaac', 'okxwalletaae', 'okxwalletaag',
+      'okxcoldwaaac', 'okxtothemars', 'bybitwaxonly', 'waxdididada3', 'kucoinrise25',
+      'wxpjevuzwo35', 'cryptocomrow', 'cryptocomuae', 'ccomtranswax', 'cdcusirawax1',
+      'waxuscoldcdc', 'waxcacoldcdc', 'waxpwaxpmexc', 'gateioiowaxp', 'waxponbitget',
+      'coinspotwaxp', 'korbitwaxdep', 'korbitwaxact', 'hitbtcwaxins', 'hitbtcwaxout',
+      'waxpwhitebit', 'xtmainwallet',
+    ],
+
+    // Contracts that custody other accounts' tokens (staking, REX, RAM, bridges, farm
+    // rewards). The holder distribution counts them apart from wallets, like pooled liquidity.
+    PROTOCOL_ACCOUNTS: [
+      'eosio.stake', 'eosio.rex', 'eosio.ram', 'bridge.wax', 'reward.alcor', 'bridge.alcor',
+    ],
+
+    // Accounts tokens are burned into: their balance is retired supply.
+    BURN_ACCOUNTS: [
+      'eosio.null',
+    ],
+
     nftMarket: {
       contract: 'alcornftswap',
     },
@@ -801,6 +881,26 @@ const networks = {
     SCAM_TOKENS: [],
     SCAM_CONTRACTS: ['usdcoinchain', 'bosibc.io'],
     CEX_CONTRACTS: [],
+
+    // Exchange wallets besides the deposit accounts in CEX_CONTRACTS: hot, cold and
+    // withdrawal wallets, each confirmed by its transfers. Tokens on an exchange belong
+    // to its users, so the holder distribution does not count them as one wallet's stack.
+    EXCHANGE_ACCOUNTS: [
+      'gateioiotlos', 'mexcmexctlos', 'htxtlosmjuxn', 'htxtlosjfhog', 'bitgetdetlos',
+      'bitmart4tlos', 'kcdeposit4in', 'kucoin4telos', 'kucoinrise22', 'kucoinrise23',
+      'probittloscd', 'bfxtelos1111', 'bitruewallet', 'p2pb2bwallet',
+    ],
+
+    // Contracts that custody other accounts' tokens (staking, REX, RAM, bridges, farm
+    // rewards). The holder distribution counts them apart from wallets, like pooled liquidity.
+    PROTOCOL_ACCOUNTS: [
+      'eosio.stake', 'eosio.rex', 'eosio.ram', 'eosio.evm', 'reward.alcor', 'bridge.alcor',
+    ],
+
+    // Accounts tokens are burned into: their balance is retired supply.
+    BURN_ACCOUNTS: [
+      'eosio.null',
+    ],
 
     nftMarket: {
       contract: 'alcornftswap',

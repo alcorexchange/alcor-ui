@@ -90,7 +90,7 @@ const supplies = new Map<string, { supply: number | null, at: number }>()
 const UNREADABLE_SUPPLY_ERRORS = ['contract_table_query_exception', 'asset_type_exception']
 
 // Null when the token's contract makes its supply unreadable.
-async function totalSupply(network, contract: string, symbol: string): Promise<number | null> {
+export async function totalSupply(network, contract: string, symbol: string): Promise<number | null> {
   const key = `${network.name}:${contract}:${symbol}`
   const cached = supplies.get(key)
   if (cached && Date.now() - cached.at < SUPPLY_TTL_MS) return cached.supply

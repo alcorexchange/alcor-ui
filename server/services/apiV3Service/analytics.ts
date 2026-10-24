@@ -21,6 +21,7 @@ import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import type { ProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import { getSimpleTokenLogoUrl } from '../simpleTokenLogoService'
 import { isSuppressedTokenLogo } from '../tokenLogoDenylist'
+import { buildHolderDistribution } from './holderDistribution'
 import { asyncRouter } from '../asyncRouter'
 import { GLOBAL_STATS_HOUR_START, MAX_CHART_POINTS, chartRange, fillSeries, mongoBucketStart } from './chartSeries'
 import fs from 'fs'
@@ -2019,6 +2020,21 @@ analytics.get('/tokens/:id/spot-pairs', cacheSeconds(60, (req, res) => {
     meta: buildMeta(network, window.label),
     items,
   })
+})
+
+analytics.get('/tokens/:id/holders', cacheSeconds(300, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+  const tokenId = String(req.params.id || '').toLowerCase()
+
+  if (!network.lightapi) return res.status(404).send('Token holders are not available on this chain')
+
+  const tokens = (await getTokens(network.name)) || []
+  const token = tokens.find((t) => t.id === tokenId)
+  if (!token) return res.status(404).send('Token is not found')
+
+  res.json(await buildHolderDistribution(network, token))
 })
 
 analytics.get('/pools', cacheSeconds(60, (req, res) => {
