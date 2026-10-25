@@ -9,10 +9,14 @@ type Kind = 'spot' | 'swap'
 // Public market page, handed over as the ticker's `trade_url`.
 // The current frontend lives at alcor.exchange/v/<alcorSlug>/<kind>/<ticker_id>;
 // chains without an `alcorSlug` in config.js keep their legacy per-chain host.
+//
+// `utm_source=aggregator`: the "Trade" buttons of CoinGecko and CMC send no referrer,
+// so without it these visitors read as direct ones. One value for every feed, since
+// the feeds are shared and do not know who polls them.
 export function marketUrl(network: Network, kind: Kind, ticker_id: string): string {
   if (!network.alcorSlug) return `https://${network.name}.alcor.exchange/trade/${ticker_id}`
 
-  return `https://alcor.exchange/v/${network.alcorSlug}/${kind}/${ticker_id}`
+  return `https://alcor.exchange/v/${network.alcorSlug}/${kind}/${ticker_id}?utm_source=aggregator`
 }
 
 // CoinMarketCap UCID of a token, from the explicit map in config.js.
