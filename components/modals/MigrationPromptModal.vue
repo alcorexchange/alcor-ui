@@ -1,7 +1,9 @@
 <template lang="pug">
-//- Предлагает открыть ту же страницу в новом Alcor. Дверь не закрывает: «Остаться»
-//- оставляет человека здесь на SNOOZE_DAYS и спрашивает, что его держит. Ответы
-//- приходят в OpenPanel (`migration_reason_submitted`), по ним доделываем новый.
+//- Предлагает открыть ту же страницу в новом Alcor. Сервер уводит туда сам, так что
+//- модалку видит тот, кто вошёл через страницу без аналога. Дверь не закрывает:
+//- «Остаться» ставит cookie выбора (`utils/oldUiChoice.js`), сервер его уважает, а
+//- модалка спрашивает, что держит. Ответы приходят в OpenPanel
+//- (`migration_reason_submitted`), по ним доделываем новый.
 //- Без крестика и Esc: выход только через один из двух ответов.
 ElDialog.migration-prompt(
   :visible='visible',
@@ -54,9 +56,8 @@ ElDialog.migration-prompt(
 import AlcorButton from '~/components/AlcorButton'
 import { op } from '~/plugins/openpanel'
 import { VENUES, cleanPath, counterpartPath, newAlcorTrackedUrl } from '~/utils/newAlcorRoutes'
+import { stayCookie, leaveCookie, staysOnOld } from '~/utils/oldUiChoice'
 
-const STAYED_STORAGE_KEY = 'alcor_migration_prompt_stayed_at'
-const SNOOZE_DAYS = 14
 const DETAILS_MAX = 300
 
 // `key` уходит в OpenPanel как `reason`: не переименовывать, иначе история разъедется.
@@ -68,14 +69,6 @@ const REASONS = [
   { key: 'language', label: "It doesn't have my language", placeholder: 'Which language?' },
   { key: 'other', label: 'Something else', placeholder: 'Tell us' },
 ]
-
-function stayedRecently() {
-  const stayedAt = parseInt(localStorage.getItem(STAYED_STORAGE_KEY))
-  if (!stayedAt) return false
-
-  const daysPassed = (Date.now() - stayedAt) / (1000 * 60 * 60 * 24)
-  return daysPassed < SNOOZE_DAYS
-}
 
 export default {
   name: 'MigrationPromptModal',
@@ -133,7 +126,7 @@ export default {
       if (this.shown || !this.targetPath) return
       // Старый UI встраивают на чужие сайты в iframe: там не мешаем.
       if (window.self !== window.top) return
-      if (stayedRecently()) return
+      if (staysOnOld(document.cookie)) return
 
       this.shown = true
       this.visible = true
@@ -141,11 +134,12 @@ export default {
     },
 
     accept() {
+      document.cookie = leaveCookie(window.location.hostname)
       op.track('migration_prompt_accepted', { page: this.page, target: this.targetPath })
     },
 
     stay() {
-      localStorage.setItem(STAYED_STORAGE_KEY, Date.now().toString())
+      document.cookie = stayCookie(window.location.hostname)
       op.track('migration_prompt_dismissed', { page: this.page, target: this.targetPath })
       this.step = 'reason'
     },

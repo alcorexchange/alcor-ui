@@ -126,18 +126,19 @@ function counterpartPath(venue, path, query) {
 /**
  * Полная ссылка в новый Alcor с метками: `utm_source=alcor-old` — пришёл со старого,
  * `utm_campaign` — каким путём (redirect, prompt), чтобы сравнить каналы.
+ * `from` — страница старого, на которую новый предложит вернуться.
  */
-function newAlcorTrackedUrl(path, campaign) {
+function newAlcorTrackedUrl(path, campaign, from) {
   const url = new URL(path, 'https://alcor.exchange')
   url.searchParams.set('utm_source', 'alcor-old')
   url.searchParams.set('utm_campaign', campaign)
+  if (from) url.searchParams.set('from', from)
   return url.toString()
 }
 
 module.exports = {
   VENUES,
   cleanPath,
-  swapPairPath,
   counterpartPath,
   newAlcorTrackedUrl,
 }
