@@ -5,13 +5,17 @@ import { write_decimal } from 'eos-common'
 import { resolutions, normalizeResolution } from '../updaterService/charts'
 import { SwapPool, Bar, Match, Market } from '../../models'
 import { getTokens } from '../../utils'
-import { getScamLists } from './config'
 import { getSwrString } from '../swrCache'
+import { getScamLists, hasScamToken } from './config'
+import { cmcUcid, globalTickerId, marketUrl, parseTimeRange, parseTradesLimit } from './feed'
 
 // SWR windows for /tickers: serve a process-local serialized string for
 // FRESH_MS, then serve stale + refresh in background up to STALE_MS.
 const TICKERS_SWR_FRESH_MS = 15 * 1000
 const TICKERS_SWR_STALE_MS = 5 * 60 * 1000
+
+// Hard ceiling on /charts, including the gap-filling candles.
+const MAX_BARS = 5000
 
 const depthHandler = (req, res, next) => {
   if (req.query.depth && isNaN(parseInt(req.query.depth))) return res.status(403).send('Invalid depth')
@@ -42,30 +46,37 @@ function formatToken(token) {
   }
 }
 
+// A ticker_id names both legs as `symbol-contract`; either one being listed
+// as scam, by its id or its contract, makes the market scam.
+function isScamTicker(scamLists, ticker_id) {
+  const legs = String(ticker_id || '').toLowerCase().split('_')
+  return hasScamToken(scamLists, legs.map(id => ({ id, contract: id.split('-')[1] })))
+}
+
 function getPairKey(a, b) {
   return a < b ? `${a}|${b}` : `${b}|${a}`
 }
 
-function formatTicker(m, tokenById = new Map(), global_tokens = []) {
+function formatTicker(m, network) {
   const [base, target] = m.ticker_id.split('_')
 
   m.market_id = m.id
   m.target_currency = target.toLowerCase()
   m.base_currency = base.toLowerCase()
 
-  const target_token = tokenById.get(m.target_currency)
-  const base_token = tokenById.get(m.base_currency)
+  m.target_cmc_ucid = cmcUcid(network, m.target_currency)
+  m.base_cmc_ucid = cmcUcid(network, m.base_currency)
 
-  m.target_cmc_ucid = target_token?.cmc_id || null
-  m.base_cmc_ucid = base_token?.cmc_id || null
+  // Spec names: an orderbook market is this DEX's "pool", high/low are the 24h range.
+  // A market that never traded has no range - null, not a zero price.
+  m.pool_id = String(m.id)
+  m.high = m.high24 || null
+  m.low = m.low24 || null
+  m.trade_url = marketUrl(network, 'spot', m.ticker_id)
 
   delete m.id
 
-  if (global_tokens.includes(m.target_currency) && global_tokens.includes(m.base_currency)) {
-    m.global_ticker_id = m.base_currency.split('-')[0].toUpperCase() + '-' + m.target_currency.split('-')[0].toUpperCase()
-  } else {
-    m.global_ticker_id = null
-  }
+  m.global_ticker_id = globalTickerId(network, m.base_currency, m.target_currency)
 
   return getPairKey(m.base_currency, m.target_currency)
 }
@@ -135,7 +146,7 @@ spot.get('/tickers', async (req, res) => {
 
   const cacheKey = `spot_tickers_swr|${network.name}|${req.originalUrl}`
   const body = await getSwrString(cacheKey, async () => {
-    const [tokens, pools, rawMarkets] = await Promise.all([
+    const [tokens, pools, rawMarkets, scamLists] = await Promise.all([
       getTokens(network.name),
       SwapPool.find({ chain: network.name })
         .select('tokenA.id tokenA.quantity tokenB.id tokenB.quantity volumeA24 volumeB24 volumeUSD24')
@@ -143,26 +154,15 @@ spot.get('/tickers', async (req, res) => {
       Market.find({ chain: network.name })
         .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek')
         .lean(),
+      getScamLists(network),
     ])
 
-    let markets = rawMarkets
+    rawMarkets.forEach(m => { m.is_scam = isScamTicker(scamLists, m.ticker_id) })
+    const markets = hide_scam ? rawMarkets.filter(m => !m.is_scam) : rawMarkets
 
     // Depth 2/-2%
     // > baseTokenLiquidity * (Math.sqrt(1 / 1.02) - 1)
     // > baseTokenLiquidity * (1 - Math.sqrt(1 / 0.98))
-
-    if (hide_scam) {
-      const { scam_contracts, scam_tokens } = await getScamLists(network)
-      markets = markets.filter(m => {
-        const [baseCurrency, targetCurrency] = String(m.ticker_id || '').toLowerCase().split('_')
-        const baseContract = String(baseCurrency || '').split('-')[1]
-        const targetContract = String(targetCurrency || '').split('-')[1]
-        return !scam_contracts.has(baseContract) &&
-               !scam_contracts.has(targetContract) &&
-               !scam_tokens.has(baseCurrency) &&
-               !scam_tokens.has(targetCurrency)
-      })
-    }
 
     const tokenById = new Map((tokens || []).map(t => [t.id, t]))
     const poolsByPair = new Map()
@@ -173,7 +173,7 @@ spot.get('/tickers', async (req, res) => {
     }
 
     markets.forEach(m => {
-      const pairKey = formatTicker(m, tokenById, network.GLOBAL_TOKENS)
+      const pairKey = formatTicker(m, network)
       formatMarket(m, poolsByPair.get(pairKey) || [], tokenById)
     })
 
@@ -190,7 +190,7 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
 
   const { ticker_id } = req.params
   const [baseCurrency, targetCurrency] = String(ticker_id).toLowerCase().split('_')
-  const [pools, tokens] = await Promise.all([
+  const [pools, tokens, scamLists] = await Promise.all([
     SwapPool.find({
       chain: network.name,
       $or: [
@@ -201,6 +201,7 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
       .select('tokenA.id tokenA.quantity tokenB.id tokenB.quantity volumeA24 volumeB24 volumeUSD24')
       .lean(),
     getTokens(network.name),
+    getScamLists(network),
   ])
   const m = await Market.findOne({ ticker_id, chain: network.name })
     .select('-_id -__v -chain -quote_token -base_token -changeWeek -volume24 -volumeMonth -volumeWeek').lean()
@@ -208,8 +209,9 @@ spot.get('/tickers/:ticker_id', tickerHandler, cacheSeconds(1, (req, res) => {
   if (!m) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
 
   const tokenById = new Map((tokens || []).map(t => [t.id, t]))
-  formatTicker(m, tokenById, network.GLOBAL_TOKENS)
+  formatTicker(m, network)
   formatMarket(m, pools, tokenById)
+  m.is_scam = isScamTicker(scamLists, ticker_id)
 
   res.json(m)
 })
@@ -223,105 +225,95 @@ spot.get('/tickers/:ticker_id/orderbook', tickerHandler, depthHandler, async (re
   const market = await Market.findOne({ ticker_id, chain: network.name })
   if (!market) return res.status(404).send(`Ticker ${ticker_id} not found or closed :(`)
 
-  const _bids = (JSON.parse(await redisClient.get(`orderbook_${network.name}_buy_${market.id}`)) || []).slice(0, depth)
-  const _asks = (JSON.parse(await redisClient.get(`orderbook_${network.name}_sell_${market.id}`)) || []).slice(0, depth)
-
-  const bids = _bids
-    .sort((a, b) => b[0] - a[0])
-    .map(b => [write_decimal(b[0], 8, false), write_decimal(b[1][1], market.base_token.symbol.precision, false)])
-
-  const asks = _asks
-    .sort((a, b) => a[0] - b[0])
-    .map(a => [write_decimal(a[0], 8, false), write_decimal(a[1][1], market.quote_token.symbol.precision, false)])
+  const { bids, asks } = await marketOrderbook(redisClient, network.name, market, depth)
 
   return res.json({
     ticker_id,
+    timestamp: Date.now(),
     bids,
     asks
   })
 })
 
-spot.get('/tickers/:ticker_id/latest_trades', tickerHandler, cacheSeconds(1, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.market_id + '|' + req.query.limit
-}), async (req, res) => {
+// Top `depth` price levels of each side as [price, base_quantity] strings, best first.
+export async function marketOrderbook(redisClient, chain, market, depth) {
+  const _bids = (JSON.parse(await redisClient.get(`orderbook_${chain}_buy_${market.id}`)) || []).slice(0, depth)
+  const _asks = (JSON.parse(await redisClient.get(`orderbook_${chain}_sell_${market.id}`)) || []).slice(0, depth)
+
+  // Quantities are quoted in base_currency on both sides, so a buy order is read
+  // from its `ask` (what it wants) and a sell order from its `bid` (what it offers).
+  const quantity = amount => write_decimal(amount, market.quote_token.symbol.precision, false)
+
+  const bids = _bids
+    .sort((a, b) => b[0] - a[0])
+    .map(b => [write_decimal(b[0], 8, false), quantity(b[1][2])])
+
+  const asks = _asks
+    .sort((a, b) => a[0] - b[0])
+    .map(a => [write_decimal(a[0], 8, false), quantity(a[1][1])])
+
+  return { bids, asks }
+}
+
+// Matches carry bid/ask swapped by side: the contract writes base_token into
+// `bid` for a buymatch and into `ask` for a sellmatch (eostokensdex.cpp
+// match_processing), while the feed always counts base_volume in base_currency.
+export function formatMatch(m) {
+  const isBuy = m.type == 'buymatch'
+
+  return {
+    trade_id: String(m._id),
+    price: m.unit_price,
+    base_volume: isBuy ? m.ask : m.bid,
+    target_volume: isBuy ? m.bid : m.ask,
+    trade_timestamp: Math.floor(m.time.getTime() / 1000),
+    type: isBuy ? 'buy' : 'sell',
+    trx_id: m.trx_id
+  }
+}
+
+const TRADE_FIELDS = '_id time bid ask unit_price type trx_id'
+
+function tradesCacheKey(req, res) {
+  return req.originalUrl + '|' + req.app.get('network').name
+}
+
+// Spec: the most recent `limit` trades, oldest first, `start_time`/`end_time` in seconds.
+spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1, tradesCacheKey), async (req, res) => {
   const network = req.app.get('network')
-  const limit = parseInt(req.query.limit) || 300
 
   const { ticker_id } = req.params
+  const { type } = req.query
+
+  if (type && !['buy', 'sell'].includes(type)) return res.status(400).send('Invalid type, expected buy or sell')
+
+  const time = parseTimeRange(req.query)
+  if (time.error) return res.status(400).send(time.error)
+
   const market = await Market.findOne({ ticker_id, chain: network.name })
   if (!market) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
 
-  const matches = await Match.find({ chain: network.name, market: market.id })
-    .select('_id time bid ask unit_price type trx_id')
+  const matches = await findMatches(network.name, market.id, {
+    type,
+    range: time.range,
+    limit: parseTradesLimit(req.query.limit)
+  })
+
+  res.json(matches.reverse().map(formatMatch))
+})
+
+// The latest `limit` matches of an orderbook market, newest first.
+export async function findMatches(chain, marketId, { type, range, limit }) {
+  const q = { chain, market: marketId }
+  if (type) q.type = type == 'buy' ? 'buymatch' : 'sellmatch'
+  if (range) q.time = range
+
+  return await Match.find(q)
+    .select(TRADE_FIELDS)
     .sort({ time: -1 })
     .limit(limit)
     .lean()
-
-  matches.map(m => {
-    m.trade_id = m._id
-    m.price = m.unit_price
-
-    m.base_volume = m.type == 'buymatch' ? m.ask : m.bid
-    m.target_volume = m.type == 'buymatch' ? m.bid : m.ask
-
-    m.time = m.time.getTime()
-    m.type = m.type == 'buymatch' ? 'buy' : 'sell'
-
-    delete m._id
-    delete m.ask
-    delete m.bid
-    delete m.unit_price
-  })
-
-  res.json(matches)
-})
-
-spot.get('/tickers/:ticker_id/historical_trades', tickerHandler, cacheSeconds(1, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name + '|' + req.params.market_id + '|' + req.query.limit
-}), async (req, res) => {
-  const network = req.app.get('network')
-
-  const { ticker_id } = req.params
-  const { type, from, to } = req.query
-
-  const market = await Market.findOne({ ticker_id, chain: network.name })
-  if (!market) return res.status(404).send(`Market with id ${ticker_id} not found or closed :(`)
-
-  const limit = parseInt(req.query.limit) || 200
-  const skip = parseInt(req.query.skip) || 0
-
-  const q = { chain: network.name, market: market.id }
-  if (type) q.type = type == 'buy' ? 'buymatch' : 'sellmatch'
-  if (!isNaN(from) || !isNaN(to)) {
-    q.time = {}
-
-    if (from) q.time.$gte = new Date(parseInt(from))
-    if (to) q.time.$lte = new Date(parseInt(to))
-  }
-
-  const matches = await Match.find(q)
-    .select('_id price time bid ask unit_price type trx_id')
-    .sort({ time: 1 })
-    .skip(skip)
-    .limit(limit)
-    .lean()
-
-  matches.map(m => {
-    m.trade_id = m._id
-    m.price = m.unit_price
-    m.base_volume = m.type == 'buymatch' ? m.ask : m.bid
-    m.target_volume = m.type == 'buymatch' ? m.bid : m.ask
-    m.time = m.time.getTime()
-    m.type = m.type == 'buymatch' ? 'buy' : 'sell'
-
-    delete m._id
-    delete m.ask
-    delete m.bid
-    delete m.unit_price
-  })
-
-  res.json(matches)
-})
+}
 
 // время в UTC стартовое надо
 spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
@@ -332,23 +324,23 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
   if (!market) return res.status(404).send(`Ticker ${ticker_id} not found or closed :(`)
 
   const { from, to, resolution, limit } = req.query
-  if (!resolution) return res.status(404).send('Incorrect resolution..')
+  if (!resolution) return res.status(400).send('Incorrect resolution..')
+  if (!from || isNaN(from)) return res.status(400).send('`from` is required, in unix milliseconds')
+  if (to && isNaN(to)) return res.status(400).send('Invalid `to`, expected unix milliseconds')
+
   const normalizedResolution = normalizeResolution(resolution)
   const frame = resolutions[normalizedResolution] * 1000
-  const fromMs = from && !isNaN(from) ? parseInt(from) : null
-  const toMs = to && !isNaN(to) ? parseInt(to) : null
-  const alignedFrom = Number.isFinite(fromMs) ? Math.floor(fromMs / frame) * frame : null
-  const alignedTo = Number.isFinite(toMs) ? Math.floor(toMs / frame) * frame : null
+  const alignedFrom = Math.floor(parseInt(from) / frame) * frame
+  const alignedTo = to ? Math.floor(parseInt(to) / frame) * frame : null
 
   const where = {
     chain: network.name,
     timeframe: normalizedResolution.toString(),
     market: parseInt(market.id),
-    time: {},
+    time: { $gte: new Date(alignedFrom) },
   }
 
-  if (from && !isNaN(from)) where.time.$gte = new Date(alignedFrom ?? parseInt(from))
-  if (to && !isNaN(to)) where.time.$lte = new Date(alignedTo ?? parseInt(to))
+  if (alignedTo !== null) where.time.$lte = new Date(alignedTo)
 
   const q = [
     { $match: where },
@@ -365,59 +357,34 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
     },
   ]
 
-  if (limit) q.push({ $limit: parseInt(limit) })
+  q.push({ $limit: Math.min(parseInt(limit) || MAX_BARS, MAX_BARS) })
 
   let lastKnownPrice = null
   const charts = await Bar.aggregate(q)
 
-  if (charts.length === 0 && !isNaN(from)) {
+  if (charts.length === 0) {
     const lastPriceQuery = await Bar.findOne({
       chain: network.name,
       market: parseInt(market.id),
       timeframe: normalizedResolution.toString(),
-      time: { $lt: new Date(alignedFrom ?? parseInt(from)) },
+      time: { $lt: new Date(alignedFrom) },
     }).sort({ time: -1 })
-
-    lastKnownPrice = lastPriceQuery ? lastPriceQuery.close : null
 
     // Если не найдена последняя цена, отправляем пустой ответ
     if (!lastPriceQuery) return res.json([])
+
+    lastKnownPrice = lastPriceQuery.close
   } else {
     lastKnownPrice = charts[0].close
   }
 
   // Заполнение пустых свечей между данными
   const filledCharts = []
-  let expectedTime = alignedFrom ?? (Number.isFinite(fromMs) ? fromMs : null)
+  let expectedTime = alignedFrom
 
-  charts.forEach((chart, index) => {
+  charts.forEach((chart) => {
     chart.open = lastKnownPrice
-    if (expectedTime != null) {
-      while (chart.time > expectedTime) {
-        filledCharts.push({
-          time: expectedTime,
-          open: lastKnownPrice,
-          high: lastKnownPrice,
-          low: lastKnownPrice,
-          close: lastKnownPrice,
-          volume: 0,
-        })
-        expectedTime += parseInt(frame)
-      }
-    }
-    filledCharts.push(chart)
-    lastKnownPrice = chart.close
-    if (expectedTime != null) expectedTime += parseInt(frame)
-  })
-
-  // Добавление пустых свечей после последней полученной свечи до конца периода (до последней закрытой)
-  if (expectedTime != null && Number.isFinite(alignedTo)) {
-    const nowMs = Date.now()
-    const nowAligned = Math.floor(nowMs / frame) * frame
-    const lastComplete = nowAligned - frame
-    const fillTo = Math.min(alignedTo, lastComplete)
-
-    while (expectedTime <= fillTo) {
+    while (chart.time > expectedTime) {
       filledCharts.push({
         time: expectedTime,
         open: lastKnownPrice,
@@ -426,7 +393,30 @@ spot.get('/tickers/:ticker_id/charts', tickerHandler, async (req, res) => {
         close: lastKnownPrice,
         volume: 0,
       })
-      expectedTime += parseInt(frame)
+      expectedTime += frame
+    }
+    filledCharts.push(chart)
+    lastKnownPrice = chart.close
+    expectedTime += frame
+  })
+
+  // Добавление пустых свечей после последней полученной свечи до конца периода (до последней закрытой)
+  if (alignedTo !== null) {
+    const nowMs = Date.now()
+    const nowAligned = Math.floor(nowMs / frame) * frame
+    const lastComplete = nowAligned - frame
+    const fillTo = Math.min(alignedTo, lastComplete)
+
+    while (expectedTime <= fillTo && filledCharts.length < MAX_BARS) {
+      filledCharts.push({
+        time: expectedTime,
+        open: lastKnownPrice,
+        high: lastKnownPrice,
+        low: lastKnownPrice,
+        close: lastKnownPrice,
+        volume: 0,
+      })
+      expectedTime += frame
     }
   }
 

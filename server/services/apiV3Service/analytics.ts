@@ -1,5 +1,4 @@
 import { Asset } from '@wharfkit/antelope'
-import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 
 import { SwapPool, Market, GlobalStats, SwapBar, Bar, Swap, Match, SwapChartPoint } from '../../models'
@@ -12,6 +11,7 @@ import { getScamLists } from '../apiV2Service/config'
 import { getSwapBarPriceAsString } from '../../../utils/amm'
 import { resolutions as candleResolutions, normalizeResolution } from '../updaterService/charts'
 import { getIncentives } from '../apiV2Service/farms'
+import { getAccountPoolIds } from '../apiV2Service/account'
 import { getChainRpc } from '../../../utils/eosjs'
 import { getOrderbook } from '../orderbookService/start'
 import { sqrt } from '../../../utils/bigint'
@@ -20,10 +20,14 @@ import { getLockedLiquidityByToken, buildLockedLiquidityCard } from './lockedLiq
 import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import type { ProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import { getSimpleTokenLogoUrl } from '../simpleTokenLogoService'
+import { isSuppressedTokenLogo } from '../tokenLogoDenylist'
+import { buildHolderDistribution } from './holderDistribution'
+import { asyncRouter } from '../asyncRouter'
+import { GLOBAL_STATS_HOUR_START, MAX_CHART_POINTS, chartRange, fillSeries, mongoBucketStart } from './chartSeries'
 import fs from 'fs'
 import path from 'path'
 
-export const analytics = Router()
+export const analytics = asyncRouter()
 
 const WINDOW_MAP_MS: Record<string, number> = {
   '24h': 24 * 60 * 60 * 1000,
@@ -85,7 +89,7 @@ function safeNumber(value: any, fallback = 0) {
   return Number.isFinite(n) ? n : fallback
 }
 
-function getSafeUsdPrice(token: any, fallback = 0) {
+export function getSafeUsdPrice(token: any, fallback = 0) {
   return safeNumber(token?.safe_usd_price, fallback)
 }
 
@@ -162,6 +166,13 @@ function calcPoolFeeApr7d(pool: any) {
   return Number.isFinite(apr) ? Number(apr.toFixed(2)) : 0
 }
 
+// `limit` and `page` of a list query; anything that isn't a positive number takes the default.
+function parsePagination(query: any, defaultLimit: number, maxLimit: number) {
+  const limit = Math.min(parseInt(String(query.limit), 10) || defaultLimit, maxLimit)
+  const page = parseInt(String(query.page), 10) || 1
+  return { limit: Math.max(limit, 1), page: Math.max(page, 1) }
+}
+
 function parseIncludes(input: any) {
   const raw = String(input || '').toLowerCase()
   if (!raw) return new Set<string>()
@@ -178,6 +189,9 @@ function getOverviewCacheKey(req: any) {
 const ANALYTICS_RESPONSE_SWR_STALE_MS = 60 * 60 * 1000
 const OVERVIEW_RESPONSE_SWR_FRESH_MS = OVERVIEW_CACHE_SECONDS * 1000
 const TOKENS_RESPONSE_SWR_FRESH_MS = 60 * 1000
+// Search results are cheap to rebuild and must not hide newly listed tokens
+// behind an hour-old empty answer.
+const TOKENS_SEARCH_RESPONSE_SWR_STALE_MS = 2 * 60 * 1000
 
 function buildAnalyticsResponseSwrKey(route: string, req: any) {
   const network = req.app.get('network')
@@ -252,6 +266,8 @@ async function getLogoUrl(network: any, token: any, protonRegistryToken: ProtonT
   const tokenId = String(token.id || '')
   const symbol = String(token.symbol || '').toLowerCase()
   const contract = String(token.contract || '')
+
+  if (isSuppressedTokenLogo(network.name, symbol, contract)) return null
 
   const local = getLocalLogoUrl(network.name, tokenId, symbol, contract)
   if (local) return local
@@ -398,9 +414,10 @@ async function waitForPlatformBalancesFromRedis(redisKey: string, timeoutMs = PL
   return null
 }
 
+// One cache per network for every route, so it is always built from every token:
+// a caller's filtered list (a search) would leave the other tokens without their balances.
 async function getPlatformBalancesCached(
   network: any,
-  tokens: any[],
   options: { priceField?: 'safe_usd_price' | 'usd_price' } = {}
 ) {
   const priceField = options.priceField === 'usd_price' ? 'usd_price' : 'safe_usd_price'
@@ -415,6 +432,7 @@ async function getPlatformBalancesCached(
 
   const refreshAndPersist = async () => {
     const fetchedAt = Date.now()
+    const tokens = (await getTokens(network.name)) || []
     const data = await fetchPlatformBalances(network, tokens, { priceField })
     platformBalancesCache.set(key, {
       expiresAt: fetchedAt + PLATFORM_BALANCES_CACHE_MS,
@@ -564,8 +582,11 @@ async function getFundamental(network: any, token: any, protonRegistryToken: Pro
 
   const protonToken = protonRegistryToken || await getProtonTokenRegistryEntry(network, symbol, contract)
   const protonFundamental = buildFundamentalFromProton(protonToken)
-
-  return mergeFundamental(base, protonFundamental)
+  const fundamental = mergeFundamental(base, protonFundamental)
+  if (fundamental && isSuppressedTokenLogo(network.name, symbol, contract)) {
+    return { ...fundamental, iconurl: null }
+  }
+  return fundamental
 }
 
 function pickPoolVolumes(pool: any, window: string) {
@@ -613,21 +634,22 @@ function computeInverseChangePercent(changePercent: number) {
   return Number.isFinite(inverted) ? Number(inverted.toFixed(2)) : null
 }
 
+function deepestPool(pools: any[]) {
+  return pools.reduce((best, p) => (!best || safeNumber(p.tvlUSD) > safeNumber(best.tvlUSD) ? p : best), null)
+}
+
+// The pool a token's 24h change is read from: its deepest pool against the system token,
+// or against the USD token for the system token itself. The USD token has no change of its own.
 function pickPoolForToken(poolsByToken: Map<string, any[]>, tokenId: string, baseTokenId: string | null, usdTokenId: string | null) {
   const pools = poolsByToken.get(tokenId) || []
-  if (pools.length === 0) return null
+  if (pools.length === 0 || tokenId === usdTokenId) return null
 
-  if (baseTokenId) {
-    const pool = pools.find((p) => p.tokenA.id === baseTokenId || p.tokenB.id === baseTokenId)
-    if (pool) return pool
-  }
+  const counterpartId = tokenId === baseTokenId ? usdTokenId : baseTokenId
+  const withCounterpart = counterpartId
+    ? pools.filter((p) => p.tokenA.id === counterpartId || p.tokenB.id === counterpartId)
+    : []
 
-  if (usdTokenId) {
-    const pool = pools.find((p) => p.tokenA.id === usdTokenId || p.tokenB.id === usdTokenId)
-    if (pool) return pool
-  }
-
-  return pools.slice().sort((a, b) => safeNumber(b.tvlUSD) - safeNumber(a.tvlUSD))[0] || null
+  return deepestPool(withCounterpart.length ? withCounterpart : pools)
 }
 
 function computeTokenPriceChange24(pool: any, tokenId: string) {
@@ -804,7 +826,8 @@ async function buildOrderbookDepth(chain: string, market: any, priceMap: Map<str
     const basePrice = safeNumber(priceMap.get(baseId), 0)
     const lastPrice = safeNumber(market?.last_price, 0)
     if (basePrice > 0 && lastPrice > 0) {
-      quotePrice = basePrice / lastPrice
+      // last_price is base per quote
+      quotePrice = basePrice * lastPrice
     }
   }
 
@@ -1028,8 +1051,9 @@ function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, Toke
     const stakedPercentBn = (BigInt(incentive.totalStakingWeight || 0) * BigInt(100) * BigInt(1000)) / absoluteTotalStaked
     const stakedPercent = Number(stakedPercentBn) / 1000
 
+    // Below a dollar staked the APR means nothing and would top every APR sort.
     const tvlUSD = safeNumber(pool.tvlUSD) * (stakedPercent / 100)
-    const effectiveTvlUSD = tvlUSD > 0 ? tvlUSD : MIN_STAKED_TVL_USD
+    if (tvlUSD < MIN_STAKED_TVL_USD) return null
 
     const rewardPerDay = safeNumber(incentive.rewardPerDay)
     const rewardSymbol = incentive?.reward?.symbol?.symbol ?? incentive?.reward?.symbol
@@ -1039,7 +1063,7 @@ function calcIncentiveApr(incentive: any, pool: any, tokensMap: Map<string, Toke
     const rewardTokenPrice = getSafeUsdPrice(rewardToken)
     const dayRewardInUSD = rewardPerDay * rewardTokenPrice
 
-    const apr = (dayRewardInUSD / effectiveTvlUSD) * 365 * 100
+    const apr = (dayRewardInUSD / tvlUSD) * 365 * 100
     return Number.isFinite(apr) ? Number(apr.toFixed(2)) : 0
   } catch (e) {
     return null
@@ -1085,7 +1109,8 @@ function toMarketCard(market: any, window: string, priceMap: Map<string, number>
   const lastPrice = safeNumber(market.last_price)
   const ask = safeNumber(market.ask)
   const bid = safeNumber(market.bid)
-  const spread = lastPrice > 0 ? ((ask - bid) / lastPrice) * 100 : null
+  // Only with both sides of the book: an empty side is stored as 0.
+  const spread = bid > 0 && ask > 0 ? ((ask - bid) / ((ask + bid) / 2)) * 100 : null
 
   return {
     id: market.id,
@@ -1332,7 +1357,7 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
       const topTokenMarkets = markets.filter((m) => topTokenIdSet.has(m?.base_token?.id) || topTokenIdSet.has(m?.quote_token?.id))
       const [holdersStats, { tokenTvlMap }, tokenTxStats, lockedByToken] = await Promise.all([
         loadTokenHoldersStats(network.name, topTokenIds),
-        getPlatformBalancesCached(network, tokens),
+        getPlatformBalancesCached(network),
         buildTokenTxStats(
           network.name,
           topTokensRaw,
@@ -1437,35 +1462,16 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
           }
         }))
 
-      const resolution = window.ms ? Math.max(Math.floor(window.ms / 30), 60 * 60 * 1000) : 24 * 60 * 60 * 1000
       const $match = {
         chain: network.name,
         ...(window.since ? { time: { $gte: window.since } } : {}),
       }
 
-      const $group = {
-        _id: {
-          $toDate: {
-            $subtract: [
-              { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, resolution] },
-            ],
-          },
-        },
-        totalValueLocked: { $last: '$totalValueLocked' },
-        swapTradingVolume: { $sum: '$swapTradingVolume' },
-        spotTradingVolume: { $sum: '$spotTradingVolume' },
-        swapFees: { $sum: '$swapFees' },
-        spotFees: { $sum: '$spotFees' },
-      }
+      const chartStep = window.ms ? Math.max(Math.floor(window.ms / 30), RESOLUTION_MS['1h']) : RESOLUTION_MS['1d']
+      const chartFrom = window.since ?? await firstGlobalStatsHour(network)
 
-      const [chart, statsRows] = await Promise.all([
-        GlobalStats.aggregate([
-          { $match },
-          { $sort: { time: 1 } },
-          { $group },
-          { $sort: { _id: 1 } },
-        ]),
+      const [chartPoints, statsRows] = await Promise.all([
+        chartFrom ? buildGlobalChartItems(network, chartFrom, chartStep) : [],
         GlobalStats.aggregate([
           { $match },
           { $sort: { time: 1 } },
@@ -1488,26 +1494,6 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
       ])
       const [stats] = statsRows
 
-      const chartPoints = chart.map((i) => {
-        const swapVolume = safeNumber(i.swapTradingVolume)
-        const spotVolume = safeNumber(i.spotTradingVolume)
-        const swapFees = safeNumber(i.swapFees)
-        const spotFees = safeNumber(i.spotFees)
-        const volume = swapVolume + spotVolume
-        const fees = swapFees + spotFees
-
-        return {
-          t: i._id,
-          tvl: safeNumber(i.totalValueLocked),
-          volume,
-          fees,
-          swapVolume,
-          spotVolume,
-          swapFees,
-          spotFees,
-        }
-      })
-
       return {
         meta: buildMeta(network, window.label),
         stats: {
@@ -1525,13 +1511,7 @@ analytics.get('/overview', cacheSeconds(OVERVIEW_CACHE_SECONDS, (req, res) => {
           spotPairsTotal: safeNumber(stats?.totalSpotPairs),
         },
         charts: {
-          tvl: chartPoints.map((i) => ({ t: i.t, v: i.tvl })),
-          volume: chartPoints.map((i) => ({ t: i.t, v: i.volume })),
-          fees: chartPoints.map((i) => ({ t: i.t, v: i.fees })),
-          swapVolume: chartPoints.map((i) => ({ t: i.t, v: i.swapVolume })),
-          spotVolume: chartPoints.map((i) => ({ t: i.t, v: i.spotVolume })),
-          swapFees: chartPoints.map((i) => ({ t: i.t, v: i.swapFees })),
-          spotFees: chartPoints.map((i) => ({ t: i.t, v: i.spotFees })),
+          ...toGlobalCharts(chartPoints),
           items: chartPoints,
         },
         topPools,
@@ -1558,8 +1538,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
   const sort = String(req.query.sort || 'score').toLowerCase()
   const order = String(req.query.order || 'desc').toLowerCase()
   const dir = order === 'asc' ? 1 : -1
-  const limit = Math.min(Math.max(parseInt(String(req.query.limit || '50')), 1), 500)
-  const page = Math.max(parseInt(String(req.query.page || '1')), 1)
+  const { limit, page } = parsePagination(req.query, 50, 500)
   const start = (page - 1) * limit
 
   // Heavy layer (SWR-cached, page-agnostic): build the full sorted token list.
@@ -1608,7 +1587,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
         SwapPool.find(poolsQuery).lean(),
         Market.find(marketsQuery).lean(),
         loadTokenScores(network.name),
-        getPlatformBalancesCached(network, tokens),
+        getPlatformBalancesCached(network),
         getLockedLiquidityByToken(network.name),
       ])
 
@@ -1746,7 +1725,7 @@ analytics.get('/tokens', cacheSeconds(60, (req, res) => {
       }
     },
     TOKENS_RESPONSE_SWR_FRESH_MS,
-    ANALYTICS_RESPONSE_SWR_STALE_MS
+    search ? TOKENS_SEARCH_RESPONSE_SWR_STALE_MS : ANALYTICS_RESPONSE_SWR_STALE_MS
   )
 
   // Light layer (per request): slice the shared sorted list and enrich only the
@@ -1892,7 +1871,7 @@ analytics.get('/tokens/:id', cacheSeconds(60, (req, res) => {
   const priceChange24h = computeTokenPriceChange24(tokenPool, token.id)
   const rawPriceMap = new Map<string, number>(tokens.map((t) => [t.id, getRawUsdPrice(t)]))
   const [{ tokenTvlMap }, tokenScores, tokenTxStats, holdersStats, protonRegistryToken, lockedByToken] = await Promise.all([
-    getPlatformBalancesCached(network, tokens, { priceField: 'usd_price' }),
+    getPlatformBalancesCached(network, { priceField: 'usd_price' }),
     loadTokenScores(network.name),
     buildTokenTxStats(network.name, [token], pools, markets, window.since, { restrictToProvidedSources: true }),
     loadTokenHoldersStats(network.name, [token.id]),
@@ -2043,6 +2022,21 @@ analytics.get('/tokens/:id/spot-pairs', cacheSeconds(60, (req, res) => {
   })
 })
 
+analytics.get('/tokens/:id/holders', cacheSeconds(300, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+  const tokenId = String(req.params.id || '').toLowerCase()
+
+  if (!network.lightapi) return res.status(404).send('Token holders are not available on this chain')
+
+  const tokens = (await getTokens(network.name)) || []
+  const token = tokens.find((t) => t.id === tokenId)
+  if (!token) return res.status(404).send('Token is not found')
+
+  res.json(await buildHolderDistribution(network, token))
+})
+
 analytics.get('/pools', cacheSeconds(60, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name
 }), async (req, res) => {
@@ -2053,11 +2047,17 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
   const includeTx = includes.has('tx')
   const hideScam = String(req.query.hide_scam || '').toLowerCase() === 'true'
   const search = String(req.query.search || '').toLowerCase().trim()
+  const account = String(req.query.account || '').trim()
   const sort = String(req.query.sort || 'volume').toLowerCase()
   const order = String(req.query.order || 'desc').toLowerCase()
   const dir = order === 'asc' ? 1 : -1
 
   let pools = await SwapPool.find({ chain: network.name }).lean()
+
+  if (account) {
+    const accountPoolIds = await getAccountPoolIds(network.name, account)
+    pools = pools.filter((p) => accountPoolIds.has(Number(p.id)))
+  }
 
   if (hideScam) {
     const { scam_contracts, scam_tokens } = await getScamLists(network)
@@ -2113,8 +2113,7 @@ analytics.get('/pools', cacheSeconds(60, (req, res) => {
     return (av - bv) * dir
   })
 
-  const limit = Math.min(Math.max(parseInt(String(req.query.limit || '50')), 1), 500)
-  const page = Math.max(parseInt(String(req.query.page || '1')), 1)
+  const { limit, page } = parsePagination(req.query, 50, 500)
   const start = (page - 1) * limit
 
   const pagePools = pools.slice(start, start + limit)
@@ -2238,8 +2237,7 @@ analytics.get('/farms', cacheSeconds(60, (req, res) => {
     return (av - bv) * dir
   })
 
-  const limit = Math.min(Math.max(parseInt(String(req.query.limit || '50')), 1), 500)
-  const page = Math.max(parseInt(String(req.query.page || '1')), 1)
+  const { limit, page } = parsePagination(req.query, 50, 500)
   const start = (page - 1) * limit
 
   res.json({
@@ -2341,8 +2339,7 @@ analytics.get('/spot-pairs', cacheSeconds(60, (req, res) => {
     return (av - bv) * dir
   })
 
-  const limit = Math.min(Math.max(parseInt(String(req.query.limit || '50')), 1), 500)
-  const page = Math.max(parseInt(String(req.query.page || '1')), 1)
+  const { limit, page } = parsePagination(req.query, 50, 500)
   const start = (page - 1) * limit
 
   const pageMarkets = markets.slice(start, start + limit)
@@ -2402,75 +2399,99 @@ analytics.get('/spot-pairs/:id', cacheSeconds(60, (req, res) => {
   })
 })
 
-analytics.get('/global/charts', cacheSeconds(120, (req, res) => {
-  return req.originalUrl + '|' + req.app.get('network').name
-}), async (req, res) => {
-  const network: Network = req.app.get('network')
-  const window = getWindow(req.query.window)
-  const resolution = getResolution(req.query.resolution)
+// GlobalStats from `from` to now in `step` buckets with no holes: TVL as it stood at the
+// end of each bucket, volume and fees summed over it.
+async function buildGlobalChartItems(network: Network, from: Date, step: number) {
+  const range = chartRange(from, new Date(), step)
+  // Rows are stamped with the end of their hour: the first hour of the range ends at start + 1h.
+  const rangeOpen = new Date(range.start)
 
-  const $match = {
-    chain: network.name,
-    ...(window.since ? { time: { $gte: window.since } } : {}),
-  }
-
-  const $group = {
-    _id: {
-      $toDate: {
-        $subtract: [
-          { $toLong: '$time' },
-          { $mod: [{ $toLong: '$time' }, resolution] },
-        ],
+  const [rows, seed] = await Promise.all([
+    GlobalStats.aggregate([
+      { $match: { chain: network.name, time: { $gt: rangeOpen } } },
+      { $sort: { time: 1 } },
+      {
+        $group: {
+          _id: mongoBucketStart(step, GLOBAL_STATS_HOUR_START),
+          totalValueLocked: { $last: '$totalValueLocked' },
+          swapTradingVolume: { $sum: '$swapTradingVolume' },
+          spotTradingVolume: { $sum: '$spotTradingVolume' },
+          swapFees: { $sum: '$swapFees' },
+          spotFees: { $sum: '$spotFees' },
+        },
       },
-    },
-    totalValueLocked: { $last: '$totalValueLocked' },
-    swapTradingVolume: { $sum: '$swapTradingVolume' },
-    spotTradingVolume: { $sum: '$spotTradingVolume' },
-    swapFees: { $sum: '$swapFees' },
-    spotFees: { $sum: '$spotFees' },
-  }
-
-  const rows = await GlobalStats.aggregate([
-    { $match },
-    { $sort: { time: 1 } },
-    { $group },
-    { $sort: { _id: 1 } },
+    ]),
+    // TVL as it stood when the range opens, for the buckets before its first snapshot.
+    GlobalStats.findOne({ chain: network.name, time: { $lte: rangeOpen } })
+      .sort({ time: -1 }).select('totalValueLocked').lean(),
   ])
 
-  const items = rows.map((i) => {
-    const tvl = safeNumber(i.totalValueLocked)
+  const series = fillSeries({
+    rows,
+    start: range.start,
+    end: range.end,
+    step,
+    levels: ['totalValueLocked'],
+    flows: ['swapTradingVolume', 'spotTradingVolume', 'swapFees', 'spotFees'],
+    seed,
+  })
+
+  return series.map((i) => {
     const swapVolume = safeNumber(i.swapTradingVolume)
     const spotVolume = safeNumber(i.spotTradingVolume)
     const swapFees = safeNumber(i.swapFees)
     const spotFees = safeNumber(i.spotFees)
-    const volume = swapVolume + spotVolume
-    const fees = swapFees + spotFees
 
     return {
-      t: i._id,
-      tvl,
-      volume,
-      fees,
+      t: i.t,
+      tvl: safeNumber(i.totalValueLocked),
+      volume: swapVolume + spotVolume,
+      fees: swapFees + spotFees,
       swapVolume,
       spotVolume,
       swapFees,
       spotFees,
     }
   })
+}
 
-  res.json({
-    meta: buildMeta(network, window.label),
-    charts: {
-      tvl: items.map((i) => ({ t: i.t, v: i.tvl })),
-      volume: items.map((i) => ({ t: i.t, v: i.volume })),
-      fees: items.map((i) => ({ t: i.t, v: i.fees })),
-      swapVolume: items.map((i) => ({ t: i.t, v: i.swapVolume })),
-      spotVolume: items.map((i) => ({ t: i.t, v: i.spotVolume })),
-      swapFees: items.map((i) => ({ t: i.t, v: i.swapFees })),
-      spotFees: items.map((i) => ({ t: i.t, v: i.spotFees })),
-    },
-    items,
-  })
+type GlobalChartItem = Awaited<ReturnType<typeof buildGlobalChartItems>>[number]
+
+function toGlobalCharts(items: GlobalChartItem[]) {
+  return {
+    tvl: items.map((i) => ({ t: i.t, v: i.tvl })),
+    volume: items.map((i) => ({ t: i.t, v: i.volume })),
+    fees: items.map((i) => ({ t: i.t, v: i.fees })),
+    swapVolume: items.map((i) => ({ t: i.t, v: i.swapVolume })),
+    spotVolume: items.map((i) => ({ t: i.t, v: i.spotVolume })),
+    swapFees: items.map((i) => ({ t: i.t, v: i.swapFees })),
+    spotFees: items.map((i) => ({ t: i.t, v: i.spotFees })),
+  }
+}
+
+// The hour the first snapshot covers, where 'all' starts.
+async function firstGlobalStatsHour(network: Network) {
+  const first = await GlobalStats.findOne({ chain: network.name }).sort({ time: 1 }).select('time').lean()
+  return first ? new Date(first.time.getTime() - RESOLUTION_MS['1h']) : null
+}
+
+analytics.get('/global/charts', cacheSeconds(120, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network: Network = req.app.get('network')
+  const window = getWindow(req.query.window)
+  const step = getResolution(req.query.resolution)
+
+  const from = window.since ?? await firstGlobalStatsHour(network)
+  if (!from) return res.json({ meta: buildMeta(network, window.label), charts: toGlobalCharts([]), items: [] })
+
+  const range = chartRange(from, new Date(), step)
+  if (range.points > MAX_CHART_POINTS) {
+    return res.status(400).send(`${range.points} points is too many, use a coarser resolution`)
+  }
+
+  const items = await buildGlobalChartItems(network, from, step)
+  res.json({ meta: buildMeta(network, window.label), charts: toGlobalCharts(items), items })
 })
 
 analytics.get('/pools/:id/charts', cacheSeconds(120, (req, res) => {
@@ -2500,47 +2521,64 @@ analytics.get('/pools/:id/charts', cacheSeconds(120, (req, res) => {
   const pool = await SwapPool.findOne({ chain: network.name, id }).lean()
   if (!pool) return res.status(404).send('Pool is not found')
 
-  const $match: any = {
-    chain: network.name,
-    pool: id,
+  // A pool's points start with its first trade; 'all' and an open-ended range start there.
+  const first = (hasCustomRange ? from : window.since)
+    ? null
+    : await SwapChartPoint.findOne({ chain: network.name, pool: id }).sort({ time: 1 }).select('time').lean()
+  const since = (hasCustomRange ? from : window.since) ?? first?.time
+  const until = to && to < new Date() ? to : new Date()
+
+  const emptyCharts = { tvl: [], volume: [], fees: [] }
+  const feeRate = getPoolLpFeeRate(pool)
+  const meta = buildMeta(network, hasCustomRange ? 'custom' : window.label)
+  if (!since || since > until) return res.json({ meta, poolId: id, feeRate, charts: emptyCharts, items: [] })
+
+  const range = chartRange(since, until, resolution)
+  if (range.points > MAX_CHART_POINTS) {
+    return res.status(400).send(`${range.points} points is too many, use a coarser resolution`)
   }
 
-  const since = hasCustomRange ? from : window.since
-  if (since || to) {
-    $match.time = {}
-    if (since) $match.time.$gte = since
-    if (to) $match.time.$lte = to
-  }
-
-  const rows = await SwapChartPoint.aggregate([
-    { $match },
-    { $sort: { time: 1 } },
-    {
-      $group: {
-        _id: {
-          $toDate: {
-            $subtract: [
-              { $toLong: '$time' },
-              { $mod: [{ $toLong: '$time' }, resolution] },
-            ],
-          },
+  const [rows, seed] = await Promise.all([
+    SwapChartPoint.aggregate([
+      {
+        $match: {
+          chain: network.name,
+          pool: id,
+          time: { $gte: new Date(range.start), $lte: until },
         },
-        usdReserveA: { $last: '$usdReserveA' },
-        usdReserveB: { $last: '$usdReserveB' },
-        volumeUSD: { $sum: '$volumeUSD' },
       },
-    },
-    { $sort: { _id: 1 } },
+      { $sort: { time: 1 } },
+      {
+        $group: {
+          _id: mongoBucketStart(resolution),
+          usdReserveA: { $last: '$usdReserveA' },
+          usdReserveB: { $last: '$usdReserveB' },
+          volumeUSD: { $sum: '$volumeUSD' },
+        },
+      },
+    ]),
+    // Reserves as they stood when the range opens: a quiet pool still holds its liquidity.
+    SwapChartPoint.findOne({ chain: network.name, pool: id, time: { $lt: new Date(range.start) } })
+      .sort({ time: -1 }).select('usdReserveA usdReserveB').lean(),
   ])
 
-  const feeRate = getPoolLpFeeRate(pool)
-  const items = rows.map((row) => {
-    const tvl = safeNumber(row.usdReserveA) + safeNumber(row.usdReserveB)
-    const volume = normalizeSwapChartVolumeUSD(row.volumeUSD)
+  const series = fillSeries({
+    rows,
+    start: range.start,
+    end: range.end,
+    step: resolution,
+    levels: ['usdReserveA', 'usdReserveB'],
+    flows: ['volumeUSD'],
+    seed,
+  })
+
+  const items = series.map((point) => {
+    const tvl = safeNumber(point.usdReserveA) + safeNumber(point.usdReserveB)
+    const volume = normalizeSwapChartVolumeUSD(point.volumeUSD)
     const fees = volume * feeRate
 
     return {
-      t: row._id,
+      t: point.t,
       tvl: Number(tvl.toFixed(8)),
       volume: Number(volume.toFixed(8)),
       fees: Number(fees.toFixed(8)),
@@ -2548,7 +2586,7 @@ analytics.get('/pools/:id/charts', cacheSeconds(120, (req, res) => {
   })
 
   res.json({
-    meta: buildMeta(network, hasCustomRange ? 'custom' : window.label),
+    meta,
     poolId: id,
     feeRate,
     charts: {
@@ -2573,6 +2611,7 @@ analytics.get('/pools/:id/candles', cacheSeconds(120, (req, res) => {
 
   const from = req.query.from ? new Date(Number(req.query.from)) : null
   const to = req.query.to ? new Date(Number(req.query.to)) : null
+  if ((from && isNaN(from.getTime())) || (to && isNaN(to.getTime()))) return res.status(400).send('Invalid from/to, expected ms')
   const volumeField = String(req.query.volumeField || 'volumeUSD')
   const reverse = String(req.query.reverse || '').toLowerCase() === 'true'
 
@@ -2632,6 +2671,7 @@ analytics.get('/spot-pairs/:id/candles', cacheSeconds(120, (req, res) => {
 
   const from = req.query.from ? new Date(Number(req.query.from)) : null
   const to = req.query.to ? new Date(Number(req.query.to)) : null
+  if ((from && isNaN(from.getTime())) || (to && isNaN(to.getTime()))) return res.status(400).send('Invalid from/to, expected ms')
 
   const query: any = {
     chain: network.name,
@@ -2702,8 +2742,7 @@ analytics.get('/lp-leaderboard', cacheSeconds(60, (req, res) => {
   const sort = LP_LEADERBOARD_SORTS.has(sortRaw) ? sortRaw : 'claimed'
   const order = String(req.query.order || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc'
 
-  const limit = Math.min(Math.max(parseInt(String(req.query.limit), 10) || 100, 1), LP_LEADERBOARD_MAX_LIMIT)
-  const page = Math.max(parseInt(String(req.query.page), 10) || 1, 1)
+  const { limit, page } = parsePagination(req.query, 100, LP_LEADERBOARD_MAX_LIMIT)
   const search = String(req.query.search || '').trim().toLowerCase()
 
   const direction = order === 'asc' ? 1 : -1

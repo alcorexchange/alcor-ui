@@ -314,18 +314,20 @@ async function main() {
     await aggregatePositions(network.name)
   }
 
+  // Fills the missing hourly GlobalStats of the last <days> days. TVL and the pools'
+  // TVL filter are read as they are now, not as they were in the hour being filled.
   if (command == 'load_global_analytics') {
-    let days_back = parseInt(process.argv[4])
+    const days_back = parseInt(process.argv[4])
     const network = config.networks[process.argv[3]]
 
     if (!network) { console.log('No network provided!'); process.exit() }
+    if (!(days_back > 0)) { console.log('Usage: load_global_analytics <network> <days>'); process.exit() }
 
-    const now = new Date()
+    const HOUR_MS = 60 * 60 * 1000
+    const now = Date.now()
 
-    while (days_back != 0) {
-      const day = new Date(new Date().setDate(now.getDate() - days_back))
-      await updateGlobalStats(network, day)
-      days_back -= 1
+    for (let hours_back = days_back * 24; hours_back >= 0; hours_back -= 1) {
+      await updateGlobalStats(network, new Date(now - hours_back * HOUR_MS))
     }
   }
 

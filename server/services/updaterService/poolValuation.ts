@@ -12,11 +12,13 @@ function isTrustedToken(
   tokenId: string,
   baseTokenId: string,
   stableTokenSet: Set<string>,
+  trustedTokenSet: Set<string>,
   minScore: number
 ) {
   if (tokenId === baseTokenId) return true
   if (stableTokenSet.has(tokenId)) return true
   if (token?.is_scam === true) return false
+  if (trustedTokenSet.has(tokenId)) return true
   if (token?.is_trusted === true) return true
 
   const score = toFiniteNumber(token?.score, 0)
@@ -42,7 +44,8 @@ export function computeSafePoolTvlUSD(pool: any, tokenMap: Map<string, any>, net
   const smallPoolBaseLiquidityUsd = toFiniteNumber(process.env.POOL_SMALL_BASE_LIQUIDITY_USD, 10)
 
   const baseTokenId = `${network.baseToken.symbol}-${network.baseToken.contract}`.toLowerCase()
-  const stableTokenSet = new Set([network.USD_TOKEN, (network as any).USDT_TOKEN].filter(Boolean))
+  const stableTokenSet = new Set<string>(network.STABLE_TOKENS)
+  const trustedTokenSet = new Set<string>(network.TRUSTED_TOKENS)
 
   const tokenAId = String(pool?.tokenA?.id || '')
   const tokenBId = String(pool?.tokenB?.id || '')
@@ -62,8 +65,8 @@ export function computeSafePoolTvlUSD(pool: any, tokenMap: Map<string, any>, net
 
   const baseLiquidityUsd = getBaseLiquidityUsd(pool, baseTokenId, stableTokenSet, baseTokenUsdPrice)
   if (tokenA?.is_scam === true || tokenB?.is_scam === true) return 0
-  const trustedA = isTrustedToken(tokenA, tokenAId, baseTokenId, stableTokenSet, trustedScoreMin)
-  const trustedB = isTrustedToken(tokenB, tokenBId, baseTokenId, stableTokenSet, trustedScoreMin)
+  const trustedA = isTrustedToken(tokenA, tokenAId, baseTokenId, stableTokenSet, trustedTokenSet, trustedScoreMin)
+  const trustedB = isTrustedToken(tokenB, tokenBId, baseTokenId, stableTokenSet, trustedTokenSet, trustedScoreMin)
 
   if (!trustedA || !trustedB) {
     if (baseLiquidityUsd > 0) return Number((baseLiquidityUsd * 2).toFixed(8))

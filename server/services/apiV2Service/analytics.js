@@ -1,9 +1,10 @@
-import { Router } from 'express'
 import { cacheSeconds } from 'route-cache'
 
 import { GlobalStats } from '../../models'
+import { GLOBAL_STATS_HOUR_START, mongoBucketStart } from '../apiV3Service/chartSeries'
+import { asyncRouter } from '../asyncRouter'
 
-export const analytics = Router()
+export const analytics = asyncRouter()
 
 export const resolutions = {
   '1D': 60 * 60 * 24,
@@ -35,7 +36,7 @@ analytics.get('/global', cacheSeconds(0, (req, res) => {
     swapFees: { $sum: '$swapFees' },
     spotFees: { $sum: '$spotFees' },
 
-    dailyActiveUsers: { $avg: '$dailyActiveUsers' }, // TODO Make db call for resolution here
+    dailyActiveUsers: { $avg: '$dailyActiveUsers' },
 
     swapTransactions: { $sum: '$swapTransactions' },
     spotTransactions: { $sum: '$spotTransactions' },
@@ -44,7 +45,9 @@ analytics.get('/global', cacheSeconds(0, (req, res) => {
     totalSpotPairs: { $max: '$totalSpotPairs' }
   }
 
-  const [stats] = await GlobalStats.aggregate([{ $match }, { $group }])
+  // Sorted first, or $last picks an arbitrary snapshot for TVL.
+  const [stats] = await GlobalStats.aggregate([{ $match }, { $sort: { time: 1 } }, { $group }])
+  if (!stats) return res.status(404).send('No global stats in this window')
 
   res.json({
     ...stats,
@@ -52,32 +55,76 @@ analytics.get('/global', cacheSeconds(0, (req, res) => {
   })
 })
 
+// Volume and fees over [start_time, end_time), unix seconds. Built for DefiLlama,
+// which asks for one UTC day at a time and backfills history the same way.
+// A GlobalStats row is stamped with the end of the hour it covers, so the rows
+// of the window are those with start_time < time <= end_time.
+analytics.get('/volume', cacheSeconds(60, (req, res) => {
+  return req.originalUrl + '|' + req.app.get('network').name
+}), async (req, res) => {
+  const network = req.app.get('network')
+
+  const start = parseInt(req.query.start_time)
+  const end = parseInt(req.query.end_time)
+  if (isNaN(start) || isNaN(end) || start >= end) {
+    return res.status(400).send('Expected start_time < end_time, unix seconds')
+  }
+
+  const $match = {
+    chain: network.name,
+    time: { $gt: new Date(start * 1000), $lte: new Date(end * 1000) }
+  }
+
+  const $group = {
+    _id: null,
+    swapVolume: { $sum: '$swapTradingVolume' },
+    spotVolume: { $sum: '$spotTradingVolume' },
+    swapFees: { $sum: '$swapFees' },
+    spotFees: { $sum: '$spotFees' },
+    buckets: { $sum: 1 }
+  }
+
+  const [stats] = await GlobalStats.aggregate([{ $match }, { $group }])
+  const { swapVolume = 0, spotVolume = 0, swapFees = 0, spotFees = 0, buckets = 0 } = stats || {}
+
+  res.json({
+    start_time: start,
+    end_time: end,
+    volume: swapVolume + spotVolume,
+    fees: swapFees + spotFees,
+    swapVolume,
+    spotVolume,
+    swapFees,
+    spotFees,
+    buckets
+  })
+})
+
+// `resolution` names the window: 1D, 1W, 1M or ALL. Points are the hourly snapshots in
+// a window, days in ALL, each placed at the start of the hour it covers; bucket sizes
+// are in ms, like the stored times.
+const HOUR_MS = 60 * 60 * 1000
+const DAY_MS = 24 * HOUR_MS
+
 analytics.get('/charts', cacheSeconds(360, (req, res) => {
   return req.originalUrl + '|' + req.app.get('network').name + req.query.resolution
 }), async (req, res) => {
   const network = req.app.get('network')
 
-  const resolution = resolutions[req.query.resolution]
+  const windowSeconds = resolutions[req.query.resolution]
   const isAll = req.query.resolution == 'ALL'
 
-  if (!resolution && !isAll) return res.status(404).send('Invalid resolution')
+  if (!windowSeconds && !isAll) return res.status(404).send('Invalid resolution')
 
   const $match = {
     chain: network.name,
     time: {
-      $gte: isAll ? new Date(0) : new Date(Date.now() - resolution * 1000)
+      $gte: isAll ? new Date(0) : new Date(Date.now() - windowSeconds * 1000)
     }
   }
 
   const $group = {
-    _id: {
-      $toDate: {
-        $subtract: [
-          { $toLong: '$time' },
-          { $mod: [{ $toLong: '$time' }, resolution || 60 * 60 * 24 * 1000] }
-        ]
-      }
-    },
+    _id: mongoBucketStart(isAll ? DAY_MS : HOUR_MS, GLOBAL_STATS_HOUR_START),
 
     totalValueLocked: { $last: '$totalValueLocked' },
 
@@ -90,7 +137,7 @@ analytics.get('/charts', cacheSeconds(360, (req, res) => {
     swapFees: { $sum: '$swapFees' },
     spotFees: { $sum: '$spotFees' },
 
-    dailyActiveUsers: { $max: '$dailyActiveUsers' }, // TODO Make db call for resolution here
+    dailyActiveUsers: { $avg: '$dailyActiveUsers' },
 
     swapTransactions: { $sum: '$swapTransactions' },
     spotTransactions: { $sum: '$spotTransactions' },
@@ -99,7 +146,8 @@ analytics.get('/charts', cacheSeconds(360, (req, res) => {
     totalSpotPairs: { $max: '$totalSpotPairs' }
   }
 
-  const stats = await GlobalStats.aggregate([{ $match }, { $group }, { $sort: { _id: 1 } }])
+  // Sorted first, or $last picks an arbitrary snapshot of the bucket for TVL.
+  const stats = await GlobalStats.aggregate([{ $match }, { $sort: { time: 1 } }, { $group }, { $sort: { _id: 1 } }])
 
   res.json(stats)
 })

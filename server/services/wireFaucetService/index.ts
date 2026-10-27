@@ -3,13 +3,13 @@ require('dotenv').config()
 import crypto from 'node:crypto'
 
 import express from 'express'
-import { PublicKey } from '@wireio/sdk-core'
 
 import config from '../../../config'
 import { initRedis } from '../redis'
 import { getNodes } from '../chain/nodes'
 import { createWireSigner, reason } from './chain'
 import { clientIp, exhausted, record, Limit } from './limits'
+import { resolveKey, BadKey, ResolvedKey } from './pubkey'
 
 // Faucet for our own Wire testnet: it creates an account for a wallet key that
 // has none, and hands out test tokens. Both are things a public chain gets from
@@ -80,17 +80,22 @@ app.get('/health', (_req, res) => {
 
 app.post('/register', (req, res) =>
   serialize(async () => {
-    let pubkey: string
+    // Whatever the wallet gave the frontend — a Wire key, an EVM signature, a
+    // Solana key, a passkey credential — becomes a Wire key here.
+    let resolved: ResolvedKey
     try {
-      pubkey = PublicKey.from(req.body?.pubkey).toString()
+      resolved = resolveKey(req.body || {})
     } catch (e) {
-      res.status(400).json({ error: 'a valid pubkey is required: PUB_ED_ / PUB_EM_ / PUB_K1_ / PUB_WA_' })
+      if (!(e instanceof BadKey)) throw e
+      res.status(400).json({ error: e.message })
       return
     }
 
+    const { pubkey, source } = resolved
+
     const known = await signer.accountForKey(pubkey)
     if (known) {
-      res.json({ account: known, pubkey, policy: true, created: false })
+      res.json({ account: known, pubkey, source, policy: true, created: false })
       return
     }
 
@@ -132,11 +137,11 @@ app.post('/register', (req, res) =>
       // The account exists and its name must not be lost, so this is reported
       // rather than thrown. Resources are fixed by hand with `expandpolicy`.
       console.error(`[faucet] addpolicy for ${account} failed: ${reason(e)}`)
-      res.status(207).json({ account, pubkey, policy: false, created: true, detail: reason(e) })
+      res.status(207).json({ account, pubkey, source, policy: false, created: true, detail: reason(e) })
       return
     }
 
-    res.json({ account, pubkey, policy: true, created: true })
+    res.json({ account, pubkey, source, policy: true, created: true })
   }).catch((error) => {
     console.error(error)
     if (!res.headersSent) res.status(500).json({ error: reason(error) })

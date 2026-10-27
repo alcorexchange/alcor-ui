@@ -64,12 +64,20 @@ declare global {
     SCAM_CONTRACTS: string[]
     SCAM_TOKENS: string[]
     CEX_CONTRACTS: string[]
+    /** Exchange hot, cold and withdrawal wallets besides the deposit accounts in CEX_CONTRACTS */
+    EXCHANGE_ACCOUNTS?: string[]
+    /** Contracts that custody other accounts' tokens: staking, REX, RAM, bridges, farm rewards */
+    PROTOCOL_ACCOUNTS?: string[]
+    /** Accounts tokens are burned into */
+    BURN_ACCOUNTS?: string[]
     nftMarket: {
       contract: string
     }
     USD_TOKEN: string
     popularTokens: string[]
-    GLOBAL_TOKENS: string[]
+    STABLE_TOKENS: string[]
+    TRUSTED_TOKENS: string[]
+    CMC_IDS: { [tokenId: string]: number }
   }
 }
 export {}

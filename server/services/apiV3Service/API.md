@@ -141,6 +141,42 @@ Response:
 { "meta": { ... }, "items": [SpotPairCard] }
 ```
 
+### GET `/analytics/tokens/:id/holders`
+How the token's supply splits between Alcor pools, protocol contracts, exchanges and wallets, from LightAPI's top 100 holders. Cached 5 minutes. 404 when the chain has no LightAPI or the token is unknown.
+
+Each holder gets a `kind` from the chain's config:
+- `pool` — Alcor orderbook and AMM contracts
+- `protocol` — the OTC contract and `PROTOCOL_ACCOUNTS` (staking, REX, RAM, bridges, farm rewards)
+- `exchange` — `CEX_CONTRACTS` and `EXCHANGE_ACCOUNTS`
+- `burn` — `BURN_ACCOUNTS`: left out of the supply, `share: null`
+- `wallet` — everyone else
+
+Shares are percents of the live supply (issued minus burned). `topTenWalletShare` is the top 10 wallets' share of the supply held in wallets, and `verdict` is judged on it: `>= 70` `highly_concentrated`, `>= 45` `concentrated`, `>= 25` `moderate`, otherwise `well_distributed`. The chain's system token gets `verdict: null`. When the supply cannot be read, `segments`, `verdict` and `topTenWalletShare` are `null`.
+
+Response:
+```
+{
+  "supply": 4706055264.13,
+  "burned": 0,
+  "liveSupply": 4706055264.13,
+  "isSystemToken": true,
+  "verdict": null,
+  "topTenWalletShare": 46.0,
+  "segments": {
+    "pool": { "amount": 23500000, "share": 0.5 },
+    "protocol": { ... },
+    "exchange": { ... },
+    "topWallet": { ... },
+    "wallets2to10": { ... },
+    "wallets11to50": { ... },
+    "rest": { ... }
+  },
+  "holders": [
+    { "account": "waxupbitcold", "amount": 2112929273.29, "kind": "exchange", "share": 44.9 }
+  ]
+}
+```
+
 ### GET `/analytics/pools`
 AMM pool list.
 
@@ -151,6 +187,7 @@ Query:
 - `limit` (default: `50`, max: `500`)
 - `page` (default: `1`)
 - `search` (optional, token symbol/name/contract/id, supports `A/B` or space-separated terms)
+- `account` (optional, only pools where this account holds an open position)
 - `hide_scam=true|false`
 - `include=incentives` (optional)
 - `sort=apr` uses 7d annualized APR; with `include=incentives` sorts by `apr.total`, otherwise by fee APR
@@ -394,6 +431,11 @@ Single position details.
 
 ### GET `/amm/pools/:id/positions`
 Positions for pool.
+
+Query:
+- `limit` (default `200`, max `500`), `page`
+- `sort`: `totalValueUSD | totalFeesUSD | pnlUSD | poolSharePct`
+- `order`: `asc | desc` (default `desc`)
 
 ### GET `/amm/account/:account/history`
 Position history for account (mint/burn/collect), optimized for cursor pagination.

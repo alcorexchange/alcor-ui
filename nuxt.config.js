@@ -218,7 +218,8 @@ module.exports = {
   ],
 
   serverMiddleware: [
-    '~/serverMiddleware/redirect'
+    '~/serverMiddleware/redirect',
+    '~/serverMiddleware/newAlcorRedirect'
   ],
 
   /*

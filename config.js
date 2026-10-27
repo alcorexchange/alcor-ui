@@ -13,6 +13,53 @@ const CONTRACT_ACTIONS = [
 const MARKET_STATS_CACHE_TIME = 60 * 30
 
 // TODO Check is all chains configs is the same structure
+// CoinMarketCap symbol of each UCID in the networks' CMC_IDS: a bridged token is
+// listed under its origin asset's symbol (XUSDC on XPR is USDC, WAX on Telos is WAXP).
+const CMC_SYMBOLS = {
+  1: 'BTC',
+  2: 'LTC',
+  52: 'XRP',
+  74: 'DOGE',
+  512: 'XLM',
+  825: 'USDT',
+  1027: 'ETH',
+  1765: 'EOS',
+  1788: 'MTL',
+  1831: 'BCH',
+  1839: 'BNB',
+  2010: 'ADA',
+  2300: 'WAXP',
+  2634: 'XDC',
+  2666: 'EFX',
+  2930: 'IQ',
+  3330: 'USDP',
+  3408: 'USDC',
+  4642: 'HBAR',
+  4660: 'TLOS',
+  4705: 'PAXG',
+  5350: 'XPR',
+  5426: 'SOL',
+  5434: 'pBTC',
+  6759: 'DUST',
+  6591: 'SBET',
+  7083: 'UNI',
+  8534: 'CHEX',
+  9119: 'TLM',
+  17895: 'MARTIA',
+  19216: 'BRWL',
+  20603: 'MLNK',
+  20641: 'EURC',
+  21769: 'METAL',
+  22071: 'LOAN',
+  23224: 'NEFTY',
+  27772: 'PYUSD',
+  28321: 'POL',
+  28529: 'USDCASH',
+  30683: 'WUF',
+  36462: 'A',
+  38457: 'XMD',
+}
+
 const networks = {
   eos: {
     name: 'eos',
@@ -37,7 +84,7 @@ const networks = {
     host: 'eos.greymass.com',
     port: 443,
     protocol: 'https',
-    monitor: 'http://bloks.io',
+    monitor: 'https://explorer.alcor.exchange/eos',
     monitor_params: '',
     lightapi: 'https://eos.light-api.net',
     hyperion: 'https://eos.eosusa.io',
@@ -116,6 +163,40 @@ const networks = {
     ],
     CEX_CONTRACTS: [],
 
+    // Exchange wallets besides the deposit accounts in CEX_CONTRACTS: hot, cold and
+    // withdrawal wallets, each confirmed by its transfers. Tokens on an exchange belong
+    // to its users, so the holder distribution does not count them as one wallet's stack.
+    EXCHANGE_ACCOUNTS: [
+      'eosbndeposit', 'maineosofbin', 'binancecleos', 'binancecold2', 'binancestaka',
+      'binancestake', 'useosdeposit', 'useosofbinan', 'eosupbitsusr', 'eosupbitcold',
+      'eosupbitsnd1', 'eosupbitsnd2', 'eosupbitsnd3', 'eosupbitsnd4', 'eosupbitsnd5',
+      'bithumbrecv1', 'bithumbsenda', 'qlteossthumb', 'ghleossthumb', 'okxeoswltxaa',
+      'okxeoswltxca', 'okxeoswltxda', 'okxeoswltxfa', 'okxeoswltxga', 'okxeoswltaad',
+      'okxeoswltaag', 'okxeoswltaaj', 'okxeoscoldxa', 'okxeoscoldxd', 'okxeoscoldac',
+      'okxstakeseos', 'okbtothemoon', 'bybitdeposit', 'eosdididada2', 'eosdididada3',
+      'eurbybitdepo', 'eurbybitdida', 'tokenbybit11', 'krakenkraken', 'krakeneukrak',
+      'krakenkrakus', 'krakenkrakco', 'krakenkrakca', 'kcdeposit4in', 'kucoinrise11',
+      'kucoinrise12', 'kucoinatwarm', 'huobideposit', 'vuniyuoxoeub', 'gateiowallet',
+      'bitgeteosdep', 'mxcexdeposit', 'coinbasebase', 'coinonekorea', 'coinonewallt',
+      'coinonecold1', 'bitfinexdep1', 'bitfinexcw55', 'eosuscoldcdc', 'eoscacoldcdc',
+      'ccomtranseos', 'jababcdefgh1', 'korbiteosdep', 'korbiteosact', 'hitbtcpayins',
+      'hitbtcpayout', 'paribuwallet', 'whitebitcom1', 'coinspoteos1', 'gopaxdeposit',
+      'bigpoloniex3', 'coinwwallet3', 'bitruebitrue', 'phemexprd252', 'biconomyaddr',
+      'wlxdepositos', 'xt2234554322', 'eos11bitmart', 'lbank2wallet', 'cceosdeposit',
+      'probitandeos', 'coinex2e2hot', 'indodaxwarm1',
+    ],
+
+    // Contracts that custody other accounts' tokens (staking, REX, RAM, bridges, farm
+    // rewards). The holder distribution counts them apart from wallets, like pooled liquidity.
+    PROTOCOL_ACCOUNTS: [
+      'eosio.stake', 'eosio.rex', 'eosio.ram', 'core.vaulta', 'reward.alcor', 'bridge.alcor',
+    ],
+
+    // Accounts tokens are burned into: their balance is retired supply.
+    BURN_ACCOUNTS: [
+      'eosio.null',
+    ],
+
     nftMarket: {
       contract: 'alcornftswap',
     },
@@ -132,24 +213,35 @@ const networks = {
       'wram-eosio.wram',
     ],
 
-    GLOBAL_TOKENS: [
-      'eos-eosio.token',
-      'usdt-tethertether',
-      'wram-eosio.wram',
-      'pgl-prospectorsg',
-      'wax-ibc.wt.wax',
-      'chex-chexchexchex',
-      'iq-everipediaiq',
-      'box-token.defi',
-      'efx-effecttokens',
-      'wombat-wombatbridge',
-      'mlnk-swap.pcash',
-    ]
+    // Tokens taken as $1: price anchors for every other token's USD price.
+    STABLE_TOKENS: ['usdt-tethertether', 'usdc-wrap.alcor'],
+
+    // Trusted regardless of their score: bridged blue chips backed 1:1.
+    TRUSTED_TOKENS: [],
+
+    // CoinMarketCap UCIDs reported in the CMC / CoinGecko feeds (base_cmc_ucid,
+    // target_cmc_ucid). Bridged tokens backed 1:1 carry their origin asset's UCID.
+    // A pair where both tokens are listed here also gets a global_ticker_id.
+    CMC_IDS: {
+      'eos-eosio.token': 1765,
+      'a-core.vaulta': 36462,
+      'usdt-tethertether': 825,
+      'usdc-wrap.alcor': 3408,
+      'wax-ibc.wt.wax': 2300,
+      'chex-chexchexchex': 8534,
+      'iq-everipediaiq': 2930,
+      'efx-effecttokens': 2666,
+      'mlnk-swap.pcash': 20603,
+      'pbtc-btc.ptokens': 5434,
+      'usdcash-token.pcash': 28529,
+      'sbet-sportbetsbet': 6591,
+    },
   },
 
   proton: {
     name: 'proton',
     desc: 'XPR',
+    alcorSlug: 'xpr',
     contract: 'alcor',
 
     baseToken: {
@@ -167,7 +259,7 @@ const networks = {
     host: 'proton.greymass.com',
     port: 443,
     protocol: 'https',
-    monitor: 'https://explorer.xprnetwork.org',
+    monitor: 'https://explorer.alcor.exchange/proton',
     monitor_params: '',
     lightapi: 'https://proton.light-api.net',
     hyperion: 'https://proton.eu.eosamsterdam.net',
@@ -262,6 +354,27 @@ const networks = {
     ],
     CEX_CONTRACTS: [],
 
+    // Exchange wallets besides the deposit accounts in CEX_CONTRACTS: hot, cold and
+    // withdrawal wallets, each confirmed by its transfers. Tokens on an exchange belong
+    // to its users, so the holder distribution does not count them as one wallet's stack.
+    EXCHANGE_ACCOUNTS: [
+      'bithumbxprr1', 'bithumbxprs1', 'bithumbxprs2', 'bithumbxprw1', 'qltxprrthumb',
+      'qltxprthumb3', 'kcdeposit4in', 'kucoinrise15', 'kucoinrise21', 'kucoindotxpr',
+      'gatedeposit', 'mexcloanloan', 'bitgetxpr', 'coinspotxpr1', 'hitbtcxprins', 'hitbtcxprout',
+      'mpcustodial',
+    ],
+
+    // Contracts that custody other accounts' tokens (staking, REX, RAM, bridges, farm
+    // rewards). The holder distribution counts them apart from wallets, like pooled liquidity.
+    PROTOCOL_ACCOUNTS: [
+      'stake.proton', 'eosio.ram', 'reward.alcor', 'bridge.alcor',
+    ],
+
+    // Accounts tokens are burned into: their balance is retired supply.
+    BURN_ACCOUNTS: [
+      'token.burn', 'eosio.null',
+    ],
+
     nftMarket: {
       contract: 'alcornftswap',
     },
@@ -269,7 +382,45 @@ const networks = {
     USD_TOKEN: 'xusdc-xtokens',
 
     popularTokens: ['xpr-eosio.token', 'xusdt-xtokens', 'xusdc-xtokens', 'clan-clanx', 'atom-tokencreate'],
-    GLOBAL_TOKENS: [],
+
+    // Tokens taken as $1: price anchors for every other token's USD price.
+    STABLE_TOKENS: ['xusdc-xtokens', 'xusdt-xtokens', 'usdt-wrap.alcor', 'usdc-wrap.alcor'],
+
+    // Trusted regardless of their score: bridged blue chips backed 1:1.
+    TRUSTED_TOKENS: [],
+
+    // CoinMarketCap UCIDs reported in the CMC / CoinGecko feeds (base_cmc_ucid,
+    // target_cmc_ucid). Bridged tokens backed 1:1 carry their origin asset's UCID.
+    // A pair where both tokens are listed here also gets a global_ticker_id.
+    CMC_IDS: {
+      'xpr-eosio.token': 5350,
+      'usdt-wrap.alcor': 825,
+      'usdc-wrap.alcor': 3408,
+      'xusdc-xtokens': 3408,
+      'xusdt-xtokens': 825,
+      'xbtc-xtokens': 1,
+      'xeth-xtokens': 1027,
+      'xmt-xtokens': 1788,
+      'xxrp-xtokens': 52,
+      'xxlm-xtokens': 512,
+      'xpax-xtokens': 3330,
+      'metal-xtokens': 21769,
+      'xsol-xtokens': 5426,
+      'xdoge-xtokens': 74,
+      'xhbar-xtokens': 4642,
+      'xdc-xtokens': 2634,
+      'xpyusd-xtokens': 27772,
+      'xpaxg-xtokens': 4705,
+      'xltc-xtokens': 2,
+      'xada-xtokens': 2010,
+      'xbnb-xtokens': 1839,
+      'xeuroc-xtokens': 20641,
+      'xeos-xtokens': 1765,
+      'xbch-xtokens': 1831,
+      'xuni-xtokens': 7083,
+      'xmd-xmd.token': 38457,
+      'loan-loan.token': 22071,
+    },
   },
 
   xprtest: {
@@ -348,7 +499,9 @@ const networks = {
     USD_TOKEN: '',
 
     popularTokens: ['xpr-eosio.token'],
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   ux: {
@@ -373,7 +526,7 @@ const networks = {
     protocol: 'https',
     monitor: 'https://explorer.uxnetwork.io',
     monitor_params: '',
-    lightapi: 'https://wax.light-api.net',
+    lightapi: null, // LightAPI does not serve UX
     hyperion: 'https://ux.eosusa.io',
 
     //hyperion: 'https://wax.pink.gg/',
@@ -442,12 +595,15 @@ const networks = {
     USD_TOKEN: '',
 
     popularTokens: [],
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   wax: {
     name: 'wax',
     desc: 'WAX',
+    alcorSlug: 'wax',
     contract: 'alcordexmain',
     cpuPayer: 'https://wax.alcor.exchange/api/v2/cpu',
 
@@ -467,7 +623,7 @@ const networks = {
     host: 'wax.greymass.com',
     port: 443,
     protocol: 'https',
-    monitor: 'https://waxblock.io',
+    monitor: 'https://explorer.alcor.exchange/wax',
     monitor_params: '',
     lightapi: 'https://wax.light-api.net',
     //hyperion: 'https://wax-history.eosdac.io',
@@ -583,6 +739,31 @@ const networks = {
       'bithumbwaxr1',
     ],
 
+    // Exchange wallets besides the deposit accounts in CEX_CONTRACTS: hot, cold and
+    // withdrawal wallets, each confirmed by its transfers. Tokens on an exchange belong
+    // to its users, so the holder distribution does not count them as one wallet's stack.
+    EXCHANGE_ACCOUNTS: [
+      'waxofbinance', 'fr14kr5oqfpg', 'binanceusdep', 'binanceuswdr', 'upbitswaxusr',
+      'waxupbitcold', 'waxupbitsnd1', 'waxupbitsnd2', 'qltwaxxthumb', 'bithumbsendw',
+      'okxwaxwltxaa', 'okxwaxwltxeb', 'okxwalletaac', 'okxwalletaae', 'okxwalletaag',
+      'okxcoldwaaac', 'okxtothemars', 'bybitwaxonly', 'waxdididada3', 'kucoinrise25',
+      'wxpjevuzwo35', 'cryptocomrow', 'cryptocomuae', 'ccomtranswax', 'cdcusirawax1',
+      'waxuscoldcdc', 'waxcacoldcdc', 'waxpwaxpmexc', 'gateioiowaxp', 'waxponbitget',
+      'coinspotwaxp', 'korbitwaxdep', 'korbitwaxact', 'hitbtcwaxins', 'hitbtcwaxout',
+      'waxpwhitebit', 'xtmainwallet',
+    ],
+
+    // Contracts that custody other accounts' tokens (staking, REX, RAM, bridges, farm
+    // rewards). The holder distribution counts them apart from wallets, like pooled liquidity.
+    PROTOCOL_ACCOUNTS: [
+      'eosio.stake', 'eosio.rex', 'eosio.ram', 'bridge.wax', 'reward.alcor', 'bridge.alcor',
+    ],
+
+    // Accounts tokens are burned into: their balance is retired supply.
+    BURN_ACCOUNTS: [
+      'eosio.null',
+    ],
+
     nftMarket: {
       contract: 'alcornftswap',
     },
@@ -598,23 +779,38 @@ const networks = {
       'blux-bluxbluxblux'
     ],
 
-    GLOBAL_TOKENS: [
-      'usdt-usdt.alcor',
-      'eos-ibc.wt.eos',
-      'wax-eosio.token',
-      'tlos-ibc.wt.tlos',
-      'pgl-prospectorsg',
-      'tlm-alien.worlds',
-      'brwl-brawlertoken',
-      'wombat-wombattokens',
-      'martia-martia',
-      'wuf-wuffi'
-    ],
+    // Tokens taken as $1: price anchors for every other token's USD price.
+    STABLE_TOKENS: ['usdt-usdt.alcor', 'usdt-wrap.alcor', 'usdc-wrap.alcor'],
+
+    // Trusted regardless of their score: bridged blue chips backed 1:1.
+    TRUSTED_TOKENS: ['eth-wrap.alcor', 'bnb-wrap.alcor', 'pol-wrap.alcor'],
+
+    // CoinMarketCap UCIDs reported in the CMC / CoinGecko feeds (base_cmc_ucid,
+    // target_cmc_ucid). Bridged tokens backed 1:1 carry their origin asset's UCID.
+    // A pair where both tokens are listed here also gets a global_ticker_id.
+    CMC_IDS: {
+      'wax-eosio.token': 2300,
+      'usdt-wrap.alcor': 825,
+      'usdc-wrap.alcor': 3408,
+      'eth-wrap.alcor': 1027,
+      'bnb-wrap.alcor': 1839,
+      'pol-wrap.alcor': 28321,
+      'usdt-usdt.alcor': 825,
+      'eos-ibc.wt.eos': 1765,
+      'tlos-ibc.wt.tlos': 4660,
+      'tlm-alien.worlds': 9119,
+      'brwl-brawlertoken': 19216,
+      'dust-niftywizards': 6759,
+      'nefty-token.nefty': 23224,
+      'martia-martia': 17895,
+      'wuf-wuffi': 30683,
+    },
   },
 
   telos: {
     name: 'telos',
     desc: 'Telos',
+    alcorSlug: 'telos',
     contract: 'eostokensdex',
 
     baseToken: {
@@ -633,7 +829,7 @@ const networks = {
     //host: 'mainnet.telos.net',
     port: 443,
     protocol: 'https',
-    monitor: 'https://explorer.telos.net',
+    monitor: 'https://explorer.alcor.exchange/telos',
     monitor_params: '',
     lightapi: 'https://telos.light-api.net',
     //hyperion: 'https://hyperion.telosgermany.io/v2/',
@@ -686,6 +882,26 @@ const networks = {
     SCAM_CONTRACTS: ['usdcoinchain', 'bosibc.io'],
     CEX_CONTRACTS: [],
 
+    // Exchange wallets besides the deposit accounts in CEX_CONTRACTS: hot, cold and
+    // withdrawal wallets, each confirmed by its transfers. Tokens on an exchange belong
+    // to its users, so the holder distribution does not count them as one wallet's stack.
+    EXCHANGE_ACCOUNTS: [
+      'gateioiotlos', 'mexcmexctlos', 'htxtlosmjuxn', 'htxtlosjfhog', 'bitgetdetlos',
+      'bitmart4tlos', 'kcdeposit4in', 'kucoin4telos', 'kucoinrise22', 'kucoinrise23',
+      'probittloscd', 'bfxtelos1111', 'bitruewallet', 'p2pb2bwallet',
+    ],
+
+    // Contracts that custody other accounts' tokens (staking, REX, RAM, bridges, farm
+    // rewards). The holder distribution counts them apart from wallets, like pooled liquidity.
+    PROTOCOL_ACCOUNTS: [
+      'eosio.stake', 'eosio.rex', 'eosio.ram', 'eosio.evm', 'reward.alcor', 'bridge.alcor',
+    ],
+
+    // Accounts tokens are burned into: their balance is retired supply.
+    BURN_ACCOUNTS: [
+      'eosio.null',
+    ],
+
     nftMarket: {
       contract: 'alcornftswap',
     },
@@ -704,10 +920,32 @@ const networks = {
       },
     },
 
-    USD_TOKEN: 'xusdc-xtokens',
+    USD_TOKEN: 'usdt-wrap.alcor',
 
     popularTokens: [],
-    GLOBAL_TOKENS: [],
+
+    // Tokens taken as $1: price anchors for every other token's USD price.
+    STABLE_TOKENS: ['usdt-wrap.alcor', 'usdc-wrap.alcor'],
+
+    // Trusted regardless of their score: bridged blue chips backed 1:1.
+    TRUSTED_TOKENS: ['eth-wrap.alcor', 'wax-wrap.alcor', 'bnb-wrap.alcor', 'pol-wrap.alcor'],
+
+    // CoinMarketCap UCIDs reported in the CMC / CoinGecko feeds (base_cmc_ucid,
+    // target_cmc_ucid). Bridged tokens backed 1:1 carry their origin asset's UCID.
+    // A pair where both tokens are listed here also gets a global_ticker_id.
+    CMC_IDS: {
+      'tlos-eosio.token': 4660,
+      'usdt-wrap.alcor': 825,
+      'usdc-wrap.alcor': 3408,
+      'eth-wrap.alcor': 1027,
+      'bnb-wrap.alcor': 1839,
+      'pol-wrap.alcor': 28321,
+      'wax-wrap.alcor': 2300,
+      'xpr-wrap.alcor': 5350,
+      'a-wrap.alcor': 36462,
+      'pbtc-btc.ptokens': 5434,
+      'eos-ibc.wt.eos': 1765,
+    },
   },
 
   ultra: {
@@ -799,7 +1037,9 @@ const networks = {
     USD_TOKEN: '',
 
     popularTokens: [],
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   waxtest: {
@@ -866,7 +1106,9 @@ const networks = {
     },
 
     popularTokens: [],
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   jungle: {
@@ -917,7 +1159,9 @@ const networks = {
     },
 
     popularTokens: [],
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   local: {
@@ -980,6 +1224,10 @@ const networks = {
     nftMarket: {
       contract: 'nft',
     },
+
+    STABLE_TOKENS: [],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   // Our own single-producer Wire chain. Not the public Wire testnet — that one
@@ -1073,11 +1321,12 @@ const networks = {
       'test-testtoken',
     ],
 
-    GLOBAL_TOKENS: [],
+    STABLE_TOKENS: ['usdt-testtoken'],
+    TRUSTED_TOKENS: [],
+    CMC_IDS: {},
   },
 
   popularTokens: [],
-  GLOBAL_TOKENS: [],
 }
 
 // Default markes layouts
@@ -1370,6 +1619,7 @@ module.exports = {
   TRADE_LAYOUTS,
   IBC_NETWORKS: [networks.eos, networks.telos, networks.ux, networks.wax],
   NFT_LIST_ITEM_PP: 8,
+  CMC_SYMBOLS,
 
   networks,
 }

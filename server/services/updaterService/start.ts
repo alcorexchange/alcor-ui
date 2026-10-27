@@ -1,7 +1,7 @@
 import schedule from 'node-schedule'
 
 import config from '../../../config'
-import { initialUpdate as swapInitialUpdate } from '../swapV2Service'
+import { initialUpdate as swapInitialUpdate, flushSwapBatchBefore } from '../swapV2Service'
 
 import { getSettings } from '../../utils'
 import { getChain } from '../chain'
@@ -9,7 +9,7 @@ import { updateGlobalStats } from './analytics'
 import { updateMarkets, newMatch } from './markets'
 import { newSwapAction, updatePoolsStats, updatePositionsAggregation } from './swap'
 import { updateLpLeaderboard } from './lpLeaderboard'
-import { updateCMSucid, updateSystemPrice, updateTokensPrices } from './prices'
+import { updateSystemPrice, updateTokensPrices } from './prices'
 import { updateTokenScores } from './tokenScores'
 import { startTokenHoldersUpdater } from './tokenHolders'
 import { startTokenLogosUpdater } from './tokenLogos'
@@ -57,12 +57,13 @@ export async function updater(chain: string, services: string[]) {
     console.log(`[${chain}] GlobalStats err`, e)
   }
 
-  schedule.scheduleJob('58 * * * *', () => updateGlobalStats(network))
-  setInterval(() => updateGlobalStats(network), 60 * 60 * 1000)
+  // A rejection left unhandled would crash the updater, streamers included.
+  schedule.scheduleJob('58 * * * *', () => updateGlobalStats(network)
+    .catch(e => console.log(`[${chain}] GlobalStats err`, e)))
 
   if (services.includes('prices')) {
     console.log(`[${chain}] Starting price updater...`)
-    await Promise.all([updateSystemPrice(network), updateCMSucid()])
+    await updateSystemPrice(network)
     console.log(`[${chain}] Initial prices fetched, updating token prices...`)
     updateTokensPrices(network)
     setInterval(() => updateSystemPrice(network), 5 * 60 * 1000)
@@ -99,7 +100,8 @@ export async function updater(chain: string, services: string[]) {
       network.amm.contract,
       ['logmint', 'logswap', 'logburn', 'logpool', 'logcollect', 'transferpos', 'logtransfer', 'loglock'],
       newSwapAction,
-      300
+      300,
+      nextBlock => flushSwapBatchBefore(chain, nextBlock)
     )
       .catch(e => { console.log(`[${chain}:${network.amm.contract}] Streamer error:`, e.message); process.exit(1) })
   }

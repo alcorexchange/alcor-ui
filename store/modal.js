@@ -1,3 +1,5 @@
+import { op } from '~/plugins/openpanel'
+
 export const state = () => ({
   current: '',
   visible: false,
@@ -12,6 +14,7 @@ export const mutations = {
 
 export const actions = {
   login({ commit }, context) {
+    op.track('wallet_modal_opened')
     commit('setCurrent', 'login')
     commit('setVisible', true)
     context && commit('setModalContext', context)

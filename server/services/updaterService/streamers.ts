@@ -5,6 +5,7 @@ const { Api } = require('enf-eosjs')
 
 import { Match, Swap, Settings } from '../../models'
 import { getSettings, sleep } from '../../utils'
+import type { ActionCallback, ProgressCallback } from '../chain/types'
 
 const ABI_TIMEOUT_MS = Number(process.env.ABI_FETCH_TIMEOUT_MS) || 8000
 
@@ -22,6 +23,16 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 
 export function getAccountAsKey(account: string) {
   return account.replace('.', '-')
+}
+
+// Records that every block before `nextBlock` is processed. `onProgress` runs first, so
+// whatever the callbacks still hold of those blocks is stored by the time the mark moves.
+export async function saveProgress(network: any, account: string, nextBlock: number, onProgress?: ProgressCallback) {
+  if (onProgress) await onProgress(nextBlock)
+
+  const $set: any = {}
+  $set[`last_block_num.${getAccountAsKey(account)}`] = nextBlock
+  await Settings.updateOne({ chain: network.name }, { $set })
 }
 
 // Get nodes for ABI fetch (direct node first, then main + client nodes)
@@ -264,7 +275,14 @@ export async function streamByGreymass(network: any, account: string, callback: 
   }
 }
 
-export async function streamByTrace(network: any, account: string, callback: Function, actions: string[], delay = 500) {
+export async function streamByTrace(
+  network: any,
+  account: string,
+  callback: ActionCallback,
+  actions: string[],
+  delay = 500,
+  onProgress?: ProgressCallback
+) {
   console.info(`[${network.name}] Starting trace streamer for ${account}...`)
 
   const directNode = process.env[network.name.toUpperCase() + '_DIRECT_NODE']
@@ -381,10 +399,7 @@ export async function streamByTrace(network: any, account: string, callback: Fun
             processed++
           }
 
-          // Save progress after batch
-          const $set: any = {}
-          $set[`last_block_num.${getAccountAsKey(account)}`] = currentBlock
-          await Settings.updateOne({ chain: network.name }, { $set })
+          await saveProgress(network, account, currentBlock, onProgress)
 
           // Log progress with lag info (only every ~100 blocks to avoid spamming get_info)
           if (currentBlock % 100 < PREFETCH_SIZE + 1) {
@@ -410,10 +425,7 @@ export async function streamByTrace(network: any, account: string, callback: Fun
         await processBlock(block)
         currentBlock++
 
-        // Save progress
-        const $set: any = {}
-        $set[`last_block_num.${getAccountAsKey(account)}`] = currentBlock
-        await Settings.updateOne({ chain: network.name }, { $set })
+        await saveProgress(network, account, currentBlock, onProgress)
 
       } catch (blockError: any) {
         const errorMessage = blockError.message || ''
@@ -441,9 +453,7 @@ export async function streamByTrace(network: any, account: string, callback: Fun
               currentBlock++
               notFoundRetries = 0
               // Save progress immediately to avoid restart loop
-              const $set: any = {}
-              $set[`last_block_num.${getAccountAsKey(account)}`] = currentBlock
-              await Settings.updateOne({ chain: network.name }, { $set })
+              await saveProgress(network, account, currentBlock, onProgress)
             }
           } else {
             await sleep(backoffTime)

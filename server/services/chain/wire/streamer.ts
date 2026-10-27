@@ -1,7 +1,6 @@
-import { Settings } from '../../../models'
 import { sleep } from '../../../utils'
-import { getAccountAsKey, getStartingBlock } from '../../updaterService/streamers'
-import type { ActionCallback } from '../types'
+import { getStartingBlock, saveProgress } from '../../updaterService/streamers'
+import type { ActionCallback, ProgressCallback } from '../types'
 
 // Wire's trace_api can filter action traces server-side over a block range and
 // hands back the ABI-decoded payload in `params`. That removes the two most
@@ -23,13 +22,6 @@ function normalizeAction(action: any) {
     block_num: action.block_num,
     block_time: action.block_time,
   }
-}
-
-async function saveProgress(network: Network, account: string, blockNum: number) {
-  const $set: any = {}
-  $set[`last_block_num.${getAccountAsKey(account)}`] = blockNum
-
-  await Settings.updateOne({ chain: network.name }, { $set })
 }
 
 async function resolveStartingBlock(network: Network, account: string, rpc: any): Promise<number> {
@@ -55,7 +47,8 @@ export async function streamByWireActions(
   rpc: any,
   callback: ActionCallback,
   names: string[],
-  delay = 500
+  delay = 500,
+  onProgress?: ProgressCallback
 ): Promise<never> {
   const wanted = new Set(names)
   const matchAll = wanted.has('*')
@@ -114,7 +107,7 @@ export async function streamByWireActions(
       const caughtUp = scannedTo < requestedEnd
 
       cursor = scannedTo + 1
-      await saveProgress(network, account, cursor)
+      await saveProgress(network, account, cursor, onProgress)
 
       if (caughtUp) {
         await sleep(delay)

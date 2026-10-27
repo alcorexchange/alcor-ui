@@ -9,6 +9,7 @@ import { getScamLists } from './config'
 import { getProtonTokenRegistryEntry } from '../protonTokenRegistryService'
 import { getSimpleTokenLogoUrl } from '../simpleTokenLogoService'
 import { getTokenRegistryLogo } from '../tokenRegistryService'
+import { isSuppressedTokenLogo } from '../tokenLogoDenylist'
 
 export const tokens = Router()
 
@@ -59,6 +60,14 @@ tokens.get('/tokens/:id/logo', async (req, res) => {
   const network: Network = req.app.get('network')
   const id = req.params.id.toLowerCase()
   const [symbol, contract] = id.split('-')
+
+  // Reject before any local/on-chain/external lookup: removing a PNG alone
+  // would expose another branded image through a fallback.
+  if (isSuppressedTokenLogo(network.name, symbol, contract)) {
+    res.set('Cache-Control', 'no-store')
+    res.status(404).send('Icon not found')
+    return
+  }
 
   // Highest priority: on-chain token_registry metadata (mutable, so use a
   // temporary redirect with a short cache instead of a permanent 301).
@@ -116,9 +125,6 @@ tokens.get('/tokens/:id', cacheSeconds(2, (req, res) => {
 
   const tokens = await getTokens(network.name)
   const token = tokens.find(t => t.id == req.params.id.toLowerCase())
-
-  // Add CMC_UCID
-  const cmc_ucids = await getRedis().get('CMC_UCIDS')
 
   if (!token) return res.status(403).send('Token with this ID is not found')
 

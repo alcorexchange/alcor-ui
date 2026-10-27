@@ -61,6 +61,16 @@ async function markPoolFirstSeen(chain: string, poolId: any, blockTime: any) {
   }
 }
 
+// Stores the chain's pending batch once the streamer is past its block, so the swaps of
+// every block before `nextBlock` are in the DB when the streamer marks them processed.
+export async function flushSwapBatchBefore(chain: string, nextBlock: number) {
+  const batch = chainBatches.get(chain)
+  if (!batch || batch.block_num >= nextBlock) return
+
+  await flushSwapBatch(chain, batch)
+  chainBatches.delete(chain)
+}
+
 // Flush all pending batches (for graceful shutdown)
 export async function flushAllSwapBatches() {
   for (const [chain, batch] of chainBatches) {
@@ -156,6 +166,8 @@ async function flushSwapBatch(chain: string, batch: SwapBatch) {
       totalUSDVolume,
       tokenA: tokenAamount,
       tokenB: tokenBamount,
+      reserveA: parseAssetPlain(data.reserveA).amount,
+      reserveB: parseAssetPlain(data.reserveB).amount,
       time: swapTime,
       block_num,
     }
@@ -392,17 +404,18 @@ async function handlePoolChart(
   //const minResolution = 60 * 60 // One hour
   const minResolution = 60 // FIXME
   if (last_point && Math.floor(Number(last_point.time) / 1000 / minResolution) == Math.floor(new Date(block_time).getTime() / 1000 / minResolution)) {
-    last_point.price = littleEndianToDesimalString(sqrtPriceX64)
-
-    last_point.reserveA = reserveA
-    last_point.reserveB = reserveB
-
-    last_point.usdReserveA = usdReserveA
-    last_point.usdReserveB = usdReserveB
-
-    last_point.volumeUSD += volumeUSD
-
-    return await last_point.save()
+    // $inc, not read-modify-save: a mint/burn and a swap batch can update the same
+    // point at once, and a save would drop the volume the other one added.
+    return await SwapChartPoint.updateOne({ _id: last_point._id }, {
+      $set: {
+        price: littleEndianToDesimalString(sqrtPriceX64),
+        reserveA,
+        reserveB,
+        usdReserveA,
+        usdReserveB,
+      },
+      $inc: { volumeUSD },
+    })
   } else {
     return await SwapChartPoint.create({
       chain,
@@ -962,6 +975,8 @@ export async function handleSwap({ chain, data, trx_id, block_time, block_num })
     totalUSDVolume,
     tokenA: tokenAamount,
     tokenB: tokenBamount,
+    reserveA: parseAssetPlain(data.reserveA).amount,
+    reserveB: parseAssetPlain(data.reserveB).amount,
     time: block_time,
     block_num,
   })
@@ -1082,6 +1097,6 @@ export async function onSwapAction(message: string) {
       sqrtPriceX64,
       parseAssetPlain(data.reserveA).amount,
       parseAssetPlain(data.reserveB).amount,
-    )
+    ).catch(e => console.error(`[${chain}] pool chart update error:`, e.message))
   }
 }

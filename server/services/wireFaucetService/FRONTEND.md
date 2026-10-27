@@ -105,6 +105,9 @@ npm i @wireio/sdk-core
 
 ## Кошельки: что реально работает
 
+Таблица — **про подпись транзакций**. Регистрация принимает все четыре типа:
+ключ просто ложится в аккаунт, подписывать для этого ничего не нужно.
+
 EM и ED проверены пушем настоящей транзакции на живую цепь, K1 работает у бека.
 WA не проверялся: подписывать им нечем, в SDK нет клиентской части.
 
@@ -131,24 +134,49 @@ keccak256, то есть MetaMask подписывает обычным `persona
 
 ## Регистрация
 
+Ключ Wire собирать не надо: `/register` принимает то, что кошелёк отдал как есть,
+и переводит сам (30.08.2026). В ответе `pubkey` — уже ключ Wire, им же потом
+логиниться.
+
 ```js
-const res = await fetch("https://wax.alcor.exchange/api/v2/wire-test/register", {
-  method: "POST",
-  headers: { "content-type": "application/json" },
-  body: JSON.stringify({ pubkey }),   // PUB_EM_...
-})
-const { account, created } = await res.json()
+const register = (body) =>
+  fetch("https://wiretest.alcor.exchange/api/v2/wire-test/register", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  }).then((r) => r.json())
+
+// MetaMask/Rabby: адреса мало, нужна одна подпись — см. ниже
+await register({ message: msg, signature: await signer.signMessage(msg) })
+
+// Phantom/Solflare: пабкей есть сразу
+await register({ pubkey: wallet.publicKey.toBase58() })
+
+// passkey: ключ credential'а + домен, к которому он привязан
+const spki = new Uint8Array(credential.response.getPublicKey())
+await register({ pubkey: base64url(spki), rpId: location.hostname })
+
+// уже готовый ключ Wire
+await register({ pubkey: "PUB_EM_..." })
 ```
 
-Лимит — 2 аккаунта на IP за скользящие 24 часа. Коды ответа — в `README.md`.
+Ответ: `{ account, pubkey, source, policy, created }`. Лимит — 2 аккаунта на IP
+за скользящие 24 часа. Коды и полный список форматов — в [README.md](README.md).
 
-⚠️ Бить **сразу в `wax.alcor.exchange`**: на `alcor.exchange/api/*` висит
-301-редирект Cloudflare, а `fetch` на 301 превращает POST в GET и теряет тело.
+⚠️ Бить в **сабдомен** — `wiretest.alcor.exchange`, тот же, что отдаёт фронт и
+API: на голом `alcor.exchange/api/*` висит 301-редирект Cloudflare, а `fetch` на
+301 превращает POST в GET и теряет тело.
 
-### Откуда взять pubkey из MetaMask
+### Почему у MetaMask просят подпись
 
-Адрес Ethereum — это `keccak(pubkey)[12:]`, обратно пабкей не достаётся. Значит
-нужна одна подпись на регистрации:
+Адрес Ethereum — это `keccak(pubkey)[12:]`, обратно пабкей не достаётся. Одна
+`personal_sign` на регистрации — единственный способ его получить; бек делает
+recover сам и заодно убеждается, что ключ твой. `message` — обычный текст.
+
+Если пабкей у фронта уже есть (например, восстановлен на логине), можно слать
+его: `{ pubkey: "0x04…" }` или `{ pubkey: "0x02…" }` — сожмётся на беке.
+
+Считать самому больше не нужно, но если очень хочется — так:
 
 ```js
 const sig = await signer.signMessage(msg)                       // personal_sign
@@ -165,6 +193,22 @@ got 65`. В `WIRE_NOTES.md:122` записано «`PUB_EM_` = `04` + hex» — 
 
 Проверено на ethers 5.8.0: собранный так ключ парсится SDK и совпадает
 с `toString()` байт-в-байт.
+
+### Подпись как доказательство
+
+`signature` можно приложить и к готовому `pubkey` — тогда бек проверит, что ключ
+твой (EVM: recover, Solana: ed25519 verify), и откажет при несовпадении. Для
+`PUB_K1_` и passkey проверять нечем, там подпись не принимается.
+
+### Passkey
+
+`getPublicKey()` отдаёт SPKI (91 байт для P-256) — его и слать, base64url или hex;
+сырую точку (65 или 33 байта) бек тоже примет. Ключ Wire собирается из точки,
+байта проверки юзера и `rpId`, поэтому `rpId` обязателен, а `presence`
+(`none`/`present`/`verified`, дефолт `present`) — это то, что реально сделал
+аутентификатор: с другим `presence` получится **другой ключ** и другой аккаунт.
+
+Аккаунт заведётся, но подписать им транзакцию пока нечем (см. таблицу выше).
 
 ## Логин
 
@@ -208,7 +252,7 @@ await client.v1.chain.push_transaction(signed)
 Есть эндпоинт (29.08.2026):
 
 ```js
-const res = await fetch("https://wax.alcor.exchange/api/v2/wire-test/faucet", {
+const res = await fetch("https://wiretest.alcor.exchange/api/v2/wire-test/faucet", {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({ account }),

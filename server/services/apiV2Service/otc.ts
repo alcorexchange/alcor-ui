@@ -30,6 +30,15 @@ function parseSortOrder(value: unknown): 'asc' | 'desc' {
   return String(value || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc'
 }
 
+// Number of decimals in an on-chain asset string: "1.00000000 WAX" -> 8
+function quantityPrecision(quantity: string) {
+  const [amount = ''] = quantity.split(' ')
+  const dot = amount.indexOf('.')
+  return dot === -1 ? 0 : amount.length - dot - 1
+}
+
+// Keep the chain's quantity string untouched: fills transfer it verbatim,
+// and eosio.token rejects any other precision ("symbol precision mismatch").
 function parseOtcAsset(asset) {
   if (asset && Object.prototype.hasOwnProperty.call(asset, 'symbol') && Object.prototype.hasOwnProperty.call(asset, 'contract')) {
     const amount = Number.parseFloat(asset.amount)
@@ -39,7 +48,7 @@ function parseOtcAsset(asset) {
       symbol: asset.symbol,
       contract: asset.contract,
       amount: normalizedAmount,
-      quantity: `${normalizedAmount.toFixed(4)} ${asset.symbol}`,
+      quantity: asset.quantity || `${normalizedAmount.toFixed(4)} ${asset.symbol}`,
       str: `${asset.symbol}@${asset.contract}`
     }
   }
@@ -54,7 +63,7 @@ function parseOtcAsset(asset) {
     symbol,
     contract,
     amount: normalizedAmount,
-    quantity: `${normalizedAmount.toFixed(4)} ${symbol}`,
+    quantity,
     str: `${symbol}@${contract}`
   }
 }
@@ -297,12 +306,12 @@ otc.get('/history', cacheSeconds(2, (req, res) => {
         buy: {
           ...buy,
           amount: buy.amount / OTC_MATCH_FEE_MULTIPLIER,
-          quantity: `${(buy.amount / OTC_MATCH_FEE_MULTIPLIER).toFixed(4)} ${buy.symbol}`,
+          quantity: `${(buy.amount / OTC_MATCH_FEE_MULTIPLIER).toFixed(quantityPrecision(buy.quantity))} ${buy.symbol}`,
         },
         sell: {
           ...sell,
           amount: sell.amount / OTC_MATCH_FEE_MULTIPLIER,
-          quantity: `${(sell.amount / OTC_MATCH_FEE_MULTIPLIER).toFixed(4)} ${sell.symbol}`,
+          quantity: `${(sell.amount / OTC_MATCH_FEE_MULTIPLIER).toFixed(quantityPrecision(sell.quantity))} ${sell.symbol}`,
         },
         price: calculatePrice(sell, buy)
       }

@@ -8,13 +8,17 @@
       .balance(@click='openInNewTab(monitorAccount(user.name))')
         span {{ systemBalance.split(' ')[0] | commaFloat }}
         span.balance-symbol {{ systemBalance.split(' ')[1] }}
-      ElDropdown(@command="logout")
+      ElDropdown(@command="onCommand")
         .user-name(:class="{ viewOnly: user.viewOnly }")
           span {{ user.name }}
           i.el-icon-arrow-down.text-muted.ml-1
           .view-only-indicator(v-if="user.viewOnly") View-Only
         template(#dropdown)
           ElDropdownMenu
+            //- Alcor Signer: the same offer as the window, always at hand — the window can be closed.
+            ElDropdownItem(v-if="signerReady" command="signer-switch") Switch to Alcor Signer
+            ElDropdownItem(v-else-if="signerAvailable" command="signer-offer") Link to Alcor Signer
+            ElDropdownItem(v-if="signerLevel" command="signer-level") Signing mode: {{ levelLabel[signerLevel] }}
             ElDropdownItem(command="logout") {{ $t('Logout') }}
               //- .d-item(@click='logout')
     AlcorButton.connect-button(
@@ -88,11 +92,13 @@ export default {
     return {
       loading: false,
       showSetting: false, //to show settings modal
+      levelLabel: { passkey: 'Passkey', fast: 'Fast sign', auto: 'Auto sign' },
     }
   },
 
   computed: {
     ...mapGetters(['user', 'systemBalance']),
+    ...mapGetters('signer', { signerReady: 'ready', signerAvailable: 'available', signerLevel: 'level' }),
     ...mapState(['network']),
 
     current_chain() {
@@ -112,6 +118,12 @@ export default {
   methods: {
     async logout() {
       await this.$store.dispatch('chain/logout')
+    },
+    onCommand(command) {
+      if (command === 'logout') return this.logout()
+      if (command === 'signer-offer') return this.$store.dispatch('signer/open')
+      if (command === 'signer-switch') return this.$store.dispatch('signer/switchToSigner')
+      if (command === 'signer-level') return this.$store.dispatch('signer/manageLevel')
     },
     onClickOutside(event) {
       if (this.showSetting) {

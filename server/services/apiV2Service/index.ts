@@ -13,11 +13,16 @@ axiosRetry(axios, { retries: 3 })
 import { initRedis, mongoConnect } from '../../utils'
 import { getRedis, getPublisher } from '../redis'
 import { networkResolver } from '../apiService/middleware'
+import { apiErrorHandler } from '../asyncRouter'
 import { amm as ammV3 } from '../apiV3Service/amm'
 import { analytics as analyticsV3 } from '../apiV3Service/analytics'
 import { swap as swapV3 } from '../apiV3Service/swap'
 import { launchpad as launchpadV3 } from '../apiV3Service/launchpad'
+import { feed as feedV3 } from '../apiV3Service/feed'
+import { cmcFeed as cmcFeedV3 } from '../apiV3Service/cmcFeed'
+import { geckoAdapter } from '../apiV3Service/geckoAdapter'
 import { spot } from './spot'
+import { ammFeed } from './ammFeed'
 import { swap } from './swap'
 import { ibc } from './ibc'
 import { tokens } from './tokens'
@@ -55,12 +60,24 @@ async function start () {
 
   app.use(networkResolver)
 
+  // res.send(string) answers text/html, so a browser would run any markup an error echoes from the
+  // request (`No orderbook market for <svg onload=...>`). The API serves no HTML: a string is plain text.
+  app.use((req, res, next) => {
+    const send = res.send.bind(res)
+    res.send = (body?: any) => {
+      if (typeof body === 'string' && !res.get('Content-Type')) res.type('text/plain')
+      return send(body)
+    }
+    next()
+  })
+
   // Before bodyParser coz use formidable
   app.use(bodyParser.urlencoded({ extended: true }))
   app.use(bodyParser.json())
 
   // Server routes
   app.use('/api/v2/', spot)
+  app.use('/api/v2/amm', ammFeed)
   app.use('/api/v2/', tokens)
   app.use('/api/v2/icons', icons)
   app.use('/api/v2/ibc', ibc)
@@ -76,6 +93,11 @@ async function start () {
   app.use('/api/v3/analytics', analyticsV3)
   app.use('/api/v3/swap', swapV3)
   app.use('/api/v3/launchpad', launchpadV3)
+  app.use('/api/v3/feed/cmc', cmcFeedV3)
+  app.use('/api/v3/feed/gecko', geckoAdapter)
+  app.use('/api/v3/feed', feedV3)
+
+  app.use(apiErrorHandler)
 
   // Listen the server
   const PORT = process.env.PORT || 8000

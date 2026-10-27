@@ -323,6 +323,10 @@ const SwapSchema = new mongoose.Schema({
   tokenA: { type: Number },
   tokenB: { type: Number },
 
+  // The pool's balances after the swap
+  reserveA: { type: Number },
+  reserveB: { type: Number },
+
   time: { type: Date, index: true },
   block_num: { type: Number },
 })

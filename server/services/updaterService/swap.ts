@@ -48,11 +48,12 @@ export async function getChangeFrom(date, pool, chain) {
   const last_deal = await Swap.findOne({ chain, pool }, {}, { sort: { time: -1 } })
 
   if (date_deal && last_deal) {
-    // Use BigInt for uint128_t values to avoid precision loss
-    const price_before = BigInt(date_deal.sqrtPriceX64)
-    const price_after = BigInt(last_deal.sqrtPriceX64)
+    // sqrtPriceX64 is the square root of the price: squared, in BigInt for uint128_t values
+    const sqrt_before = BigInt(date_deal.sqrtPriceX64)
+    const sqrt_after = BigInt(last_deal.sqrtPriceX64)
+    const price_before = sqrt_before * sqrt_before
+    const price_after = sqrt_after * sqrt_after
 
-    // Calculate percentage change using BigInt arithmetic
     // Multiply by 10000 to preserve 2 decimal places
     const change = ((price_after - price_before) * BigInt(10000)) / price_before
     return (Number(change) / 100).toFixed(2)
