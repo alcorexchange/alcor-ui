@@ -29,8 +29,14 @@ export function startUpdaters() {
     // orderbook, so it opts out of 'markets'.
     const services = config.networks[chain]?.services ?? ALL_SERVICES
 
+    // A half-started updater keeps its process alive without the streamers: after ex44's
+    // reboot on 2026-10-27 Redis was still loading, startup failed, and nothing was indexed
+    // for 14 hours. Exit instead, so pm2 starts it again once Redis and Mongo are up.
     limit(() => updater(chain, services))
-      .catch(e => console.error(`Updater for ${chain} failed:`, e))
+      .catch(e => {
+        console.error(`Updater for ${chain} failed, exiting:`, e)
+        process.exit(1)
+      })
   })
 }
 
