@@ -1186,5 +1186,21 @@
       "https://etherscan.io/address/0x3e447d533321ad6a8412f97034ac295a9ff8d858"
     ],
     "description": "ETH from Ethereum, brought to WAX by the Alcor bridge and backed 1:1 by ETH locked in the bridge vault on Ethereum. Every transfer is verified on-chain: light clients on both chains check the other chain's validator signatures, so no relayer or backend is trusted to confirm a transfer. Bridge in or out at alcor.exchange."
+  },
+  "SAT@sattoken1111": {
+    "name": "SAT — Smart Ass Trading",
+    "website": {
+      "link": "https://leef-trader.vercel.app/",
+      "name": "leef-trader.vercel.app"
+    },
+    "tags": [
+      "DeFi",
+      "Trading"
+    ],
+    "socials": [
+      "https://t.me/leefmaincorp",
+      "https://t.me/LEEF_Trader_Bot"
+    ],
+    "description": "SAT (Smart Ass Trading) is the token behind the LEEF Trader platform and Telegram bot, a sub-system of LEEF on WAX. Contract sattoken1111, 4 decimals."
   }
 }
