@@ -8,16 +8,17 @@ export const configRouter = Router()
 const COUNTERFEIT_CACHE_MS = 60_000
 const counterfeitCache = new Map<string, { at: number, ids: string[] }>()
 
-// Known tokens that copy a CANONICAL_TOKENS symbol, recomputed at most once a minute.
+// Known tokens that copy a canonical symbol, recomputed at most once a minute.
 async function getCounterfeitTokenIds(network: Network): Promise<string[]> {
   const canonicalIds = network.CANONICAL_TOKENS || []
-  if (canonicalIds.length === 0) return []
+  const canonicalContracts = network.CANONICAL_CONTRACTS || []
+  if (canonicalIds.length === 0 && canonicalContracts.length === 0) return []
 
   const cached = counterfeitCache.get(network.name)
   if (cached && Date.now() - cached.at < COUNTERFEIT_CACHE_MS) return cached.ids
 
-  const tokens: { id: string }[] = (await getTokens(network.name)) || []
-  const ids = findCounterfeitTokenIds(canonicalIds, tokens.map(t => t.id))
+  const tokens: { id: string, contract: string }[] = (await getTokens(network.name)) || []
+  const ids = findCounterfeitTokenIds(canonicalIds, canonicalContracts, tokens)
   counterfeitCache.set(network.name, { at: Date.now(), ids })
   return ids
 }

@@ -386,11 +386,10 @@ const networks = {
     // Tokens taken as $1: price anchors for every other token's USD price.
     STABLE_TOKENS: ['xusdc-xtokens', 'xusdt-xtokens', 'usdt-wrap.alcor', 'usdc-wrap.alcor'],
 
-    // The only legit issuers of these symbols: XPR, LOAN or a stablecoin from any other
-    // contract is a counterfeit and is treated as scam.
-    CANONICAL_TOKENS: [
-      'xpr-eosio.token', 'loan-loan.token', 'xusdt-xtokens', 'xusdc-xtokens', 'usdt-wrap.alcor', 'usdc-wrap.alcor'
-    ],
+    // The only legit issuers of their symbols: the same symbol from any other contract is a
+    // counterfeit and is treated as scam. Every token of a canonical contract is canonical.
+    CANONICAL_TOKENS: ['xpr-eosio.token', 'loan-loan.token'],
+    CANONICAL_CONTRACTS: ['xtokens', 'wrap.alcor'],
 
     // Trusted regardless of their score: bridged blue chips backed 1:1.
     TRUSTED_TOKENS: [],
@@ -788,6 +787,10 @@ const networks = {
     // Tokens taken as $1: price anchors for every other token's USD price.
     STABLE_TOKENS: ['usdt-usdt.alcor', 'usdt-wrap.alcor', 'usdc-wrap.alcor'],
 
+    // The only legit issuers of their symbols; see proton.
+    CANONICAL_TOKENS: ['wax-eosio.token', 'usdt-usdt.alcor'],
+    CANONICAL_CONTRACTS: ['wrap.alcor'],
+
     // Trusted regardless of their score: bridged blue chips backed 1:1.
     TRUSTED_TOKENS: ['eth-wrap.alcor', 'bnb-wrap.alcor', 'pol-wrap.alcor'],
 
@@ -932,6 +935,10 @@ const networks = {
 
     // Tokens taken as $1: price anchors for every other token's USD price.
     STABLE_TOKENS: ['usdt-wrap.alcor', 'usdc-wrap.alcor'],
+
+    // The only legit issuers of their symbols; see proton.
+    CANONICAL_TOKENS: ['tlos-eosio.token'],
+    CANONICAL_CONTRACTS: ['wrap.alcor'],
 
     // Trusted regardless of their score: bridged blue chips backed 1:1.
     TRUSTED_TOKENS: ['eth-wrap.alcor', 'wax-wrap.alcor', 'bnb-wrap.alcor', 'pol-wrap.alcor'],
