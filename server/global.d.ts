@@ -63,6 +63,8 @@ declare global {
     BANNER_MARKETS: string[]
     SCAM_CONTRACTS: string[]
     SCAM_TOKENS: string[]
+    /** The only legit issuers of these symbols: the same symbol from any other contract is scam */
+    CANONICAL_TOKENS?: string[]
     CEX_CONTRACTS: string[]
     /** Exchange hot, cold and withdrawal wallets besides the deposit accounts in CEX_CONTRACTS */
     EXCHANGE_ACCOUNTS?: string[]

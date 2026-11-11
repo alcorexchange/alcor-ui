@@ -386,6 +386,12 @@ const networks = {
     // Tokens taken as $1: price anchors for every other token's USD price.
     STABLE_TOKENS: ['xusdc-xtokens', 'xusdt-xtokens', 'usdt-wrap.alcor', 'usdc-wrap.alcor'],
 
+    // The only legit issuers of these symbols: XPR, LOAN or a stablecoin from any other
+    // contract is a counterfeit and is treated as scam.
+    CANONICAL_TOKENS: [
+      'xpr-eosio.token', 'loan-loan.token', 'xusdt-xtokens', 'xusdc-xtokens', 'usdt-wrap.alcor', 'usdc-wrap.alcor'
+    ],
+
     // Trusted regardless of their score: bridged blue chips backed 1:1.
     TRUSTED_TOKENS: [],
 

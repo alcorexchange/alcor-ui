@@ -1,7 +1,26 @@
 import { Router, Request, Response } from 'express'
 import { getRedis } from '../redis'
+import { getTokens } from '../../utils'
+import { findCounterfeitTokenIds } from '../counterfeitTokens'
 
 export const configRouter = Router()
+
+const COUNTERFEIT_CACHE_MS = 60_000
+const counterfeitCache = new Map<string, { at: number, ids: string[] }>()
+
+// Known tokens that copy a CANONICAL_TOKENS symbol, recomputed at most once a minute.
+async function getCounterfeitTokenIds(network: Network): Promise<string[]> {
+  const canonicalIds = network.CANONICAL_TOKENS || []
+  if (canonicalIds.length === 0) return []
+
+  const cached = counterfeitCache.get(network.name)
+  if (cached && Date.now() - cached.at < COUNTERFEIT_CACHE_MS) return cached.ids
+
+  const tokens: { id: string }[] = (await getTokens(network.name)) || []
+  const ids = findCounterfeitTokenIds(canonicalIds, tokens.map(t => t.id))
+  counterfeitCache.set(network.name, { at: Date.now(), ids })
+  return ids
+}
 
 export async function getScamLists(network: Network): Promise<{ scam_contracts: Set<string>, scam_tokens: Set<string> }> {
   const staticContracts = network.SCAM_CONTRACTS || []
@@ -10,14 +29,15 @@ export async function getScamLists(network: Network): Promise<{ scam_contracts: 
   try {
     const redis = getRedis()
 
-    const [dynamicContracts, dynamicTokens] = await Promise.all([
+    const [dynamicContracts, dynamicTokens, counterfeitTokens] = await Promise.all([
       redis.sMembers(`scam_contracts_${network.name}`).catch(() => []),
-      redis.sMembers(`scam_tokens_${network.name}`).catch(() => [])
+      redis.sMembers(`scam_tokens_${network.name}`).catch(() => []),
+      getCounterfeitTokenIds(network)
     ])
 
     return {
       scam_contracts: new Set([...staticContracts, ...dynamicContracts]),
-      scam_tokens: new Set([...staticTokens, ...dynamicTokens])
+      scam_tokens: new Set([...staticTokens, ...dynamicTokens, ...counterfeitTokens])
     }
   } catch (e) {
     console.error('Redis error, returning static lists only:', e)
