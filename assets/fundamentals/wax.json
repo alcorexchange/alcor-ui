@@ -1,3 +1,15 @@
+{"AUBAR@trovenblade1": {
+  "name": "AuBAR",
+  "website": {
+    "link": "https://discord.gg/65ytAmchWn",
+    "name": "Discord"
+  },
+  "tags": ["DeFi", "WAX", "Hedge", "LP-Rewards", "Staking", "Deflationary", "NFT"],
+  "socials": [
+    "https://discord.gg"
+  ],
+  "description": "AuBAR: Bringing the gold standard to DeFi. A resilient store of value built to hedge against market volatility, featuring a burn protocol that removes tokens from supply. Rewards for LP providers and staking."
+},
 {  "CRW@chickentoken": {
     "name": "Chick & Rich Wood",
     "website": { "link": "https://chickandrich.com", "name": "chickandrich.com" },
