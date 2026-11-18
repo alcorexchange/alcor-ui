@@ -43,6 +43,12 @@ export function getPoolBounds(feeAmount) {
   }
 }
 
+// Token id `<symbol lower-case>-<contract>` → { symbol, contract }. Symbols carry no '-', contracts may.
+export function parseTokenId(id) {
+  const dash = id.indexOf('-')
+  return { symbol: id.slice(0, dash).toUpperCase(), contract: id.slice(dash + 1) }
+}
+
 export function tryParseCurrencyAmount(value, currency) {
   if (!value || !currency) {
     return undefined
