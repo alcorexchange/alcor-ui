@@ -60,6 +60,20 @@ export function requestSignature(chain, publicKey, actions, onLevel) {
   return request({ kind: 'sign', chain, publicKey, actions }, onLevel)
 }
 
+/**
+ * Open the vault and ask for proof that the person controls `account` on this
+ * chain: Sign-In with Antelope (CAIP-122 under an EIP-191-style prefix). Only
+ * the passkey signs it, on a click. Not a transaction and not a permission to
+ * move funds: whoever checks it must not take it for one.
+ *
+ * `proof`: { account, permission?, statement, nonce, expiresAt } — statement up
+ * to 300 characters on one line, nonce 16–64 letters and digits, expiresAt like
+ * `2026-01-31T12:00:00Z` within an hour. Resolves { message, signature, fields }.
+ */
+export function requestProof(chain, publicKey, proof) {
+  return request({ kind: 'prove', chain, publicKey, ...proof })
+}
+
 const LEVELS = ['passkey', 'fast', 'auto']
 
 let autoFrame = null
@@ -205,9 +219,9 @@ function request(payload, onLevel) {
         popup.postMessage({ type: 'vault:request', reqId, appOrigin: location.origin, ...payload }, VAULT_ORIGIN)
 
         // Handshake done but no answer — the window is alive, the conversation
-        // is not. Only for signing: login may create a new passkey with its 24
-        // words, which honestly takes longer; `closeWatch` covers it.
-        if (payload.kind === 'sign') {
+        // is not. Only for signing and proofs: login may create a new passkey with
+        // its 24 words, which honestly takes longer; `closeWatch` covers it.
+        if (payload.kind === 'sign' || payload.kind === 'prove') {
           answer = setTimeout(
             () => finish(new VaultError('CONNECTION_FAILED', 'Alcor Signer did not answer. Close the window and try again.')),
             180000
