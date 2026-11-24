@@ -58,8 +58,7 @@ export default {
     '订单记录和兑换的所有逻辑都由合约处理，无需任何额外的中心化解决方案.',
   RULES_INFO_3: '合约自动执行兑换，完全去中心化.',
   RULES_INFO_4: '此应用程序仅使用 EOS 公共节点即可运行，无需集中式后端.',
-  RULES_INFO_5:
-    '对于大额交易，将对每个交易对的两个代币各收取 0.25% 的佣金。对于小额交易，将不收取任何佣金.',
+  RULES_INFO_5: 'OTC 交易不收取手续费：双方都按订单中的金额足额收到代币。',
   'Roadmap:': '路线图:',
   RULES_INFO_6: '应用程序的整体全新设计.',
   RULES_INFO_7: '计划首先将开源 Web 应用程序。然后再开源合约部分.',
@@ -515,8 +514,6 @@ export default {
   'When placing a market or limit order there is a .2% exchange fee on only 4 markets. Certain markets will not have fees depending on the Alcor governance decision. This exchange fee goes towards the Alcor development fund':
     'When placing a market or limit order there is a .2% exchange fee on only 4 markets. Certain markets will not have fees depending on the Alcor governance decision. This exchange fee goes towards the Alcor development fund',
   'OTC Transaction': 'OTC Transaction',
-  'Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged This fee also goes towards the Alcor development fund':
-    'Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged This fee also goes towards the Alcor development fund',
   'Fees table': 'Fees table',
   'Market Maker': 'Market Maker',
   'Market Taker': 'Market Taker',

@@ -64,8 +64,7 @@ export default {
     'Обмен исполняется автоматически, исключая возможность влияния третьих лиц.',
   RULES_INFO_4:
     'Это приложение работает без централизованной серверной части и использует только публичный узел EOS.',
-  RULES_INFO_5:
-    'За каждый выполненный обмен, взимается комиссия в 0,25%, при условии, что сумма транзакции достаточна. Если сумма транзакции меньше необходимого минимума, то комиссия взиматься не будет .',
+  RULES_INFO_5: 'Комиссии за OTC-сделки нет: каждая сторона получает ровно те суммы, что указаны в ордере.',
   'Roadmap:': 'Roadmap:',
   RULES_INFO_6: 'Глобальное изменение дизайна приложения.',
   RULES_INFO_7: 'Публикация приложения и контракта в открытом доступе.',
@@ -518,7 +517,6 @@ export default {
   'Market Exchange': 'Market Exchange',
   'When placing a market or limit order there is a .2% exchange fee on only 4 markets. Certain markets will not have fees depending on the Alcor governance decision. This exchange fee goes towards the Alcor development fund': 'When placing a market or limit order there is a .2% exchange fee on only 4 markets. Certain markets will not have fees depending on the Alcor governance decision. This exchange fee goes towards the Alcor development fund',
   'OTC Transaction': 'OTC Transaction',
-  'Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged This fee also goes towards the Alcor development fund': 'Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged This fee also goes towards the Alcor development fund',
   'Fees table': 'Fees table',
   'Market Maker': 'Market Maker',
   'Market Taker': 'Market Taker',

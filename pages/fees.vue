@@ -17,7 +17,7 @@
 
       p
         b {{ $t('OTC Transaction') }}
-        |  - {{ $t('Each exchange is charged a commission of 0.25% for both tokens if the transaction amount is sufficient. Otherwise, for small amounts, no commission will be charged This fee also goes towards the Alcor development fund') }}.
+        |  - {{ $t('RULES_INFO_5') }}
     .read-less(v-if="isMobile && isOpen" @click="toggle") Close
 
   .fees-page__pre
@@ -52,7 +52,7 @@
 
       el-table-column(v-if="!isMobile" :label='$t("OTC")', width='200px')
         template(slot-scope='{row}')
-          span.fee 0.25%
+          span.fee 0%
 </template>
 
 <script>
