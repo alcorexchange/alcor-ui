@@ -8,7 +8,20 @@ import { getScamLists } from './config'
 const DEFAULT_LIMIT = 100
 const MAX_LIMIT = 1000
 const DEFAULT_PRICE_DIGITS = 8
-const OTC_MATCH_FEE_MULTIPLIER = 0.9975
+// Until these deploys the OTC contract took 0.25% from each side and wrote
+// matchrecord amounts after the fee; since then the fee is 0 (Hyperion @timestamp, UTC).
+const OTC_OLD_FEE_MULTIPLIER = 0.9975
+const OTC_ZERO_FEE_SINCE: Record<string, string> = {
+  proton: '2026-11-23T16:50:57.500',
+  wax: '2026-11-24T09:24:42.000',
+  telos: '2026-11-24T09:24:49.500',
+  eos: '2026-11-24T09:37:52.500',
+}
+
+function otcMatchFeeMultiplier(networkName: string, time: string) {
+  const zeroFeeSince = OTC_ZERO_FEE_SINCE[networkName]
+  return zeroFeeSince && time >= zeroFeeSince ? 1 : OTC_OLD_FEE_MULTIPLIER
+}
 
 export const otc = Router()
 
@@ -300,18 +313,19 @@ otc.get('/history', cacheSeconds(2, (req, res) => {
     .map((row) => {
       const buy = parseOtcAsset(row.buy)
       const sell = parseOtcAsset(row.sell)
+      const feeMultiplier = otcMatchFeeMultiplier(network.name, row.time)
 
       return {
         ...row,
         buy: {
           ...buy,
-          amount: buy.amount / OTC_MATCH_FEE_MULTIPLIER,
-          quantity: `${(buy.amount / OTC_MATCH_FEE_MULTIPLIER).toFixed(quantityPrecision(buy.quantity))} ${buy.symbol}`,
+          amount: buy.amount / feeMultiplier,
+          quantity: `${(buy.amount / feeMultiplier).toFixed(quantityPrecision(buy.quantity))} ${buy.symbol}`,
         },
         sell: {
           ...sell,
-          amount: sell.amount / OTC_MATCH_FEE_MULTIPLIER,
-          quantity: `${(sell.amount / OTC_MATCH_FEE_MULTIPLIER).toFixed(quantityPrecision(sell.quantity))} ${sell.symbol}`,
+          amount: sell.amount / feeMultiplier,
+          quantity: `${(sell.amount / feeMultiplier).toFixed(quantityPrecision(sell.quantity))} ${sell.symbol}`,
         },
         price: calculatePrice(sell, buy)
       }
